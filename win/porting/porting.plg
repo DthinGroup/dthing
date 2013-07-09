@@ -1,0 +1,27 @@
+<html>
+<body>
+<pre>
+<h1>Build Log</h1>
+<h3>
+--------------------Configuration: porting - Win32 Debug--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "C:\Users\NIX~1.LON\AppData\Local\Temp\RSP9C9B.tmp" with contents
+[
+/nologo /MLd /W3 /Gm /GX /ZI /Od /I "../../base/inc" /I "../../vm/mm/inc" /I "../../porting/inc" /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /Fp"Debug/porting.pch" /YX /Fo"Debug/" /Fd"Debug/" /FD /GZ /c 
+"D:\nix.long\ReDvmAll\dvm\porting\src\opl_mm.c"
+]
+Creating command line "cl.exe @C:\Users\NIX~1.LON\AppData\Local\Temp\RSP9C9B.tmp" 
+Creating command line "link.exe -lib /nologo /out:"porting.lib"  .\Debug\opl_mm.obj "
+<h3>Output Window</h3>
+Compiling...
+opl_mm.c
+Creating library...
+
+
+
+<h3>Results</h3>
+porting.lib - 0 error(s), 0 warning(s)
+</pre>
+</body>
+</html>

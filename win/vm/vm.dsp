@@ -64,7 +64,7 @@ LIB32=link.exe -lib
 # PROP Intermediate_Dir "Debug"
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /YX /FD /GZ /c
-# ADD CPP /nologo /W3 /Gm /GX /ZI /Od /I "../../base/inc" /I "../../vm/mm/inc" /I "../../porting/inc" /I "../../vm/class/inc" /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /FR /YX /FD /GZ /c
+# ADD CPP /nologo /W3 /Gm /GX /ZI /Od /I "../../base/inc" /I "../../vm/mm/inc" /I "../../porting/inc" /I "../../vm/class/inc" /I "../../vm/interpret/inc" /I "../../vm/thread/inc" /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /FR /YX /FD /GZ /c
 # ADD BASE RSC /l 0x804 /d "_DEBUG"
 # ADD RSC /l 0x804 /d "_DEBUG"
 BSC32=bscmake.exe
@@ -119,6 +119,62 @@ SOURCE=..\..\vm\class\src\hash.c
 # Begin Group "interpret"
 
 # PROP Default_Filter ""
+# Begin Source File
+
+SOURCE=..\..\vm\interpret\inc\interpApi.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\vm\interpret\src\interpCore.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\vm\interpret\src\interpOpcode.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\vm\interpret\inc\interpOpcode.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\vm\interpret\src\interpStack.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\vm\interpret\inc\interpStack.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\vm\interpret\inc\interpState.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\vm\interpret\src\voiderr.c
+# End Source File
+# End Group
+# Begin Group "thread"
+
+# PROP Default_Filter ""
+# Begin Source File
+
+SOURCE=..\..\vm\thread\src\dthread.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\vm\thread\inc\dthread.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\vm\thread\src\schd.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\vm\thread\inc\schd.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\vm\thread\inc\vm_common.h
+# End Source File
 # End Group
 # Begin Source File
 

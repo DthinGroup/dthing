@@ -13,6 +13,8 @@
 
 #include <std_global.h>
 #include <opl_mm.h>
+#include <dthread.h>
+#include <schd.h>
 
 
 /**
@@ -25,6 +27,8 @@
 LOCAL void DVM_lifecycle_initial()
 {
 	DVM_mm_initialize();
+	Schd_InitThreadLists();
+	dthread_init();
 }
 
 /**
@@ -36,6 +40,7 @@ LOCAL void DVM_lifecycle_initial()
 LOCAL void DVM_lifecycle_final()
 {
 	DVM_mm_initialize();
+	Schd_FinalThreadLists();
 }
 
 
@@ -49,6 +54,7 @@ int32_t DVM_main(int32_t argc, int8_t * argv[])
 
 
 	//enter interpret;
+	Schd_SCHEDULER();
 
 
 	DVM_lifecycle_final();
