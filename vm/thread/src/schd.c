@@ -1,6 +1,13 @@
 #include "vm_common.h"
 #include "schd.h"
 #include "dthread.h"
+#include "interpApi.h"
+
+#ifdef DVM_LOG
+#undef DVM_LOG
+#endif
+
+#define DVM_LOG		printf
 
 #define SCHD_OpenTIMER	start_Timer
 #define SCHD_StopTIMER	stop_Timer
@@ -243,7 +250,7 @@ void Schd_DecSleepTime(u4 deltaTime)
     {
         if(tmp->threadState == THREAD_TIME_SUSPENDED)
         {
-			printf("Thread %d is in sleep\n",tmp->threadId);
+			DVM_LOG("Thread %d is in sleep\n",tmp->threadId);
             tmp->sleepTime = (tmp->sleepTime > deltaTime) ? (tmp->sleepTime - deltaTime) : (tmp->threadState = THREAD_READY,0) ;
        }
        tmp = tmp->next;
@@ -255,11 +262,11 @@ void Schd_DecSleepTime(u4 deltaTime)
         tmp = Schd_PopReadyFromOtherList();        
         if(tmp != NULL)
         {
-			printf("Thread %d sleep over!\n",tmp->threadId);
+			DVM_LOG("Thread %d sleep over!\n",tmp->threadId);
             Schd_PushToReadyListHead(tmp);
         }
     }while(tmp!=NULL);
-    
+
 }
 
 /*delete and free DEAD state thread*/
@@ -272,7 +279,7 @@ void Schd_DelDeadThread(void)
     {
         if(tmp->threadState == THREAD_DEAD)
         {
-			printf("Destroy thread:%d \n",tmp->threadId);
+			DVM_LOG("Destroy thread:%d \n",tmp->threadId);
             find = tmp->pre;
             tmp->pre->next = tmp->next;
             if(tmp->next != NULL)
@@ -358,7 +365,7 @@ void Schd_SCHEDULER(void)
         
         currentThread = Schd_PopFromReadyList();
 
-		printf("\nThis loop Time run %d Ms\n",DVM_GETCURTICK() - lastMs);
+		DVM_LOG("\nThis loop Time run %d Ms\n",DVM_GETCURTICK() - lastMs);
 		lastMs = DVM_GETCURTICK();
         if(currentThread != NULL)
         {
@@ -367,6 +374,7 @@ void Schd_SCHEDULER(void)
             SCHD_OpenTIMER();
             //call interp!   
 			(*currentThread->cb)(currentThread);
+			dvmInterpretEntry(currentThread);
 			//CLR_SCHEDULE();
         }
         else    /*no threads to run*/
@@ -380,7 +388,7 @@ void Schd_SCHEDULER(void)
 			SCHD_OpenTIMER();
 			while(!CAN_SCHEDULE())
 			{
-				printf("No ready thread,waiting...\n");
+				DVM_LOG("No ready thread,waiting...\n");
 				Sleep(10);
 			}
         }
@@ -390,7 +398,7 @@ void Schd_SCHEDULER(void)
         goto SCHD_RESTART;
     
     SCHD_END:
-		printf("Schd over!\n");
+		DVM_LOG("Schd over!\n");
         break;
     }    
 
@@ -419,7 +427,7 @@ WINAPI lpTimerCb(
 )
 {
 	WaitForSingleObject( g_hMutex , INFINITE );
-	printf("uTimerID:%d \n",uTimerID);
+	DVM_LOG("uTimerID:%d \n",uTimerID);
 	DVM_ASSERT(timer_id == uTimerID);
 	stop_Timer();
 	SET_SCHEDULE();
@@ -440,7 +448,7 @@ void start_Timer()
 					0,
 					TIME_ONESHOT
 					);
-	printf("timer_id:%d \n",timer_id);
+	DVM_LOG("timer_id:%d \n",timer_id);
 	DVM_ASSERT(timer_id != 0);
 	CLR_SCHEDULE();
 
@@ -452,9 +460,9 @@ void stop_Timer()
 	MMRESULT ret =0;
 	if(timer_id != 0)
 	{
-		printf("stop timer:%d \n",timer_id);
+		DVM_LOG("stop timer:%d \n",timer_id);
 		ret = timeKillEvent(timer_id);
-		printf("stop ret:%d \n",ret);
+		DVM_LOG("stop ret:%d \n",ret);
 		timer_id = 0;
 	}
 }

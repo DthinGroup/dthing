@@ -27,8 +27,10 @@ typedef enum{
     THREAD_MONITOR_SUSPENDED,
     THREAD_DEAD,        //be dead,to delete the thread
 }THREAD_STATE_E;
+
+struct dthread;
     
-typedef (*CallFunc)(int) ;
+typedef void (*CallFunc)(struct dthread *) ;
 
 /*
  * Interpreter control struction.  Packed into a long long to enable
@@ -47,6 +49,19 @@ typedef union  {
 #endif
     } ctl;
 }InterpBreak;
+
+typedef struct interpSchdSave
+{	
+	u2 inst;
+	u2 vsrc1;
+	u2 vsrc2;
+	u2 vdst;
+	u4 ref;
+
+	Method * methodToCall;
+	vbool methodCallRange;
+    vbool jumboFormat;
+}InterpSchdSave;
 
 /*Round to run*/
 typedef struct dthread
@@ -97,6 +112,9 @@ typedef struct dthread
     u4 sleepTime;           //if state is SUSPENDED and sleepTime > 0,when sleepTime <=0 ,reACTIVE it
     
 	CallFunc	cb;
+
+	InterpSchdSave itpSchdSave;
+	vbool bInterpFirst;		//first call into interpret?
 
     struct dthread * next ;
     struct dthread * pre  ;

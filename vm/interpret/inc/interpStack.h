@@ -163,6 +163,24 @@ vbool dvmIsBreakFrame(const u4* fp);
  */
 vbool dvmInitInterpStack(Thread* thread, int stackSize);
 
+
+vbool dvmPushInterpFrame(Thread* self, const Method* method);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /*
  * Push a native method frame directly onto the stack.  Used to push the
  * "fake" native frames at the top of each thread stack.

@@ -1,7 +1,13 @@
 #include "vm_common.h"
 #include "dthread.h"
 #include "schd.h"
+#include "interpStack.h"
 
+#ifdef DVM_LOG
+#undef DVM_LOG
+#endif
+
+#define DVM_LOG		printf
 
 Thread *currentThread;
 Thread *readyThreadListHead;
@@ -26,7 +32,8 @@ static int genThreadId(void)  //just using tmply
 void mainThreadInit(void)
 {
     Thread * main = allocThread(kDefaultStackSize);
-    
+    Method * mth = (Method *)DVM_MALLOC(sizeof(Method));
+
     if(main == NULL)
     {
         DVM_ASSERT(1);
@@ -41,7 +48,11 @@ void mainThreadInit(void)
     main->threadId = genThreadId();  /*magic number*/
     main->threadState = THREAD_READY;
 
-	printf("Gen new thread %d \n",main->threadId);
+	main->bInterpFirst = TRUE;
+	
+	dvmPushInterpFrame(main,mth);
+
+	DVM_LOG("Gen new thread %d \n",main->threadId);
     
     Schd_PushToReadyListHead(main);
 }
@@ -49,7 +60,7 @@ void mainThreadInit(void)
 #ifdef ARCH_X86
 void printTrace(Thread * thd)
 {
-	printf("This is Thread:%d \n",thd->threadId);
+	DVM_LOG("This is Thread:%d \n",thd->threadId);
 
 	while(!CAN_SCHEDULE())
 	{
@@ -103,7 +114,7 @@ Thread * allocThread(int stackSize)
     DVM_ASSERT(((u4)stackBottom & 0x03) == 0);    // 4-bytes aligned ?
     tmp->interpStackSize  = stackSize;
     tmp->interpStackStart = stackBottom + stackSize;
-    tmp->interpStackEnd   = stackBottom + STACK_OVERFLOW_RESERVE;
+    tmp->interpStackEnd   = stackBottom + STACK_OVERFLOW_RESERVE;	
     
     return tmp;
 }

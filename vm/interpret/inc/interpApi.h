@@ -13,6 +13,7 @@
  */
 void dvmInterpretPortable(Thread * self);
 
+void dvmInterpretEntry(Thread * self);
 
 
 

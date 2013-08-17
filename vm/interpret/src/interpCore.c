@@ -33,6 +33,7 @@
 #include "interpStack.h"
 #include "interpOpcode.h"
 #include "interpApi.h"
+#include "schd.h"
 /*
  * Configuration defines.  These affect the C implementations, i.e. the
  * portable interpreter(s) and C stubs.
@@ -438,8 +439,33 @@ static void * jmpad        = NULL;
 #define GOTO_LABEL(opcod)	jmpad = (int *)label_little+opcod ; jmpad = *(int*)jmpad ; __asm{ jmp jmpad}
 #define ADDR_LABEL(label)	&(V(label))
 
+#define SAVE_LOCALS()	\
+	do{	\
+		curMethod->clazz->pDvmDex = methodClassDex;		\
+		self->interpSave.method = curMethod;			\
+		self->interpSave.pc = pc;						\
+		self->interpSave.curFrame = fp;					\
+		self->interpSave.retval = retval;				\
+		self->itpSchdSave.inst = inst;					\
+		self->itpSchdSave.vsrc1 = vsrc1;				\
+		self->itpSchdSave.vsrc2 = vsrc2;				\
+		self->itpSchdSave.vdst  = vdst;					\
+		self->itpSchdSave.ref = ref;					\
+		self->itpSchdSave.methodToCall = methodToCall;	\
+		self->itpSchdSave.methodCallRange = methodCallRange;	\
+		self->itpSchdSave.jumboFormat = jumboFormat;	\
+	}while(0)
+
+# define RESCHDULE()			\
+		if(CAN_SCHEDULE())		\
+		{						\
+			SAVE_LOCALS();		\
+			GOTO_bail();		\
+		}
+
 # define FINISH(_offset) {                                                  \
         ADJUST_PC(_offset);                                                 \
+		RESCHDULE();														\
         inst = FETCH(0);                                                    \
         if (self->interpBreak.ctl.subMode) {                                \
             dvmCheckBefore(pc, fp, self);                                   \
@@ -2227,11 +2253,8 @@ void dvmInterpretPortable(Thread* self)
 
 
     /* static computed goto table */
-#if 0
-    DEFINE_GOTO_TABLE(handlerTable);
-#else
 	NEW_GOTO_TABLE();
-#endif
+
     /* copy state in */
     curMethod = self->interpSave.method;
     pc = self->interpSave.pc;
@@ -2239,6 +2262,26 @@ void dvmInterpretPortable(Thread* self)
     retval = self->interpSave.retval;   /* only need for kInterpEntryReturn? */
 
     methodClassDex = curMethod->clazz->pDvmDex;
+
+	/*
+     * DEBUG: scramble this to ensure we're not relying on it.
+     */
+    methodToCall = (const Method*) -1;
+
+	if(!self->bInterpFirst)
+	{
+		inst  = self->itpSchdSave.inst;
+		vsrc1 = self->itpSchdSave.vsrc1;
+		vsrc2 = self->itpSchdSave.vsrc2;
+		vdst  = self->itpSchdSave.vdst;
+		ref   = self->itpSchdSave.ref;
+
+		methodToCall = self->itpSchdSave.methodToCall;
+		methodCallRange = self->itpSchdSave.methodCallRange;
+		jumboFormat = self->itpSchdSave.jumboFormat;
+	}
+
+	self->bInterpFirst = FALSE;
 #if __NIX__
     LOGVV("threadid=%d: %s.%s pc=%#x fp=%p",
         self->threadId, curMethod->clazz->descriptor, curMethod->name,
@@ -2253,10 +2296,7 @@ void dvmInterpretPortable(Thread* self)
         self->debugIsMethodEntry = true;   // Always true on startup
     }
 #endif
-    /*
-     * DEBUG: scramble this to ensure we're not relying on it.
-     */
-    methodToCall = (const Method*) -1;
+    
 
 #if 0
     if (self->debugIsMethodEntry) {
