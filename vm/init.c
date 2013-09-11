@@ -72,8 +72,7 @@ LOCAL void DVM_lifecycle_final()
 {
 	DVM_mm_finalize();
 	Schd_FinalThreadLists();
-    CRTL_freeif(gDvm.classPathStr);
-    CRTL_freeif(gDvm.appPathStr);
+    dvmClassShutdown();
 }
 
 

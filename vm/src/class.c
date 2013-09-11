@@ -672,7 +672,8 @@ bool_t dvmClassStartup()
 
 void dvmClassShutdown()
 {
-    //CRTL_freeif(gDvm.pClsEntry);
+    CRTL_freeif(gDvm.classPathStr);
+    CRTL_freeif(gDvm.appPathStr);
 }
 
 
