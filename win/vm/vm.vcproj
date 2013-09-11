@@ -184,19 +184,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\vm\src\dexclass.c"
-				>
-			</File>
-			<File
-				RelativePath="..\..\vm\src\dexfile.c"
-				>
-			</File>
-			<File
 				RelativePath="..\..\vm\src\dexproto.c"
-				>
-			</File>
-			<File
-				RelativePath="..\..\vm\src\dvmdex.c"
 				>
 			</File>
 			<File
@@ -205,10 +193,6 @@
 			</File>
 			<File
 				RelativePath="..\..\vm\src\object.c"
-				>
-			</File>
-			<File
-				RelativePath="..\..\vm\src\rawdexfile.c"
 				>
 			</File>
 			<File
@@ -231,10 +215,62 @@
 		<Filter
 			Name="intepret"
 			>
+			<File
+				RelativePath="..\..\vm\src\interpApi.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\vm\src\interpCore.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\vm\src\interpOpcode.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\vm\src\interpStack.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\vm\src\voiderr.c"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="dex"
 			>
+			<File
+				RelativePath="..\..\vm\src\dexclass.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\vm\src\dexfile.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\vm\src\dvmdex.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\vm\src\rawdexfile.c"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="thread"
+			>
+			<File
+				RelativePath="..\..\vm\src\dthread.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\vm\src\nativeThread.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\vm\src\schd.c"
+				>
+			</File>
 		</Filter>
 	</Files>
 	<Globals>

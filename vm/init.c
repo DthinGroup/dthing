@@ -57,6 +57,9 @@ LOCAL void DVM_lifecycle_init()
 	DVM_mm_initialize();
 
     dvmClassStartup();
+
+	Schd_InitThreadLists();
+	dthread_init();
 }
 
 /**
@@ -68,6 +71,7 @@ LOCAL void DVM_lifecycle_init()
 LOCAL void DVM_lifecycle_final()
 {
 	DVM_mm_finalize();
+	Schd_FinalThreadLists();
     CRTL_freeif(gDvm.classPathStr);
     CRTL_freeif(gDvm.appPathStr);
 }
@@ -155,7 +159,7 @@ int32_t DVM_main(int32_t argc, int8_t * argv[])
     DVM_lifecycle_init();
 
     //entry interpret;
-
+    Schd_SCHEDULER();
 #if 0
    /**
     * Test code area.
