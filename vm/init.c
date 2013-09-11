@@ -98,7 +98,7 @@ static int32_t processOptions(int32_t argc, const int8_t* const argv[])
 
     for (i = 0; i < argc; i++)
     {
-        if (CRTL_strcmp(argv[i], "-classpath") == 0 || strcmp(argv[i], "-cp") == 0)
+        if (CRTL_strcmp(argv[i], "-classpath") == 0 || CRTL_strcmp(argv[i], "-cp") == 0)
         {
             /* set classpath */
             if (i == argc-1)
@@ -111,8 +111,8 @@ static int32_t processOptions(int32_t argc, const int8_t* const argv[])
         } 
         else if (CRTL_strncmp(argv[i], "-run", sizeof("-run") - 1) == 0)
         {
-            /* set bootclasspath */
-            const char* path = argv[i] + sizeof("-run") - 1;
+            /* set application path */
+            const char* path = argv[++i];
 
             if (*path == '\0')
             {
@@ -157,17 +157,19 @@ int32_t DVM_main(int32_t argc, int8_t * argv[])
 
     DVM_lifecycle_init();
 
-    //entry interpret;
-    Schd_SCHEDULER();
 #if 0
    /**
     * Test code area.
     */
     /* =================================== */
+    dvmFindClass("Lcom/yarlungsoft/main/Main;");
     dvmFindClass("Ljava/lang/String;");
     dvmFindClass("Ljava/lang/Object;");
     /* =================================== */
 #endif
+
+    //entry interpret;
+    Schd_SCHEDULER();
 
     DVM_lifecycle_final();
     DVM_native_final();

@@ -527,7 +527,7 @@ static bool_t processClassPath(const char* pathStr)
     count = 1;
     for (cp = mangle; *cp != '\0'; cp++)
     {
-        if (*cp == ';' || *cp == ':')
+        if (*cp == ';'  /*Windows cannot use : as separator  || *cp == ':'*/)
         {   /* separates two entries */
             count++;
             *cp = '\0';
@@ -599,8 +599,9 @@ static bool_t processClassPath(const char* pathStr)
             {
                 DVMTraceErr("prepareCpe - Error: unknow type suffix(%s).\n", suffix);
             }
-
         }
+
+        cp += pClsEntry->fnameLen;
     }
     
 bail:
@@ -2804,7 +2805,25 @@ ClassObject* dvmFindClass(const char* descriptor)
 {
     ClassObject* clazz = NULL;
 
+    /* find from bootstrap classes */
     clazz = dvmFindClassNoInit(descriptor);
+
+    /* find from class path or app path classes */
+    if (clazz == NULL)
+    {
+        int32_t i;
+        ClassesEntry* pFirstClsEntry = NULL;
+        for (i = 1; i < MAX_NUM_CLASSES_ENTRY; i++)
+        {
+            if (gDvm.pClsEntry[i].kind == kCpeDex && 
+                (clazz = findClassNoInit(descriptor, gDvm.pClsEntry[i].pDvmDex)) != NULL)
+            {
+                DVMTraceInf("FindClass from class path\n");
+                break;
+            }
+        }
+    }
+
     if (clazz != NULL && clazz->status < CLASS_INITIALIZED)
     {
         /* initialize class */

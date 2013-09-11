@@ -174,6 +174,7 @@ int dvmDexFileOpenFromFd(int fd, DvmDex** ppDvmDex)
     u1*      fData = NULL;
     int32_t  fileLength = 0;
     int32_t  readSize = 0;
+    DexClassLookup* pLookup;
 
     /* read full file content into persistent area */
     fileLength = file_getLengthByFd(fd);
@@ -203,7 +204,8 @@ int dvmDexFileOpenFromFd(int fd, DvmDex** ppDvmDex)
     }
 
     /* create dex classes lookup table */
-    dexCreateClassLookup(pDvmDex->pDexFile);
+    pLookup = dexCreateClassLookup(pDvmDex->pDexFile);
+    pDvmDex->pDexFile->pClassLookup = pLookup;
 
     /* tuck this into the DexFile so it gets released later */
     *ppDvmDex = pDvmDex;
