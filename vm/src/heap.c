@@ -17,18 +17,24 @@
 
 
 /**
- * Allocate a object in the memory pool. 
+ * Allocate a object in the memory pool. zeroed out the memory.
  *
  * @size the object size in bytes to allocated.
  * @flag the memory property will have.
  */
 void* heapAllocObject(int32_t size, int32_t flag)
 {
+    void* ptr = NULL;
     //flag is unused at present.
     UNUSED(flag);
 
-    return dmalloc(size);
+    ptr = dmalloc(size);
+    if (ptr != NULL) CRTL_memset(ptr, 0x0, size);
+
+    return ptr;
 }
+
+
 
 /**
  * Allocate the persistent memory data, for class or relevant data
@@ -38,7 +44,12 @@ void* heapAllocObject(int32_t size, int32_t flag)
  */
 void* heapAllocPersistent(int32_t size)
 {
-    return endmalloc(size);
+    void* ptr = NULL;
+
+    ptr = endmalloc(size);
+    if (ptr != NULL) CRTL_memset(ptr, 0x0, size);
+
+    return ptr;
 }
 
 
