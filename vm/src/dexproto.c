@@ -504,7 +504,7 @@ int dexProtoCompareToParameterDescriptors(const DexProto* proto, const char* des
  */
 void dexParameterIteratorInit(DexParameterIterator* pIterator, const DexProto* pProto)
 {
-#if 0
+#if 1
     pIterator->proto = pProto;
     pIterator->cursor = 0;
 
@@ -523,7 +523,7 @@ void dexParameterIteratorInit(DexParameterIterator* pIterator, const DexProto* p
  */
 u4 dexParameterIteratorNextIndex(DexParameterIterator* pIterator)
 {
-#if 0
+#if 1
     int cursor = pIterator->cursor;
     int parameterCount = pIterator->parameterCount;
 
@@ -546,7 +546,7 @@ u4 dexParameterIteratorNextIndex(DexParameterIterator* pIterator)
  */
 const char* dexParameterIteratorNextDescriptor(DexParameterIterator* pIterator) 
 {
-#if 0
+#if 1
     u4 idx = dexParameterIteratorNextIndex(pIterator);
 
     if (idx == kDexNoIndex) {

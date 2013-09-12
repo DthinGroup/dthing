@@ -1055,6 +1055,7 @@ static Method* findMethodInListByDescriptor(const ClassObject* clazz,
     char *buffer = NULL;
     char** argTypes;
     Method* method = NULL;
+    bool_t found = FALSE;
 
     if (returnType == NULL) {
         DVMTraceWar("Bogus method descriptor: %s", descriptor);
@@ -1102,6 +1103,7 @@ static Method* findMethodInListByDescriptor(const ClassObject* clazz,
             method = &methods[i];
             if (compareMethodHelper(method, name, returnType, argCount,
                             argTypes) == 0) {
+                found = TRUE;
                 goto bail;
             }
         }
@@ -1116,8 +1118,12 @@ static Method* findMethodInListByDescriptor(const ClassObject* clazz,
 bail:
     CRTL_freeif(buffer);
     CRTL_freeif(argTypes);
+    
+    if (found) {
+        return method;
+    }
 
-    return method;
+    return NULL;
 #else
     return NULL;
 #endif
