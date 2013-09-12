@@ -1,8 +1,12 @@
 #ifndef __VM_COMMON_H__
 #define __VM_COMMON_H__
 
+//#pragma comment(lib,"../loader/Debug/loader.lib")
+
 #define ARCH_X86
 #define INLINE
+
+#define _TEST_ED_    //test edward code of classloader
 
 
 #ifdef ARCH_X86
@@ -16,6 +20,9 @@
 #include <stdio.h>
 #include <assert.h>
 
+//#pragma comment(lib, "loader.lib" )
+//#include <Object.h>
+
 typedef uint8_t		u1 ;
 typedef uint16_t	u2 ;
 typedef uint32_t	u4 ;
@@ -24,23 +31,38 @@ typedef  int8_t		s1 ;
 typedef  int16_t	s2 ;
 typedef  int32_t	s4 ;
 typedef  int64_t	s8 ;
-typedef unsigned int   vbool;
+typedef  int   vbool;
 
 
 
 #define DVM_MALLOC		CRTL_malloc
 #define DVM_MEMSET		CRTL_memset
 #define DVM_FREE		CRTL_free
+#define DVM_STRCMP      CRTL_strcmp
 #define DVM_ASSERT		assert
-#define DVM_GETCURTICK	GetTickCount
 
 #define false (0)
 #define true  (1)
 
-
-
+/*
+struct Object;
+struct ClassObject;
+struct  DvmDex;
+struct Field;
+struct InstField;
+struct StaticField;
+struct Method;
+*/
 /*----------------void err------------------------*/
+/* flags for dvmMalloc */
+enum {
+    ALLOC_DEFAULT = 0x00,
+    ALLOC_DONT_TRACK = 0x01,  /* don't add to internal tracking list */
+    ALLOC_NON_MOVING = 0x02,
+};
 
+
+#if 0
 enum {
     ALLOC_DEFAULT = 0x00,
     ALLOC_DONT_TRACK = 0x01,  /* don't add to internal tracking list */
@@ -73,8 +95,11 @@ typedef enum  {
     METHOD_VIRTUAL,     // virtual, super
     METHOD_INTERFACE    // interface
 }MethodType;
+#endif
 
 #define __MAY_ERROR__ 1
+
+#if 0
 
 struct object;
 struct classObject;
@@ -294,7 +319,7 @@ typedef struct  dvmDex{
 
 
 
-
+#endif
 
 
 

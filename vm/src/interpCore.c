@@ -34,6 +34,9 @@
 #include "interpOpcode.h"
 #include "interpApi.h"
 #include "schd.h"
+#include "kni.h"
+#include "Object.h"
+#include "Resolve.h"
 /*
  * Configuration defines.  These affect the C implementations, i.e. the
  * portable interpreter(s) and C stubs.
@@ -252,9 +255,26 @@ static /*inline*/ void putDoubleToArray(u4* ptr, int idx, double dval)
         (void)putDoubleToArray(fp, (_idx), (_val)) : assert(!"bad reg") )
 #else
 # define GET_REGISTER(_idx)                 (fp[(_idx)])
+#if 0
 # define SET_REGISTER(_idx, _val)           (fp[(_idx)] = (_val))
+#else
+# define SET_REGISTER(_idx, _val) \
+	do{\
+	    u4 vall = _val;\
+		fp[(_idx)] = (vall); \
+		MACRO_LOG("set reg idx:%d,val:%d\n",_idx,vall); \
+	}while(0)
+#endif
 # define GET_REGISTER_AS_OBJECT(_idx)       ((Object*) fp[(_idx)])
+#if 0
 # define SET_REGISTER_AS_OBJECT(_idx, _val) (fp[(_idx)] = (u4)(_val))
+#else
+# define SET_REGISTER_AS_OBJECT(_idx, _val)\
+	do{\
+		(fp[(_idx)] = (u4)(_val));	\
+		MACRO_LOG("set reg as obj idx:%d,val:%d\n",_idx,_val); \
+	}while(0)
+#endif
 # define GET_REGISTER_INT(_idx)             ((s4)GET_REGISTER(_idx))
 # define SET_REGISTER_INT(_idx, _val)       SET_REGISTER(_idx, (s4)_val)
 # define GET_REGISTER_WIDE(_idx)            getLongFromArray(fp, (_idx))
@@ -274,6 +294,9 @@ static /*inline*/ void putDoubleToArray(u4* ptr, int idx, double dval)
 #define LL
 #define LOGV	printf
 #define LOGE	printf
+
+#define MACRO_LOG	  printf("Thread id:%d,",self->threadId);printf
+#define MACRO_LOG_L   //printf("Thread id:%d,",self->threadId);printf
 
 #elif defined ARCH_ARM
 
@@ -422,7 +445,7 @@ static /*inline*/ vbool checkForNullExportPC(Object* obj, u4* fp, const u2* pc)
 /*help to trace position of labels!*/
 static void * label_little = NULL;
 static void * label_big    = NULL;
-static void * jmpad        = NULL;
+static int  * jmpad        = NULL;
 
 #define V(_op) v_##_op
 #define H(_op) op_##_op
@@ -436,37 +459,58 @@ static void * jmpad        = NULL;
 */
 #define DCLR_LABEL(label)	void * label = NULL
 #define SAVE_LABEL(label)	__asm{ mov [V(label)],offset H(label) }
-#define GOTO_LABEL(opcod)	jmpad = (int *)label_little+opcod ; jmpad = *(int*)jmpad ; __asm{ jmp jmpad}
+#define GOTO_LABEL(opcod)	jmpad = (int *)label_little+opcod ; jmpad = (int*)(*(int*)jmpad) ; __asm{ jmp jmpad}
 #define ADDR_LABEL(label)	&(V(label))
 
 #define SAVE_LOCALS()	\
 	do{	\
+		MACRO_LOG("save globals!\n");\
 		curMethod->clazz->pDvmDex = methodClassDex;		\
-		self->interpSave.method = curMethod;			\
+		self->interpSave.method = (Method *)curMethod;			\
+		MACRO_LOG_L("self->interpSave.method:0x%x\n",(int)self->interpSave.method);\
 		self->interpSave.pc = pc;						\
+		MACRO_LOG_L("self->interpSave.pc:0x%x\n",(int)self->interpSave.pc);\
 		self->interpSave.curFrame = fp;					\
+		MACRO_LOG_L("self->interpSave.fp:0x%x\n",(int)self->interpSave.curFrame);\
 		self->interpSave.retval = retval;				\
+		MACRO_LOG_L("self->interpSave.retval:0x%x\n",(int)self->interpSave.retval.j);\
 		self->itpSchdSave.inst = inst;					\
+		MACRO_LOG_L("self->itpSchdSave.inst:0x%x\n",(int)self->itpSchdSave.inst);\
 		self->itpSchdSave.vsrc1 = vsrc1;				\
+		MACRO_LOG_L("self->itpSchdSave.vsrc1:0x%x\n",(int)self->itpSchdSave.vsrc1);\
 		self->itpSchdSave.vsrc2 = vsrc2;				\
+		MACRO_LOG_L("self->itpSchdSave.vsrc2:0x%x\n",(int)self->itpSchdSave.vsrc2);\
 		self->itpSchdSave.vdst  = vdst;					\
+		MACRO_LOG_L("self->itpSchdSave.vdst:0x%x\n",(int)self->itpSchdSave.vdst);\
 		self->itpSchdSave.ref = ref;					\
-		self->itpSchdSave.methodToCall = methodToCall;	\
+		MACRO_LOG_L("self->itpSchdSave.ref:0x%x\n",(int)self->itpSchdSave.ref);\
+		self->itpSchdSave.methodToCall = (Method *)methodToCall;	\
+		MACRO_LOG_L("self->itpSchdSave.methodToCall:0x%x\n",(int)self->itpSchdSave.methodToCall);\
 		self->itpSchdSave.methodCallRange = methodCallRange;	\
+		MACRO_LOG_L("self->itpSchdSave.methodCallRange:0x%x\n",(int)self->itpSchdSave.methodCallRange);\
 		self->itpSchdSave.jumboFormat = jumboFormat;	\
+		MACRO_LOG_L("self->itpSchdSave.jumboFormat:0x%x\n",(int)self->itpSchdSave.jumboFormat);\
 	}while(0)
+static int fuck_ret = 1;
+int fuck()
+{	
+	printf("give a schduler\n");
+	return fuck_ret;
+}
 
 # define RESCHDULE()			\
 		if(CAN_SCHEDULE())		\
 		{						\
-			SAVE_LOCALS();		\
-			GOTO_bail();		\
+			if(fuck()) {\
+				SAVE_LOCALS();		\
+				GOTO_bail();		}\
 		}
 
 # define FINISH(_offset) {                                                  \
         ADJUST_PC(_offset);                                                 \
 		RESCHDULE();														\
         inst = FETCH(0);                                                    \
+		MACRO_LOG("fetch:%d\n",inst);	\
         if (self->interpBreak.ctl.subMode) {                                \
             dvmCheckBefore(pc, fp, self);                                   \
         }                                                                   \
@@ -612,8 +656,10 @@ static void * jmpad        = NULL;
 #define HANDLE_OP_IF_XXZ(_opcode, _opname, _cmp)                            \
     HANDLE_OPCODE(_opcode /*vAA, +BBBB*/)                                   \
         vsrc1 = INST_AA(inst);                                              \
+		MACRO_LOG("HANDLE_OP_IF_XXZ,vsrc1=%d\n",vsrc1);\
         if ((s4) GET_REGISTER(vsrc1) _cmp 0) {                              \
             int branchOffset = (s2)FETCH(1);    /* sign-extended */         \
+			MACRO_LOG("HANDLE_OP_IF_XXZ,branchOffset=%d\n",branchOffset);\
             if (branchOffset < 0)                                           \
                 PERIODIC_CHECKS(branchOffset);                              \
             FINISH(branchOffset);                                           \
@@ -712,6 +758,7 @@ static void * jmpad        = NULL;
         litInfo = FETCH(1);                                                 \
         vsrc1 = litInfo & 0xff;                                             \
         vsrc2 = litInfo >> 8;       /* constant */                          \
+		MACRO_LOG("HANDLE_OP_X_INT_LIT8,vsrc1=%d,vsrc2=%d\n",vsrc1,vsrc2);\
         if (_chkdiv != 0) {                                                 \
             s4 firstVal, result;                                            \
             firstVal = GET_REGISTER(vsrc1);                                 \
@@ -730,6 +777,7 @@ static void * jmpad        = NULL;
             }                                                               \
             SET_REGISTER(vdst, result);                                     \
         } else {                                                            \
+		    MACRO_LOG("HANDLE_OP_X_INT_LIT8,reg[vsrc1]=%d,vsrc2=%d\n",(s4)GET_REGISTER(vsrc1),(s1)vsrc2);\
             SET_REGISTER(vdst,                                              \
                 (s4) GET_REGISTER(vsrc1) _op (s1) vsrc2);                   \
         }                                                                   \
@@ -756,7 +804,9 @@ static void * jmpad        = NULL;
         if (_chkdiv != 0) {                                                 \
             s4 firstVal, secondVal, result;                                 \
             firstVal = GET_REGISTER(vdst);                                  \
+			MACRO_LOG("first:%d\n",firstVal);\
             secondVal = GET_REGISTER(vsrc1);                                \
+			MACRO_LOG("second:%d\n",firstVal);\
             if (secondVal == 0) {                                           \
                 EXPORT_PC();                                                \
                 dvmThrowArithmeticException("divide by zero");              \
@@ -770,6 +820,7 @@ static void * jmpad        = NULL;
             } else {                                                        \
                 result = firstVal _op secondVal;                            \
             }                                                               \
+			MACRO_LOG("result:%d\n",result);\
             SET_REGISTER(vdst, result);                                     \
         } else {                                                            \
             SET_REGISTER(vdst,                                              \
@@ -983,12 +1034,16 @@ static void * jmpad        = NULL;
         Object* obj;                                                        \
         EXPORT_PC();                                                        \
         vdst = INST_A(inst);                                                \
+		MACRO_LOG("HANDLE_IGET_X,vdst=0x%x\n",vdst);\
         vsrc1 = INST_B(inst);   /* object ptr */                            \
+		MACRO_LOG("HANDLE_IGET_X,vsrc1=0x%x\n",vsrc1);\
         ref = FETCH(1);         /* field ref */                             \
         obj = (Object*) GET_REGISTER(vsrc1);                                \
-        if (!checkForNull(obj))                                             \
-            GOTO_exceptionThrown();                                         \
+		MACRO_LOG("HANDLE_IGET_X,obj=0x%x\n",obj);\
+        if (!checkForNull(obj))  {                                           \
+		GOTO_exceptionThrown(); MACRO_LOG("HANDLE_IGET_X,exceptionn"); }                  \
         ifield = (InstField*) dvmDexGetResolvedField(methodClassDex, ref);  \
+		MACRO_LOG("HANDLE_IGET_X,ifield=0x%x\n",ifield);\
         if (ifield == NULL) {                                               \
             ifield = dvmResolveInstField(curMethod->clazz, ref);            \
             if (ifield == NULL)                                             \
@@ -1046,9 +1101,11 @@ static void * jmpad        = NULL;
         vsrc1 = INST_B(inst);   /* object ptr */                            \
         ref = FETCH(1);         /* field ref */                             \
         obj = (Object*) GET_REGISTER(vsrc1);                                \
+		MACRO_LOG("HANDLE_IPUT_X,obj=0x%x",obj);\
         if (!checkForNull(obj))                                             \
             GOTO_exceptionThrown();                                         \
         ifield = (InstField*) dvmDexGetResolvedField(methodClassDex, ref);  \
+		MACRO_LOG("HANDLE_IPUT_X,ifield=0x%x",ifield);\
         if (ifield == NULL) {                                               \
             ifield = dvmResolveInstField(curMethod->clazz, ref);            \
             if (ifield == NULL)                                             \
@@ -2279,6 +2336,21 @@ void dvmInterpretPortable(Thread* self)
 		methodToCall = self->itpSchdSave.methodToCall;
 		methodCallRange = self->itpSchdSave.methodCallRange;
 		jumboFormat = self->itpSchdSave.jumboFormat;
+	
+		MACRO_LOG("load globals!\n");
+		MACRO_LOG_L("self->interpSave.method:0x%x\n",(int)curMethod);
+		MACRO_LOG_L("self->interpSave.pc:0x%x\n",(int)pc);
+		MACRO_LOG_L("self->interpSave.fp:0x%x\n",(int)fp);
+		MACRO_LOG_L("self->interpSave.retval:0x%x\n",(int)retval.j);
+		MACRO_LOG_L("self->itpSchdSave.inst:0x%x\n",(int)inst);
+		MACRO_LOG_L("self->itpSchdSave.vsrc1:0x%x\n",(int)vsrc1);
+		MACRO_LOG_L("self->itpSchdSave.vsrc2:0x%x\n",(int)vsrc2);
+		MACRO_LOG_L("self->itpSchdSave.vdst:0x%x\n",(int)vdst);
+		MACRO_LOG_L("self->itpSchdSave.ref:0x%x\n",(int)ref);
+		MACRO_LOG_L("self->itpSchdSave.methodToCall:0x%x\n",(int)methodToCall);
+		MACRO_LOG_L("self->itpSchdSave.methodCallRange:0x%x\n",(int)methodCallRange);
+		MACRO_LOG_L("self->itpSchdSave.jumboFormat:0x%x\n",(int)jumboFormat);
+		
 	}
 
 	self->bInterpFirst = FALSE;
@@ -3287,13 +3359,13 @@ HANDLE_OPCODE(OP_APUT_OBJECT /*vAA, vBB, vCC*/)
         if (obj != NULL) {
             if (!checkForNull(obj))
                 GOTO_exceptionThrown();
-            if (!dvmCanPutArrayElement(obj->clazz, arrayObj->clazz)) {
+            if (!dvmCanPutArrayElement(obj->clazz, arrayObj->obj.clazz)) {  //arrayObj->clazz 
 #if __NIX__            
                 LOGV("Can't put a '%s'(%p) into array type='%s'(%p)",
                     obj->clazz->descriptor, obj,
                     arrayObj->obj.clazz->descriptor, arrayObj);
 #endif
-                dvmThrowArrayStoreExceptionIncompatibleElement(obj->clazz, arrayObj->clazz);
+                dvmThrowArrayStoreExceptionIncompatibleElement(obj->clazz, arrayObj->obj.clazz);  //arrayObj->clazz
                 GOTO_exceptionThrown();
             }
         }
@@ -5733,8 +5805,9 @@ GOTO_TARGET(invokeVirtual)
             GOTO_exceptionThrown();
         }
 #else
-        assert(!dvmIsAbstractMethod(methodToCall) ||
-            methodToCall->nativeFunc != NULL);
+		#if __NIX__
+        assert(!dvmIsAbstractMethod(methodToCall) || methodToCall->nativeFunc != NULL);
+        #endif
 #endif
 #if __NIX__
         LOGVV("+++ base=%s.%s virtual[%d]=%s.%s",
@@ -5844,8 +5917,10 @@ GOTO_TARGET(invokeSuper)
             GOTO_exceptionThrown();
         }
 #else
+	#if __NIX__
         assert(!dvmIsAbstractMethod(methodToCall) ||
             methodToCall->nativeFunc != NULL);
+	#endif
 #endif
 #if __NIX__
         LOGVV("+++ base=%s.%s super-virtual=%s.%s",
@@ -6083,8 +6158,10 @@ GOTO_TARGET(invokeVirtualQuick)
             GOTO_exceptionThrown();
         }
 #else
+	#if __NIX__
         assert(!dvmIsAbstractMethod(methodToCall) ||
             methodToCall->nativeFunc != NULL);
+	#endif
 #endif
 #if __NIX__
         LOGVV("+++ virtual[%d]=%s.%s",
@@ -6149,8 +6226,10 @@ GOTO_TARGET(invokeSuperQuick)
             GOTO_exceptionThrown();
         }
 #else
+	#if __NIX__
         assert(!dvmIsAbstractMethod(methodToCall) ||
             methodToCall->nativeFunc != NULL);
+	#endif
 #endif
 
 #if __NIX__
@@ -6207,6 +6286,10 @@ GOTO_TARGET(returnFromMethod)
 #if __NIX__            
             LOGVV("+++ returned into break frame");
 #endif            
+
+			/*nix add here,but don't know wether it's right!*/
+			//magic number stands for exc over!
+			retval.j = 0xacacacac ULL;
             GOTO_bail();
         }
 
@@ -6555,6 +6638,8 @@ GOTO_TARGET(invokeMethod)
             DUMP_REGS(curMethod, fp, true);         // show input args
             FINISH(0);                              // jump to method start
         } else {
+			KniFunc nativefunc = NULL;
+			Object * thisClz = NULL;   //if static: class ptr;if non static :instance this ptr
             /* set this up for JNI locals, even if not a JNI native */
 #if __MAY_ERROR__ == 2
             newSaveArea->xtra.localRefCookie = self->jniLocalRefTable.segmentState.all;
@@ -6577,7 +6662,23 @@ GOTO_TARGET(invokeMethod)
              * space for locals on native calls, "newFp" points directly
              * to the method arguments.
              */
-            (*methodToCall->nativeFunc)(newFp, &retval, methodToCall, self);
+			/*
+			if(dvmIsStaticMethod(methodToCall))
+			{
+				//*nix: maybe error!
+				thisClz = (Object*) methodToCall->clazz;
+			}
+			else
+			{
+				thisClz = ((Object*) newFp)->clazz ;  //the first param of Fp is "this ptr"
+			}
+			nativefunc = Kni_findFuncPtr(methodToCall);
+			DVM_ASSERT(nativefunc != NULL);
+			nativefunc(thisClz);
+			*/
+			dvmInterpretMakeNativeCall(newFp, &retval, methodToCall, self);
+			// call back -- nix
+            //(*methodToCall->nativeFunc)(newFp, &retval, methodToCall, self);
 
             if (self->interpBreak.ctl.subMode != 0) {
 #if __MAY_ERROR__            

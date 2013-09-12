@@ -21,6 +21,7 @@
 #include <dthing.h>
 #include <object.h>
 #include <resolve.h>
+#include <assert.h>
 
 
 JValue* dvmFieldPtr(const Object* obj, int offset)
@@ -73,6 +74,17 @@ Object* dvmGetFieldObject(const Object* obj, int offset)
     return ((JValue*)BYTE_OFFSET(obj, offset))->l;
 }
 
+s8 dvmGetFieldLongVolatile(const Object* obj, int offset)
+{
+	assert(0);
+/*
+    const s8* addr = (const s8*)BYTE_OFFSET(obj, offset);
+    s8 val = dvmQuasiAtomicRead64(addr);
+    ANDROID_MEMBAR_FULL();
+    return val;
+*/
+}
+
 #if 0
 bool_t dvmGetFieldBooleanVolatile(const Object* obj, int offset)
 {
@@ -112,13 +124,7 @@ float dvmGetFieldFloatVolatile(const Object* obj, int offset)
     return alias.fval;
 }
 
-s8 dvmGetFieldLongVolatile(const Object* obj, int offset)
-{
-    const s8* addr = (const s8*)BYTE_OFFSET(obj, offset);
-    s8 val = dvmQuasiAtomicRead64(addr);
-    ANDROID_MEMBAR_FULL();
-    return val;
-}
+
 
 double dvmGetFieldDoubleVolatile(const Object* obj, int offset)
 {
@@ -185,6 +191,13 @@ void dvmSetFieldObject(Object* obj, int offset, Object* val)
     //}
 }
 
+void dvmSetFieldLongVolatile(Object* obj, int offset, s8 val)
+{
+	assert(0);
+//    s8* addr = (s8*)BYTE_OFFSET(obj, offset);
+//    dvmQuasiAtomicSwap64Sync(val, addr);
+}
+
 #if 0
 void dvmSetFieldIntVolatile(Object* obj, int offset, s4 val)
 {
@@ -226,11 +239,7 @@ void dvmSetFieldFloatVolatile(Object* obj, int offset, float val)
     dvmSetFieldIntVolatile(obj, offset, alias.ival);
 }
 
-void dvmSetFieldLongVolatile(Object* obj, int offset, s8 val)
-{
-    s8* addr = (s8*)BYTE_OFFSET(obj, offset);
-    dvmQuasiAtomicSwap64Sync(val, addr);
-}
+
 
 void dvmSetFieldDoubleVolatile(Object* obj, int offset, double val)
 {
@@ -296,6 +305,15 @@ Object* dvmGetStaticFieldObject(const StaticField* sfield)
     return sfield->value.l;
 }
 
+s8 dvmGetStaticFieldLongVolatile(const StaticField* sfield)
+{
+	assert(0);
+/*    const s8* addr = &sfield->value.j;
+    s8 val = dvmQuasiAtomicRead64(addr);
+    ANDROID_MEMBAR_FULL();
+    return val;*/
+}
+
 #if 0
 bool_t dvmGetStaticFieldBooleanVolatile(const StaticField* sfield)
 {
@@ -329,13 +347,7 @@ float dvmGetStaticFieldFloatVolatile(const StaticField* sfield)
     alias.ival = android_atomic_acquire_load((s4*)ptr);
     return alias.fval;
 }
-s8 dvmGetStaticFieldLongVolatile(const StaticField* sfield)
-{
-    const s8* addr = &sfield->value.j;
-    s8 val = dvmQuasiAtomicRead64(addr);
-    ANDROID_MEMBAR_FULL();
-    return val;
-}
+
 double dvmGetStaticFieldDoubleVolatile(const StaticField* sfield)
 {
     union { s8 lval; double dval; } alias;
@@ -389,6 +401,13 @@ void dvmSetStaticFieldObject(StaticField* sfield, Object* val)
     //if (val != NULL) {
     //    dvmWriteBarrierField(sfield->clazz, &sfield->value.l);
     //}
+}
+
+void dvmSetStaticFieldLongVolatile(StaticField* sfield, s8 val)
+{
+	assert(0);
+ //   s8* addr = &sfield->value.j;
+    //dvmQuasiAtomicSwap64Sync(val, addr);
 }
 
 #if 0
@@ -1435,4 +1454,23 @@ void dvmDumpObject(const Object* obj)
 }
 
 
+/*
+ * Get the method ID for a static method in a class.
+ */
+Method * dvmGetStaticMethodID(ClassObject * clazz, const char* name, const char* sig) 
+{
+	Method* meth = NULL; 
+	if (!dvmIsClassInitialized(clazz) && !dvmInitClass(clazz)) {
 
+		return NULL;
+    }
+
+    meth = dvmFindDirectMethodHierByDescriptor(clazz, name, sig);
+
+    /* make sure it's static, not virtual+private */
+    if (meth != NULL && !dvmIsStaticMethod(meth)) {
+
+        meth = NULL;
+    }
+    return meth;
+}

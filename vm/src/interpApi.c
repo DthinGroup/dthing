@@ -1,17 +1,17 @@
 
-
+#include <vm_common.h>
 #include <interpApi.h>
 #include <interpState.h>
+#include <dthread.h>
+#include <kni.h>
+#include <Object.h>
 
 
-
-
-void dvmInterpretEntry(Thread * self)
+void dvmInterpretEntry(Thread * self,JValue *pResult)
 {
     InterpSaveState interpSaveState;
     ExecutionSubModes savedSubModes;
 	Method * method;
-	JValue * pResult;
     /*
      * Save interpreter state from previous activation, linking
      * new to last.
@@ -41,9 +41,19 @@ void dvmInterpretEntry(Thread * self)
     /*
      * method must be set in advance
      */
-	method = self->interpSave.method;
+	if(self->bInterpFirst)
+	{
+		method = (Method *)self->entryMthd;
+		self->interpSave.method = method;
+		self->interpSave.pc = method->insns;
+	}
+	else
+	{
+		method = (struct Method *)self->interpSave.method;
+		//self->interpSave.pc = method->insns;
+	}	
     self->interpSave.curFrame = (u4*) self->interpSave.curFrame;
-    self->interpSave.pc = method->insns;
+    
 
     assert(!dvmIsNativeMethod(method));
 
@@ -66,7 +76,7 @@ void dvmInterpretEntry(Thread * self)
     *pResult = self->interpSave.retval;
 
     /* Restore interpreter state from previous activation */
-    self->interpSave = interpSaveState;
+    //self->interpSave = interpSaveState;
 
 #if __NIX__
     if (savedSubModes != kSubModeNormal) 
@@ -74,4 +84,64 @@ void dvmInterpretEntry(Thread * self)
         dvmEnableSubMode(self, savedSubModes);
     }	
 #endif
+}
+
+#define SUPPORT_MAX_PARAMS  10
+
+void dvmInterpretMakeNativeCall(const u4* args, JValue* pResult, const Method* method, Thread* self)
+{
+	KniFunc nativefunc = NULL;
+	Object * thisClz = NULL;   //if static: class ptr;if non static :instance this ptr
+	u4 argvs[SUPPORT_MAX_PARAMS] = {0};
+	int idx = 0;
+	int offset = 0;
+
+	if(dvmIsStaticMethod(method))
+	{
+		/*nix: maybe error!*/
+		thisClz = (Object*) method->clazz;
+	}
+	else
+	{
+		thisClz = ((Object*) args)->clazz ;  //the first param of Fp is "this ptr"
+		offset++;
+	}
+	argvs[idx++] = (u4) thisClz;
+
+	/*prase other params to argvs*/
+	{
+        const char* shorty = &method->shorty[1];        /* skip return type */
+        while (*shorty != '\0') 
+		{
+#if 1
+			argvs[idx] = (u4) args[offset];
+			idx++;
+			offset++;
+			shorty++;
+#else			
+            switch (*shorty++) 
+			{
+            case 'L':
+                printf("  local %d: 0x%08x", idx, args[offset]);
+				argvs[idx] = (u4) args[offset];
+				idx++;
+                break;
+            case 'D':
+            case 'J':
+                //idx++;
+                break;
+            default:
+                /* Z B C S I -- do nothing */
+                break;
+            }
+            //idx++;
+			offset++;
+#endif
+        }
+    }
+
+	nativefunc = Kni_findFuncPtr(method);
+	DVM_ASSERT(nativefunc != NULL);
+	nativefunc(argvs,pResult);
+
 }

@@ -6,7 +6,7 @@
 
 
 //default schduler time,unit in ms
-#define SCHEDULER_TIMER     (50)
+#define SCHEDULER_TIMER     (20)
 
 #define CAN_SCHEDULE()      (schedulerFlag==1)
 #define SET_SCHEDULE()      do{schedulerFlag =1;}while(0)
@@ -51,10 +51,8 @@ int Schd_OtherThreadAccount(void);
 /* tatal thread account,but dead ones exclude*/
 int Schd_ThreadAccountInTotal(void);
 
+Thread * Schd_FindThreadByJavaObj(Object * javaObj);
+
 void Schd_SCHEDULER(void);
-
-void start_Timer();
-
-void stop_Timer();
 
 #endif

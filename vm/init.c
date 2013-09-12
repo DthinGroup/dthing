@@ -15,6 +15,7 @@
 #include <dthing.h>
 #include <opl_mm.h>
 #include <opl_file.h>
+#include <vmTime.h>
 
 /* for test */
 #include <class.h>
@@ -58,8 +59,9 @@ LOCAL void DVM_lifecycle_init()
 
     dvmClassStartup();
 
+	vmtime_init();
 	Schd_InitThreadLists();
-	dthread_init();
+	//dthread_init();
 }
 
 /**
@@ -72,6 +74,7 @@ LOCAL void DVM_lifecycle_final()
 {
 	DVM_mm_finalize();
 	Schd_FinalThreadLists();
+	vmtime_term();
     dvmClassShutdown();
 }
 
@@ -150,6 +153,10 @@ static int32_t processOptions(int32_t argc, const int8_t* const argv[])
 int32_t DVM_main(int32_t argc, int8_t * argv[])
 {
     int ret;
+	/* Find main class */
+	ClassObject * mainClass = NULL;
+	Method * startMeth = NULL;
+
     DVM_native_init();
 
     ret = processOptions(argc, argv);
@@ -167,6 +174,14 @@ int32_t DVM_main(int32_t argc, int8_t * argv[])
     dvmFindClass("Ljava/lang/Object;");
     /* =================================== */
 #endif
+
+	/* Find main class */
+	mainClass = dvmFindClass("Lhelloword;");
+
+	/* Find Entry function method */
+	startMeth = dvmGetStaticMethodID(mainClass, "main", "([Ljava/lang/String;)V");
+
+	dthread_create(startMeth,NULL);
 
     //entry interpret;
     Schd_SCHEDULER();

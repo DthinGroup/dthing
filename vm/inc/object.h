@@ -518,6 +518,7 @@ Method* dvmFindInterfaceMethodHierByDescriptor(const ClassObject* iface,
 Method* dvmFindInterfaceMethodHier(const ClassObject* iface,
     const char* methodName, const DexProto* proto);
 
+Method * dvmGetStaticMethodID(ClassObject * clazz, const char* name, const char* sig);
 
 #ifdef __cplusplus
 }

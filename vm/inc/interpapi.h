@@ -1,6 +1,7 @@
 #ifndef __INTERPAPI_H__
 #define __INTERPAPI_H__
 
+#include "dvmdex.h"
 #include "vm_common.h"
 #include "dthread.h"
 #include "interpState.h"
@@ -13,7 +14,9 @@
  */
 void dvmInterpretPortable(Thread * self);
 
-void dvmInterpretEntry(Thread * self);
+void dvmInterpretEntry(Thread * self,JValue *pResult);
+
+void dvmInterpretMakeNativeCall(const u4* args, JValue* pResult, const Method* method, Thread* self);
 
 
 
@@ -31,7 +34,9 @@ void dvmReportPostNativeInvoke(const Method* methodToCall, Thread* self, u4* fp)
 
 void dvmReportPreNativeInvoke(const Method* methodToCall, Thread* self, u4* fp);
 
+#ifndef _TEST_ED_
 INLINE vbool dvmIsNativeMethod(const Method* method) ;
+#endif
 
 void dvmReportInvoke(Thread* self, const Method* methodToCall);
 
@@ -57,9 +62,16 @@ Method* dvmFindInterfaceMethodInCache(ClassObject* thisClass,
 
 void dvmThrowNoSuchMethodError(const char* msg);
 
+#ifndef _TEST_ED_
 INLINE vbool dvmIsAbstractMethod(const Method* method) ;
 
 Method* dvmResolveMethod(const ClassObject* referrer, u4 methodIdx,MethodType mType);
+
+void dvmAbort();
+
+void dvmSetFinalizable(Object *obj);
+
+#endif
     
 INLINE Method* dvmDexGetResolvedMethod(const DvmDex* pDvmDex,
     u4 methodIdx);
@@ -69,7 +81,7 @@ INLINE void dvmWriteBarrierArray(const ArrayObject *obj,
 
 void dvmThrowRuntimeException(const char* msg) ;
 
-void dvmAbort();
+
 
 INLINE void dvmSetStaticFieldObjectVolatile(StaticField* sfield, Object* val) ;
 
@@ -79,13 +91,12 @@ INLINE void dvmSetFieldObjectVolatile(Object* obj, int offset, Object* val);
 
 
 
-INLINE Object* dvmGetException(Thread* self) ;
-
-void dvmSetFinalizable(Object *obj);
+struct Object* dvmGetException(struct dthread* self) ;
 
 
-INLINE vbool dvmPerformInlineOp4Std(u4 arg0, u4 arg1, u4 arg2, u4 arg3,
-    JValue* pResult, int opIndex);
+
+
+vbool dvmPerformInlineOp4Std(u4 arg0, u4 arg1, u4 arg2, u4 arg3, JValue* pResult, int opIndex);
 
 vbool dvmPerformInlineOp4Dbg(u4 arg0, u4 arg1, u4 arg2, u4 arg3,
     JValue* pResult, int opIndex);
@@ -94,13 +105,6 @@ void dvmThrowVerificationError(const Method* method, int kind, int ref);
 
 u1 dvmGetOriginalOpcode(const u2* addr);
 
-INLINE void dvmSetStaticFieldLongVolatile(StaticField* sfield, s8 val) ;
-
-INLINE s8 dvmGetStaticFieldLongVolatile(const StaticField* sfield) ;
-
-INLINE void dvmSetFieldLongVolatile(Object* obj, int offset, s8 val);
-
-INLINE s8 dvmGetFieldLongVolatile(const Object* obj, int offset) ;
 
 INLINE Object* dvmGetFieldObjectVolatile(const Object* obj, int offset) ;
 
@@ -113,7 +117,7 @@ INLINE void dvmSetFieldIntVolatile(Object* obj, int offset, s4 val);
 INLINE s4 dvmGetFieldIntVolatile(const Object* obj, int offset) ;
 
 
-//float fmodf(float a, float b);
+//float	fmodf(float a , float b);
 
 void dvmThrowArithmeticException(const char* msg) ;
 
@@ -129,7 +133,9 @@ INLINE s8 dvmGetStaticFieldLong(const StaticField* sfield) ;
 
 INLINE s4 dvmGetStaticFieldInt(const StaticField* sfield) ;
 
+#ifndef _TEST_ED_
 StaticField* dvmResolveStaticField(const ClassObject* referrer, u4 sfieldIdx);
+#endif
 
 INLINE void dvmSetFieldObject(Object* obj, int offset, Object* val) ;
 
@@ -143,7 +149,9 @@ INLINE s8 dvmGetFieldLong(const Object* obj, int offset) ;
 
 INLINE s4 dvmGetFieldInt(const Object* obj, int offset) ;
 
+#ifndef _TEST_ED_
 InstField* dvmResolveInstField(const ClassObject* referrer, u4 ifieldIdx);
+#endif
 
 INLINE Field* dvmDexGetResolvedField(const DvmDex* pDvmDex,
     u4 fieldIdx);
@@ -154,8 +162,9 @@ INLINE void dvmSetObjectArrayElement(const ArrayObject* obj, int index,
 void dvmThrowArrayStoreExceptionIncompatibleElement(ClassObject* objectType,
         ClassObject* arrayType);
 
-vbool dvmCanPutArrayElement(const ClassObject* objectClass,
-    const ClassObject* arrayClass);
+#ifndef _TEST_ED_
+extern "C" bool dvmCanPutArrayElement(const ClassObject* objectClass, const ClassObject* arrayClass);
+#endif
 
 void dvmThrowArrayIndexOutOfBoundsException(int length, int index);
 
@@ -165,9 +174,9 @@ s4 dvmInterpHandlePackedSwitch(const u2* switchData, s4 testVal);
 
 vbool dvmCheckSuspendPending(Thread* self);
 
-INLINE vbool dvmCheckSuspendQuick(Thread* self) ;
+vbool dvmCheckSuspendQuick(struct dthread* self) ;
 
-INLINE void dvmSetException(Thread* self, Object* exception);
+void dvmSetException(struct dthread* self, struct Object* exception);
 
 vbool dvmInterpHandleFillArrayData(ArrayObject* arrayObj, const u2* arrayData);
 
@@ -175,24 +184,34 @@ void dvmThrowInternalError(const char* msg) ;
 
 INLINE u4 dvmGetMethodInsnsSize(const Method* meth) ;
 
+#ifndef _TEST_ED_
 ArrayObject* dvmAllocArrayByClass(ClassObject* arrayClass,
     size_t length, int allocFlags);
-    
-INLINE vbool dvmIsArrayClass(const ClassObject* clazz);
 
-void dvmThrowNegativeArraySizeException(s4 size) ;
+
+bool dvmIsArrayClass( const struct ClassObject * clazz);
 
 Object* dvmAllocObject(ClassObject* clazz, int flags);
 
-vbool dvmInitClass(ClassObject* clazz);
+#endif
+
+void dvmThrowNegativeArraySizeException(s4 size) ;
+
+
+
+#ifndef _TEST_ED_
+extern "C" bool dvmInitClass(ClassObject* clazz);
 
 INLINE vbool dvmIsClassInitialized(const ClassObject* clazz) ;
+
+StringObject* dvmResolveString(const ClassObject* referrer, u4 stringIdx);
+#endif
 
 void dvmThrowClassCastException(ClassObject* actual, ClassObject* desired);
 
 INLINE int dvmInstanceof(const ClassObject* instance, const ClassObject* clazz);
 
-INLINE vbool dvmCheckException(Thread* self) ;
+vbool dvmCheckException(struct dthread* self) ;
 
 vbool dvmUnlockObject(Thread* self, Object *obj);
 
@@ -200,20 +219,22 @@ void dvmLockObject(Thread* self, Object *obj);
 
 ClassObject* dvmResolveClass(const ClassObject* referrer, u4 classIdx,
     vbool fromUnverifiedConstant);
-    
+
 INLINE  ClassObject* dvmDexGetResolvedClass(const DvmDex* pDvmDex,
     u4 classIdx);
     
-StringObject* dvmResolveString(const ClassObject* referrer, u4 stringIdx);
 
 INLINE StringObject* dvmDexGetResolvedString(const DvmDex* pDvmDex,
     u4 stringIdx);
     
-INLINE void dvmClearException(Thread* self) ;
+void dvmClearException(struct dthread* self) ;
 
 void dvmCheckBefore(const u2 *pc, u4 *fp, Thread* self);
 
 void dvmThrowNullPointerException(const char* msg) ;
+
+int dvmInstanceofNonTrivial(const ClassObject* instance,
+    const ClassObject* clazz);
 
 
 #endif

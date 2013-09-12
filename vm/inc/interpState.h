@@ -12,6 +12,7 @@
 #ifndef __INTERPSTATE_H__
 #define __INTERPSTATE_H__
 
+#include "dvmdex.h"
 #include "vm_common.h"
 #include "dthread.h"
 

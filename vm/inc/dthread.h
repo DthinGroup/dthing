@@ -104,13 +104,17 @@ typedef struct dthread
 	/* the java/lang/Thread that we are associated with */
 	Object*     threadObj;
 
+	/*new  add by nix*/
+	Method * entryMthd;  // method of entry , "main" or "run" 
     
     u4 waitTimeSlice;      /* just 'useful' in READY state,to record wait-to-run time *
                             * in each READY thread,scheduler get one of READY threads holding *
                             * max waitTimeSlice to run */
     
-    u4 sleepTime;           //if state is SUSPENDED and sleepTime > 0,when sleepTime <=0 ,reACTIVE it
+    u8 sleepTime;           //if state is SUSPENDED and sleepTime > 0,when sleepTime <=0 ,reACTIVE it
     
+	u8 creatTime;           //thread create time
+
 	CallFunc	cb;
 
 	InterpSchdSave itpSchdSave;
@@ -132,13 +136,13 @@ extern Thread *otherThreadListHead;
 /*
  *public functions declare
  */
-Thread * allocThread(int stackSize);
-void dthread_init(void);
-void dthread_term(void);
-void dthread_start(Thread * thread);
-void dthread_stop(Thread * thread);
-void dthread_suspend(Thread * thread);
-void dthread_resume(Thread * thread);
-void dthread_delete(Thread * thread);
-
+Thread * dthread_alloc(int stackSize);
+void     dthread_create(const Method * mth,Object* obj);
+void     dthread_delete(Thread * thread);
+void     dthread_term(void);
+void     dthread_start(Thread * thread);
+void     dthread_stop(Thread * thread);
+void     dthread_suspend(Thread * thread,THREAD_STATE_E  newState);
+void     dthread_resume(Thread * thread);
+Thread * dthread_currentThread(void);
 #endif

@@ -47,7 +47,7 @@
 				RuntimeLibrary="3"
 				UsePrecompiledHeader="0"
 				PrecompiledHeaderFile="/P"
-				WarningLevel="3"
+				WarningLevel="0"
 				Detect64BitPortabilityProblems="true"
 				DebugInformationFormat="4"
 			/>
@@ -156,11 +156,23 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\vm\inc\gc.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\vm\src\heap.c"
 				>
 			</File>
 			<File
+				RelativePath="..\..\vm\inc\heap.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\vm\src\mm.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\vm\inc\mm.h"
 				>
 			</File>
 		</Filter>
@@ -172,6 +184,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\vm\inc\accesscheck.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\vm\src\annotation.c"
 				>
 			</File>
@@ -180,7 +196,15 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\vm\inc\array.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\vm\src\class.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\vm\inc\class.h"
 				>
 			</File>
 			<File
@@ -188,7 +212,15 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\vm\inc\dexproto.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\vm\src\hash.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\vm\inc\hash.h"
 				>
 			</File>
 			<File
@@ -196,11 +228,31 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\vm\inc\object.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\vm\inc\objectinlines.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\vm\inc\reflect.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\vm\src\resolve.c"
 				>
 			</File>
 			<File
+				RelativePath="..\..\vm\inc\resolve.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\vm\src\typecheck.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\vm\inc\typecheck.h"
 				>
 			</File>
 			<File
@@ -224,6 +276,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\vm\inc\interpapi.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\vm\src\interpCore.c"
 				>
 			</File>
@@ -232,7 +288,19 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\vm\inc\interpOpcode.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\vm\src\interpStack.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\vm\inc\interpStack.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\vm\inc\interpstate.h"
 				>
 			</File>
 			<File
@@ -244,7 +312,15 @@
 			Name="dex"
 			>
 			<File
+				RelativePath="..\..\vm\inc\dalvik_core.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\vm\src\dexclass.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\vm\inc\dexclass.h"
 				>
 			</File>
 			<File
@@ -252,11 +328,23 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\vm\inc\dexfile.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\vm\src\dvmdex.c"
 				>
 			</File>
 			<File
+				RelativePath="..\..\vm\inc\dvmdex.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\vm\src\rawdexfile.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\vm\inc\rawdexfile.h"
 				>
 			</File>
 		</Filter>
@@ -268,14 +356,58 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\vm\inc\dthread.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\vm\src\nativeThread.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\vm\inc\nativethread.h"
 				>
 			</File>
 			<File
 				RelativePath="..\..\vm\src\schd.c"
 				>
 			</File>
+			<File
+				RelativePath="..\..\vm\inc\schd.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\vm\inc\vm_common.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\vm\src\vmTime.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\vm\inc\vmTime.h"
+				>
+			</File>
 		</Filter>
+		<Filter
+			Name="kni"
+			>
+			<File
+				RelativePath="..\..\vm\inc\kni.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\vm\src\native.c"
+				>
+			</File>
+		</Filter>
+		<File
+			RelativePath="..\..\vm\common.h"
+			>
+		</File>
+		<File
+			RelativePath="..\..\vm\dthing.h"
+			>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>

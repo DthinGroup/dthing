@@ -1,11 +1,19 @@
 #include "vm_common.h"
 #include "interpApi.h"
+#include "dthread.h"
+#include "Object.h"
 
 #ifdef DVM_LOG
 #undef DVM_LOG
 #endif
 
 #define DVM_LOG		printf
+
+INLINE void dvmWriteBarrierField(const Object *obj, void *addr)
+{
+	DVM_LOG(">>>call dvmWriteBarrierField!\n");
+    //dvmMarkCard(obj);
+}
 
 void dvmPopJniLocals(Thread* self, StackSaveArea* saveArea)
 {
@@ -22,6 +30,13 @@ void dvmReportPreNativeInvoke(const Method* methodToCall, Thread* self, u4* fp)
 	DVM_LOG(">>>call dvmReportPreNativeInvoke!\n");
 }
 
+#ifndef _TEST_ED_
+INLINE vbool dvmIsNativeMethod(const Method* method) 
+{
+	DVM_LOG(">>>call dvmIsNativeMethod!\n");
+    return 0;
+}
+#endif
 
 void dvmReportInvoke(Thread* self, const Method* methodToCall)
 {
@@ -71,11 +86,98 @@ void dvmReportReturn(Thread* self)
 	DVM_LOG(">>>call dvmReportReturn!\n");
 }
 
+void dvmThrowIncompatibleClassChangeError(const char* msg) 
+{
+//    dvmThrowException(gDvm.exIncompatibleClassChangeError, msg);
+}
+
+/*
+ * Find the concrete method that corresponds to "methodIdx".  The code in
+ * "method" is executing invoke-method with "thisClass" as its first argument.
+ *
+ * Returns NULL with an exception raised on failure.
+ */
+Method* dvmInterpFindInterfaceMethod(ClassObject* thisClass, u4 methodIdx,
+    const Method* method, DvmDex* methodClassDex)
+{
+    Method* absMethod;
+    Method* methodToCall;
+    int i, vtableIndex;
+
+    /*
+     * Resolve the method.  This gives us the abstract method from the
+     * interface class declaration.
+     */
+    absMethod = dvmDexGetResolvedMethod(methodClassDex, methodIdx);
+    if (absMethod == NULL) 
+	{
+        absMethod = dvmResolveInterfaceMethod(method->clazz, methodIdx);
+        if (absMethod == NULL) 
+		{
+            DVM_LOG("+ unknown method");
+            return NULL;
+        }
+    }
+
+    /* make sure absMethod->methodIndex means what we think it means */
+    DVM_ASSERT(dvmIsAbstractMethod(absMethod));
+
+    /*
+     * Run through the "this" object's iftable.  Find the entry for
+     * absMethod's class, then use absMethod->methodIndex to find
+     * the method's entry.  The value there is the offset into our
+     * vtable of the actual method to execute.
+     *
+     * The verifier does not guarantee that objects stored into
+     * interface references actually implement the interface, so this
+     * check cannot be eliminated.
+     */
+    for (i = 0; i < thisClass->iftableCount; i++) {
+        if (thisClass->iftable[i].clazz == absMethod->clazz)
+            break;
+    }
+    if (i == thisClass->iftableCount) 
+	{
+        /* impossible in verified DEX, need to check for it in unverified */
+        dvmThrowIncompatibleClassChangeError("interface not implemented");
+        return NULL;
+    }
+
+    DVM_ASSERT(absMethod->methodIndex < thisClass->iftable[i].clazz->virtualMethodCount);
+
+    vtableIndex = thisClass->iftable[i].methodIndexArray[absMethod->methodIndex];
+    DVM_ASSERT(vtableIndex >= 0 && vtableIndex < thisClass->vtableCount);
+    methodToCall = thisClass->vtable[vtableIndex];
+
+#if 0
+    /* this can happen when there's a stale class file */
+    if (dvmIsAbstractMethod(methodToCall)) {
+        dvmThrowAbstractMethodError("interface method not implemented");
+        return NULL;
+    }
+#else
+	#if __NIX__
+    DVM_ASSERT(!dvmIsAbstractMethod(methodToCall) || methodToCall->nativeFunc != NULL);
+	#endif
+#endif
+
+    DVM_LOG("+++ interface=%s.%s concrete=%s.%s", absMethod->clazz->descriptor, absMethod->name,
+        methodToCall->clazz->descriptor, methodToCall->name);
+    DVM_ASSERT(methodToCall != NULL);
+
+    return methodToCall;
+}
+
+
+
 Method* dvmFindInterfaceMethodInCache(ClassObject* thisClass,
     u4 methodIdx, const Method* method, DvmDex* methodClassDex)
 {
+	Method* mthd = NULL;
 	DVM_LOG(">>>call dvmFindInterfaceMethodInCache!\n");
-    return NULL;
+	
+	mthd = dvmInterpFindInterfaceMethod(thisClass,methodIdx,method,methodClassDex);
+    return mthd;
 }
 
 void dvmThrowNoSuchMethodError(const char* msg) 
@@ -83,44 +185,62 @@ void dvmThrowNoSuchMethodError(const char* msg)
 	DVM_LOG(">>>call dvmThrowNoSuchMethodError!\n");
 }
 
-INLINE void dvmWriteBarrierArray(const ArrayObject *obj,
-                                 size_t start, size_t end)
-{
-
-}
-
-void dvmThrowRuntimeException(const char* msg) {
-}
-
-void dvmAbort()
-{}
-
-INLINE void dvmSetStaticFieldObjectVolatile(StaticField* sfield, Object* val) 
-{
-}
-
-INLINE Object* dvmGetStaticFieldObjectVolatile(const StaticField* sfield) 
+#ifndef _TEST_ED_
+Method* dvmResolveMethod(const ClassObject* referrer, u4 methodIdx,
+    MethodType methodType)
 {
     return NULL;
 }
 
-INLINE void dvmSetFieldObjectVolatile(Object* obj, int offset, Object* val) 
+
+INLINE vbool dvmIsAbstractMethod(const Method* method) 
 {
+    return 0;
+}
+
+
+    
+INLINE Method* dvmDexGetResolvedMethod(const DvmDex* pDvmDex,
+    u4 methodIdx)
+{
+    return NULL;
+}
+#endif
+INLINE void dvmWriteBarrierArray(const ArrayObject *obj,
+                                 size_t start, size_t end)
+{
+	DVM_LOG(">>>call dvmWriteBarrierArray!\n");
+}
+
+
+void dvmThrowRuntimeException(const char* msg) 
+{
+}
+void dvmAbort()
+{
+	DVM_LOG(">>>call dvmAbort!\n");
+	DVM_ASSERT(0);
+}
+
+void dvmSetFinalizable(Object *obj)
+{
+	DVM_LOG(">>>call dvmSetFinalizable!\n");
+	DVM_ASSERT(0);
 }
 
 
 
-INLINE Object* dvmGetException(Thread* self) 
+struct Object* dvmGetException(struct dthread* self) 
 {
     return self->exception;
 }
 
-void dvmSetFinalizable(Object *obj)
-{}
 
 
-INLINE vbool dvmPerformInlineOp4Std(u4 arg0, u4 arg1, u4 arg2, u4 arg3,
-    JValue* pResult, int opIndex)
+
+
+vbool dvmPerformInlineOp4Std(u4 arg0, u4 arg1, u4 arg2, u4 arg3,
+    union JValue* pResult, int opIndex)
 {
     return 0;
 }
@@ -138,46 +258,75 @@ u1 dvmGetOriginalOpcode(const u2* addr)
     return 0;
 }
 
-INLINE void dvmSetStaticFieldLongVolatile(StaticField* sfield, s8 val) 
+
+INLINE void dvmSetStaticFieldObjectVolatile(StaticField* sfield, Object* val) 
 {
+	Object** ptr = &(sfield->value.l);
+    //ANDROID_MEMBAR_STORE();
+    *ptr = val;
+    //ANDROID_MEMBAR_FULL();
+    if (val != NULL) 
+	{
+        dvmWriteBarrierField(sfield->field.clazz, &sfield->value.l);
+    }
 }
 
-INLINE s8 dvmGetStaticFieldLongVolatile(const StaticField* sfield) 
+INLINE Object* dvmGetStaticFieldObjectVolatile(const StaticField* sfield) 
 {
-    return 0;
+	Object* const* ptr = &(sfield->value.l);
+    return (Object*)(*(int32_t*)ptr);   // android_atomic_acquire_load((int32_t*)ptr);
 }
 
-INLINE void dvmSetFieldLongVolatile(Object* obj, int offset, s8 val) {
-}
-
-INLINE s8 dvmGetFieldLongVolatile(const Object* obj, int offset) 
+INLINE void dvmSetFieldObjectVolatile(Object* obj, int offset, Object* val) 
 {
-    return 0;
+	Object** ptr = &((JValue*)BYTE_OFFSET(obj, offset))->l;
+    //ANDROID_MEMBAR_STORE();
+    *ptr = val;
+    //ANDROID_MEMBAR_FULL();
+    if (val != NULL) 
+	{
+        dvmWriteBarrierField(obj, ptr);
+    }
 }
 
 INLINE Object* dvmGetFieldObjectVolatile(const Object* obj, int offset) 
 {
-  return NULL; 
+	Object** ptr = &((JValue*)BYTE_OFFSET(obj, offset))->l;
+    return (Object*)(*(int32_t*)ptr);   ///android_atomic_acquire_load((int32_t*)ptr);
 }
 
 INLINE void dvmSetStaticFieldIntVolatile(StaticField* sfield, s4 val) 
 {
+	s4* ptr = &sfield->value.i;
+    //ANDROID_MEMBAR_STORE();
+    *ptr = val;
+    //ANDROID_MEMBAR_FULL();
 }
 
 INLINE s4 dvmGetStaticFieldIntVolatile(const StaticField* sfield) 
 {
-return 0;
+	const s4* ptr = &(sfield->value.i);
+    return (s4)(*((s4*)ptr));   //android_atomic_acquire_load((s4*)ptr);
 }
 
 INLINE void dvmSetFieldIntVolatile(Object* obj, int offset, s4 val) 
 {
+	s4* ptr = &((JValue*)BYTE_OFFSET(obj, offset))->i;
+    /*
+     * TODO: add an android_atomic_synchronization_store() function and
+     * use it in the 32-bit volatile set handlers.  On some platforms we
+     * can use a fast atomic instruction and avoid the barriers.
+     */
+    //ANDROID_MEMBAR_STORE();
+    *ptr = val;
+    //ANDROID_MEMBAR_FULL();
 }
 
 INLINE s4 dvmGetFieldIntVolatile(const Object* obj, int offset) 
 {
-return 0;
+	s4* ptr = &((JValue*)BYTE_OFFSET(obj, offset))->i;
+    return (s4)(*ptr);  //android_atomic_acquire_load(ptr);
 }
-
 
 float	fmodf(float a, float b)
 {
@@ -192,9 +341,104 @@ INLINE Field* dvmDexGetResolvedField(const DvmDex* pDvmDex,
     u4 fieldIdx)
 {
 	DVM_LOG(">>>call dvmDexGetResolvedField!\n");
+	assert(fieldIdx < pDvmDex->pHeader->fieldIdsSize);
+    return pDvmDex->pResFields[fieldIdx];
+}
+
+#ifndef _TEST_ED_
+INLINE void dvmSetStaticFieldObject(StaticField* sfield, Object* val) 
+{
+}
+INLINE void dvmSetStaticFieldLong(StaticField* sfield, s8 val) 
+{
+}
+
+INLINE void dvmSetStaticFieldInt(StaticField* sfield, s4 val) 
+{
+    sfield->value.i = val;
+}
+
+INLINE Object* dvmGetStaticFieldObject(const StaticField* sfield) 
+{
+    return sfield->value.l;
+}
+
+INLINE s8 dvmGetStaticFieldLong(const StaticField* sfield) 
+{
+
+    return sfield->value.j;
+}
+
+INLINE s4 dvmGetStaticFieldInt(const StaticField* sfield) 
+{
+    return sfield->value.i;
+}
+
+
+
+INLINE void dvmSetFieldObject(Object* obj, int offset, Object* val) 
+{
+	DVM_LOG(">>>call dvmSetFieldObject!\n");
+}
+
+INLINE void dvmSetFieldLong(Object* obj, int offset, s8 val) 
+{
+	DVM_LOG(">>>call dvmSetFieldLong!\n");
+}
+
+INLINE void dvmSetFieldInt(Object* obj, int offset, s4 val) 
+{
+	DVM_LOG(">>>call dvmSetFieldInt!\n");
+}
+INLINE Object* dvmGetFieldObject(const Object* obj, int offset) 
+{
+	DVM_LOG(">>>call dvmGetFieldObject!\n");
     return NULL;
 }
-                      
+INLINE s8 dvmGetFieldLong(const Object* obj, int offset) 
+{
+	DVM_LOG(">>>call dvmGetFieldLong!\n");
+    return 0;
+}
+INLINE s4 dvmGetFieldInt(const Object* obj, int offset) 
+{
+	DVM_LOG(">>>call dvmGetFieldInt!\n");
+    return 0;
+}
+
+
+
+
+    
+INLINE void dvmSetObjectArrayElement(const ArrayObject* obj, int index,
+                                     Object* val) 
+{
+	DVM_LOG(">>>call dvmSetObjectArrayElement!\n");
+}
+
+
+bool dvmCanPutArrayElement(const ClassObject* objectClass,
+    const ClassObject* arrayClass)
+{
+	DVM_LOG(">>>call dvmCanPutArrayElement!\n");
+	return 0;
+}
+
+
+InstField* dvmResolveInstField(const ClassObject* referrer, u4 ifieldIdx)
+{
+	DVM_LOG(">>>call dvmResolveInstField!\n");
+    return NULL;
+}
+
+
+StaticField* dvmResolveStaticField(const ClassObject* referrer, u4 sfieldIdx)
+{
+	DVM_LOG(">>>call dvmResolveStaticField!\n");
+    return NULL;
+}
+#endif
+                           
 void dvmThrowArrayStoreExceptionIncompatibleElement(ClassObject* objectType,
         ClassObject* arrayType)
 {
@@ -209,28 +453,28 @@ void dvmThrowArrayIndexOutOfBoundsException(int length, int index)
 s4 dvmInterpHandleSparseSwitch(const u2* switchData, s4 testVal)
 {
 	DVM_LOG(">>>call dvmInterpHandleSparseSwitch!\n");
-    return -1;
+	return 0;
 }
 
 s4 dvmInterpHandlePackedSwitch(const u2* switchData, s4 testVal)
 {
 	DVM_LOG(">>>call dvmInterpHandlePackedSwitch!\n");
-    return -1;
+	return 0;
 }
 
 vbool dvmCheckSuspendPending(Thread* self)
 {
 	DVM_LOG(">>>call dvmCheckSuspendPending!\n");
-    return FALSE;
+	return 0;
 }
 
-INLINE vbool dvmCheckSuspendQuick(Thread* self) 
+vbool dvmCheckSuspendQuick(struct dthread * self) 
 {
 	DVM_LOG(">>>call dvmCheckSuspendQuick!\n");
     return 0;
 }
 
-INLINE void dvmSetException(Thread* self, Object* exception)
+void dvmSetException(struct dthread* self, struct Object* exception)
 {
 	DVM_LOG(">>>call dvmSetException!\n");
 }
@@ -245,18 +489,64 @@ void dvmThrowInternalError(const char* msg)
 {
 	DVM_LOG(">>>call dvmThrowInternalError!\n");
 }
+#ifndef _TEST_ED_
+INLINE u4 dvmGetMethodInsnsSize(const Method* meth) 
+{
+	DVM_LOG(">>>call dvmGetMethodInsnsSize!\n");
+    return 0;
+}
+
+ArrayObject* dvmAllocArrayByClass(ClassObject* arrayClass,
+    size_t length, int allocFlags)
+{
+	DVM_LOG(">>>call dvmAllocArrayByClass!\n");
+    return NULL;
+}
+ 
+
+bool dvmIsArrayClass( const struct ClassObject * clazz)
+{
+	DVM_LOG(">>>call dvmIsArrayClass!\n");
+    return 0;
+}
+#endif 
 
 void dvmThrowNegativeArraySizeException(s4 size) 
 {
 	DVM_LOG(">>>call dvmThrowNegativeArraySizeException!\n");
 }
 
+#ifndef _TEST_ED_
+
+Object* dvmAllocObject(ClassObject* clazz, int flags)
+{
+	DVM_LOG(">>>call dvmAllocObject!\n");
+    return NULL;
+}
+
+
+
+
+
+bool dvmInitClass(ClassObject* clazz)
+{
+	DVM_LOG(">>>call dvmInitClass!\n");
+    return 0;
+}
+#endif
+
 void dvmThrowClassCastException(ClassObject* actual, ClassObject* desired)
 {
 	DVM_LOG(">>>call dvmThrowClassCastException!\n");
 }
-
-INLINE vbool dvmCheckException(Thread* self) 
+#ifndef _TEST_ED_
+INLINE int dvmInstanceof(const ClassObject* instance, const ClassObject* clazz)
+{
+	DVM_LOG(">>>call dvmInstanceof!\n");
+    return 0;
+}
+#endif
+vbool dvmCheckException(struct dthread * self) 
 {
 	DVM_LOG(">>>call dvmCheckException!\n");
     return 0;
@@ -265,22 +555,48 @@ INLINE vbool dvmCheckException(Thread* self)
 vbool dvmUnlockObject(Thread* self, Object *obj)
 {
 	DVM_LOG(">>>call dvmUnlockObject!\n");
-    return 0;
+    return 1;
 }
 
 void dvmLockObject(Thread* self, Object *obj)
 {
 	DVM_LOG(">>>call dvmLockObject!\n");
 }
+#ifndef _TEST_ED_
+ClassObject* dvmResolveClass(const ClassObject* referrer, u4 classIdx,
+    vbool fromUnverifiedConstant)
+{
+	DVM_LOG(">>>call dvmResolveClass!\n");
+    return NULL;
+}
+
+INLINE  ClassObject* dvmDexGetResolvedClass(const DvmDex* pDvmDex,
+    u4 classIdx)
+{
+	DVM_LOG(">>>call dvmDexGetResolvedClass!\n");
+    return NULL;
+}
+
+
+   
+
+StringObject* dvmResolveString(const ClassObject* referrer, u4 stringIdx)
+{
+	DVM_LOG(">>>call dvmResolveString!\n");
+    return NULL;
+}
+#endif 
 
 INLINE StringObject* dvmDexGetResolvedString(const DvmDex* pDvmDex,
     u4 stringIdx)
 {
 	DVM_LOG(">>>call dvmDexGetResolvedString!\n");
+	assert(stringIdx < pDvmDex->pHeader->stringIdsSize);
+    return pDvmDex->pResStrings[stringIdx];
     return NULL;
 }
-    
-INLINE void dvmClearException(Thread* self) 
+
+void dvmClearException(struct dthread* self) 
 {
 	DVM_LOG(">>>call dvmClearException!\n");
 }
@@ -294,3 +610,5 @@ void dvmThrowNullPointerException(const char* msg)
 {
 	DVM_LOG(">>>call dvmThrowNullPointerException!\n");
 }
+
+

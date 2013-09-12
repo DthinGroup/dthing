@@ -65,6 +65,8 @@ double dvmGetFieldDouble(const Object* obj, int offset);
 
 Object* dvmGetFieldObject(const Object* obj, int offset);
 
+s8 dvmGetFieldLongVolatile(const Object* obj, int offset);
+
 #if 0
 bool_t dvmGetFieldBooleanVolatile(const Object* obj, int offset);
 
@@ -78,7 +80,7 @@ s4 dvmGetFieldIntVolatile(const Object* obj, int offset);
 
 float dvmGetFieldFloatVolatile(const Object* obj, int offset);
 
-s8 dvmGetFieldLongVolatile(const Object* obj, int offset);
+
 
 double dvmGetFieldDoubleVolatile(const Object* obj, int offset);
 
@@ -103,6 +105,8 @@ void dvmSetFieldDouble(Object* obj, int offset, double val);
 
 void dvmSetFieldObject(Object* obj, int offset, Object* val);
 
+void dvmSetFieldLongVolatile(Object* obj, int offset, s8 val);
+
 #if 0
 void dvmSetFieldIntVolatile(Object* obj, int offset, s4 val);
 
@@ -116,7 +120,7 @@ void dvmSetFieldCharVolatile(Object* obj, int offset, u2 val);
 
 void dvmSetFieldFloatVolatile(Object* obj, int offset, float val);
 
-void dvmSetFieldLongVolatile(Object* obj, int offset, s8 val);
+
 
 void dvmSetFieldDoubleVolatile(Object* obj, int offset, double val);
 
@@ -146,6 +150,7 @@ double dvmGetStaticFieldDouble(const StaticField* sfield);
 
 Object* dvmGetStaticFieldObject(const StaticField* sfield);
 
+s8 dvmGetStaticFieldLongVolatile(const StaticField* sfield);
 #if 0
 bool_t dvmGetStaticFieldBooleanVolatile(const StaticField* sfield);
 
@@ -159,7 +164,7 @@ s4 dvmGetStaticFieldIntVolatile(const StaticField* sfield);
 
 float dvmGetStaticFieldFloatVolatile(const StaticField* sfield);
 
-s8 dvmGetStaticFieldLongVolatile(const StaticField* sfield);
+
 
 double dvmGetStaticFieldDoubleVolatile(const StaticField* sfield);
 
@@ -184,6 +189,8 @@ void dvmSetStaticFieldDouble(StaticField* sfield, double val);
 
 void dvmSetStaticFieldObject(StaticField* sfield, Object* val);
 
+void dvmSetStaticFieldLongVolatile(StaticField* sfield, s8 val);
+
 #if 0
 void dvmSetStaticFieldIntVolatile(StaticField* sfield, s4 val);
 
@@ -197,7 +204,7 @@ void dvmSetStaticFieldCharVolatile(StaticField* sfield, u2 val);
 
 void dvmSetStaticFieldFloatVolatile(StaticField* sfield, float val);
 
-void dvmSetStaticFieldLongVolatile(StaticField* sfield, s8 val);
+
 
 void dvmSetStaticFieldDoubleVolatile(StaticField* sfield, double val);
 

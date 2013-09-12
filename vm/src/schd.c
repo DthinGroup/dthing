@@ -2,6 +2,7 @@
 #include "schd.h"
 #include "dthread.h"
 #include "interpApi.h"
+#include "vmTime.h"
 
 #ifdef DVM_LOG
 #undef DVM_LOG
@@ -9,22 +10,21 @@
 
 #define DVM_LOG		printf
 
-#define SCHD_OpenTIMER	start_Timer
-#define SCHD_StopTIMER	stop_Timer
 
-volatile u1 schedulerFlag = 0;
+volatile u1 schedulerFlag  = 0;
+volatile u8 g_last_tick_record = 0;
 
 void Schd_InitThreadLists(void)
 {
     Thread * guard = NULL;
         
     /*first node of readyList/otherList is guard,not used as normal thread*/
-    guard = allocThread(kMinStackSize);
+    guard = dthread_alloc(kMinStackSize);
     DVM_ASSERT(guard != NULL);
     guard->threadId = READY_GUARD_ID;    
     readyThreadListHead = guard;
     
-    guard = allocThread(kMinStackSize);
+    guard = dthread_alloc(kMinStackSize);
     DVM_ASSERT(guard != NULL);
     guard->threadId = OTHER_GUARD_ID;    
     otherThreadListHead = guard;
@@ -46,13 +46,16 @@ void Schd_FinalThreadLists(void)
 		{
 			guard->next->pre = guard->pre;
 		}
-
-		DVM_FREE((void*)(guard->interpStackStart - guard->interpStackSize));
-        DVM_FREE(guard);
+		
+		dthread_delete(guard);
 		guard = readyThreadListHead->next;
 	}
+#if 0 
 	DVM_FREE((void*)(readyThreadListHead->interpStackStart - readyThreadListHead->interpStackSize));
     DVM_FREE(readyThreadListHead);
+#else
+	dthread_delete(readyThreadListHead);
+#endif
 	readyThreadListHead = NULL;
 
 	/*final other list*/
@@ -64,20 +67,16 @@ void Schd_FinalThreadLists(void)
 		{
 			guard->next->pre = guard->pre;
 		}
-
-		DVM_FREE((void*)(guard->interpStackStart - guard->interpStackSize));
-        DVM_FREE(guard);
+		dthread_delete(guard);
 		guard = otherThreadListHead->next;
 	}
-	DVM_FREE((void*)(otherThreadListHead->interpStackStart - otherThreadListHead->interpStackSize));
-    DVM_FREE(otherThreadListHead);
+	dthread_delete(otherThreadListHead);
 	otherThreadListHead = NULL;
 
 	/**/
 	if(currentThread != NULL)
 	{
-		DVM_FREE((void*)(currentThread->interpStackStart - currentThread->interpStackSize));
-		DVM_FREE(currentThread);
+		dthread_delete(currentThread);
 		currentThread = NULL;
 	}
 }
@@ -92,6 +91,14 @@ void Schd_ChangeThreadState(Thread * thread,THREAD_STATE_E newState)
     {
         thread->threadState = newState;
     }
+
+	if(newState ==THREAD_DEAD)
+	{
+		u8 curTick = vmtime_getTickCount();
+		DVM_LOG("create time:%ld \n",thread->creatTime);
+		DVM_LOG("kill time:%ld \n",curTick);
+		DVM_LOG("life time:%ld \n",curTick- thread->creatTime);
+	}
     return;
 }
 
@@ -243,14 +250,19 @@ Thread * Schd_PopReadyFromOtherList(void)
     return NULL;
 }
 
-void Schd_DecSleepTime(u4 deltaTime)
+void Schd_DecSleepTime(u4 bkupTime)
 {
+	u8 this_tick = vmtime_getTickCount();
     Thread * tmp = otherThreadListHead->next;
+	u8 deltaTime = this_tick - g_last_tick_record;
+
+	//to avoid 'deltaTime >> 0'
+	deltaTime = deltaTime > (2*bkupTime) ? (g_last_tick_record = this_tick,2*bkupTime) : (g_last_tick_record = this_tick,deltaTime);
     while(tmp != NULL)
     {
         if(tmp->threadState == THREAD_TIME_SUSPENDED)
         {
-			DVM_LOG("Thread %d is in sleep\n",tmp->threadId);
+			DVM_LOG("Thread %d is in sleep,deltaTime=%d\n",tmp->threadId,deltaTime);
             tmp->sleepTime = (tmp->sleepTime > deltaTime) ? (tmp->sleepTime - deltaTime) : (tmp->threadState = THREAD_READY,0) ;
        }
        tmp = tmp->next;
@@ -274,21 +286,24 @@ void Schd_DelDeadThread(void)
 {
     Thread * tmp  = otherThreadListHead->next;
     Thread * find = NULL;
-    
+    	
     while(tmp != NULL)
     {
         if(tmp->threadState == THREAD_DEAD)
         {
-			DVM_LOG("Destroy thread:%d \n",tmp->threadId);
+			DVM_LOG("Destroy thread:%d \n",tmp->threadId);			
             find = tmp->pre;
             tmp->pre->next = tmp->next;
             if(tmp->next != NULL)
             {
                 tmp->next->pre = tmp->pre;
             }
-            
+#if 0
             DVM_FREE((void*)(tmp->interpStackStart - tmp->interpStackSize));
             DVM_FREE(tmp);
+#else
+			dthread_delete(tmp);
+#endif
             tmp = find;
         }
         tmp = tmp->next;
@@ -336,15 +351,52 @@ int Schd_ThreadAccountInTotal(void)
     return accu;
 }
 
-HANDLE g_hMutex;
+Thread * Schd_FindThreadByJavaObj(Object * javaObj)
+{
+    Thread * find = NULL;
+	Thread * tmp  = NULL;
+
+	/*is current?*/
+	if(currentThread != NULL && (currentThread->threadObj == javaObj))
+	{
+	    find = currentThread;
+		goto FIND_OVER;
+	}
+
+	/*find from ready list*/
+	tmp  = readyThreadListHead->next;
+	while(tmp!=NULL)
+    {
+        if(tmp->threadObj == javaObj)
+		{
+			find = tmp;
+			goto FIND_OVER;
+		}
+        tmp = tmp->next;
+    }
+
+	/*find from other list*/
+	tmp  = otherThreadListHead->next;
+	while(tmp!=NULL)
+    {
+        if(tmp->threadObj == javaObj)
+		{
+			find = tmp;
+			goto FIND_OVER;
+		}
+        tmp = tmp->next;
+    }
+
+FIND_OVER:
+	return find;
+}
 
 void Schd_SCHEDULER(void)
 {
-	unsigned long lastMs = DVM_GETCURTICK();
-#ifdef ARCH_X86
-	g_hMutex = CreateMutex( NULL , FALSE , NULL );
-#endif
-	//start_Timer();
+	JValue pResult;
+	unsigned long lastMs = vmtime_getTickCount();
+	g_last_tick_record = lastMs;
+
     while(1)
     {
     SCHD_RESTART:
@@ -365,17 +417,23 @@ void Schd_SCHEDULER(void)
         
         currentThread = Schd_PopFromReadyList();
 
-		DVM_LOG("\nThis loop Time run %d Ms\n",DVM_GETCURTICK() - lastMs);
-		lastMs = DVM_GETCURTICK();
+		DVM_LOG("\nThis loop Time run %d Ms\n",vmtime_getTickCount() - lastMs);
+		lastMs = vmtime_getTickCount();
         if(currentThread != NULL)
         {
-            currentThread->threadState = THREAD_ACTIVE;
-						
+            currentThread->threadState = THREAD_ACTIVE;					
+			pResult.j = 0;
             SCHD_OpenTIMER();
             //call interp!   
 			(*currentThread->cb)(currentThread);
-			dvmInterpretEntry(currentThread);
-			//CLR_SCHEDULE();
+			dvmInterpretEntry(currentThread,&pResult);
+
+			/*Thread exe over*/
+			if(pResult.j == 0xacacacac )
+			{
+				printf("The thread(id:%d) exe over!\n",currentThread->threadId);
+				Schd_ChangeThreadState(currentThread,THREAD_DEAD);
+			}		
         }
         else    /*no threads to run*/
         {
@@ -385,12 +443,11 @@ void Schd_SCHEDULER(void)
             {
                 goto SCHD_END;
             }
-			SCHD_OpenTIMER();
-			while(!CAN_SCHEDULE())
-			{
+			SCHD_OpenTIMER();			
+			do{
 				DVM_LOG("No ready thread,waiting...\n");
 				Sleep(10);
-			}
+			}while(!CAN_SCHEDULE());
         }
         
         Schd_DecSleepTime(SCHEDULER_TIMER);
@@ -401,10 +458,6 @@ void Schd_SCHEDULER(void)
 		DVM_LOG("Schd over!\n");
         break;
     }    
-
-#ifdef ARCH_X86
-	ReleaseMutex(g_hMutex);
-#endif
 }
 
 /*API to interpret*/
@@ -412,59 +465,3 @@ void Schd_Interpret(Thread * self)
 {
 	//
 }
-
-
-#ifdef ARCH_X86
-
-volatile unsigned int timer_id = 0;
-/*定时器回调函数*/
-WINAPI lpTimerCb(
-  u4 uTimerID,
-  u4 uMsg,
-  unsigned long dwUser,
-  unsigned long dw1,
-  unsigned long dw2
-)
-{
-	WaitForSingleObject( g_hMutex , INFINITE );
-	DVM_LOG("uTimerID:%d \n",uTimerID);
-	DVM_ASSERT(timer_id == uTimerID);
-	stop_Timer();
-	SET_SCHEDULE();
-	
-	ReleaseMutex( g_hMutex );
-}
-
-
-void start_Timer()
-{
-	
-	WaitForSingleObject( g_hMutex , INFINITE );
-
-	timer_id = timeSetEvent(
-					SCHEDULER_TIMER,     
-					1,
-					(LPTIMECALLBACK )lpTimerCb,  
-					0,
-					TIME_ONESHOT
-					);
-	DVM_LOG("timer_id:%d \n",timer_id);
-	DVM_ASSERT(timer_id != 0);
-	CLR_SCHEDULE();
-
-	ReleaseMutex( g_hMutex );
-}
-
-void stop_Timer()
-{
-	MMRESULT ret =0;
-	if(timer_id != 0)
-	{
-		DVM_LOG("stop timer:%d \n",timer_id);
-		ret = timeKillEvent(timer_id);
-		DVM_LOG("stop ret:%d \n",ret);
-		timer_id = 0;
-	}
-}
-
-#endif

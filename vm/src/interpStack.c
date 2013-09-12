@@ -1,4 +1,5 @@
 #include "interpStack.h"
+#include "Object.h"
 
 
 vbool dvmIsBreakFrame(const u4* fp)
