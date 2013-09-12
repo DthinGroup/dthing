@@ -38,13 +38,6 @@ int dvmInstanceof(const ClassObject* instance, const ClassObject* clazz);
 int dvmImplements(const ClassObject* clazz, const ClassObject* interface);
 
 /*
- * Determine whether "sub" is a sub-class of "clazz".
- *
- * Returns 0 (false) if not, 1 (true) if so.
- */
-int dvmIsSubClass(const ClassObject* sub, const ClassObject* clazz);
-
-/*
  * Determine whether or not we can store an object into an array, based
  * on the classes of the two.
  *
