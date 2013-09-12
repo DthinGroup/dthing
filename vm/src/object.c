@@ -1030,10 +1030,11 @@ static void copyTypes(char* buffer, const char** argTypes, size_t argCount, cons
 static Method* findMethodInListByDescriptor(const ClassObject* clazz,
     bool_t findVirtual, bool_t isHier, const char* name, const char* descriptor)
 {
-#if 0
+#if 1
     const char* returnType;
     size_t argCount = countArgsAndFindReturnType(descriptor, &returnType);
     char *buffer = NULL;
+    const char** argTypes;
 
     if (returnType == NULL) {
         DVMTraceWar("Bogus method descriptor: %s", descriptor);
@@ -1045,8 +1046,13 @@ static Method* findMethodInListByDescriptor(const ClassObject* clazz,
      * one '\0' per argument. The "- 2" is because "returnType -
      * descriptor" includes two parens.
      */
-    char buffer[argCount + (returnType - descriptor) - 2];
-    const char* argTypes[argCount];
+    //char buffer[argCount + (returnType - descriptor) - 2];
+    //const char* argTypes[argCount];
+
+    buffer = (char *)CRTL_malloc(argCount + (returnType - descriptor) - 2);
+    CRTL_memset(buffer, 0x0, argCount + (returnType - descriptor) - 2);
+    argTypes = (char**)CRTL_malloc(argCount * sizeof(char*));
+    CRTL_memset(argTypes, 0x0, argCount * sizeof(char*));
 
     copyTypes(buffer, argTypes, argCount, descriptor);
 
