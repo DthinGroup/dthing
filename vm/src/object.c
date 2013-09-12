@@ -1034,7 +1034,8 @@ static Method* findMethodInListByDescriptor(const ClassObject* clazz,
     const char* returnType;
     size_t argCount = countArgsAndFindReturnType(descriptor, &returnType);
     char *buffer = NULL;
-    const char** argTypes;
+    char** argTypes;
+    Method* method = NULL;
 
     if (returnType == NULL) {
         DVMTraceWar("Bogus method descriptor: %s", descriptor);
@@ -1050,8 +1051,17 @@ static Method* findMethodInListByDescriptor(const ClassObject* clazz,
     //const char* argTypes[argCount];
 
     buffer = (char *)CRTL_malloc(argCount + (returnType - descriptor) - 2);
+    if (buffer == NULL)
+    {
+        goto bail;
+    }
     CRTL_memset(buffer, 0x0, argCount + (returnType - descriptor) - 2);
+
     argTypes = (char**)CRTL_malloc(argCount * sizeof(char*));
+    if (argTypes == NULL)
+    {
+        goto bail;
+    }
     CRTL_memset(argTypes, 0x0, argCount * sizeof(char*));
 
     copyTypes(buffer, argTypes, argCount, descriptor);
@@ -1070,10 +1080,10 @@ static Method* findMethodInListByDescriptor(const ClassObject* clazz,
         }
 
         for (i = 0; i < methodCount; i++) {
-            Method* method = &methods[i];
+            method = &methods[i];
             if (compareMethodHelper(method, name, returnType, argCount,
                             argTypes) == 0) {
-                return method;
+                goto bail;
             }
         }
 
@@ -1084,7 +1094,11 @@ static Method* findMethodInListByDescriptor(const ClassObject* clazz,
         clazz = clazz->super;
     }
 
-    return NULL;
+bail:
+    CRTL_freeif(buffer);
+    CRTL_freeif(argTypes);
+
+    return method;
 #else
     return NULL;
 #endif
