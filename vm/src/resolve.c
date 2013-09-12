@@ -31,6 +31,7 @@
 #include <dthing.h>
 #include <array.h>
 #include <resolve.h>
+#include <object.h>
 
 
 /*
@@ -92,7 +93,8 @@ ClassObject* dvmResolveClass(const ClassObject* referrer, u4 classIdx, bool_t fr
         /* primitive type */
         resClass = dvmFindPrimitiveClass(className[0]);
     } else {
-        resClass = dvmFindClassNoInit(className);
+          resClass = dvmFindClass(className);
+        //resClass = dvmFindClassNoInit(className);
     }
 
     if (resClass != NULL)
@@ -170,7 +172,7 @@ ClassObject* dvmResolveClass(const ClassObject* referrer, u4 classIdx, bool_t fr
  */
 Method* dvmResolveMethod(const ClassObject* referrer, u4 methodIdx, MethodType methodType)
 {
-#if 0
+#if 1
     DvmDex* pDvmDex = referrer->pDvmDex;
     ClassObject* resClass;
     const DexMethodId* pMethodId;
@@ -291,7 +293,7 @@ Method* dvmResolveMethod(const ClassObject* referrer, u4 methodIdx, MethodType m
  */
 Method* dvmResolveInterfaceMethod(const ClassObject* referrer, u4 methodIdx)
 {
-#if 0
+#if 1
     DvmDex* pDvmDex = referrer->pDvmDex;
     ClassObject* resClass;
     const DexMethodId* pMethodId;
@@ -343,11 +345,13 @@ Method* dvmResolveInterfaceMethod(const ClassObject* referrer, u4 methodIdx)
 
     dexProtoSetFromMethodId(&proto, pDvmDex->pDexFile, pMethodId);
 
-    DVMTraceInf("+++ looking for '%s' '%s' in resClass='%s'",
-        methodName, methodSig, resClass->descriptor);
+    DVMTraceInf("+++ looking for '%s' in resClass='%s'", methodName, resClass->descriptor);
     resMethod = dvmFindInterfaceMethodHier(resClass, methodName, &proto);
     if (resMethod == NULL) {
-        dvmThrowNoSuchMethodError(methodName);
+        //dvmThrowNoSuchMethodError(methodName);
+        //======================
+        /* TODO: how to throw error here? */
+        //======================
         return NULL;
     }
 
@@ -394,23 +398,22 @@ Method* dvmResolveInterfaceMethod(const ClassObject* referrer, u4 methodIdx)
  */
 InstField* dvmResolveInstField(const ClassObject* referrer, u4 ifieldIdx)
 {
-#if 0
+#if 1
     DvmDex* pDvmDex = referrer->pDvmDex;
     ClassObject* resClass;
     const DexFieldId* pFieldId;
     InstField* resField;
 
-    LOGVV("--- resolving field %u (referrer=%s cl=%p)",
-        ifieldIdx, referrer->descriptor, referrer->classLoader);
+    DVMTraceInf("--- resolving field %u (referrer=%s)", ifieldIdx, referrer->descriptor);
 
     pFieldId = dexGetFieldId(pDvmDex->pDexFile, ifieldIdx);
 
     /*
      * Find the field's class.
      */
-    resClass = dvmResolveClass(referrer, pFieldId->classIdx, false);
+    resClass = dvmResolveClass(referrer, pFieldId->classIdx, FALSE);
     if (resClass == NULL) {
-        assert(dvmCheckException(dvmThreadSelf()));
+        //assert(dvmCheckException(dvmThreadSelf()));
         return NULL;
     }
 
@@ -418,8 +421,12 @@ InstField* dvmResolveInstField(const ClassObject* referrer, u4 ifieldIdx)
         dexStringById(pDvmDex->pDexFile, pFieldId->nameIdx),
         dexStringByTypeIdx(pDvmDex->pDexFile, pFieldId->typeIdx));
     if (resField == NULL) {
-        dvmThrowNoSuchFieldError(
-            dexStringById(pDvmDex->pDexFile, pFieldId->nameIdx));
+        //dvmThrowNoSuchFieldError(
+        //    dexStringById(pDvmDex->pDexFile, pFieldId->nameIdx));
+        //dvmThrowNoSuchMethodError(methodName);
+        //======================
+        /* TODO: how to throw error here? */
+        //======================
         return NULL;
     }
 
@@ -428,8 +435,8 @@ InstField* dvmResolveInstField(const ClassObject* referrer, u4 ifieldIdx)
      * could still be in the process of initializing it if the field
      * access is from a static initializer.
      */
-    assert(dvmIsClassInitialized(resField->clazz) ||
-           dvmIsClassInitializing(resField->clazz));
+    //assert(dvmIsClassInitialized(resField->clazz) ||
+    //       dvmIsClassInitializing(resField->clazz));
 
     /*
      * The class is initialized (or initializing), the field has been
@@ -442,8 +449,7 @@ InstField* dvmResolveInstField(const ClassObject* referrer, u4 ifieldIdx)
      * So it's always okay to update the table.
      */
     dvmDexSetResolvedField(pDvmDex, ifieldIdx, (Field*)resField);
-    LOGVV("    field %u is %s.%s",
-        ifieldIdx, resField->clazz->descriptor, resField->name);
+    DVMTraceInf("field %u is %s.%s", ifieldIdx, resField->field.clazz->descriptor, resField->field.name);
 
     return resField;
 #else
@@ -460,7 +466,7 @@ InstField* dvmResolveInstField(const ClassObject* referrer, u4 ifieldIdx)
  */
 StaticField* dvmResolveStaticField(const ClassObject* referrer, u4 sfieldIdx)
 {
-#if 0
+#if 1
     DvmDex* pDvmDex = referrer->pDvmDex;
     ClassObject* resClass;
     const DexFieldId* pFieldId;
@@ -471,9 +477,9 @@ StaticField* dvmResolveStaticField(const ClassObject* referrer, u4 sfieldIdx)
     /*
      * Find the field's class.
      */
-    resClass = dvmResolveClass(referrer, pFieldId->classIdx, false);
+    resClass = dvmResolveClass(referrer, pFieldId->classIdx, FALSE);
     if (resClass == NULL) {
-        assert(dvmCheckException(dvmThreadSelf()));
+        //assert(dvmCheckException(dvmThreadSelf()));
         return NULL;
     }
 
@@ -481,8 +487,11 @@ StaticField* dvmResolveStaticField(const ClassObject* referrer, u4 sfieldIdx)
                 dexStringById(pDvmDex->pDexFile, pFieldId->nameIdx),
                 dexStringByTypeIdx(pDvmDex->pDexFile, pFieldId->typeIdx));
     if (resField == NULL) {
-        dvmThrowNoSuchFieldError(
-            dexStringById(pDvmDex->pDexFile, pFieldId->nameIdx));
+        //dvmThrowNoSuchFieldError(
+        //    dexStringById(pDvmDex->pDexFile, pFieldId->nameIdx));
+        //======================
+        /* TODO: how to throw error here? */
+        //======================
         return NULL;
     }
 
@@ -491,10 +500,10 @@ StaticField* dvmResolveStaticField(const ClassObject* referrer, u4 sfieldIdx)
      * we need to do it now.  Note that, if the field was inherited from
      * a superclass, it is not necessarily the same as "resClass".
      */
-    if (!dvmIsClassInitialized(resField->clazz) &&
-        !dvmInitClass(resField->clazz))
+    if (!dvmIsClassInitialized(resField->field.clazz) &&
+        !dvmInitClass(resField->field.clazz))
     {
-        assert(dvmCheckException(dvmThreadSelf()));
+        //assert(dvmCheckException(dvmThreadSelf()));
         return NULL;
     }
 
@@ -505,13 +514,12 @@ StaticField* dvmResolveStaticField(const ClassObject* referrer, u4 sfieldIdx)
      * the store, otherwise other threads could use the field without waiting
      * for class init to finish.
      */
-    if (dvmIsClassInitialized(resField->clazz)) {
+    if (dvmIsClassInitialized(resField->field.clazz)) {
         dvmDexSetResolvedField(pDvmDex, sfieldIdx, (Field*) resField);
     } else {
-        LOGVV("--- not caching resolved field %s.%s (class init=%d/%d)",
-            resField->clazz->descriptor, resField->name,
-            dvmIsClassInitializing(resField->clazz),
-            dvmIsClassInitialized(resField->clazz));
+        DVMTraceInf("--- not caching resolved field %s (class init=%d/%d)", resField->field.name,
+            dvmIsClassInitializing(resField->field.clazz),
+            dvmIsClassInitialized(resField->field.clazz));
     }
 
     return resField;

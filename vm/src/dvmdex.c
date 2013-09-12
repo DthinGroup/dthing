@@ -216,10 +216,41 @@ bail:
 }
 
 
+/*
+ * Return the requested item if it has been resolved, or NULL if it hasn't.
+ */
+StringObject* dvmDexGetResolvedString(const DvmDex* pDvmDex, u4 stringIdx)
+{
+    //assert(stringIdx < pDvmDex->pHeader->stringIdsSize);
+    return pDvmDex->pResStrings[stringIdx];
+}
+
 ClassObject* dvmDexGetResolvedClass(const DvmDex* pDvmDex, u4 classIdx)
 {
     //assert(classIdx < pDvmDex->pHeader->typeIdsSize);
     return pDvmDex->pResClasses[classIdx];
+}
+
+Method* dvmDexGetResolvedMethod(const DvmDex* pDvmDex, u4 methodIdx)
+{
+    //assert(methodIdx < pDvmDex->pHeader->methodIdsSize);
+    return pDvmDex->pResMethods[methodIdx];
+}
+
+Field* dvmDexGetResolvedField(const DvmDex* pDvmDex, u4 fieldIdx)
+{
+    //assert(fieldIdx < pDvmDex->pHeader->fieldIdsSize);
+    return pDvmDex->pResFields[fieldIdx];
+}
+
+/*
+ * Update the resolved item table.  Resolution always produces the same
+ * result, so we're not worried about atomicity here.
+ */
+void dvmDexSetResolvedString(DvmDex* pDvmDex, u4 stringIdx, StringObject* str)
+{
+    //assert(stringIdx < pDvmDex->pHeader->stringIdsSize);
+    pDvmDex->pResStrings[stringIdx] = str;
 }
 
 void dvmDexSetResolvedClass(DvmDex* pDvmDex, u4 classIdx, ClassObject* clazz)
@@ -228,10 +259,16 @@ void dvmDexSetResolvedClass(DvmDex* pDvmDex, u4 classIdx, ClassObject* clazz)
     pDvmDex->pResClasses[classIdx] = clazz;
 }
 
-Method* dvmDexGetResolvedMethod(const DvmDex* pDvmDex, u4 methodIdx)
+void dvmDexSetResolvedMethod(DvmDex* pDvmDex, u4 methodIdx, Method* method)
 {
     //assert(methodIdx < pDvmDex->pHeader->methodIdsSize);
-    return pDvmDex->pResMethods[methodIdx];
+    pDvmDex->pResMethods[methodIdx] = method;
+}
+
+void dvmDexSetResolvedField(DvmDex* pDvmDex, u4 fieldIdx, Field* field)
+{
+    //assert(fieldIdx < pDvmDex->pHeader->fieldIdsSize);
+    pDvmDex->pResFields[fieldIdx] = field;
 }
 
 

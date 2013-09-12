@@ -518,6 +518,25 @@ Method* dvmFindInterfaceMethodHierByDescriptor(const ClassObject* iface,
 Method* dvmFindInterfaceMethodHier(const ClassObject* iface,
     const char* methodName, const DexProto* proto);
 
+/*
+ * Find a matching field, in this class or a superclass.
+ *
+ * Searching through interfaces isn't necessary, because interface fields
+ * are inherently public/static/final.
+ *
+ * Returns NULL if the field can't be found.  (Does not throw an exception.)
+ */
+InstField* dvmFindInstanceFieldHier(const ClassObject* clazz,
+    const char* fieldName, const char* signature);
+
+/*
+ * Find a matching field, in this class or a superclass.
+ *
+ * Returns NULL if the field can't be found.  (Does not throw an exception.)
+ */
+StaticField* dvmFindStaticFieldHier(const ClassObject* clazz,
+    const char* fieldName, const char* signature);
+
 Method * dvmGetStaticMethodID(ClassObject * clazz, const char* name, const char* sig);
 
 #ifdef __cplusplus

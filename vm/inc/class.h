@@ -203,6 +203,73 @@ int dvmCompareNameDescriptorAndMethod(const char* name, const char* descriptor, 
 bool_t dvmAddClassToHash(ClassObject* clazz);
 
 
+/*
+ * If a class has not been initialized, do so by executing the code in
+ * <clinit>.  The sequence is described in the VM spec v2 2.17.5.
+ *
+ * It is possible for multiple threads to arrive here simultaneously, so
+ * we need to lock the class while we check stuff.  We know that no
+ * interpreted code has access to the class yet, so we can use the class's
+ * monitor lock.
+ *
+ * We will often be called recursively, e.g. when the <clinit> code resolves
+ * one of its fields, the field resolution will try to initialize the class.
+ * In that case we will return "true" even though the class isn't actually
+ * ready to go.  The ambiguity can be resolved with dvmIsClassInitializing().
+ * (TODO: consider having this return an enum to avoid the extra call --
+ * return -1 on failure, 0 on success, 1 on still-initializing.  Looks like
+ * dvmIsClassInitializing() is always paired with *Initialized())
+ *
+ * This can get very interesting if a class has a static field initialized
+ * to a new instance of itself.  <clinit> will end up calling <init> on
+ * the members it is initializing, which is fine unless it uses the contents
+ * of static fields to initialize instance fields.  This will leave the
+ * static-referenced objects in a partially initialized state.  This is
+ * reasonably rare and can sometimes be cured with proper field ordering.
+ *
+ * On failure, returns "false" with an exception raised.
+ *
+ * -----
+ *
+ * It is possible to cause a deadlock by having a situation like this:
+ *   class A { static { sleep(10000); new B(); } }
+ *   class B { static { sleep(10000); new A(); } }
+ *   new Thread() { public void run() { new A(); } }.start();
+ *   new Thread() { public void run() { new B(); } }.start();
+ * This appears to be expected under the spec.
+ *
+ * The interesting question is what to do if somebody calls Thread.interrupt()
+ * on one of the deadlocked threads.  According to the VM spec, they're both
+ * sitting in "wait".  Should the interrupt code quietly raise the
+ * "interrupted" flag, or should the "wait" return immediately with an
+ * exception raised?
+ *
+ * This gets a little murky.  The VM spec says we call "wait", and the
+ * spec for Thread.interrupt says Object.wait is interruptible.  So it
+ * seems that, if we get unlucky and interrupt class initialization, we
+ * are expected to throw (which gets converted to ExceptionInInitializerError
+ * since InterruptedException is checked).
+ *
+ * There are a couple of problems here.  First, all threads are expected to
+ * present a consistent view of class initialization, so we can't have it
+ * fail in one thread and succeed in another.  Second, once a class fails
+ * to initialize, it must *always* fail.  This means that a stray interrupt()
+ * call could render a class unusable for the lifetime of the VM.
+ *
+ * In most cases -- the deadlock example above being a counter-example --
+ * the interrupting thread can't tell whether the target thread handled
+ * the initialization itself or had to wait while another thread did the
+ * work.  Refusing to interrupt class initialization is, in most cases,
+ * not something that a program can reliably detect.
+ *
+ * On the assumption that interrupting class initialization is highly
+ * undesirable in most circumstances, and that failing to do so does not
+ * deviate from the spec in a meaningful way, we don't allow class init
+ * to be interrupted by Thread.interrupt().
+ */
+bool_t dvmInitClass(ClassObject* clazz);
+
+
 #ifdef __cplusplus
 }
 #endif

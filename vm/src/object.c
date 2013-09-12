@@ -83,6 +83,7 @@ s8 dvmGetFieldLongVolatile(const Object* obj, int offset)
     ANDROID_MEMBAR_FULL();
     return val;
 */
+    return 0; //fake to avoid warning.
 }
 
 #if 0
@@ -312,6 +313,7 @@ s8 dvmGetStaticFieldLongVolatile(const StaticField* sfield)
     s8 val = dvmQuasiAtomicRead64(addr);
     ANDROID_MEMBAR_FULL();
     return val;*/
+    return 0; //fake to avoid warning.
 }
 
 #if 0

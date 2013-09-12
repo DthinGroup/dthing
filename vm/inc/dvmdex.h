@@ -41,8 +41,6 @@ typedef struct DataObject_s     DataObject;
 typedef struct ArrayObject_s    ArrayObject;
 typedef struct Field_s          Field;
 typedef struct StaticField_s    StaticField;
-typedef struct InstField_s      InstField;
-
 
 /*
  * Some additional VM data structures that are associated with the DEX file.
@@ -90,11 +88,32 @@ int dvmDexFileOpenFromRawData(const u1* rawData, u4 length, DvmDex** ppDvmDex);
 void dvmDexFileFree(DvmDex* pDvmDex);
 
 
+
+/*
+ * Return the requested item if it has been resolved, or NULL if it hasn't.
+ */
+StringObject* dvmDexGetResolvedString(const DvmDex* pDvmDex, u4 stringIdx);
+
 ClassObject* dvmDexGetResolvedClass(const DvmDex* pDvmDex, u4 classIdx);
+
+Method* dvmDexGetResolvedMethod(const DvmDex* pDvmDex, u4 methodIdx);
+
+Field* dvmDexGetResolvedField(const DvmDex* pDvmDex, u4 fieldIdx);
+
+/*
+ * Update the resolved item table.  Resolution always produces the same
+ * result, so we're not worried about atomicity here.
+ */
+void dvmDexSetResolvedString(DvmDex* pDvmDex, u4 stringIdx, StringObject* str);
+
 
 void dvmDexSetResolvedClass(DvmDex* pDvmDex, u4 classIdx, ClassObject* clazz);
 
-Method* dvmDexGetResolvedMethod(const DvmDex* pDvmDex, u4 methodIdx);
+void dvmDexSetResolvedMethod(DvmDex* pDvmDex, u4 methodIdx, Method* method);
+
+
+void dvmDexSetResolvedField(DvmDex* pDvmDex, u4 fieldIdx, Field* field);
+
 
 #ifdef __cplusplus
 }

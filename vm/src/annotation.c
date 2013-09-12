@@ -300,6 +300,7 @@ typedef enum AnnotationResultStyle_e {
 DataObject* dvmBoxPrimitive(JValue value, ClassObject* returnType)
 {
     //TODO: not implemnet reflect. Do we really need this?
+    return NULL;//fake to avoid warning.
 }
 
 /*

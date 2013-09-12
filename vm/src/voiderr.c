@@ -337,14 +337,6 @@ void dvmThrowArithmeticException(const char* msg)
 {
 }
 
-INLINE Field* dvmDexGetResolvedField(const DvmDex* pDvmDex,
-    u4 fieldIdx)
-{
-	DVM_LOG(">>>call dvmDexGetResolvedField!\n");
-	assert(fieldIdx < pDvmDex->pHeader->fieldIdsSize);
-    return pDvmDex->pResFields[fieldIdx];
-}
-
 #ifndef _TEST_ED_
 INLINE void dvmSetStaticFieldObject(StaticField* sfield, Object* val) 
 {
@@ -561,39 +553,6 @@ vbool dvmUnlockObject(Thread* self, Object *obj)
 void dvmLockObject(Thread* self, Object *obj)
 {
 	DVM_LOG(">>>call dvmLockObject!\n");
-}
-#ifndef _TEST_ED_
-ClassObject* dvmResolveClass(const ClassObject* referrer, u4 classIdx,
-    vbool fromUnverifiedConstant)
-{
-	DVM_LOG(">>>call dvmResolveClass!\n");
-    return NULL;
-}
-
-INLINE  ClassObject* dvmDexGetResolvedClass(const DvmDex* pDvmDex,
-    u4 classIdx)
-{
-	DVM_LOG(">>>call dvmDexGetResolvedClass!\n");
-    return NULL;
-}
-
-
-   
-
-StringObject* dvmResolveString(const ClassObject* referrer, u4 stringIdx)
-{
-	DVM_LOG(">>>call dvmResolveString!\n");
-    return NULL;
-}
-#endif 
-
-INLINE StringObject* dvmDexGetResolvedString(const DvmDex* pDvmDex,
-    u4 stringIdx)
-{
-	DVM_LOG(">>>call dvmDexGetResolvedString!\n");
-	assert(stringIdx < pDvmDex->pHeader->stringIdsSize);
-    return pDvmDex->pResStrings[stringIdx];
-    return NULL;
 }
 
 void dvmClearException(struct dthread* self) 
