@@ -201,13 +201,6 @@ void dvmThrowArrayStoreExceptionIncompatibleElement(ClassObject* objectType,
 	DVM_LOG(">>>call dvmThrowArrayStoreExceptionIncompatibleElement!\n");
 }
 
-vbool dvmCanPutArrayElement(const ClassObject* objectClass,
-    const ClassObject* arrayClass)
-{
-	DVM_LOG(">>>call dvmCanPutArrayElement!\n");
-    return FALSE;
-}
-
 void dvmThrowArrayIndexOutOfBoundsException(int length, int index)
 {
 	DVM_LOG(">>>call dvmThrowArrayIndexOutOfBoundsException!\n");
@@ -258,27 +251,9 @@ void dvmThrowNegativeArraySizeException(s4 size)
 	DVM_LOG(">>>call dvmThrowNegativeArraySizeException!\n");
 }
 
-Object* dvmAllocObject(ClassObject* clazz, int flags)
-{
-	DVM_LOG(">>>call dvmAllocObject!\n");
-    return NULL;
-}
-
-INLINE vbool dvmIsClassInitialized(const ClassObject* clazz) 
-{
-	DVM_LOG(">>>call dvmIsClassInitialized!\n");
-    return 0;
-}
-
 void dvmThrowClassCastException(ClassObject* actual, ClassObject* desired)
 {
 	DVM_LOG(">>>call dvmThrowClassCastException!\n");
-}
-
-INLINE int dvmInstanceof(const ClassObject* instance, const ClassObject* clazz)
-{
-	DVM_LOG(">>>call dvmInstanceof!\n");
-    return 0;
 }
 
 INLINE vbool dvmCheckException(Thread* self) 

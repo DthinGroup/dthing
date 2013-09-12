@@ -14,7 +14,12 @@ extern "C" {
 #endif
 
 
-
+/*
+ * Create an instance of the specified class.
+ *
+ * Returns NULL and throws an exception on failure.
+ */
+Object* dvmAllocObject(ClassObject* clazz, int flags);
 
 
 #ifdef __cplusplus

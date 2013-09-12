@@ -217,7 +217,7 @@ int32_t file_open(const uint16_t* name, int32_t nameLen, int32_t mode, int32_t *
     else /* Success */
     {
         DVMTraceInf("CPL_file_open: _open %s %d returned 0x%x",
-            getAsciiName(name, nameLen), mode, res);
+            getAsciiName(name, nameLen), mode, ((int32_t)res));
 
         *handle = (int32_t)res;
 

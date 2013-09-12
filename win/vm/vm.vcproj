@@ -200,6 +200,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\vm\src\typecheck.c"
+				>
+			</File>
+			<File
 				RelativePath="..\..\vm\src\utfstring.c"
 				>
 			</File>
