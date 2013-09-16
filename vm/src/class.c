@@ -609,6 +609,52 @@ bail:
     return TRUE;
 }
 
+
+static bool_t initClassReference(ClassObject** pClass, const char* name)
+{
+    ClassObject* result;
+
+    //assert(*pClass == NULL);
+
+    if (name[0] == '[') {
+        result = dvmFindArrayClass(name);
+    } else {
+        result = dvmFindSystemClassNoInit(name);
+    }
+
+    if (result == NULL) {
+        DVMTraceErr("Could not find essential class %s", name);
+        return FALSE;
+    }
+
+    *pClass = result;
+    return TRUE;
+}
+
+static bool_t initClassReferences() {
+    static struct { ClassObject** ref; const char* name; } classes[] = {
+        /*
+         * Note: The class Class gets special treatment during initial
+         * VM startup, so there is no need to list it here.
+         */
+
+        /* The corest of the core classes */
+        { &gDvm.classJavaLangObject, "Ljava/lang/Object;" },
+        { &gDvm.classJavaLangString, "Ljava/lang/String;" },
+    };
+
+    int i;
+    for (i = 0; classes[i].ref != NULL; i++) {
+        if (!initClassReference(classes[i].ref, classes[i].name)) {
+            return FALSE;
+        }
+    }
+
+    return TRUE;
+}
+
+
+
 /*
  * Initialize the bootstrap class loader.
  *
@@ -641,11 +687,12 @@ bool_t dvmClassStartup()
      */
     processBootstrapClasses(bootStrapClasses, sizeof(bootStrapClasses));
 
-    if (!createPrimitiveArrayInitialClasses())
+    if (!createPrimitiveArrayInitialClasses() && ! initClassReferences())
     {
         DVMTraceErr("Error of creating primitive array classes!\n");
         return FALSE;
     }
+
 
     /**
      * Parse third-party classes or java drivers
@@ -742,7 +789,7 @@ static ClassObject* loadClassFromDex0(DvmDex* pDvmDex,
     {
         newClass->interfaceCount = pInterfacesList->size;
         newClass->interfaces = (ClassObject**) heapAllocPersistent(newClass->interfaceCount * sizeof(ClassObject*));
-
+        
         for (i = 0; i < newClass->interfaceCount; i++)
         {
             const DexTypeItem* pType = dexGetTypeItem(pInterfacesList, i);

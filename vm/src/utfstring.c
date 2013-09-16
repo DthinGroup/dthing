@@ -22,6 +22,62 @@
  * rather than going through an instance field lookup.
  */
 #include <dthing.h>
+#include <utfstring.h>
+#include <gc.h>
+#include <array.h>
+
+/*
+ * Allocate a new instance of the class String, performing first-use
+ * initialization of the class if necessary. Upon success, the
+ * returned value will have all its fields except hashCode already
+ * filled in, including a reference to a newly-allocated char[] for
+ * the contents, sized as given. Additionally, a reference to the
+ * chars array is stored to the pChars pointer. Callers must
+ * subsequently call dvmReleaseTrackedAlloc() on the result pointer.
+ * This function returns NULL on failure.
+ */
+static StringObject* makeStringObject(u4 charsLength, ArrayObject** pChars)
+{
+    Object* result = NULL;
+    ArrayObject* chars = NULL;
+
+    /*
+     * The String class should have already gotten found (but not
+     * necessarily initialized) before making it here. We assert it
+     * explicitly, since historically speaking, we have had bugs with
+     * regard to when the class String gets set up. The assert helps
+     * make any regressions easier to diagnose.
+     */
+    //assert(gDvm.classJavaLangString != NULL);
+
+    if (!dvmIsClassInitialized(gDvm.classJavaLangString)) {
+        /* Perform first-time use initialization of the class. */
+        if (!dvmInitClass(gDvm.classJavaLangString)) {
+            DVMTraceErr("FATAL: Could not initialize class String");
+            //dvmAbort();
+        }
+    }
+
+    result = dvmAllocObject(gDvm.classJavaLangString, 0);
+    if (result == NULL) {
+        return NULL;
+    }
+
+    chars = dvmAllocPrimitiveArray('C', charsLength, 0);
+    if (chars == NULL) {
+        //dvmReleaseTrackedAlloc(result, NULL);
+        return NULL;
+    }
+
+    dvmSetFieldInt(result, STRING_FIELDOFF_COUNT, charsLength);
+    dvmSetFieldObject(result, STRING_FIELDOFF_VALUE, (Object*) chars);
+    //dvmReleaseTrackedAlloc((Object*) chars, NULL);
+    /* Leave offset and hashCode set to zero. */
+
+    *pChars = chars;
+    return (StringObject*) result;
+}
+
 
 /*
  * Compute a hash code on a UTF-8 string, for use with internal hash tables.
@@ -54,9 +110,9 @@ uint32_t dvmComputeUtf8Hash(const char* utf8Str)
  * (If this needs optimizing, try: mask against 0xa0, shift right 5,
  * get increment {1-3} from table of 8 values.)
  */
-size_t dvmUtf8Len(const char* utf8Str)
+u4 dvmUtf8Len(const char* utf8Str)
 {
-    size_t len = 0;
+    u4  len = 0;
     int ic;
 
     while ((ic = *utf8Str++) != '\0') {
@@ -150,5 +206,62 @@ static u4 computeUtf16Hash(const u2* utf16Str, size_t len)
         hash = hash * 31 + *utf16Str++;
 
     return hash;
+}
+
+
+StringObject* dvmCreateStringFromCstr(const char* utf8Str) {
+    //assert(utf8Str != NULL);
+    return dvmCreateStringFromCstrAndLength(utf8Str, dvmUtf8Len(utf8Str));
+}
+
+
+/*
+ * Create a java/lang/String from a C string, given its UTF-16 length
+ * (number of UTF-16 code points).
+ *
+ * The caller must call dvmReleaseTrackedAlloc() on the return value.
+ *
+ * Returns NULL and throws an exception on failure.
+ */
+StringObject* dvmCreateStringFromCstrAndLength(const char* utf8Str, u4 utf16Length)
+{
+    //assert(utf8Str != NULL);
+
+    ArrayObject* chars;
+    u4 hashCode;
+    StringObject* newObj = makeStringObject(utf16Length, &chars);
+    if (newObj == NULL) {
+        return NULL;
+    }
+
+    dvmConvertUtf8ToUtf16((u2*)(void*)chars->contents, utf8Str);
+
+    hashCode = computeUtf16Hash((u2*)(void*)chars->contents, utf16Length);
+    dvmSetFieldInt((Object*) newObj, STRING_FIELDOFF_HASHCODE, hashCode);
+
+    return newObj;
+}
+
+/*
+ * Create a new java/lang/String object, using the given Unicode data.
+ */
+StringObject* dvmCreateStringFromUnicode(const u2* unichars, int len)
+{
+    /* We allow a NULL pointer if the length is zero. */
+    //assert(len == 0 || unichars != NULL);
+
+    ArrayObject* chars;
+    u4 hashCode;
+    StringObject* newObj = makeStringObject(len, &chars);
+    if (newObj == NULL) {
+        return NULL;
+    }
+
+    if (len > 0) CRTL_memcpy(chars->contents, unichars, len * sizeof(u2));
+
+    hashCode = computeUtf16Hash((u2*)(void*)chars->contents, len);
+    dvmSetFieldInt((Object*)newObj, STRING_FIELDOFF_HASHCODE, hashCode);
+
+    return newObj;
 }
 

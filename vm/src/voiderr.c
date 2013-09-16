@@ -400,15 +400,6 @@ INLINE s4 dvmGetFieldInt(const Object* obj, int offset)
 
 
 
-
-    
-INLINE void dvmSetObjectArrayElement(const ArrayObject* obj, int index,
-                                     Object* val) 
-{
-	DVM_LOG(">>>call dvmSetObjectArrayElement!\n");
-}
-
-
 bool dvmCanPutArrayElement(const ClassObject* objectClass,
     const ClassObject* arrayClass)
 {
@@ -507,25 +498,6 @@ void dvmThrowNegativeArraySizeException(s4 size)
 {
 	DVM_LOG(">>>call dvmThrowNegativeArraySizeException!\n");
 }
-
-#ifndef _TEST_ED_
-
-Object* dvmAllocObject(ClassObject* clazz, int flags)
-{
-	DVM_LOG(">>>call dvmAllocObject!\n");
-    return NULL;
-}
-
-
-
-
-
-bool dvmInitClass(ClassObject* clazz)
-{
-	DVM_LOG(">>>call dvmInitClass!\n");
-    return 0;
-}
-#endif
 
 void dvmThrowClassCastException(ClassObject* actual, ClassObject* desired)
 {

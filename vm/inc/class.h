@@ -269,6 +269,14 @@ bool_t dvmAddClassToHash(ClassObject* clazz);
  */
 bool_t dvmInitClass(ClassObject* clazz);
 
+/*
+ * Find the named class (by descriptor), searching for it in the
+ * bootclasspath.
+ *
+ * On failure, this returns NULL with an exception raised.
+ */
+ClassObject* dvmFindSystemClassNoInit(const char* descriptor);
+
 
 #ifdef __cplusplus
 }

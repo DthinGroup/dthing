@@ -38,23 +38,36 @@ static ClassObject* createArrayClass(const char* descriptor);
  */
 static ArrayObject* allocArray(ClassObject* arrayClass, size_t length, size_t elemWidth, int allocFlags)
 {
-#if 0
-    size_t elementShift = sizeof(size_t) * CHAR_BIT - 1 - CLZ(elemWidth);
-    size_t elementSize = length << elementShift;
-    size_t headerSize = CRTL_offsetof(ArrayObject, contents);
-    size_t totalSize = elementSize + headerSize;
-    if (elementSize >> elementShift != length || totalSize < elementSize) {
-        std::string descriptor(dvmHumanReadableDescriptor(arrayClass->descriptor));
-        dvmThrowExceptionFmt(gDvm.exOutOfMemoryError,
-                "%s of length %zd exceeds the VM limit", descriptor.c_str(), length);
+#if 1
+    ArrayObject* newArray;
+    size_t size;
+
+    //assert(arrayClass->descriptor[0] == '[');
+
+    if (length > 0x0fffffff) {
+        /* too large and (length * elemWidth) will overflow 32 bits */
+        DVMTraceErr("Rejecting allocation of %u-element array\n", length);
+        //dvmThrowBadAllocException("array size too large");
+        //====================================
+        /* TODO throw exception here? */
+        //====================================
         return NULL;
     }
-    ArrayObject* newArray = (ArrayObject*)dvmMalloc(totalSize, allocFlags);
+
+    size = CRTL_offsetof(ArrayObject, contents);
+    size += length * elemWidth;
+
+    /* Note that we assume that the Array class does not
+     * override finalize().
+     */
+    newArray = heapAllocObject(size, allocFlags);
     if (newArray != NULL) {
-        DVM_OBJECT_INIT(newArray, arrayClass);
+        DVM_OBJECT_INIT(&newArray->obj, arrayClass);
         newArray->length = length;
-        dvmTrackAllocation(arrayClass, totalSize);
+        DVMTraceInf("AllocArray: %s [%d] (%d)\n",
+            arrayClass->descriptor, (int) length, (int) size);
     }
+    /* the caller must call dvmReleaseTrackedAlloc */
     return newArray;
 #else
     return NULL;
@@ -170,7 +183,7 @@ ArrayObject* dvmAllocPrimitiveArray(char type, size_t length, int allocFlags)
 ArrayObject* dvmAllocMultiArray(ClassObject* arrayClass, int curDim,
     const int* dimensions)
 {
-#if 0
+#if 1
     ArrayObject* newArray;
     const char* elemName = arrayClass->descriptor + 1; // Advance past one '['.
 
@@ -179,52 +192,64 @@ ArrayObject* dvmAllocMultiArray(ClassObject* arrayClass, int curDim,
 
     if (curDim == 0) {
         if (*elemName == 'L' || *elemName == '[') {
-            LOGVV("  end: array class (obj) is '%s'",
+            DVMTraceInf("  end: array class (obj) is '%s'",
                 arrayClass->descriptor);
             newArray = allocArray(arrayClass, *dimensions,
-                        kObjectArrayRefWidth, ALLOC_DEFAULT);
+                        kObjectArrayRefWidth, 0);
         } else {
-            LOGVV("  end: array class (prim) is '%s'",
+            DVMTraceInf("  end: array class (prim) is '%s'",
                 arrayClass->descriptor);
             newArray = dvmAllocPrimitiveArray(
                     dexGetPrimitiveTypeDescriptorChar(arrayClass->elementClass->primitiveType),
-                    *dimensions, ALLOC_DEFAULT);
+                    *dimensions, 0);
         }
-    } else {
+    }
+    else
+    {
         ClassObject* subArrayClass;
         int i;
 
         /* if we have X[][], find X[] */
-        subArrayClass = dvmFindArrayClass(elemName, arrayClass->classLoader);
+        subArrayClass = dvmFindArrayClass(elemName);
         if (subArrayClass == NULL) {
             /* not enough '['s on the initial class? */
-            assert(dvmCheckException(dvmThreadSelf()));
+            //assert(dvmCheckException(dvmThreadSelf()));
+            //====================================
+            /* TODO: throw exception here? */
+            //====================================
             return NULL;
         }
-        assert(dvmIsArrayClass(subArrayClass));
+        //assert(dvmIsArrayClass(subArrayClass));
 
         /* allocate the array that holds the sub-arrays */
-        newArray = allocArray(arrayClass, *dimensions, kObjectArrayRefWidth,
-                        ALLOC_DEFAULT);
+        newArray = allocArray(arrayClass, *dimensions, kObjectArrayRefWidth, 0);
         if (newArray == NULL) {
-            assert(dvmCheckException(dvmThreadSelf()));
+            //assert(dvmCheckException(dvmThreadSelf()));
+            //====================================
+            /* TODO: throw exception here? */
+            //====================================
             return NULL;
         }
 
         /*
          * Create a new sub-array in every element of the array.
          */
-        for (i = 0; i < *dimensions; i++) {
-          ArrayObject* newSubArray;
-          newSubArray = dvmAllocMultiArray(subArrayClass, curDim-1,
+        for (i = 0; i < *dimensions; i++)
+        {
+            ArrayObject* newSubArray;
+            newSubArray = dvmAllocMultiArray(subArrayClass, curDim-1,
                           dimensions+1);
-            if (newSubArray == NULL) {
-                dvmReleaseTrackedAlloc((Object*) newArray, NULL);
-                assert(dvmCheckException(dvmThreadSelf()));
+            if (newSubArray == NULL)
+            {
+                //dvmReleaseTrackedAlloc((Object*) newArray, NULL);
+                //assert(dvmCheckException(dvmThreadSelf()));
+                //====================================
+                /* TODO: throw exception here? */
+                //====================================
                 return NULL;
             }
             dvmSetObjectArrayElement(newArray, i, (Object *)newSubArray);
-            dvmReleaseTrackedAlloc((Object*) newSubArray, NULL);
+            //dvmReleaseTrackedAlloc((Object*) newSubArray, NULL);
         }
     }
 
@@ -616,10 +641,10 @@ bool_t dvmUnboxObjectArray(ArrayObject* dstArray, const ArrayObject* srcArray, C
  */
 size_t dvmArrayClassElementWidth(const ClassObject* arrayClass)
 {
-#if 0
+#if 1
     const char *descriptor;
 
-    assert(dvmIsArrayClass(arrayClass));
+    //assert(dvmIsArrayClass(arrayClass));
 
     if (dvmIsObjectArrayClass(arrayClass)) {
         return sizeof(Object *);
@@ -636,9 +661,9 @@ size_t dvmArrayClassElementWidth(const ClassObject* arrayClass)
         case 'Z': return 1;  /* boolean */
         }
     }
-    LOGE("class %p has an unhandled descriptor '%s'", arrayClass, descriptor);
-    dvmDumpThread(dvmThreadSelf(), false);
-    dvmAbort();
+    DVMTraceErr("class %p has an unhandled descriptor '%s'", arrayClass, descriptor);
+    //dvmDumpThread(dvmThreadSelf(), false);
+    //dvmAbort();
     return 0;  /* Quiet the compiler. */
 #else
     return 0;

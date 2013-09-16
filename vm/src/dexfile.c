@@ -107,15 +107,6 @@ PrimitiveType dexGetPrimitiveTypeFromDescriptorChar(char descriptorChar)
     }
 }
 
-/* Return the UTF-8 encoded string with the specified string_id index,
- * also filling in the UTF-16 size (number of 16-bit code points).*/
-const char* dexStringAndSizeById(const DexFile* pDexFile, u4 idx, u4* utf16Size)
-{
-    //TODO: to implement
-    return NULL;
-}
-
-
 
 const DexTypeList* dexGetInterfacesList(const DexFile* pDexFile, const DexClassDef* pClassDef)
 {
@@ -276,6 +267,19 @@ const DexAnnotationsDirectoryItem* dexGetAnnotationsDirectoryItem(
     return (const DexAnnotationsDirectoryItem*)
         (pDexFile->baseAddr + pClassDef->annotationsOff);
 }
+
+
+/* Return the UTF-8 encoded string with the specified string_id index,
+ * also filling in the UTF-16 size (number of 16-bit code points).*/
+const char* dexStringAndSizeById(const DexFile* pDexFile, u4 idx, u4* utf16Size)
+{
+    const DexStringId* pStringId = dexGetStringId(pDexFile, idx);
+    const u1* ptr = pDexFile->baseAddr + pStringId->stringDataOff;
+
+    *utf16Size = readUnsignedLeb128(&ptr);
+    return (const char*) ptr;
+}
+
 
 /*
  * Format an SHA-1 digest for printing.  tmpBuf must be able to hold at

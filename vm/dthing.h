@@ -81,6 +81,11 @@ typedef struct DVMGlobal_s
     ClassObject* classArrayDouble;
 
     /*
+     * Quick lookups for popular classes used internally.
+     */
+    ClassObject* classJavaLangString;
+
+    /*
      * Compute some stats on loaded classes.
      */
     int  numLoadedClasses;

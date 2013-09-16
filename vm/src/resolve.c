@@ -538,10 +538,9 @@ StaticField* dvmResolveStaticField(const ClassObject* referrer, u4 sfieldIdx)
  */
 StringObject* dvmResolveString(const ClassObject* referrer, u4 stringIdx)
 {
-#if 0
+#if 1
     DvmDex* pDvmDex = referrer->pDvmDex;
     StringObject* strObj;
-    StringObject* internStrObj;
     const char* utf8;
     u4 utf16Size;
 
@@ -556,27 +555,6 @@ StringObject* dvmResolveString(const ClassObject* referrer, u4 stringIdx)
     if (strObj == NULL)
     {
         /* ran out of space in GC heap? */
-        //assert(dvmCheckException(dvmThreadSelf()));
-        //TODO: should throw exeception here?
-        goto bail;
-    }
-
-    /*
-     * Add it to the intern list.  The return value is the one in the
-     * intern list, which (due to race conditions) may or may not be
-     * the one we just created.  The intern list is synchronized, so
-     * there will be only one "live" version.
-     *
-     * By requesting an immortal interned string, we guarantee that
-     * the returned object will never be collected by the GC.
-     *
-     * A NULL return here indicates some sort of hashing failure.
-     */
-    internStrObj = dvmLookupImmortalInternedString(strObj);
-    dvmReleaseTrackedAlloc((Object*) strObj, NULL);
-    strObj = internStrObj;
-    if (strObj == NULL)
-    {
         //assert(dvmCheckException(dvmThreadSelf()));
         //TODO: should throw exeception here?
         goto bail;
