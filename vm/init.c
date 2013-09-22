@@ -55,12 +55,13 @@ LOCAL void DVM_native_final()
  */
 LOCAL void DVM_lifecycle_init()
 {
-	DVM_mm_initialize();
+    DVM_mm_initialize();
+    dvmGCStartup();
 
     dvmClassStartup();
 
-	vmtime_init();
-	Schd_InitThreadLists();
+    vmtime_init();
+    Schd_InitThreadLists();
 	//dthread_init();
 }
 
@@ -72,10 +73,12 @@ LOCAL void DVM_lifecycle_init()
  */
 LOCAL void DVM_lifecycle_final()
 {
-	DVM_mm_finalize();
-	Schd_FinalThreadLists();
-	vmtime_term();
+    Schd_FinalThreadLists();
+    vmtime_term();
     dvmClassShutdown();
+
+    dvmGCShutdown();
+    DVM_mm_finalize();
 }
 
 
@@ -177,7 +180,7 @@ int32_t DVM_main(int32_t argc, int8_t * argv[])
 
 	/* Find main class */
 	mainClass = dvmFindClass("Lhelloword;");
-
+    //mainClass = dvmFindClass("Lcom/yarlungsoft/main/Main;");
 	/* Find Entry function method */
 	startMeth = dvmGetStaticMethodID(mainClass, "main", "([Ljava/lang/String;)V");
 
