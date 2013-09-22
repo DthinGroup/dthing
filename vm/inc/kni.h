@@ -4,7 +4,16 @@
 #include "vm_common.h"
 #include "dvmdex.h"
 
-typedef void (/*__stdcall*/ *KniFunc)(const u4 * argv,JValue* pRet);
+
+#define RETURN_VOID()           do { (void)(pResult); return; } while(0)
+#define RETURN_BOOLEAN(_val)    do { pResult->i = (_val); return; } while(0)
+#define RETURN_INT(_val)        do { pResult->i = (_val); return; } while(0)
+#define RETURN_LONG(_val)       do { pResult->j = (_val); return; } while(0)
+#define RETURN_FLOAT(_val)      do { pResult->f = (_val); return; } while(0)
+#define RETURN_DOUBLE(_val)     do { pResult->d = (_val); return; } while(0)
+#define RETURN_PTR(_val)        do { pResult->l = (Object*)(_val); return; } while(0)
+
+typedef void (/*__stdcall*/ *KniFunc)(const u4 * argv,JValue* pResult);
 
 typedef struct
 {

@@ -48,7 +48,7 @@ WINAPI lpTimerCb(
 {
 	WaitForSingleObject( g_hMutex , INFINITE );
 	DVM_LOG("uTimerID:%d \n",uTimerID);
-	DVM_ASSERT(timer_id == uTimerID);
+	//DVM_ASSERT(timer_id == uTimerID);
 	vmtime_stopTimer();
 	SET_SCHEDULE();
 	

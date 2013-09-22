@@ -2,13 +2,14 @@
 #include "nativeThread.h"
 #include "dthread.h"
 #include "schd.h"
+#include "kni.h"
 
 void Java_java_lang_Thread_activeCount0(const u4* args, JValue* pResult)
 {
 	int count = 0;
 	count = Schd_ThreadAccountInTotal();
 	printf("Java_java_lang_Thread_activeCount0:%d ..\n",count);
-	pResult->i = count;
+	RETURN_INT(count);
 }
 
 void Java_java_lang_Thread_currentThread0(const u4* args, JValue* pResult)
@@ -18,7 +19,8 @@ void Java_java_lang_Thread_currentThread0(const u4* args, JValue* pResult)
 	curthd = dthread_currentThread();
 	DVM_ASSERT(cur!=NULL);
 	cur = curthd->threadObj;
-	pResult->l = cur;
+	//pResult->l = cur;
+	RETURN_PTR(cur);
 }
 
 void Java_java_lang_Thread_sleep0(const u4* args, JValue* pResult)
@@ -33,6 +35,7 @@ void Java_java_lang_Thread_sleep0(const u4* args, JValue* pResult)
 	DVM_ASSERT(curThd != NULL);
 	curThd->sleepTime = sleeptime;
 	dthread_suspend(curThd,THREAD_TIME_SUSPENDED);
+	RETURN_VOID();
 }
 
 
@@ -50,14 +53,14 @@ void Java_java_lang_Thread_start0(const u4* args, JValue* pResult)
 
 	dthread_create(runMeth,(Object* )thisObj);
 
-	return;
+	RETURN_VOID();
 }
 
 void Java_java_lang_Thread_isAlive0(const u4* args, JValue* pResult)
 {
 	Thread * thd = NULL;
     Object * thisObj = (Object*)args[0];  
-	vbool  ret = 0;
+	int  ret = 0;
 	
 	DVM_ASSERT(thisObj != NULL);
 	thd = Schd_FindThreadByJavaObj(thisObj);
@@ -71,7 +74,8 @@ void Java_java_lang_Thread_isAlive0(const u4* args, JValue* pResult)
 		ret = 0;
 	}
 
-	pResult->b = ret;
+	//pResult->b = ret;
+	RETURN_BOOLEAN(ret);
 }
 
 void Java_java_lang_Thread_setPriority0(const u4* args, JValue* pResult)
@@ -91,5 +95,6 @@ void Java_java_lang_Thread_printQ(const u4* args, JValue* pResult)
 
 	ret = param1 + param2;
 
-	pResult->i  = ret;
+	//pResult->i  = ret;
+	RETURN_INT(ret);
 }
