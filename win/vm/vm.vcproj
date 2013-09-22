@@ -40,14 +40,14 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\base\inc;..\..\porting\inc;..\..\vm;..\..\vm\inc"
+				AdditionalIncludeDirectories="..\..\base\inc;..\..\porting\inc;..\..\vm;..\..\vm\inc;..\..\vm\impl"
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
 				UsePrecompiledHeader="0"
 				PrecompiledHeaderFile="/P"
-				WarningLevel="0"
+				WarningLevel="3"
 				Detect64BitPortabilityProblems="true"
 				DebugInformationFormat="4"
 			/>
@@ -397,6 +397,26 @@
 			</File>
 			<File
 				RelativePath="..\..\vm\src\native.c"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="nativeImpl"
+			>
+			<File
+				RelativePath="..\..\vm\impl\nativeString.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\vm\impl\nativeString.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\vm\impl\nativeSystem.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\vm\impl\nativeSystem.h"
 				>
 			</File>
 		</Filter>

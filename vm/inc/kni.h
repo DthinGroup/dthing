@@ -1,8 +1,9 @@
 #ifndef __KNI_H__
 #define __KNI_H__
 
-#include "vm_common.h"
-#include "dvmdex.h"
+//#include "vm_common.h"
+#include <common.h>
+#include <dvmdex.h>
 
 
 #define RETURN_VOID()           do { (void)(pResult); return; } while(0)

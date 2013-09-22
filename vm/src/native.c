@@ -1,6 +1,8 @@
 #include "vm_common.h"
 #include "kni.h"
 #include "nativeThread.h"
+#include <nativeSystem.h>
+#include <nativeString.h>
 
 KNINativeMethod gNativeMthTab[] = 
 {
@@ -11,6 +13,18 @@ KNINativeMethod gNativeMthTab[] =
 	{"LDThread;","start0" ,        "()V",        (KniFunc)Java_java_lang_Thread_start0},
 	{"LDThread;","isAlive0" ,      "()Z",        (KniFunc)Java_java_lang_Thread_isAlive0},
 	{"LDThread;","printQ" ,        "(II)V",      (KniFunc)Java_java_lang_Thread_printQ},
+
+
+
+    /* java.lang.System native APIs */
+    {"Ljava/lang/System;", "arraycopy",         "(Ljava/lang/Object;ILjava/lang/Object;II)V", (KniFunc)Java_java_lang_System_arrayCopy},
+    {"Ljava/lang/System;", "currentTimeMillis", "()J",                                        (KniFunc)Java_java_lang_System_currentTimeMillis},
+    {"Ljava/lang/System;", "identityHashCode",  "(Ljava/lang/Object;)I",                      (KniFunc)Java_java_lang_System_identityHashCode},
+
+    /* java.lang.String native APIs */
+
+    {"Ljava/lang/String;", "intern", "()Ljava/lang/String;", (KniFunc)Java_java_lang_String_intern},
+
 };
 
 

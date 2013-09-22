@@ -399,15 +399,6 @@ INLINE s4 dvmGetFieldInt(const Object* obj, int offset)
 }
 
 
-
-bool dvmCanPutArrayElement(const ClassObject* objectClass,
-    const ClassObject* arrayClass)
-{
-	DVM_LOG(">>>call dvmCanPutArrayElement!\n");
-	return 0;
-}
-
-
 InstField* dvmResolveInstField(const ClassObject* referrer, u4 ifieldIdx)
 {
 	DVM_LOG(">>>call dvmResolveInstField!\n");
@@ -503,13 +494,7 @@ void dvmThrowClassCastException(ClassObject* actual, ClassObject* desired)
 {
 	DVM_LOG(">>>call dvmThrowClassCastException!\n");
 }
-#ifndef _TEST_ED_
-INLINE int dvmInstanceof(const ClassObject* instance, const ClassObject* clazz)
-{
-	DVM_LOG(">>>call dvmInstanceof!\n");
-    return 0;
-}
-#endif
+
 vbool dvmCheckException(struct dthread * self) 
 {
 	DVM_LOG(">>>call dvmCheckException!\n");

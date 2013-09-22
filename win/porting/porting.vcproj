@@ -144,6 +144,10 @@
 	</References>
 	<Files>
 		<File
+			RelativePath="..\..\porting\src\opl_core.c"
+			>
+		</File>
+		<File
 			RelativePath="..\..\porting\src\opl_file.c"
 			>
 		</File>

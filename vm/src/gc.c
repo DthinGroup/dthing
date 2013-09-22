@@ -33,6 +33,7 @@ bool_t dvmGCStartup()
     CRTL_memset(tempRoots, 0x0, sizeof(Object*) * MAX_TEMP_ROOTS_NUM);
     CRTL_memset(globalRoots, 0x0, sizeof(Object*) * MAX_GLOBAL_ROOTS_NUM);
 
+    gcStatus = GC_NONE;
     return TRUE;
 }
 
@@ -41,6 +42,7 @@ void dvmGCShutdown()
 {
     tempRoots = NULL;
     globalRoots = NULL;
+    gcStatus = GC_NONE;
 }
 
 /* Used to mark objects when recursing.  Recursion is done by moving
