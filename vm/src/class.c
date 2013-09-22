@@ -687,7 +687,7 @@ bool_t dvmClassStartup()
      */
     processBootstrapClasses(bootStrapClasses, sizeof(bootStrapClasses));
 
-    if (!createPrimitiveArrayInitialClasses() && ! initClassReferences())
+    if (!createPrimitiveArrayInitialClasses() || ! initClassReferences())
     {
         DVMTraceErr("Error of creating primitive array classes!\n");
         return FALSE;
