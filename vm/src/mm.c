@@ -71,7 +71,6 @@
 /* extraction of fields from head words */
 #define cinuse(p)           ((p)->head & CINUSE_BIT)
 #define pinuse(p)           ((p)->head & PINUSE_BIT)
-#define is_gcmarked(p)      ((p)->head & GCMARK_BIT)
 #define is_inuse(p)         (((p)->head & INUSE_BITS) != PINUSE_BIT)
 
 #define chunksize(p)        ((p)->head & ~(FLAG_BITS))
@@ -79,6 +78,8 @@
 #define clear_pinuse(p)     ((p)->head &= ~PINUSE_BIT)
 #define set_gcmarkbit(p)    ((p)->head |= GCMARK_BIT)
 #define clear_gcmarkbit(p)  ((p)->head &= ~GCMARK_BIT)
+
+#define is_gcbitmarked(p)   (((p)->head & GCMARK_BIT) == 0 ? FALSE : TRUE)
 
 /* Treat space at ptr +/- offset as a chunk */
 #define chunk_plus_offset(p, s)  ((mchunkptr)(((char*)(p)) + (s)))
@@ -866,5 +867,62 @@ void * endmalloc(uint32_t size)
 	}
 
 	return mem;
+}
+
+/* refer to mm.h */
+void dmark(void* mem)
+{
+	mchunkptr p;
+	p = mem2chunk(mem);
+
+    if (!is_gcbitmarked(p))
+    {
+        set_gcmarkbit(p);
+    }
+}
+/* refer to mm.h */
+bool_t dismarked(void* mem)
+{
+    bool_t res = FALSE;
+	mchunkptr p;
+	p = mem2chunk(mem);
+
+    res = is_gcbitmarked(p);
+
+    return res;
+}
+
+/* refer to mm.h */
+void dsweep()
+{
+	mchunkptr p;
+	mpglobal * _mg;
+
+    for (_mg = mg; _mg != NULL; _mg = _mg->next)
+    {
+        mchunkptr objAddr = _mg->mem_start;
+        mchunkptr nextObj = NULL;
+        do
+        {
+            nextObj = next_chunk(objAddr);
+            if (is_gcbitmarked(objAddr))
+            {
+                DVMTraceInf("dsweep - objAddr(%p) is freed\n", objAddr);
+                dfree(objAddr);
+            }
+            else
+            {
+                clear_gcmarkbit(objAddr);
+            }
+            objAddr = nextObj;
+
+            if (objAddr == NULL || objAddr >= _mg->mem_end)
+            {
+                DVMTraceInf("dsweep - sweep out current memory pool\n");
+                break;
+            }
+        }
+        while(TRUE); //CAUTION: while(TRUE) here!
+    }
 }
 

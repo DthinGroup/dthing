@@ -75,10 +75,33 @@ void* heapDupStr(const int8_t* str)
     return (void *)dupStr;    
 }
 
+/**
+ * Mark the specified object as GC object.
+ * @ptr the object pointer.
+ */
+void heapMarkObject(void* ptr)
+{
+    dmark(ptr);
+}
 
 
+/**
+ * Check the specified object whether is marked.
+ * @return, If marked return TRUE, otherwise return FALSE;
+ */
+bool_t heapIsMarked(void* ptr)
+{
+    return dismarked(ptr);
+}
 
 
+/**
+ * Sweep the marked object and return the memory to MM.
+ */
+void heapSweep()
+{
+    dsweep();
+}
 
 
 

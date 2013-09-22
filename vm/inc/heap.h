@@ -46,6 +46,24 @@ void* heapAllocPersistent(int32_t size);
  */
 void* heapDupStr(const int8_t* str);
 
+
+/**
+ * Mark the specified object as GC object.
+ * @ptr the object pointer.
+ */
+void heapMarkObject(void* ptr);
+
+/**
+ * Check the specified object whether is marked.
+ * @return, If marked return TRUE, otherwise return FALSE;
+ */
+bool_t heapIsMarked(void* ptr);
+
+/**
+ * Sweep the marked object and return the memory to MM.
+ */
+void heapSweep();
+
 #ifdef __cplusplus
 }
 #endif

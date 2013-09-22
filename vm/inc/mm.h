@@ -23,29 +23,29 @@ struct malloc_chunk
 {
     uint32_t              prev_foot;
 	uint32_t              head;
-	struct malloc_chunk * fd;
-	struct malloc_chunk * bk;
+	struct malloc_chunk*  fd;
+	struct malloc_chunk*  bk;
 };
 typedef struct malloc_chunk   mchunk;
-typedef struct malloc_chunk * mchunkptr;
-typedef struct malloc_chunk * sbinptr;  /* The type of bins of chunks */
+typedef struct malloc_chunk*  mchunkptr;
+typedef struct malloc_chunk*  sbinptr;  /* The type of bins of chunks */
 typedef uint32_t              binmap_t;
 
 struct malloc_tree_chunk {
   /* The first four fields must be compatible with malloc_chunk */
   uint32_t                   prev_foot;
   uint32_t                   head;
-  struct malloc_tree_chunk * fd;
-  struct malloc_tree_chunk * bk;
+  struct malloc_tree_chunk*  fd;
+  struct malloc_tree_chunk*  bk;
 
-  struct malloc_tree_chunk * child[2];
-  struct malloc_tree_chunk * parent;
+  struct malloc_tree_chunk*  child[2];
+  struct malloc_tree_chunk*  parent;
   uint32_t                   index;
 };
 
 typedef struct malloc_tree_chunk   tchunk;
-typedef struct malloc_tree_chunk * tchunkptr;
-typedef struct malloc_tree_chunk * tbinptr; /* The type of bins of trees */
+typedef struct malloc_tree_chunk*  tchunkptr;
+typedef struct malloc_tree_chunk*  tbinptr; /* The type of bins of trees */
 
 
 /* Bin types, widths and sizes */
@@ -55,12 +55,12 @@ typedef struct malloc_tree_chunk * tbinptr; /* The type of bins of trees */
 struct memory_pool
 {
 	//for object area. such as new object;
-	void    * mem_start;
-	void    * mem_end; 
+	void*     mem_start;
+	void*     mem_end; 
 	
 	//for permanent data area, such class loading.
-	void    * perm_start; 
-	void    * perm_end;
+	void*     perm_start; 
+	void*     perm_end;
 
 	uint32_t  free_size;
 
@@ -72,7 +72,7 @@ struct memory_pool
 	tbinptr   tbins[NTREEBINS];
 
 	//next memory pool
-	struct    memory_pool * next;
+	struct    memory_pool* next;
 };
 
 typedef struct memory_pool mpglobal;
@@ -81,15 +81,15 @@ typedef struct memory_pool mpglobal;
 /**
  * Global memory pool structure.
  */
-extern PUBLIC mpglobal * mg;
+extern PUBLIC mpglobal* mg;
 
 /**
  * Basic functions prototypes
  */
 void * dmalloc(uint32_t size);
 void * dcalloc(uint32_t num, uint32_t size);
-void * drealloc(void * ptr, uint32_t size);
-void   dfree(void * ptr);
+void * drealloc(void* ptr, uint32_t size);
+void   dfree(void* ptr);
 
 
 /**
@@ -97,6 +97,28 @@ void   dfree(void * ptr);
  * just privately api. used for permanent data.
  */
 void * endmalloc(uint32_t size);
+
+
+/**
+ * GC relevant;
+ */
+/**
+ * Mark the GC bit for current mem block.
+ */
+void dmark(void* mem);
+
+/**
+ * Check current memory block in mark bit. 
+ * @return TRUE means marked, otherwise return FALSE;
+ */
+bool_t dismarked(void* mem);
+
+
+/**
+ * Scan all memory chunk and clear all marked memories.
+ */
+void dsweep();
+
 
 #ifdef __cplusplus
 } /* extern "C" */
