@@ -32,6 +32,8 @@ void Schd_InitThreadLists(void)
     guard = NULL;
     currentThread   = NULL;
 	schedulerFlag = 0;
+
+	dthread_create_ghost();
 }
 
 void Schd_FinalThreadLists(void)
@@ -79,6 +81,8 @@ void Schd_FinalThreadLists(void)
 		dthread_delete(currentThread);
 		currentThread = NULL;
 	}
+
+	dthread_delete_ghost();
 }
 
 void Schd_ChangeThreadState(Thread * thread,THREAD_STATE_E newState)
@@ -250,6 +254,45 @@ Thread * Schd_PopReadyFromOtherList(void)
     return NULL;
 }
 
+Thread * Schd_PopFromOtherList(Thread * thd)
+{
+	Thread * tmp = otherThreadListHead->next;
+    Thread * ret = NULL;
+    
+    if(tmp == NULL)
+    {
+        return NULL;
+    }
+    
+    do
+    {
+        if(tmp == thd)
+        {
+            ret = tmp;
+            tmp->pre->next = tmp->next;
+            if(tmp->next !=NULL)
+                tmp->next->pre = tmp->pre;
+            
+            return ret;
+        }
+        tmp = tmp->next;
+    }while(tmp != NULL);
+    
+    return NULL;
+}
+
+void Schd_ResumeToReady(Thread *thd)
+{
+	if(thd == NULL || thd->threadState <= THREAD_ACTIVE)
+	{
+		return;
+	}
+
+	DVM_ASSERT(thd == Schd_PopFromOtherList(thd));
+	thd->threadState = THREAD_READY;
+	Schd_PushToReadyListHead(thd);
+}
+
 void Schd_DecSleepTime(u4 bkupTime)
 {
 	u8 this_tick = vmtime_getTickCount();
@@ -264,8 +307,13 @@ void Schd_DecSleepTime(u4 bkupTime)
         {
 			DVM_LOG("Thread %d is in sleep,deltaTime=%d\n",tmp->threadId,deltaTime);
             tmp->sleepTime = (tmp->sleepTime > deltaTime) ? (tmp->sleepTime - deltaTime) : (tmp->threadState = THREAD_READY,0) ;
-       }
-       tmp = tmp->next;
+        }
+		else if(tmp->threadState == THREAD_TIMEWAIT_MONITOR_SUSPENDED)
+		{
+			//complish here
+			DVM_ASSERT(0);
+		}
+        tmp = tmp->next;
     }
     
     tmp = NULL;

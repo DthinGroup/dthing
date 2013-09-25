@@ -18,6 +18,7 @@ void dvmInterpretEntry(Thread * self,JValue *pResult);
 
 void dvmInterpretMakeNativeCall(const u4* args, JValue* pResult, const Method* method, Thread* self);
 
+void dvmCallClinitMethod(const Method* method, Object* obj);
 
 
 /*API FUNCs of Interpret,avoid Errors*/

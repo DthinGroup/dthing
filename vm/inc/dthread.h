@@ -4,6 +4,7 @@
 
 #include "vm_common.h"
 #include "interpState.h"
+//#include "sync.h"
 
 /* reserve this many bytes for handling StackOverflowError */
 #define STACK_OVERFLOW_RESERVE  768
@@ -24,7 +25,10 @@ typedef enum{
     THREAD_READY,       //ready state,can to run
     THREAD_ACTIVE,      //just running at now,only one thread gets the state at one moment
     THREAD_TIME_SUSPENDED,   //be suspened
-    THREAD_MONITOR_SUSPENDED,
+    THREAD_TRYGET_MONITOR_SUSPENDED,   /*try to get monitor_enter*/
+	THREAD_WAIT_MONITOR_SUSPENDED,		/*in wait state,obi.wait()*/
+	THREAD_TIMEWAIT_MONITOR_SUSPENDED,  /*in timed wait state,obj.wait(10)*/
+	THREAD_MONITOR_SUSPENDED,
     THREAD_DEAD,        //be dead,to delete the thread
 }THREAD_STATE_E;
 
@@ -63,8 +67,10 @@ typedef struct interpSchdSave
     vbool jumboFormat;
 }InterpSchdSave;
 
+typedef struct dthread Thread;
+
 /*Round to run*/
-typedef struct dthread
+struct dthread
 {
 	 /*
      * Interpreter state which must be preserved across nested
@@ -92,6 +98,8 @@ typedef struct dthread
     THREAD_STATE_E threadState;
     
     u1 threadPrio;  //not support for now!
+
+	u1 beBroken;	//be breaked by schduler this thread ? FALSE only for ghost thread,else TRUE
     
     /* start (high addr) of interp stack (subtract size to get malloc addr) */
     u1*         interpStackStart;    
@@ -120,14 +128,26 @@ typedef struct dthread
 	InterpSchdSave itpSchdSave;
 	vbool bInterpFirst;		//first call into interpret?
 
+	/* pointer to the monitor lock we're currently waiting on */
+    /* guarded by waitMutex */
+    /* TODO: consider changing this to Object* for better JDWP interaction */
+    struct Monitor_s*    waitMonitor;
+
+    /* links to the next thread in the wait set this thread is part of */
+    struct dthread*     waitNext;
+
     struct dthread * next ;
     struct dthread * pre  ;
-}Thread,*ThreadP;
+};
+
+
+
 
 
 /*
  *global vars
  */
+extern Thread *ghostThread;
 extern Thread *currentThread;
 extern Thread *readyThreadListHead;
 extern Thread *otherThreadListHead;
@@ -145,4 +165,8 @@ void     dthread_stop(Thread * thread);
 void     dthread_suspend(Thread * thread,THREAD_STATE_E  newState);
 void     dthread_resume(Thread * thread);
 Thread * dthread_currentThread(void);
+
+void     dthread_create_ghost(void);
+void     dthread_fill_ghost(const Method * mth,Object* obj);
+void     dthread_delete_ghost(void);
 #endif

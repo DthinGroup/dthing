@@ -36,6 +36,8 @@ void Schd_PushToOtherList(Thread * thread);
 /*get READY thread,one per pop,get untill return null*/
 Thread * Schd_PopReadyFromOtherList(void);
 
+void Schd_ResumeToReady(Thread *thd);
+
 void Schd_DecSleepTime(u4 deltaTime);
 
 /*delete and free DEAD state thread*/

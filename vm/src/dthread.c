@@ -11,6 +11,12 @@
 
 #define DVM_LOG		printf
 
+
+#define GHOST_THREAD_ID		(3225)
+#define START_THREAD_ID		(3226)
+
+Thread *ghostThread;	/*not run in thread list*/
+
 Thread *currentThread;
 Thread *readyThreadListHead;
 Thread *otherThreadListHead;
@@ -26,7 +32,7 @@ void printTrace(Thread * thd);
 /*gen simply now!*/
 static int genThreadId(void)  //just using tmply
 {
-    static int start_main_id = 3225;
+    static int start_main_id = START_THREAD_ID;
 	
 	DVM_LOG("Gen new thread %d \n",start_main_id);
     
@@ -132,6 +138,7 @@ void dthread_create(const Method * mth,Object* obj)
     jthread->threadId = genThreadId();  /*magic number*/
     jthread->threadState = THREAD_READY;
 
+	jthread->beBroken = TRUE;	//only the ghost thread can be TRUE!!!
 	jthread->bInterpFirst = TRUE;
 	jthread->threadObj = (Object *)obj;
 	jthread->entryMthd = (Method *)mth;
@@ -204,12 +211,12 @@ void dthread_suspend(Thread * thread,THREAD_STATE_E  newState)
 		return;
 	}
 
-	if(newState == THREAD_TIME_SUSPENDED)
+	if(newState >= THREAD_TIME_SUSPENDED && newState <= THREAD_MONITOR_SUSPENDED)
 	{
 		SET_SCHEDULE();   //it cause scheduler occuring ! 
 	}
 
-	thread->threadState = THREAD_TIME_SUSPENDED;
+	thread->threadState = newState;
 	return;
 }
 
@@ -226,4 +233,77 @@ Thread * dthread_currentThread(void)
 		return currentThread;
 	else
 		return NULL;
+}
+
+
+void dthread_create_ghost(void)
+{
+	ghostThread = dthread_alloc(kDefaultStackSize);
+    if(ghostThread == NULL)
+    {
+        DVM_ASSERT(0);
+    }
+    
+    /*modify all registers,method,stack,etc...*/
+    //
+#ifdef ARCH_X86
+	ghostThread->cb = printTrace;
+#endif
+    
+    ghostThread->threadId = GHOST_THREAD_ID;  /*magic number*/
+    ghostThread->threadState = THREAD_READY;
+
+	ghostThread->beBroken = FALSE;	//only the ghost thread can be FALSE!!!
+	ghostThread->bInterpFirst = TRUE;
+	ghostThread->creatTime = vmtime_getTickCount();    
+}
+
+void dthread_fill_ghost(const Method * mth,Object* obj)
+{
+	ClassObject* clazz = NULL;
+    int verifyCount    = 0;
+    u4* ins            = NULL;
+	
+	DVM_LOG("call dthread_fill_ghost \n" );
+
+	if(obj != NULL)
+		clazz = obj->clazz;
+	else
+		clazz = mth->clazz;
+
+	if(clazz ==NULL)
+	{
+		DVM_ASSERT(0);
+	}
+
+	DVM_ASSERT(ghostThread != NULL);
+
+	ghostThread->threadState  = THREAD_READY;
+	ghostThread->beBroken = FALSE;	//only the ghost thread can be FALSE!!!
+	ghostThread->bInterpFirst = TRUE;
+	ghostThread->threadObj = (Object *)obj;
+	ghostThread->entryMthd = (Method *)mth;
+
+	dvmPushInterpFrame(ghostThread,mth);
+
+	/* "ins" for new frame start at frame pointer plus locals */
+    ins = ((u4*)ghostThread->interpSave.curFrame) +
+           (mth->registersSize - mth->insSize);
+
+	/* put "this" pointer into in0 if appropriate */
+	if (!dvmIsStaticMethod(mth)) 
+	{
+#ifdef WITH_EXTRA_OBJECT_VALIDATION
+        assert(obj != NULL && dvmIsHeapAddress(obj));
+#endif
+        *ins++ = (u4) obj;
+        verifyCount++;
+    }
+
+}
+
+void dthread_delete_ghost(void)
+{
+	DVM_ASSERT(ghostThread != NULL);
+	dthread_delete(ghostThread);
 }

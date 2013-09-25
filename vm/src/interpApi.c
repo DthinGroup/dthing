@@ -145,3 +145,11 @@ void dvmInterpretMakeNativeCall(const u4* args, JValue* pResult, const Method* m
 	nativefunc(argvs,pResult);
 
 }
+
+/**/
+void dvmCallClinitMethod(const Method* method, Object* obj)
+{
+	JValue pResult;
+	dthread_fill_ghost(method,obj);
+	dvmInterpretEntry(ghostThread,&pResult);
+}

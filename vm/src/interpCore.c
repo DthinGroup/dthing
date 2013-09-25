@@ -499,7 +499,7 @@ int fuck()
 }
 
 # define RESCHDULE()			\
-		if(CAN_SCHEDULE())		\
+		if(CAN_SCHEDULE() && self->beBroken)		\
 		{						\
 			if(fuck()) {\
 				SAVE_LOCALS();		\
@@ -2797,6 +2797,7 @@ HANDLE_OPCODE(OP_MONITOR_ENTER /*vAA*/)
 #endif
         EXPORT_PC();    /* need for precise GC */
         dvmLockObject(self, obj);
+		//FINISH(0);
     }
     FINISH(1);
 OP_END

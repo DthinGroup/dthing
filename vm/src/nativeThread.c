@@ -39,7 +39,6 @@ void Java_java_lang_Thread_sleep0(const u4* args, JValue* pResult)
 }
 
 
-
 void Java_java_lang_Thread_start0(const u4* args, JValue* pResult)
 {
 	//self->threadObj->clazz->vtable[gDvm.voffJavaLangThread_run]

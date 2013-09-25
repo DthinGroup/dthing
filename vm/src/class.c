@@ -2755,6 +2755,7 @@ bool_t dvmInitClass(ClassObject* clazz)
         //JValue unused;
         DVMTraceInf("Invoking %s.<clinit>", clazz->descriptor);
         //dvmCallMethod(self, method, NULL, &unused);
+		
         //***************************************************
         //TODO: how to call <clinit> for static code area.
         //***************************************************
@@ -2792,6 +2793,8 @@ bool_t dvmInitClass(ClassObject* clazz)
         }
 #endif
     }
+	if(method != NULL)
+		dvmCallClinitMethod(method,NULL);
 
 bail_notify:
     /*

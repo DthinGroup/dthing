@@ -376,6 +376,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\vm\src\sync.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\vm\inc\sync.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\vm\inc\vm_common.h"
 				>
 			</File>

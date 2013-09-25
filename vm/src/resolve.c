@@ -422,7 +422,8 @@ InstField* dvmResolveInstField(const ClassObject* referrer, u4 ifieldIdx)
         dexStringByTypeIdx(pDvmDex->pDexFile, pFieldId->typeIdx));
     if (resField == NULL) {
         //dvmThrowNoSuchFieldError(
-        //    dexStringById(pDvmDex->pDexFile, pFieldId->nameIdx));
+        //    dexStringById(pDvmDex->pDexFile, pFieldId->nameIdx));
+
         //dvmThrowNoSuchMethodError(methodName);
         //======================
         /* TODO: how to throw error here? */
