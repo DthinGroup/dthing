@@ -45,7 +45,7 @@ KNINativeMethod gNativeMthTab[] =
     {"Ljava/lang/System;", "identityHashCode",  "(Ljava/lang/Object;)I",                      (KniFunc)Java_java_lang_System_identityHashCode},
 
     /* com.yarlungsoft.util.SystemPrintSteam native APIs */
-    {"Lcom.yarlungsoft.util.SystemPrintSteam;", "write",  "(I)V", (KniFunc)Java_com_yarlungsoft_util_write},
+    {"Lcom/yarlungsoft/util/SystemPrintStream;", "write",  "(I)V", (KniFunc)Java_com_yarlungsoft_util_SystemPrintSteam_write},
 
     /* java.lang.String native APIs */
     {"Ljava/lang/String;", "intern", "()Ljava/lang/String;", (KniFunc)Java_java_lang_String_intern},

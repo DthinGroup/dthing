@@ -289,7 +289,7 @@ void Java_java_lang_System_identityHashCode(const u4* args, JValue* pResult)
 }
 
 /* see nativeSystem.h */
-void Java_com_yarlungsoft_util_write(const u4* args, JValue* pResult)
+void Java_com_yarlungsoft_util_SystemPrintSteam_write(const u4* args, JValue* pResult)
 {
     int ch = (int)args[1];
     OPL_core_logChar(ch);
