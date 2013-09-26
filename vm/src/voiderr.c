@@ -528,3 +528,12 @@ void dvmThrowNullPointerException(const char* msg)
 }
 
 
+void dvmThrowIllegalArgumentException(char * str)
+{
+
+}
+
+void dvmThrowIllegalMonitorStateException(char * str)
+{
+
+}

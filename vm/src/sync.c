@@ -2,10 +2,24 @@
 #include "sync.h"
 #include "dthread.h"
 #include "Object.h"
+#include "schd.h"
 
 
 
 Monitor * gMonitorList = NULL;
+
+
+
+void Sync_init(void)
+{
+	gMonitorList = NULL;
+}
+
+void Sync_term(void)
+{
+	Sync_dvmFreeMonitorList();
+	gMonitorList = NULL;
+}
 
 /*
  * Create and initialize a monitor.
@@ -87,6 +101,7 @@ void Sync_appendWaitSet(Monitor * mon,Thread * thd,int lockCount)
 
 	tWaitSet = (MonitorWaitSet*) DVM_MALLOC(sizeof(MonitorWaitSet));
 	DVM_ASSERT(tWaitSet != NULL);
+	DVM_MEMSET(tWaitSet,0,sizeof(MonitorWaitSet));
 	tWaitSet->waitSet   = thd;
 	tWaitSet->lockCount = (lockCount == SYNC_KEEP_LOCK_COUNT) ? 0 : lockCount;
 	/*append to tail of list*/
@@ -152,6 +167,44 @@ void Sync_removeAllWaitSet(Monitor * mon)
 	return;
 }
 
+MonitorWaitSet * Sync_findNextWakeInWaitSet(Monitor * mon,Thread * notthis,WAKE_COND_E cond)
+{
+	MonitorWaitSet * mWaitSet = NULL;
+
+	DVM_ASSERT(mon != NULL);
+
+	mWaitSet = mon->mWaitSet;
+	while(mWaitSet != NULL)
+	{
+		DVM_ASSERT(mWaitSet->waitSet != NULL);
+		if(mWaitSet->waitSet != notthis )
+		{
+			if(cond == COND_WAIT_TRYGET)
+			{
+				if(mWaitSet->waitSet->threadState == THREAD_TRYGET_MONITOR_SUSPENDED)
+				{
+					return mWaitSet;
+				}
+			}
+			else if(cond == COND_WAIT_MONITOR)
+			{
+				if( mWaitSet->waitSet->threadState == THREAD_WAIT_MONITOR_SUSPENDED ||
+				    mWaitSet->waitSet->threadState == THREAD_TIMEWAIT_MONITOR_SUSPENDED )
+				{
+					return mWaitSet;
+				}
+			}
+			else
+			{
+				return mWaitSet;
+			}
+		}
+		mWaitSet = mWaitSet->next;
+	}
+
+	return NULL;
+}
+
 vbool Sync_dvmLockObject(Thread* self, Object *obj)
 {
 	Monitor * mon = NULL;
@@ -200,57 +253,54 @@ vbool Sync_dvmLockObject(Thread* self, Object *obj)
  */
 vbool Sync_dvmUnlockObject(Thread* self, Object *obj)
 {
+	MonitorWaitSet * wakeSet = NULL;
+	Monitor * mon = NULL;
 
     assert(self != NULL);
     assert(self->threadState == THREAD_ACTIVE);
     assert(obj != NULL);
 
-
-}
-
-typedef enum
-{
-    COND_WAIT_TRYGET,   //in try get state  cor to THREAD_TRYGET_MONITOR_SUSPENDED
-    COND_WAIT_MONITOR,  //in wait monitor state
-    COND_WAIT_ANY,      //in any state
-}WAKE_COND_E;
-
-Thread * Sync_findNextWakeInWaitSet(Monitor * mon,Thread * notthis,WAKE_COND_E cond)
-{
-	MonitorWaitSet * mWaitSet = NULL;
-
-	DVM_ASSERT(mon != NULL);
-
-	mWaitSet = mon->mWaitSet;
-	while(mWaitSet != NULL)
-	{
-		DVM_ASSERT(mWaitSet->waitSet != NULL);
-		if(mWaitSet->waitSet != notthis )
-		{
-			if(cond == COND_WAIT_TRYGET)
-			{
-				if(mWaitSet->waitSet ->threadState == THREAD_TRYGET_MONITOR_SUSPENDED)
-				{
-					return mWaitSet->waitSet;
-				}
-			}
-			else if(cond == COND_WAIT_MONITOR)
-			{
-				if(mWaitSet->waitSet ->threadState == THREAD_WAIT_MONITOR_SUSPENDED)
-				{
-					return mWaitSet->waitSet;
-				}
-			}
-			else
-			{
-				return mWaitSet->waitSet;
-			}
-		}
-		mWaitSet = mWaitSet->next;
+	mon = LW_MONITOR(obj->lock);
+	if(mon == NULL || mon->owner != self)
+    {
+		DVM_ASSERT(0);
+		dvmThrowIllegalMonitorStateException("object not locked by thread before wait()");
+		return false;
 	}
 
-	return NULL;
+	DVM_ASSERT(mon->lockCount > 0);
+	mon->lockCount --;
+
+	if(mon->lockCount ==0)
+	{
+		/*give up the monitor*/
+		mon->lockCount = 0;
+		mon->owner = NULL;
+		
+		/*find next wait thread,ready to active it*/
+		wakeSet = Sync_findNextWakeInWaitSet(mon,self,COND_WAIT_TRYGET);
+
+		if(wakeSet != NULL)
+		{
+			/*The thread get the monitor directly!!!*/
+			mon->lockCount = wakeSet->lockCount;
+			mon->owner = wakeSet->waitSet;
+
+			/*RESUME it*/
+			Schd_ResumeToReady(wakeSet->waitSet);
+
+			/*remove the wait thread from waitSet*/
+			Sync_removeWaitSet(mon,wakeSet->waitSet);
+		}
+	}
+	else
+	{
+		/*nothing to do,still hold the monitor*/
+	}	
+
+	return true;
 }
+
 
 /*
  * Object.wait().  Also called for class init.
@@ -259,11 +309,11 @@ void Sync_dvmObjectWait(Thread* self, Object *obj, s8 msec, s4 nsec,vbool interr
 {
     Monitor* mon = NULL;
 	vbool timed;
-	Thread * wakeThd = NULL;
+	MonitorWaitSet * wakeSet = NULL;
 
     
 	DVM_ASSERT(self != NULL);
-    DVM_ASSERT(mon  != NULL);
+    DVM_ASSERT(obj  != NULL);
 
     mon = LW_MONITOR(obj->lock);
     
@@ -300,25 +350,102 @@ void Sync_dvmObjectWait(Thread* self, Object *obj, s8 msec, s4 nsec,vbool interr
 	if(timed)
 	{
 	    self->sleepTime = msec;         //only usemsec,ignore nsec
-		dthread_suspend(self,THREAD_WAIT_MONITOR_SUSPENDED);
+		dthread_suspend(self,THREAD_TIMEWAIT_MONITOR_SUSPENDED);
 	}
 	else
 	{
-		dthread_suspend(self,THREAD_TIMEWAIT_MONITOR_SUSPENDED);
+		dthread_suspend(self,THREAD_WAIT_MONITOR_SUSPENDED);
     }
     
     /*find next wait thread,ready to active it*/
-	wakeThd = Sync_findNextWakeInWaitSet(mon,self,COND_WAIT_TRYGET);
+	wakeSet = Sync_findNextWakeInWaitSet(mon,self,COND_WAIT_TRYGET);
 
-	if(wakeThd != NULL)
+	if(wakeSet != NULL)
 	{
-		
+		/*The thread get the monitor directly!!!*/
+		mon->lockCount = wakeSet->lockCount;
+		mon->owner = wakeSet->waitSet;
+
+		/*RESUME it*/
+		Schd_ResumeToReady(wakeSet->waitSet);
+
+		/*remove the wait thread from waitSet*/
+		Sync_removeWaitSet(mon,wakeSet->waitSet);
 	}
     
-    
+    /*launch schdule*/
+	SET_SCHEDULE();
 
 #if 0
     
     waitMonitor(self, mon, msec, nsec, interruptShouldThrow);
 #endif
+}
+
+
+/*
+ * Object.notify().
+ */
+void Sync_dvmObjectNotify(Thread* self, Object *obj)
+{
+	MonitorWaitSet * wakeSet = NULL;
+	Monitor * mon = NULL;
+
+	DVM_ASSERT(self != NULL);
+	DVM_ASSERT(obj  != NULL);
+
+	mon = LW_MONITOR(obj->lock);
+
+	if(mon == NULL || mon->owner != self)
+    {
+		dvmThrowIllegalMonitorStateException("object not locked by thread before wait()");
+		return;
+	}
+	
+	/*find next wait or time-wait thread,ready to active it*/
+	wakeSet = Sync_findNextWakeInWaitSet(mon,self,COND_WAIT_MONITOR);
+
+	if(wakeSet != NULL)
+	{
+		/*Transfer state to tryget,*/
+		Schd_ChangeThreadState(wakeSet->waitSet,THREAD_TRYGET_MONITOR_SUSPENDED);
+	}
+
+	/*not give up control of monitor now! give up till MONITOR_EXIT*/
+}
+
+/*
+ * Object.notifyAll().
+ */
+void Sync_dvmObjectNotifyAll(Thread* self, Object *obj)
+{
+	MonitorWaitSet * wakeSet = NULL;
+	Monitor * mon = NULL;
+
+	DVM_ASSERT(self != NULL);
+	DVM_ASSERT(obj  != NULL);
+
+	mon = LW_MONITOR(obj->lock);
+
+	if(mon == NULL || mon->owner != self)
+    {
+		dvmThrowIllegalMonitorStateException("object not locked by thread before wait()");
+		return;
+	}
+	
+	while(true)
+	{
+		/*find next wait or time-wait thread,ready to active it*/
+		wakeSet = Sync_findNextWakeInWaitSet(mon,self,COND_WAIT_MONITOR);
+
+		if(wakeSet != NULL)
+		{
+			/*Transfer state to tryget,*/
+			Schd_ChangeThreadState(wakeSet->waitSet,THREAD_TRYGET_MONITOR_SUSPENDED);
+		}
+		else
+			break;
+	}
+
+	/*not give up control of monitor now! give up till MONITOR_EXIT*/
 }

@@ -16,6 +16,7 @@
 
 Method * GetMethodID(ClassObject * clazz, const char* name, const char* sig);
 
+/*Thread.java*/
 void Java_java_lang_Thread_activeCount0(const u4* args, JValue* pResult);
 
 void Java_java_lang_Thread_currentThread0(const u4* args, JValue* pResult);

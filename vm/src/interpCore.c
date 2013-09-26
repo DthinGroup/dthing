@@ -2796,8 +2796,13 @@ HANDLE_OPCODE(OP_MONITOR_ENTER /*vAA*/)
         ILOGV("+ locking %p %s", obj, obj->clazz->descriptor);
 #endif
         EXPORT_PC();    /* need for precise GC */
-        dvmLockObject(self, obj);
-		//FINISH(0);
+        //dvmLockObject(self, obj);
+		if(!Sync_dvmLockObject(self,obj))
+		{
+			/*launch one schdule*/
+			SET_SCHEDULE();
+			FINISH(0);
+		}		
     }
     FINISH(1);
 OP_END
@@ -2829,7 +2834,9 @@ HANDLE_OPCODE(OP_MONITOR_EXIT /*vAA*/)
 #if __NIX__
         ILOGV("+ unlocking %p %s", obj, obj->clazz->descriptor);
 #endif
-        if (!dvmUnlockObject(self, obj)) {
+        //if (!dvmUnlockObject(self, obj)) 
+		if (!Sync_dvmUnlockObject(self, obj)) 
+		{
             assert(dvmCheckException(self));
             ADJUST_PC(1);
             GOTO_exceptionThrown();

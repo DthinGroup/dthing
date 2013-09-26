@@ -311,7 +311,8 @@ void Schd_DecSleepTime(u4 bkupTime)
 		else if(tmp->threadState == THREAD_TIMEWAIT_MONITOR_SUSPENDED)
 		{
 			//complish here
-			DVM_ASSERT(0);
+			tmp->sleepTime = (tmp->sleepTime > deltaTime) ? (tmp->sleepTime - deltaTime) : (tmp->threadState = THREAD_TRYGET_MONITOR_SUSPENDED,0) ;
+			//DVM_ASSERT(0);
 		}
         tmp = tmp->next;
     }

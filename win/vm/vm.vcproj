@@ -360,14 +360,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\vm\src\nativeThread.c"
-				>
-			</File>
-			<File
-				RelativePath="..\..\vm\inc\nativethread.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\vm\src\schd.c"
 				>
 			</File>
@@ -412,6 +404,14 @@
 			Name="nativeImpl"
 			>
 			<File
+				RelativePath="..\..\vm\impl\nativeObject.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\vm\impl\nativeObject.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\vm\impl\nativeString.c"
 				>
 			</File>
@@ -425,6 +425,14 @@
 			</File>
 			<File
 				RelativePath="..\..\vm\impl\nativeSystem.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\vm\impl\nativeThread.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\vm\impl\nativethread.h"
 				>
 			</File>
 		</Filter>

@@ -21,8 +21,15 @@
  */
 #define LW_MONITOR(x)  (Monitor*)((x) & ~(LW_HASH_STATE_MASK << LW_HASH_STATE_SHIFT))
 
-
 #define SYNC_KEEP_LOCK_COUNT	(-1)
+
+
+typedef enum
+{
+    COND_WAIT_TRYGET,   //in try get state  cor to THREAD_TRYGET_MONITOR_SUSPENDED
+    COND_WAIT_MONITOR,  //in wait monitor or time-wait state
+    COND_WAIT_ANY,      //in any state
+}WAKE_COND_E;
 
 typedef struct MonitorWaitSet_s MonitorWaitSet;
 typedef struct Monitor_s Monitor;
@@ -44,6 +51,10 @@ typedef struct Monitor_s
     struct Monitor_s*		next;
 
 };
+
+void Sync_init(void);
+
+void Sync_term(void);
 
 Monitor* Sync_dvmCreateMonitor(Object* obj);
 
@@ -76,5 +87,9 @@ vbool Sync_dvmUnlockObject(Thread* self, Object *obj);
  * Object.wait().  Also called for class init.
  */
 void Sync_dvmObjectWait(Thread* self, Object *obj, s8 msec, s4 nsec,vbool interruptShouldThrow);
+
+void Sync_dvmObjectNotify(Thread* self, Object *obj);
+
+void Sync_dvmObjectNotifyAll(Thread* self, Object *obj);
 
 #endif /*__SYNC_H__*/

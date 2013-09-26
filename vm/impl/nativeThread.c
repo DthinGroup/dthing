@@ -97,3 +97,4 @@ void Java_java_lang_Thread_printQ(const u4* args, JValue* pResult)
 	//pResult->i  = ret;
 	RETURN_INT(ret);
 }
+

@@ -3,6 +3,7 @@
 #include "nativeThread.h"
 #include <nativeSystem.h>
 #include <nativeString.h>
+#include <nativeObject.h>
 
 KNINativeMethod gNativeMthTab[] = 
 {
@@ -14,6 +15,10 @@ KNINativeMethod gNativeMthTab[] =
 	{"LDThread;","isAlive0" ,      "()Z",        (KniFunc)Java_java_lang_Thread_isAlive0},
 	{"LDThread;","printQ" ,        "(II)V",      (KniFunc)Java_java_lang_Thread_printQ},
 
+	{"Ljava/lang/Object;","wait" ,          "(JI)V",      (KniFunc)Java_java_lang_Object_wait},
+	{"Ljava/lang/Object;","notify" ,        "()V",        (KniFunc)Java_java_lang_Object_notify},
+	{"Ljava/lang/Object;","notifyAll" ,     "(II)V",      (KniFunc)Java_java_lang_Object_notifyAll},
+	
 
 
     /* java.lang.System native APIs */
