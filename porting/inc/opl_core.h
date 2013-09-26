@@ -9,7 +9,13 @@
 /**
  * The implementation of core VM portings.
  */
- 
+
+ #ifndef __OPL_CORE_H__
+ #define __OPL_CORE_H__
+
+#ifdef __cplusplus
+extern "C" {
+#endif
  
 /**
  * Return the number of milliseconds since 1st January 1970 UTC.
@@ -39,3 +45,29 @@
  *         00:00 January 1, 1970 UTC.
  */
 int64_t OPL_core_getCurrentTimeMillis();
+
+
+/**
+ * Print a character to the debugging log.
+ *
+ * The output of the <code>out</code> and <code>err</code> streams in
+ * <code>java.lang.System</code> is redirected to this function.
+ * <p>
+ * It is possible to receive 16-bit unicode characters through this function,
+ * but most debugging information only uses 7-bit ASCII.  If a port is not able
+ * to handle unicode characters, it is suggested that they are replaced by
+ * a suitable alternative (for example '?').
+ *
+ * A port is also free to completely discard all of this output, but there are
+ * many classes in Jbed have a compile-time switch to print debugging
+ * information, and this can be a very useful debugging technique.
+ *
+ * @param chr the character to print
+ */
+void OPL_core_logChar(int chr);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif //__OPL_CORE_H__

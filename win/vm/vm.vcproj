@@ -404,6 +404,14 @@
 			Name="nativeImpl"
 			>
 			<File
+				RelativePath="..\..\vm\impl\nativeFloat.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\vm\impl\nativeFloat.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\vm\impl\nativeObject.c"
 				>
 			</File>

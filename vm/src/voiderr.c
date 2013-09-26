@@ -453,12 +453,6 @@ void dvmSetException(struct dthread* self, struct Object* exception)
 	DVM_LOG(">>>call dvmSetException!\n");
 }
 
-vbool dvmInterpHandleFillArrayData(ArrayObject* arrayObj, const u2* arrayData)
-{
-	DVM_LOG(">>>call dvmInterpHandleFillArrayData!\n");
-    return 0;
-}
-
 void dvmThrowInternalError(const char* msg) 
 {
 	DVM_LOG(">>>call dvmThrowInternalError!\n");

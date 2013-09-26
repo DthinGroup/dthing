@@ -269,7 +269,7 @@ void Java_java_lang_System_arrayCopy(const u4* args, JValue* pResult)
 
 }
 
-
+/* see nativeSystem.h */
 void Java_java_lang_System_currentTimeMillis(const u4* args, JValue* pResult)
 {
     int64_t curTime = OPL_core_getCurrentTimeMillis();
@@ -277,6 +277,7 @@ void Java_java_lang_System_currentTimeMillis(const u4* args, JValue* pResult)
     RETURN_LONG(curTime);    
 }
 
+/* see nativeSystem.h */
 void Java_java_lang_System_identityHashCode(const u4* args, JValue* pResult)
 {
     u4      iHashCode = 0;
@@ -285,4 +286,12 @@ void Java_java_lang_System_identityHashCode(const u4* args, JValue* pResult)
     iHashCode = (u4)thisPtr;
     
     RETURN_INT(iHashCode);
+}
+
+/* see nativeSystem.h */
+void Java_com_yarlungsoft_util_write(const u4* args, JValue* pResult)
+{
+    int ch = (int)args[1];
+    OPL_core_logChar(ch);
+    RETURN_VOID();
 }

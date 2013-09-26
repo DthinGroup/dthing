@@ -63,6 +63,13 @@ void Java_java_lang_System_currentTimeMillis(const u4* args, JValue* pResult);
  */
 void Java_java_lang_System_identityHashCode(const u4* args, JValue* pResult);
 
+
+/**
+ * Output a single byte.
+ * @param b byte to write
+ */
+void Java_com_yarlungsoft_util_write(const u4* args, JValue* pResult);
+
 #ifdef __cplusplus
 extern "C" {
 #endif

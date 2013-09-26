@@ -758,6 +758,7 @@ static ClassObject* loadClassFromDex0(DvmDex* pDvmDex,
     if (newClass == NULL)
         return NULL;
     CRTL_memset(newClass, 0x0, size);
+    DVM_OBJECT_INIT(&newClass->obj, gDvm.classJavaLangClass);
 
     newClass->descriptor = descriptor;
     SET_CLASS_FLAG(newClass, pClassDef->accessFlags);
