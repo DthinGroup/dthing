@@ -92,4 +92,6 @@ void Sync_dvmObjectNotify(Thread* self, Object *obj);
 
 void Sync_dvmObjectNotifyAll(Thread* self, Object *obj);
 
+void Sync_bindTryLockToMonitor(Thread * thd,vbool bResumeNow);
+
 #endif /*__SYNC_H__*/
