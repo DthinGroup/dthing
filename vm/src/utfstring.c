@@ -135,7 +135,8 @@ u4 dvmUtf8Len(const char* utf8Str)
  */
 void dvmConvertUtf8ToUtf16(u2* utf16Str, const char* utf8Str)
 {
-    //TODO: to implement
+    while (*utf8Str != '\0')
+        *utf16Str++ = dexGetUtf16FromUtf8(&utf8Str);
 }
 
 /*
