@@ -620,6 +620,22 @@ const DexEncodedArray* dexGetStaticValuesList(const DexFile* pDexFile, const Dex
 const DexAnnotationsDirectoryItem* dexGetAnnotationsDirectoryItem(
     const DexFile* pDexFile, const DexClassDef* pClassDef);
 
+/*
+ * Retrieve the next UTF-16 character from a UTF-8 string.
+ *
+ * Advances "*pUtf8Ptr" to the start of the next character.
+ *
+ * WARNING: If a string is corrupted by dropping a '\0' in the middle
+ * of a 3-byte sequence, you can end up overrunning the buffer with
+ * reads (and possibly with the writes if the length was computed and
+ * cached before the damage). For performance reasons, this function
+ * assumes that the string being parsed is known to be valid (e.g., by
+ * already being verified). Most strings we process here are coming
+ * out of dex files or other internal translations, so the only real
+ * risk comes from the JNI NewStringUTF call.
+ */
+u2 dexGetUtf16FromUtf8(const char** pUtf8Ptr);
+
 #ifdef __cplusplus
 }
 #endif
