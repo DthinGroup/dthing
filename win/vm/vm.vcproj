@@ -216,6 +216,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\vm\src\exception.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\vm\inc\exception.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\vm\src\hash.c"
 				>
 			</File>
@@ -441,6 +449,14 @@
 			</File>
 			<File
 				RelativePath="..\..\vm\impl\nativethread.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\vm\impl\nativeThrowable.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\vm\impl\nativeThrowable.h"
 				>
 			</File>
 		</Filter>

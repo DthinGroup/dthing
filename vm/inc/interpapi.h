@@ -1,6 +1,7 @@
 #ifndef __INTERPAPI_H__
 #define __INTERPAPI_H__
 
+#include <dthing.h>
 #include "dvmdex.h"
 #include "vm_common.h"
 #include "dthread.h"
@@ -20,6 +21,7 @@ void dvmInterpretMakeNativeCall(const u4* args, JValue* pResult, const Method* m
 
 void dvmCallClinitMethod(const Method* method, Object* obj);
 
+void dvmCallInitMethod(const Method* method, Object* obj, ...);
 
 /*API FUNCs of Interpret,avoid Errors*/
 
@@ -212,7 +214,11 @@ void dvmThrowClassCastException(ClassObject* actual, ClassObject* desired);
 
 INLINE int dvmInstanceof(const ClassObject* instance, const ClassObject* clazz);
 
-vbool dvmCheckException(struct dthread* self) ;
+/*
+ * Returns "true" if an exception is pending.  Use this if you have a
+ * "self" pointer.
+ */
+bool_t dvmCheckException(Thread* self);
 
 vbool dvmUnlockObject(Thread* self, Object *obj);
 

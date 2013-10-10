@@ -274,7 +274,6 @@ void dvmRunGC()
     gcStatus = GC_DONE;
 }
 
-
 /*
  * Create an instance of the specified class.
  *
@@ -293,10 +292,9 @@ Object* dvmAllocObject(ClassObject* clazz, int flags)
     if (newObj == NULL) {
         //run GC to get more memory space.
         dvmRunGC();
+        /* allocate on GC heap again after GC; */
+        newObj = (Object*)heapAllocObject((int32_t)clazz->objectSize, flags);
     }
-
-    /* allocate on GC heap again after GC; */
-    newObj = (Object*)heapAllocObject((int32_t)clazz->objectSize, flags);
 
     if (newObj != NULL) {
         DVM_OBJECT_INIT(newObj, clazz);

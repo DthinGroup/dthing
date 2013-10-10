@@ -86,6 +86,13 @@ typedef struct DVMGlobal_s
     ClassObject* classJavaLangString;
 
     /*
+     * Pre-allocated throwables.
+     */
+    Object*     outOfMemoryObj;
+    Object*     internalErrorObj;
+    Object*     noClassDefFoundErrorObj;
+
+    /*
      * Compute some stats on loaded classes.
      */
     int  numLoadedClasses;

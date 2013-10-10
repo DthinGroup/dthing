@@ -1203,6 +1203,9 @@ static bool_t createIftable(ClassObject* clazz)
             //TODO: Should throw exception here?
             //dvmThrowIncompatibleClassChangeErrorWithClassMessage(
             //    clazz->descriptor);
+            //COMPLETE: Throw virtualMachineError to replace the IncompatibleClassChangeError since
+            //M2M doesn't has this error.
+            dvmThrowVirtualMachineErrorWithClassMessage(clazz->descriptor);
             goto bail;
         }
 
