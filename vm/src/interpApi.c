@@ -155,6 +155,75 @@ void dvmCallClinitMethod(const Method* method, Object* obj)
 	dvmInterpretEntry(ghostThread,&pResult);
 }
 
+
+u4 dvmFloatToU4(float val) {
+    union { float in; u4 out; } conv;
+    conv.in = val;
+    return conv.out;
+}
+
+void dvmCallInitMethod(const Method* method, Object* obj, ...)
+{
+    va_list args;
+    va_start(args, obj);
+    {
+        const char* desc = &(method->shorty[1]); // [0] is the return type.
+        int verifyCount = 0; //for debug
+    	JValue pResult;
+        u4* ins;
+
+        /* "ins" for new frame start at frame pointer plus locals */
+        ins = ((u4*)ghostThread->interpSave.curFrame) +
+               (method->registersSize - method->insSize);
+
+        /* put "this" pointer into in0 if appropriate */
+        if (!dvmIsStaticMethod(method))
+        {
+            *ins++ = (u4) obj;
+            verifyCount++;
+        }
+
+        while (*desc != '\0')
+        {
+            switch (*(desc++)) {
+                case 'D': case 'J': {
+                    u8 val = va_arg(args, u8);
+                    CRTL_memcpy(ins, &val, 8);       // EABI prevents direct store
+                    ins += 2;
+                    verifyCount += 2;
+                    break;
+                }
+                case 'F': {
+                    /* floats were normalized to doubles; convert back */
+                    float f = (float) va_arg(args, double);
+                    *ins++ = dvmFloatToU4(f);
+                    verifyCount++;
+                    break;
+                }
+                case 'L': {     /* 'shorty' descr uses L for all refs, incl array */
+                    void* argObj = va_arg(args, void*);
+                    *ins++ = (u4) argObj;
+                    verifyCount++;
+                    break;
+                }
+                default: {
+                    /* Z B C S I -- all passed as 32-bit integers */
+                    *ins++ = va_arg(args, u4);
+                    verifyCount++;
+                    break;
+                }
+            }
+        }
+
+        //dvmDumpThreadStack(dvmThreadSelf());
+
+    	dthread_fill_ghost(method,obj);
+    	dvmInterpretEntry(ghostThread,&pResult);
+    }
+    va_end(args);
+}
+
+
 /*
  * Copy data for a fill-array-data instruction.  On a little-endian machine
  * we can just do a memcpy(), on a big-endian system we have work to do.

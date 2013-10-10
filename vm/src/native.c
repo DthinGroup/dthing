@@ -5,6 +5,7 @@
 #include <nativeString.h>
 #include <nativeFloat.h>
 #include <nativeObject.h>
+#include <nativeThrowable.h>
 
 KNINativeMethod gNativeMthTab[] = 
 {
@@ -59,6 +60,9 @@ KNINativeMethod gNativeMthTab[] =
     {"Ljava/lang/Double;", "doubleToLongBits",    "(D)J", (KniFunc)Java_java_lang_Double_doubleToLongBits},
     {"Ljava/lang/Double;", "doubleToRawLongBits", "(D)J", (KniFunc)Java_java_lang_Double_doubleToRawLongBits},
     {"Ljava/lang/Double;", "longBitsToDouble",    "(J)D", (KniFunc)Java_java_lang_Double_longBitsToDouble},
+
+    /* java.lang.Throwable native APIs */
+    {"Ljava/lang/Throwable;", "printStackTrace0",    "(L)V", (KniFunc)Java_java_lang_Throwable_printStackTrace0},    
 };
 
 

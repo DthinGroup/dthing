@@ -489,12 +489,6 @@ void dvmThrowClassCastException(ClassObject* actual, ClassObject* desired)
 	DVM_LOG(">>>call dvmThrowClassCastException!\n");
 }
 
-vbool dvmCheckException(struct dthread * self) 
-{
-	DVM_LOG(">>>call dvmCheckException!\n");
-    return 0;
-}
-
 vbool dvmUnlockObject(Thread* self, Object *obj)
 {
 	DVM_LOG(">>>call dvmUnlockObject!\n");
