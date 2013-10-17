@@ -7,6 +7,11 @@
 #include <kni.h>
 #include <Object.h>
 
+#ifdef DVM_LOG
+#undef DVM_LOG
+#endif
+
+#define DVM_LOG		printf
 
 void dvmInterpretEntry(Thread * self,JValue *pResult)
 {
@@ -325,3 +330,79 @@ bool_t dvmInterpHandleFillArrayData(ArrayObject* arrayObj, const u2* arrayData)
     return TRUE;
 }
 
+/*
+ * Construct an s4 from two consecutive half-words of switch data.
+ * This needs to check endianness because the DEX optimizer only swaps
+ * half-words in instruction stream.
+ *
+ * "switchData" must be 32-bit aligned.
+ */
+#if __BYTE_ORDER == __LITTLE_ENDIAN
+static  s4 s4FromSwitchData(const void* switchData) 
+{
+    return *(s4*) switchData;
+}
+#else
+static  s4 s4FromSwitchData(const void* switchData) {
+    u2* data = switchData;
+    return data[0] | (((s4) data[1]) << 16);
+}
+#endif
+
+
+/*
+ * Switch table and array data signatures are a code unit consisting
+ * of "NOP" (0x00) in the low-order byte and a non-zero identifying
+ * code in the high-order byte. (A true NOP is 0x0000.)
+ */
+#define kPackedSwitchSignature  0x0100
+#define kSparseSwitchSignature  0x0200
+#define kArrayDataSignature     0x0300
+
+s4 dvmInterpHandlePackedSwitch(const u2* switchData, s4 testVal)
+{
+	const int kInstrLen = 3;
+    u2 size;
+    s4 firstKey;
+    const s4* entries;
+
+	DVM_LOG(">>>call dvmInterpHandlePackedSwitch!\n");
+    /*
+     * Packed switch data format:
+     *  ushort ident = 0x0100   magic value
+     *  ushort size             number of entries in the table
+     *  int first_key           first (and lowest) switch case value
+     *  int targets[size]       branch targets, relative to switch opcode
+     *
+     * Total size is (4+size*2) 16-bit code units.
+     */
+    if (*switchData++ != kPackedSwitchSignature) 
+	{
+        /* should have been caught by verifier */
+        dvmThrowInternalError("bad packed switch magic");
+        return kInstrLen;
+    }
+
+    size = *switchData++;
+    DVM_ASSERT(size > 0);
+
+    firstKey = *switchData++;
+    firstKey |= (*switchData++) << 16;
+
+    if (testVal < firstKey || testVal >= firstKey + size) 
+	{
+        DVM_LOG("Value %d not found in switch (%d-%d)",testVal, firstKey, firstKey+size-1);
+        return kInstrLen;
+    }
+
+    /* The entries are guaranteed to be aligned on a 32-bit boundary;
+     * we can treat them as a native int array.
+     */
+    entries = (const s4*) switchData;
+    DVM_ASSERT(((u4)entries & 0x3) == 0);
+
+    DVM_ASSERT(testVal - firstKey >= 0 && testVal - firstKey < size);
+    DVM_LOG("Value %d found in slot %d (goto 0x%02x)",testVal, testVal - firstKey,s4FromSwitchData(&entries[testVal - firstKey]));
+    return s4FromSwitchData(&entries[testVal - firstKey]);
+
+}

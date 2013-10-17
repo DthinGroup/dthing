@@ -4,12 +4,28 @@
 #include "schd.h"
 #include "kni.h"
 
+#include "AsyncIO.h"
+
 void Java_java_lang_Thread_activeCount0(const u4* args, JValue* pResult)
 {
+#if 1
 	int count = 0;
 	count = Schd_ThreadAccountInTotal();
 	DVMTraceInf("Java_java_lang_Thread_activeCount0:%d ..\n",count);
 	RETURN_INT(count);
+#else
+	/*test code for AsyncIO*/
+	int count =0;
+	if(AsyncIO_firstCall())
+	{
+		AsyncIO_callAgainWhenSignalledOrTimeOut(10*1000);
+	}
+	else
+	{
+		count = Schd_ThreadAccountInTotal();
+	}
+	RETURN_INT(count);
+#endif
 }
 
 void Java_java_lang_Thread_currentThread0(const u4* args, JValue* pResult)

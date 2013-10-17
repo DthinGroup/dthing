@@ -4,6 +4,7 @@
 #include "interpStack.h"
 #include "vmTime.h"
 #include "Object.h"
+#include "AsyncIO.h"
 
 #ifdef DVM_LOG
 #undef DVM_LOG
@@ -85,10 +86,19 @@ Thread * dthread_alloc(int stackSize)
     DVM_ASSERT(stackSize >= kMinStackSize && stackSize <=kMaxStackSize);
     
     tmp->threadState = THREAD_INITED;
+
+	tmp->asynNotifier = (struct ASYNC_Notifier_s *)DVM_MALLOC(sizeof(struct ASYNC_Notifier_s));
+	if(tmp->asynNotifier == NULL)
+	{
+		DVM_FREE(tmp);
+        return NULL;
+	}
+	DVM_MEMSET(tmp->asynNotifier,0,sizeof(struct ASYNC_Notifier_s));
     
     stackBottom = (u1*)DVM_MALLOC(stackSize);
     if(stackBottom == NULL)
     {
+		DVM_FREE(tmp->asynNotifier);
         DVM_FREE(tmp);
         return NULL;
     }
@@ -98,7 +108,7 @@ Thread * dthread_alloc(int stackSize)
     DVM_ASSERT(((u4)stackBottom & 0x03) == 0);    // 4-bytes aligned ?
     tmp->interpStackSize  = stackSize;
     tmp->interpStackStart = stackBottom + stackSize;
-    tmp->interpStackEnd   = stackBottom + STACK_OVERFLOW_RESERVE;	
+    tmp->interpStackEnd   = stackBottom + STACK_OVERFLOW_RESERVE;		
     
     return tmp;
 }
@@ -143,7 +153,11 @@ void dthread_create(const Method * mth,Object* obj)
 	jthread->threadObj = (Object *)obj;
 	jthread->entryMthd = (Method *)mth;
 	jthread->creatTime = vmtime_getTickCount();
-	
+	jthread->asynNotifier->asynIoState = ASYNC_IO_IDLE;
+	jthread->asynNotifier->timeout = 0;
+	jthread->asynNotifier->notified = FALSE;
+	jthread->asynNotifier->ownthread = jthread;
+
 	dvmPushInterpFrame(jthread,mth);
 
 	/* "ins" for new frame start at frame pointer plus locals */
@@ -170,6 +184,7 @@ void dthread_delete(Thread * thread)
 {
     DVM_ASSERT(thread != NULL);
 	DVM_FREE((void*)(thread->interpStackStart - thread->interpStackSize));
+	DVM_FREE(thread->asynNotifier);
     /*other to free ?*/
 	DVM_FREE(thread);
 }
@@ -211,7 +226,7 @@ void dthread_suspend(Thread * thread,THREAD_STATE_E  newState)
 		return;
 	}
 
-	if(newState >= THREAD_TIME_SUSPENDED && newState <= THREAD_MONITOR_SUSPENDED)
+	if(newState >= THREAD_TIME_SUSPENDED && newState < THREAD_DEAD)
 	{
 		SET_SCHEDULE();   //it cause scheduler occuring ! 
 	}

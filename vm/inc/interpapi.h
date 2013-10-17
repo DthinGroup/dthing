@@ -23,6 +23,8 @@ void dvmCallClinitMethod(const Method* method, Object* obj);
 
 void dvmCallInitMethod(const Method* method, Object* obj, ...);
 
+s4 dvmInterpHandlePackedSwitch(const u2* switchData, s4 testVal);
+
 /*API FUNCs of Interpret,avoid Errors*/
 
 #ifdef ARCH_X86
@@ -173,7 +175,7 @@ void dvmThrowArrayIndexOutOfBoundsException(int length, int index);
 
 s4 dvmInterpHandleSparseSwitch(const u2* switchData, s4 testVal);
 
-s4 dvmInterpHandlePackedSwitch(const u2* switchData, s4 testVal);
+
 
 vbool dvmCheckSuspendPending(Thread* self);
 

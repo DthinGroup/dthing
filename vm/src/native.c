@@ -6,11 +6,12 @@
 #include <nativeFloat.h>
 #include <nativeObject.h>
 #include <nativeThrowable.h>
+#include <nativeAsyncIO.h>
 
 KNINativeMethod gNativeMthTab[] = 
 {
 
-#if 0
+#if 1
 
      /*classpath, name, signature, funcPtr */
     {"LDThread;","activeCount0",   "()I",        (KniFunc)Java_java_lang_Thread_activeCount0},
@@ -18,7 +19,7 @@ KNINativeMethod gNativeMthTab[] =
 	{"LDThread;","sleep0" ,        "(J)V",       (KniFunc)Java_java_lang_Thread_sleep0},
 	{"LDThread;","start0" ,        "()V",        (KniFunc)Java_java_lang_Thread_start0},
 	{"LDThread;","isAlive0" ,      "()Z",        (KniFunc)Java_java_lang_Thread_isAlive0},
-	{"LDThread;","printQ" ,        "(II)V",      (KniFunc)Java_java_lang_Thread_printQ},
+	//{"LDThread;","printQ" ,        "(II)V",      (KniFunc)Java_java_lang_Thread_printQ},
 #else
     {"Ljava/lang/Thread;", "activeCount",   "()I",                   (KniFunc)Java_java_lang_Thread_activeCount0},
     {"Ljava/lang/Thread;", "currentThread", "()Ljava/lang/Thread;",  (KniFunc)Java_java_lang_Thread_currentThread0},
@@ -38,6 +39,10 @@ KNINativeMethod gNativeMthTab[] =
 	{"Ljava/lang/Object;","wait" ,          "(JI)V",      (KniFunc)Java_java_lang_Object_wait},
 	{"Ljava/lang/Object;","notify" ,        "()V",        (KniFunc)Java_java_lang_Object_notify},
 	{"Ljava/lang/Object;","notifyAll" ,     "(II)V",      (KniFunc)Java_java_lang_Object_notifyAll},
+
+	{"LAsyncIO;","getCurNotifierState" ,     "()I",      (KniFunc)AsyncIO_getCurNotifierState},
+	{"LAsyncIO;","setCurNotifierState" ,     "(I)V",      (KniFunc)AsyncIO_setCurNotifierState},
+	{"LAsyncIO;","waitSignalOrTimeOut" ,     "()V",      (KniFunc)AsyncIO_waitSignalOrTimeOut},
 
 
     /* java.lang.System native APIs */

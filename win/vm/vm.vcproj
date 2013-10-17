@@ -360,6 +360,14 @@
 			Name="thread"
 			>
 			<File
+				RelativePath="..\..\vm\src\AsyncIO.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\vm\inc\AsyncIO.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\vm\src\dthread.c"
 				>
 			</File>
@@ -411,6 +419,14 @@
 		<Filter
 			Name="nativeImpl"
 			>
+			<File
+				RelativePath="..\..\vm\impl\nativeAsyncIO.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\vm\impl\nativeAsyncIO.h"
+				>
+			</File>
 			<File
 				RelativePath="..\..\vm\impl\nativeFloat.c"
 				>

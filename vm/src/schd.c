@@ -3,6 +3,7 @@
 #include "dthread.h"
 #include "interpApi.h"
 #include "vmTime.h"
+#include "AsyncIO.h"
 
 #ifdef DVM_LOG
 #undef DVM_LOG
@@ -303,22 +304,47 @@ void Schd_DecSleepTime(u4 bkupTime)
     deltaTime = deltaTime > (2*bkupTime) ? (g_last_tick_record = this_tick,2*bkupTime) : (g_last_tick_record = this_tick,deltaTime);
     while(tmp != NULL)
     {
-        if(tmp->threadState == THREAD_TIME_SUSPENDED)
-        {
-            DVM_LOG("Thread %d is in sleep,deltaTime=%d\n",tmp->threadId,deltaTime);
-            tmp->sleepTime = (tmp->sleepTime > deltaTime) ? (tmp->sleepTime - deltaTime) : (tmp->threadState = THREAD_READY,0) ;
-        }
-        else if(tmp->threadState == THREAD_TIMEWAIT_MONITOR_SUSPENDED)
-        {
-            //complish here
-            tmp->sleepTime = (tmp->sleepTime > deltaTime) ? (tmp->sleepTime - deltaTime) : (tmp->threadState = THREAD_TRYGET_MONITOR_SUSPENDED,0) ;
-            if(tmp->threadState == THREAD_TRYGET_MONITOR_SUSPENDED)
-            {
-                //DVM_ASSERT(0);
-                Sync_bindTryLockToMonitor(tmp,false);
-            }
+		switch(tmp->threadState)
+		{
+			case THREAD_TIME_SUSPENDED:
+			{
+				DVM_LOG("Thread %d is in sleep,deltaTime=%d\n",tmp->threadId,deltaTime);
+				tmp->sleepTime = (tmp->sleepTime > deltaTime) ? (tmp->sleepTime - deltaTime) : (tmp->threadState = THREAD_READY,0) ;
+			}
+			break;
 
-        }
+			case THREAD_TIMEWAIT_MONITOR_SUSPENDED:
+			{
+				//complish here
+				tmp->sleepTime = (tmp->sleepTime > deltaTime) ? (tmp->sleepTime - deltaTime) : (tmp->threadState = THREAD_TRYGET_MONITOR_SUSPENDED,0) ;
+				if(tmp->threadState == THREAD_TRYGET_MONITOR_SUSPENDED)
+				{
+					//DVM_ASSERT(0);
+					Sync_bindTryLockToMonitor(tmp,false);
+				}
+			}
+			break;
+
+			case THREAD_ASYNCIO_SUSPENDED:
+			{
+				if(ASYNC_AllowTimeOut(tmp))
+				{
+					tmp->sleepTime = (tmp->sleepTime > deltaTime) ? (tmp->sleepTime - deltaTime) : (tmp->threadState = THREAD_READY,0) ;
+					if(tmp->threadState == THREAD_READY)
+					{
+						ASYNC_SetAIOState(tmp,ASYNC_IO_TIMEOUT);
+					}
+				}
+				else if(ASYNC_Signalled(tmp))
+				{
+					tmp->threadState = THREAD_READY;
+					ASYNC_SetAIOState(tmp,ASYNC_IO_DONE);
+				}
+			}
+			break;
+
+			default:break;
+		}
         tmp = tmp->next;
     }
 

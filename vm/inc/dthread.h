@@ -29,6 +29,7 @@ typedef enum{
 	THREAD_WAIT_MONITOR_SUSPENDED,		/*in wait state,obi.wait()*/
 	THREAD_TIMEWAIT_MONITOR_SUSPENDED,  /*in timed wait state,obj.wait(10)*/
 	THREAD_MONITOR_SUSPENDED,
+	THREAD_ASYNCIO_SUSPENDED,	/*suspended by async io call*/
     THREAD_DEAD,        //be dead,to delete the thread
 }THREAD_STATE_E;
 
@@ -113,7 +114,7 @@ struct dthread
 	Object*     threadObj;
 
 	/*new  add by nix*/
-	Method * entryMthd;  // method of entry , "main" or "run" 
+	Method * entryMthd;  // method of entry , "main" or "run" 	
     
     u4 waitTimeSlice;      /* just 'useful' in READY state,to record wait-to-run time *
                             * in each READY thread,scheduler get one of READY threads holding *
@@ -127,6 +128,8 @@ struct dthread
 
 	InterpSchdSave itpSchdSave;
 	vbool bInterpFirst;		//first call into interpret?
+
+	struct ASYNC_Notifier_s * asynNotifier;
 
 	/* pointer to the monitor lock we're currently waiting on */
     /* guarded by waitMutex */

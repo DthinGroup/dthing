@@ -430,11 +430,6 @@ s4 dvmInterpHandleSparseSwitch(const u2* switchData, s4 testVal)
 	return 0;
 }
 
-s4 dvmInterpHandlePackedSwitch(const u2* switchData, s4 testVal)
-{
-	DVM_LOG(">>>call dvmInterpHandlePackedSwitch!\n");
-	return 0;
-}
 
 vbool dvmCheckSuspendPending(Thread* self)
 {
