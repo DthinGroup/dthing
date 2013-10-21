@@ -6,6 +6,15 @@
 
 #include "AsyncIO.h"
 
+/* test code
+ASYNC_Notifier * curNotifier = NULL;
+DWORD WINAPI AsyncNotify(PVOID pParam)
+{
+	Sleep(1000);
+	AsyncIO_notify(curNotifier);
+}
+*/
+
 void Java_java_lang_Thread_activeCount0(const u4* args, JValue* pResult)
 {
 #if 1
@@ -18,7 +27,10 @@ void Java_java_lang_Thread_activeCount0(const u4* args, JValue* pResult)
 	int count =0;
 	if(AsyncIO_firstCall())
 	{
+		//DWORD threadid;		
 		AsyncIO_callAgainWhenSignalledOrTimeOut(10*1000);
+		//curNotifier = Async_getCurNotifier();
+		//CreateThread(NULL,0,AsyncNotify,NULL,0,&threadid);
 	}
 	else
 	{

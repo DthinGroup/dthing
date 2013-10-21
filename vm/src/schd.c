@@ -327,7 +327,12 @@ void Schd_DecSleepTime(u4 bkupTime)
 
 			case THREAD_ASYNCIO_SUSPENDED:
 			{
-				if(ASYNC_AllowTimeOut(tmp))
+				if(ASYNC_Signalled(tmp))
+				{
+					tmp->threadState = THREAD_READY;
+					ASYNC_SetAIOState(tmp,ASYNC_IO_DONE);
+				}
+				else if(ASYNC_AllowTimeOut(tmp))
 				{
 					tmp->sleepTime = (tmp->sleepTime > deltaTime) ? (tmp->sleepTime - deltaTime) : (tmp->threadState = THREAD_READY,0) ;
 					if(tmp->threadState == THREAD_READY)
@@ -335,11 +340,8 @@ void Schd_DecSleepTime(u4 bkupTime)
 						ASYNC_SetAIOState(tmp,ASYNC_IO_TIMEOUT);
 					}
 				}
-				else if(ASYNC_Signalled(tmp))
-				{
-					tmp->threadState = THREAD_READY;
-					ASYNC_SetAIOState(tmp,ASYNC_IO_DONE);
-				}
+				
+				
 			}
 			break;
 
