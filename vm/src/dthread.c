@@ -10,7 +10,7 @@
 #undef DVM_LOG
 #endif
 
-#define DVM_LOG		printf
+#define DVM_LOG		DVMTraceInf
 
 
 #define GHOST_THREAD_ID		(3225)

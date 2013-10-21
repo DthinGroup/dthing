@@ -6,7 +6,7 @@
 #undef DVM_LOG
 #endif
 
-#define DVM_LOG printf
+#define DVM_LOG DVMTraceInf
 
 HANDLE g_hMutex;
 

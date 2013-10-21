@@ -7,7 +7,7 @@
 #undef DVM_LOG
 #endif
 
-#define DVM_LOG		printf
+#define DVM_LOG		DVMTraceInf
 
 INLINE void dvmWriteBarrierField(const Object *obj, void *addr)
 {

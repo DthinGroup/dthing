@@ -292,10 +292,10 @@ static /*inline*/ void putDoubleToArray(u4* ptr, int idx, double dval)
 #define ULL 
 #define UL
 #define LL
-#define LOGV	printf
-#define LOGE	printf
+#define LOGV	DVMTraceInf
+#define LOGE	DVMTraceInf
 
-#define MACRO_LOG	  printf("Thread id:%d,",self->threadId);printf
+#define MACRO_LOG	  DVMTraceInf("Thread id:%d,",self->threadId);DVMTraceInf
 #define MACRO_LOG_L   //printf("Thread id:%d,",self->threadId);printf
 
 #elif defined ARCH_ARM
@@ -494,7 +494,7 @@ static int  * jmpad        = NULL;
 static int fuck_ret = 1;
 int fuck()
 {	
-	printf("give a schduler\n");
+	DVMTraceInf("give a schduler\n");
 	return fuck_ret;
 }
 

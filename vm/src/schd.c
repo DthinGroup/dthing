@@ -9,7 +9,7 @@
 #undef DVM_LOG
 #endif
 
-#define DVM_LOG     printf
+#define DVM_LOG     DVMTraceInf
 
 
 volatile u1 schedulerFlag  = 0;

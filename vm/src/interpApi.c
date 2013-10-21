@@ -11,7 +11,7 @@
 #undef DVM_LOG
 #endif
 
-#define DVM_LOG		printf
+#define DVM_LOG		DVMTraceInf
 
 void dvmInterpretEntry(Thread * self,JValue *pResult)
 {
