@@ -3,7 +3,7 @@
  *
  * Created:         $Date: 2013/10/10 $
  * Last modified:	$Date: 2013/10/10 $
- * Version:         $ID: nativeFloat.c#1
+ * Version:         $ID: nativeThrowable.c#1
  */
 
 /**

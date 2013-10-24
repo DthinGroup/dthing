@@ -13,6 +13,7 @@
 #include <nativeSystem.h>
 #include <typecheck.h>
 #include <array.h>
+#include <exception.h>
 /* porting layer apis */
 #include <opl_core.h>
 
@@ -83,33 +84,21 @@ void Java_java_lang_System_arrayCopy(const u4* args, JValue* pResult)
 
     /* Check for null pointers. */
     if (srcArray == NULL) {
-        //dvmThrowNullPointerException("src == null");
-        //===========================================
-        //TODO: to throw this exception here.
-        //===========================================
+        dvmThrowNullPointerException("src == null");
         RETURN_VOID();
     }
     if (dstArray == NULL) {
-        //===========================================
-        //TODO: to throw this exception here.
-        //===========================================
-        //dvmThrowNullPointerException("dst == null");
+        dvmThrowNullPointerException("dst == null");
         RETURN_VOID();
     }
 
     /* Make sure source and destination are arrays. */
     if (!dvmIsArray(srcArray)) {
-        //===========================================
-        //TODO: to throw this exception here.
-        //===========================================
-        //dvmThrowArrayStoreExceptionNotArray(((Object*)srcArray)->clazz, "source");
+        dvmThrowArrayStoreExceptionNotArray(((Object*)srcArray)->clazz, "source");
         RETURN_VOID();
     }
     if (!dvmIsArray(dstArray)) {
-        //===========================================
-        //TODO: to throw this exception here.
-        //===========================================
-        //dvmThrowArrayStoreExceptionNotArray(((Object*)dstArray)->clazz, "destination");
+        dvmThrowArrayStoreExceptionNotArray(((Object*)dstArray)->clazz, "destination");
         RETURN_VOID();
     }
 
@@ -118,12 +107,7 @@ void Java_java_lang_System_arrayCopy(const u4* args, JValue* pResult)
         srcPos > (int) srcArray->length - length ||
         dstPos > (int) dstArray->length - length)
     {
-        //===========================================
-        //TODO: to throw this exception here.
-        //===========================================
-        //dvmThrowExceptionFmt(gDvm.exArrayIndexOutOfBoundsException,
-        //    "src.length=%d srcPos=%d dst.length=%d dstPos=%d length=%d",
-        //    srcArray->length, srcPos, dstArray->length, dstPos, length);
+        dvmThrowException("Ljava/lang/ArrayIndexOutOfBoundsException;", NULL);
         RETURN_VOID();
     }
 
@@ -140,10 +124,7 @@ void Java_java_lang_System_arrayCopy(const u4* args, JValue* pResult)
     dstPrim = (dstType != '[' && dstType != 'L');
     if (srcPrim || dstPrim) {
         if (srcPrim != dstPrim || srcType != dstType) {
-            //===========================================
-            //TODO: to throw this exception here.
-            //===========================================
-            //dvmThrowArrayStoreExceptionIncompatibleArrays(srcClass, dstClass);
+            dvmThrowException("Ljava/lang/ArrayStoreException;", NULL);
             RETURN_VOID();
         }
 
@@ -255,11 +236,7 @@ void Java_java_lang_System_arrayCopy(const u4* args, JValue* pResult)
                 copyCount * width);
             dvmWriteBarrierArray(dstArray, 0, copyCount);
             if (copyCount != length) {
-                //===========================================
-                //TODO: to throw this exception here.
-                //===========================================
-                //dvmThrowArrayStoreExceptionIncompatibleArrayElement(srcPos + copyCount,
-                //        srcObj[copyCount]->clazz, dstClass);
+                dvmThrowException("Ljava/lang/ArrayStoreException;", NULL);
                 RETURN_VOID();
             }
         }

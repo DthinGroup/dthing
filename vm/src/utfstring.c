@@ -266,3 +266,38 @@ StringObject* dvmCreateStringFromUnicode(const u2* unichars, int len)
     return newObj;
 }
 
+
+/*
+ * Create a new C string from a java/lang/String object.
+ *
+ * Returns NULL if the object is NULL.
+ */
+char* dvmCreateCstrFromString(StringObject* jstr)
+{
+    char* newStr;
+    ArrayObject* chars;
+    int len, byteLen, offset;
+    const u2* data;
+
+    //assert(gDvm.javaLangStringReady > 0);
+
+    if (jstr == NULL)
+        return NULL;
+
+    len = dvmGetFieldInt((Object*) jstr, STRING_FIELDOFF_COUNT);
+    offset = dvmGetFieldInt((Object*) jstr, STRING_FIELDOFF_OFFSET);
+    chars = (ArrayObject*) dvmGetFieldObject((Object*) jstr,
+                                STRING_FIELDOFF_VALUE);
+    data = (const u2*) chars->contents + offset;
+    //assert(offset + len <= (int) chars->length);
+
+    byteLen = utf16_utf8ByteLen(data, len);
+    newStr = (char*) CRTL_malloc(byteLen+1);
+    if (newStr == NULL)
+        return NULL;
+    convertUtf16ToUtf8(newStr, data, len);
+
+    return newStr;
+}
+
+

@@ -1,3 +1,12 @@
+/**
+ * Copyright (C) 2013 YarlungSoft. All Rights Reserved.
+ *
+ * Created:         $Date: 2013/10/10 $
+ * Last modified:	$Date: 2013/10/10 $
+ * Version:         $ID: nativeThrowable.h#1
+ */
+
+
 #ifndef __NATIVE_THROWABLE_H__
 #define __NATIVE_THROWABLE_H__
 

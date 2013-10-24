@@ -17,8 +17,8 @@
 #include <opl_file.h>
 #include <vmTime.h>
 
-/* for test */
 #include <class.h>
+#include <gc.h>
 
 
 GLOBAL DVMGlobal gDvm;
@@ -62,6 +62,8 @@ LOCAL void DVM_lifecycle_init()
 
     vmtime_init();
     Schd_InitThreadLists();
+
+    dvmCreateStockExceptions();
 	//dthread_init();
 }
 
@@ -181,6 +183,7 @@ int32_t DVM_main(int32_t argc, int8_t * argv[])
 	/* Find main class */
 	mainClass = dvmFindClass("Lhelloword;");
     //mainClass = dvmFindClass("Lcom/yarlungsoft/main/Main;");
+    //mainClass = dvmFindClass("Lcom/yarlungsoft/print/printTest;");
 	/* Find Entry function method */
 	startMeth = dvmGetStaticMethodID(mainClass, "main", "([Ljava/lang/String;)V");
 

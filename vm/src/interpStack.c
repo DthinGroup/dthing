@@ -1,3 +1,4 @@
+#include <dthing.h>
 #include "interpStack.h"
 #include "Object.h"
 
@@ -5,6 +6,63 @@
 vbool dvmIsBreakFrame(const u4* fp)
 {
     return SAVEAREA_FROM_FP(fp)->method == NULL;
+}
+
+/*
+ * Get the calling frame.  Pass in the current fp.
+ *
+ * Skip "break" frames and reflection invoke frames.
+ */
+void* dvmGetCallerFP(const void* curFrame)
+{
+    void* caller = SAVEAREA_FROM_FP(curFrame)->prevFrame;
+    StackSaveArea* saveArea;
+
+retry:
+    if (dvmIsBreakFrame(caller)) {
+        /* pop up one more */
+        caller = SAVEAREA_FROM_FP(caller)->prevFrame;
+        if (caller == NULL)
+            return NULL;        /* hit the top */
+
+        /*
+         * If we got here by java.lang.reflect.Method.invoke(), we don't
+         * want to return Method's class loader.  Shift up one and try
+         * again.
+         */
+        saveArea = SAVEAREA_FROM_FP(caller);
+        if (dvmIsReflectionMethod(saveArea->method)) {
+            caller = saveArea->prevFrame;
+            assert(caller != NULL);
+            goto retry;
+        }
+    }
+
+    return caller;
+}
+
+
+/*
+ * Get the caller's caller's class.  Pass in the current fp.
+ *
+ * This is used by e.g. java.lang.Class, which wants to know about the
+ * class loader of the method that called it.
+ */
+ClassObject* dvmGetCaller2Class(const void* curFrame)
+{
+    void* caller = SAVEAREA_FROM_FP(curFrame)->prevFrame;
+    void* callerCaller;
+
+    /* at the top? */
+    if (dvmIsBreakFrame(caller) && SAVEAREA_FROM_FP(caller)->prevFrame == NULL)
+        return NULL;
+
+    /* go one more */
+    callerCaller = dvmGetCallerFP(caller);
+    if (callerCaller == NULL)
+        return NULL;
+
+    return SAVEAREA_FROM_FP(callerCaller)->method->clazz;
 }
 
 

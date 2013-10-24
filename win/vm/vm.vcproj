@@ -208,6 +208,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\vm\src\classmisc.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\vm\inc\classmisc.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\vm\src\dexproto.c"
 				>
 			</File>
@@ -425,6 +433,14 @@
 			</File>
 			<File
 				RelativePath="..\..\vm\impl\nativeAsyncIO.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\vm\impl\nativeClass.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\vm\impl\nativeClass.h"
 				>
 			</File>
 			<File

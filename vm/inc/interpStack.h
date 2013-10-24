@@ -169,18 +169,6 @@ vbool dvmPushInterpFrame(Thread* self, const Method* method);
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
 /*
  * Push a native method frame directly onto the stack.  Used to push the
  * "fake" native frames at the top of each thread stack.
@@ -199,5 +187,12 @@ vbool dvmPopLocalFrame(Thread* thread);
  */
 void* dvmGetCallerFP(const void* curFrame);
 
+/*
+ * Get the caller's caller's class.  Pass in the current fp.
+ *
+ * This is used by e.g. java.lang.Class, which wants to know about the
+ * class loader of the method that called it.
+ */
+ClassObject* dvmGetCaller2Class(const void* curFrame);
 
 #endif //__VM_STACK_H__

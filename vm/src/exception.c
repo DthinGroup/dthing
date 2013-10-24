@@ -519,6 +519,20 @@ bool_t dvmCreateStockExceptions()
 }
 
 
+void dvmThrowException(const char* exceptionDescriptor, const char* msg)
+{
+    ClassObject* exception = NULL;
+
+    exception = dvmFindSystemClassNoInit(exceptionDescriptor);
+    if (exception == NULL)
+    {
+        DVMTraceErr("dvmThrowException - Error: load exception(%s) failure\n", exceptionDescriptor);
+        //toto fatal Error?
+    }
+
+    dvmThrowChainedException(exceptionDescriptor, msg, NULL);
+}
+
 
 void dvmThrowVirtualMachineErrorWithClassMessage(const char* descriptor)
 {
@@ -528,8 +542,8 @@ void dvmThrowVirtualMachineErrorWithClassMessage(const char* descriptor)
     virtualMachineError = dvmFindSystemClassNoInit("Ljava/lang/VirtualMachineError;");
     if (virtualMachineError == NULL)
     {
-        //goto fatal Error;
         DVMTraceErr("dvmThrowVirtualMachineErrorWithClassMessage - Error: load virtualMachineError failure\n");
+        //goto fatal Error;
     }
     
     message = dvmDescriptorToName(descriptor);
@@ -538,3 +552,46 @@ void dvmThrowVirtualMachineErrorWithClassMessage(const char* descriptor)
 
     CRTL_free(message);
 }
+
+void dvmThrowNullPointerException(const char* msg)
+{
+    ClassObject* exNullPointerException = NULL;
+
+    exNullPointerException = dvmFindSystemClassNoInit("Ljava/lang/NullPointerException;");
+    if (exNullPointerException == NULL)
+    {
+        DVMTraceErr("dvmThrowVirtualMachineErrorWithClassMessage - Error: load virtualMachineError failure\n");
+        //goto fatal Error;
+    }
+    dvmThrowChainedException(exNullPointerException, msg, NULL);
+}
+
+
+void dvmThrowArrayStoreExceptionNotArray(ClassObject* actual, const char* label)
+{
+    UNUSED(actual);
+    UNUSED(label);
+    dvmThrowException("Ljava/lang/ArrayStoreException;", NULL);
+}
+
+/**
+ * Throw an InstantiationException in the current thread, with
+ * the human-readable form of the given class as the detail message,
+ * with optional extra detail appended to the message.
+ */
+void dvmThrowInstantiationException(ClassObject* clazz, const char* extraDetail)
+{
+    UNUSED(clazz);
+    dvmThrowException("Ljava/lang/InstantiationException;", extraDetail);
+}
+
+
+/**
+ * Throw an AbstractMethodError in the current thread, with the given detail
+ * message.
+ */
+void dvmThrowIllegalAccessException(const char* msg)
+{
+    dvmThrowException("Ljava/lang/IllegalAccessException;", msg);
+}
+

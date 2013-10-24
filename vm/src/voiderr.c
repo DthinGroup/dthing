@@ -466,12 +466,6 @@ ArrayObject* dvmAllocArrayByClass(ClassObject* arrayClass,
     return NULL;
 }
  
-
-bool dvmIsArrayClass( const struct ClassObject * clazz)
-{
-	DVM_LOG(">>>call dvmIsArrayClass!\n");
-    return 0;
-}
 #endif 
 
 void dvmThrowNegativeArraySizeException(s4 size) 
@@ -504,12 +498,6 @@ void dvmCheckBefore(const u2 *pc, u4 *fp, Thread* self)
 {
 	DVM_LOG(">>>call dvmCheckBefore!\n");
 }
-
-void dvmThrowNullPointerException(const char* msg) 
-{
-	DVM_LOG(">>>call dvmThrowNullPointerException!\n");
-}
-
 
 void dvmThrowIllegalArgumentException(char * str)
 {
