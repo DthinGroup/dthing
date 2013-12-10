@@ -80,7 +80,8 @@ void dvmThrowInstantiationException(ClassObject* clazz, const char* extraDetail)
  * Throw an IllegalAccessException in the current thread, with the
  * given detail message.
  */
-void dvmThrowIllegalAccessException(const char* msg);
+void dvmThrowIllegalAccessException(const char* msg);
+
 
 /**
  * Throw a NullPointerException in the current thread, with the given

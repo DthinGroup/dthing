@@ -122,7 +122,7 @@ extern "C" {
 #define CRTL_stdout                     stdout
 #define CRTL_stderr                     stderr
 
-#define CRTL_offsetof                   offsetof
+#define CRTL_offsetof(STRUCTURE,FIELD)  ((int)((char*)&((STRUCTURE*)0)->FIELD))
 /*
  * ==================== varargs argument processing ===========================
  */

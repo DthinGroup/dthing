@@ -3,17 +3,17 @@
 
 //#pragma comment(lib,"../loader/Debug/loader.lib")
 
+typedef enum
+{
+    ARCH_X86,
+    ARCH_ARM_SPD
+}ARCH_E;
 #define ARCH_X86
 #define INLINE
 
 #define _TEST_ED_    //test edward code of classloader
 
 
-#ifdef ARCH_X86
-	#pragma comment(lib, "Winmm.lib")
-	#include <Windows.h>
-	#include <Mmsystem.h>
-#endif
 
 #include <stdint.h>
 #include <crtl.h>

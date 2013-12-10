@@ -2,6 +2,9 @@
 #include "interpApi.h"
 #include "dthread.h"
 #include "Object.h"
+#if defined(ARCH_ARM_SPD)
+#include "crtl.h"
+#endif
 
 #ifdef DVM_LOG
 #undef DVM_LOG
@@ -239,8 +242,7 @@ struct Object* dvmGetException(struct dthread* self)
 
 
 
-vbool dvmPerformInlineOp4Std(u4 arg0, u4 arg1, u4 arg2, u4 arg3,
-    union JValue* pResult, int opIndex)
+vbool dvmPerformInlineOp4Std(u4 arg0, u4 arg1, u4 arg2, u4 arg3,JValue* pResult, int opIndex)
 {
     return 0;
 }
@@ -508,3 +510,12 @@ void dvmThrowIllegalMonitorStateException(char * str)
 {
 
 }
+
+char * strdup (const char *s)  
+{  
+  size_t len = CRTL_strlen (s) + 1;  
+  void *buff = CRTL_malloc (len);  
+  if (buff == NULL)  
+    return NULL;  
+  return (char *) CRTL_memcpy(buff, s, len);  
+}  

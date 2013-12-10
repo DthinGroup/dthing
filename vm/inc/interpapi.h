@@ -29,8 +29,10 @@ s4 dvmInterpHandlePackedSwitch(const u2* switchData, s4 testVal);
 
 #ifdef ARCH_X86
 	#define ANDROID_MEMBAR_STORE()  do{printf("WARNING xxx:not support mem barrier for NOW! \n");}while(0)
-#elif defined ARCH_ARM
+#elif defined ARCH_ARM_SPD
 	#define ANDROID_MEMBAR_STORE()  do{__asm__ __volatile__ ("" : : : "memory");}while(0)
+#else
+	#error "have a think!"
 #endif
 
 void dvmPopJniLocals(Thread* self, StackSaveArea* saveArea);
@@ -183,7 +185,7 @@ vbool dvmCheckSuspendQuick(struct dthread* self) ;
 
 void dvmSetException(struct dthread* self, struct Object* exception);
 
-vbool dvmInterpHandleFillArrayData(ArrayObject* arrayObj, const u2* arrayData);
+bool_t dvmInterpHandleFillArrayData(ArrayObject* arrayObj, const u2* arrayData);
 
 void dvmThrowInternalError(const char* msg) ;
 
@@ -227,7 +229,7 @@ vbool dvmUnlockObject(Thread* self, Object *obj);
 void dvmLockObject(Thread* self, Object *obj);
 
 ClassObject* dvmResolveClass(const ClassObject* referrer, u4 classIdx,
-    vbool fromUnverifiedConstant);
+    bool_t fromUnverifiedConstant);
 
 INLINE  ClassObject* dvmDexGetResolvedClass(const DvmDex* pDvmDex,
     u4 classIdx);

@@ -15,7 +15,7 @@
 //VC environment
 #include <stdlib.h>
 
-#define MEMORY_SIZE (2 * 1024 * 1024)
+#define MEMORY_SIZE (1 * 1024 * 1024)
 
 void Sys_mm_getMemoryPool(void ** base, int32_t * size)
 {

@@ -53,7 +53,7 @@ void Java_java_lang_Float_intBitsToFloat(const u4* args, JValue* pResult)
     pResult->f = convert.ff;
 }
 
-
+#define LL
 /* see nativeFloat.h */
 void Java_java_lang_Double_doubleToLongBits(const u4* args, JValue* pResult)
 {

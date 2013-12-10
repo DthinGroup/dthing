@@ -262,7 +262,7 @@ static /*inline*/ void putDoubleToArray(u4* ptr, int idx, double dval)
 	do{\
 	    u4 vall = _val;\
 		fp[(_idx)] = (vall); \
-		MACRO_LOG("set reg idx:%d,val:%d\n",_idx,vall); \
+		MACRO_LOG("Thread id:%d,set reg idx:%d,val:%d\n",self->threadId,_idx,vall); \
 	}while(0)
 #endif
 # define GET_REGISTER_AS_OBJECT(_idx)       ((Object*) fp[(_idx)])
@@ -272,7 +272,7 @@ static /*inline*/ void putDoubleToArray(u4* ptr, int idx, double dval)
 # define SET_REGISTER_AS_OBJECT(_idx, _val)\
 	do{\
 		(fp[(_idx)] = (u4)(_val));	\
-		MACRO_LOG("set reg as obj idx:%d,val:%d\n",_idx,_val); \
+		MACRO_LOG("Thread id:%d,set reg as obj idx:%d,val:%d\n",self->threadId,_idx,_val); \
 	}while(0)
 #endif
 # define GET_REGISTER_INT(_idx)             ((s4)GET_REGISTER(_idx))
@@ -288,19 +288,19 @@ static /*inline*/ void putDoubleToArray(u4* ptr, int idx, double dval)
 #define R_NONE 
 
 /*use to identify data tyep and length*/
-#ifdef ARCH_X86
+//#ifdef ARCH_X86
 #define ULL 
 #define UL
 #define LL
 #define LOGV	DVMTraceInf
 #define LOGE	DVMTraceInf
 
-#define MACRO_LOG	  DVMTraceInf("Thread id:%d,",self->threadId);DVMTraceInf
+#define MACRO_LOG	  DVMTraceInf
 #define MACRO_LOG_L   //printf("Thread id:%d,",self->threadId);printf
 
-#elif defined ARCH_ARM
+//#elif defined ARCH_ARM_SPD
 
-#endif
+//#endif
 
 /*
  * Get 16 bits from the specified offset of the program counter.  We always
@@ -442,14 +442,15 @@ static /*inline*/ vbool checkForNullExportPC(Object* obj, u4* fp, const u2* pc)
  * Assumes the existence of "const u2* pc" and (for threaded operation)
  * "u2 inst".
  */
+#define V(_op) v_##_op
+#define H(_op) op_##_op
+#define HANDLE_OPCODE(_op) op_##_op:
+#if defined(ARCH_X86)
 /*help to trace position of labels!*/
 static void * label_little = NULL;
 static void * label_big    = NULL;
 static int  * jmpad        = NULL;
 
-#define V(_op) v_##_op
-#define H(_op) op_##_op
-#define HANDLE_OPCODE(_op) op_##_op:
 
 /*Use as:
  *DCLR_LABEL(V(OP_NOP));
@@ -461,10 +462,16 @@ static int  * jmpad        = NULL;
 #define SAVE_LABEL(label)	__asm{ mov [V(label)],offset H(label) }
 #define GOTO_LABEL(opcod)	jmpad = (int *)label_little+opcod ; jmpad = (int*)(*(int*)jmpad) ; __asm{ jmp jmpad}
 #define ADDR_LABEL(label)	&(V(label))
+#elif defined(ARCH_ARM_SPD)
+    static int g_goto_opcode = -1;
+    #define GOTO_LABEL(opcod)   do{g_goto_opcode = opcod; goto OP_GOTO_TABLE;}while(0)
+#else
+#error "not support for now!"
+#endif
 
 #define SAVE_LOCALS()	\
 	do{	\
-		MACRO_LOG("save globals!\n");\
+		MACRO_LOG("Thread id:%d,save globals!\n",self->threadId);\
 		curMethod->clazz->pDvmDex = methodClassDex;		\
 		self->interpSave.method = (Method *)curMethod;			\
 		MACRO_LOG_L("self->interpSave.method:0x%x\n",(int)self->interpSave.method);\
@@ -510,7 +517,7 @@ int fuck()
         ADJUST_PC(_offset);                                                 \
 		RESCHDULE();														\
         inst = FETCH(0);                                                    \
-		MACRO_LOG("fetch:%d\n",inst);	\
+		MACRO_LOG("Thread id:%d,fetch:%d\n",self->threadId,inst);	\
         if (self->interpBreak.ctl.subMode) {                                \
             dvmCheckBefore(pc, fp, self);                                   \
         }                                                                   \
@@ -656,10 +663,10 @@ int fuck()
 #define HANDLE_OP_IF_XXZ(_opcode, _opname, _cmp)                            \
     HANDLE_OPCODE(_opcode /*vAA, +BBBB*/)                                   \
         vsrc1 = INST_AA(inst);                                              \
-		MACRO_LOG("HANDLE_OP_IF_XXZ,vsrc1=%d\n",vsrc1);\
+		MACRO_LOG("Thread id:%d,HANDLE_OP_IF_XXZ,vsrc1=%d\n",self->threadId,vsrc1);\
         if ((s4) GET_REGISTER(vsrc1) _cmp 0) {                              \
             int branchOffset = (s2)FETCH(1);    /* sign-extended */         \
-			MACRO_LOG("HANDLE_OP_IF_XXZ,branchOffset=%d\n",branchOffset);\
+			MACRO_LOG("Thread id:%d,HANDLE_OP_IF_XXZ,branchOffset=%d\n",self->threadId,branchOffset);\
             if (branchOffset < 0)                                           \
                 PERIODIC_CHECKS(branchOffset);                              \
             FINISH(branchOffset);                                           \
@@ -758,7 +765,7 @@ int fuck()
         litInfo = FETCH(1);                                                 \
         vsrc1 = litInfo & 0xff;                                             \
         vsrc2 = litInfo >> 8;       /* constant */                          \
-		MACRO_LOG("HANDLE_OP_X_INT_LIT8,vsrc1=%d,vsrc2=%d\n",vsrc1,vsrc2);\
+		MACRO_LOG("Thread id:%d,HANDLE_OP_X_INT_LIT8,vsrc1=%d,vsrc2=%d\n",self->threadId,vsrc1,vsrc2);\
         if (_chkdiv != 0) {                                                 \
             s4 firstVal, result;                                            \
             firstVal = GET_REGISTER(vsrc1);                                 \
@@ -777,7 +784,7 @@ int fuck()
             }                                                               \
             SET_REGISTER(vdst, result);                                     \
         } else {                                                            \
-		    MACRO_LOG("HANDLE_OP_X_INT_LIT8,reg[vsrc1]=%d,vsrc2=%d\n",(s4)GET_REGISTER(vsrc1),(s1)vsrc2);\
+		    MACRO_LOG("Thread id:%d,HANDLE_OP_X_INT_LIT8,reg[vsrc1]=%d,vsrc2=%d\n",self->threadId,(s4)GET_REGISTER(vsrc1),(s1)vsrc2);\
             SET_REGISTER(vdst,                                              \
                 (s4) GET_REGISTER(vsrc1) _op (s1) vsrc2);                   \
         }                                                                   \
@@ -804,9 +811,9 @@ int fuck()
         if (_chkdiv != 0) {                                                 \
             s4 firstVal, secondVal, result;                                 \
             firstVal = GET_REGISTER(vdst);                                  \
-			MACRO_LOG("first:%d\n",firstVal);\
+			MACRO_LOG("Thread id:%d,first:%d\n",self->threadId,firstVal);\
             secondVal = GET_REGISTER(vsrc1);                                \
-			MACRO_LOG("second:%d\n",firstVal);\
+			MACRO_LOG("Thread id:%d,second:%d\n",self->threadId,secondVal);\
             if (secondVal == 0) {                                           \
                 EXPORT_PC();                                                \
                 dvmThrowArithmeticException("divide by zero");              \
@@ -820,7 +827,7 @@ int fuck()
             } else {                                                        \
                 result = firstVal _op secondVal;                            \
             }                                                               \
-			MACRO_LOG("result:%d\n",result);\
+			MACRO_LOG("Thread id:%d,result:%d\n",self->threadId,result);\
             SET_REGISTER(vdst, result);                                     \
         } else {                                                            \
             SET_REGISTER(vdst,                                              \
@@ -1034,16 +1041,16 @@ int fuck()
         Object* obj;                                                        \
         EXPORT_PC();                                                        \
         vdst = INST_A(inst);                                                \
-		MACRO_LOG("HANDLE_IGET_X,vdst=0x%x\n",vdst);\
+		MACRO_LOG("Thread id:%d,HANDLE_IGET_X,vdst=0x%x\n",self->threadId,vdst);\
         vsrc1 = INST_B(inst);   /* object ptr */                            \
-		MACRO_LOG("HANDLE_IGET_X,vsrc1=0x%x\n",vsrc1);\
+		MACRO_LOG("Thread id:%d,HANDLE_IGET_X,vsrc1=0x%x\n",self->threadId,vsrc1);\
         ref = FETCH(1);         /* field ref */                             \
         obj = (Object*) GET_REGISTER(vsrc1);                                \
-		MACRO_LOG("HANDLE_IGET_X,obj=0x%x\n",obj);\
+		MACRO_LOG("Thread id:%d,HANDLE_IGET_X,obj=0x%x\n",self->threadId,obj);\
         if (!checkForNull(obj))  {                                           \
-		GOTO_exceptionThrown(); MACRO_LOG("HANDLE_IGET_X,exceptionn"); }                  \
+		GOTO_exceptionThrown(); MACRO_LOG("Thread id:%d,HANDLE_IGET_X,exceptionn",self->threadId); }                  \
         ifield = (InstField*) dvmDexGetResolvedField(methodClassDex, ref);  \
-		MACRO_LOG("HANDLE_IGET_X,ifield=0x%x\n",ifield);\
+		MACRO_LOG("Thread id:%d,HANDLE_IGET_X,ifield=0x%x\n",self->threadId,ifield);\
         if (ifield == NULL) {                                               \
             ifield = dvmResolveInstField(curMethod->clazz, ref);            \
             if (ifield == NULL)                                             \
@@ -1101,11 +1108,11 @@ int fuck()
         vsrc1 = INST_B(inst);   /* object ptr */                            \
         ref = FETCH(1);         /* field ref */                             \
         obj = (Object*) GET_REGISTER(vsrc1);                                \
-		MACRO_LOG("HANDLE_IPUT_X,obj=0x%x",obj);\
+		MACRO_LOG("Thread id:%d,HANDLE_IPUT_X,obj=0x%x",self->threadId,obj);\
         if (!checkForNull(obj))                                             \
             GOTO_exceptionThrown();                                         \
         ifield = (InstField*) dvmDexGetResolvedField(methodClassDex, ref);  \
-		MACRO_LOG("HANDLE_IPUT_X,ifield=0x%x",ifield);\
+		MACRO_LOG("Thread id:%d,HANDLE_IPUT_X,ifield=0x%x",self->threadId,ifield);\
         if (ifield == NULL) {                                               \
             ifield = dvmResolveInstField(curMethod->clazz, ref);            \
             if (ifield == NULL)                                             \
@@ -1242,6 +1249,7 @@ int fuck()
     FINISH(4);
 
 
+#if defined(ARCH_X86)
 /*Re-declare all labels as vars!*/
 
 /*declare op labels*/
@@ -2279,7 +2287,7 @@ DCLR_LABEL(V(OP_THROW_VERIFICATION_ERROR_JUMBO));
 	label_big    = ADDR_LABEL(OP_NOP) > ADDR_LABEL(OP_THROW_VERIFICATION_ERROR_JUMBO) ? \
 					ADDR_LABEL(OP_NOP) : ADDR_LABEL(OP_THROW_VERIFICATION_ERROR_JUMBO) ;	\
 }
-
+#endif
 
 /* File: portable/entry.cpp */
 /*
@@ -2308,10 +2316,10 @@ void dvmInterpretPortable(Thread* self)
     vbool methodCallRange;
     vbool jumboFormat;
 
-
+#if defined(ARCH_X86)
     /* static computed goto table */
 	NEW_GOTO_TABLE();
-
+#endif
     /* copy state in */
     curMethod = self->interpSave.method;
     pc = self->interpSave.pc;
@@ -2337,7 +2345,7 @@ void dvmInterpretPortable(Thread* self)
 		methodCallRange = self->itpSchdSave.methodCallRange;
 		jumboFormat = self->itpSchdSave.jumboFormat;
 	
-		MACRO_LOG("load globals!\n");
+		MACRO_LOG("Thread id:%d,load globals!\n",self->threadId);
 		MACRO_LOG_L("self->interpSave.method:0x%x\n",(int)curMethod);
 		MACRO_LOG_L("self->interpSave.pc:0x%x\n",(int)pc);
 		MACRO_LOG_L("self->interpSave.fp:0x%x\n",(int)fp);
@@ -4290,7 +4298,7 @@ HANDLE_OPCODE(OP_RETURN_VOID_BARRIER /**/)
 #ifndef NDEBUG
     retval.j = 0xabababab ULL;   /* placate valgrind */
 #endif
-    ANDROID_MEMBAR_STORE();
+    //ANDROID_MEMBAR_STORE();
     GOTO_returnFromMethod();
 OP_END
 
@@ -6733,6 +6741,526 @@ GOTO_TARGET_END
 
 /* File: portable/enddefs.cpp */
 /*--- end of opcodes ---*/
+
+#if defined(ARCH_ARM_SPD)
+OP_GOTO_TABLE:
+    switch(g_goto_opcode)
+    {
+        case OP_NOP                            : goto op_OP_NOP                            ;
+        case OP_MOVE                           : goto op_OP_MOVE                           ;
+        case OP_MOVE_FROM16                    : goto op_OP_MOVE_FROM16                    ;
+        case OP_MOVE_16                        : goto op_OP_MOVE_16                        ;
+        case OP_MOVE_WIDE                      : goto op_OP_MOVE_WIDE                      ;
+        case OP_MOVE_WIDE_FROM16               : goto op_OP_MOVE_WIDE_FROM16               ;
+        case OP_MOVE_WIDE_16                   : goto op_OP_MOVE_WIDE_16                   ;
+        case OP_MOVE_OBJECT                    : goto op_OP_MOVE_OBJECT                    ;
+        case OP_MOVE_OBJECT_FROM16             : goto op_OP_MOVE_OBJECT_FROM16             ;
+        case OP_MOVE_OBJECT_16                 : goto op_OP_MOVE_OBJECT_16                 ;
+        case OP_MOVE_RESULT                    : goto op_OP_MOVE_RESULT                    ;
+        case OP_MOVE_RESULT_WIDE               : goto op_OP_MOVE_RESULT_WIDE               ;
+        case OP_MOVE_RESULT_OBJECT             : goto op_OP_MOVE_RESULT_OBJECT             ;
+        case OP_MOVE_EXCEPTION                 : goto op_OP_MOVE_EXCEPTION                 ;
+        case OP_RETURN_VOID                    : goto op_OP_RETURN_VOID                    ;
+        case OP_RETURN                         : goto op_OP_RETURN                         ;
+        case OP_RETURN_WIDE                    : goto op_OP_RETURN_WIDE                    ;
+        case OP_RETURN_OBJECT                  : goto op_OP_RETURN_OBJECT                  ;
+        case OP_CONST_4                        : goto op_OP_CONST_4                        ;
+        case OP_CONST_16                       : goto op_OP_CONST_16                       ;
+        case OP_CONST                          : goto op_OP_CONST                          ;
+        case OP_CONST_HIGH16                   : goto op_OP_CONST_HIGH16                   ;
+        case OP_CONST_WIDE_16                  : goto op_OP_CONST_WIDE_16                  ;
+        case OP_CONST_WIDE_32                  : goto op_OP_CONST_WIDE_32                  ;
+        case OP_CONST_WIDE                     : goto op_OP_CONST_WIDE                     ;
+        case OP_CONST_WIDE_HIGH16              : goto op_OP_CONST_WIDE_HIGH16              ;
+        case OP_CONST_STRING                   : goto op_OP_CONST_STRING                   ;
+        case OP_CONST_STRING_JUMBO             : goto op_OP_CONST_STRING_JUMBO             ;
+        case OP_CONST_CLASS                    : goto op_OP_CONST_CLASS                    ;
+        case OP_MONITOR_ENTER                  : goto op_OP_MONITOR_ENTER                  ;
+        case OP_MONITOR_EXIT                   : goto op_OP_MONITOR_EXIT                   ;
+        case OP_CHECK_CAST                     : goto op_OP_CHECK_CAST                     ;
+        case OP_INSTANCE_OF                    : goto op_OP_INSTANCE_OF                    ;
+        case OP_ARRAY_LENGTH                   : goto op_OP_ARRAY_LENGTH                   ;
+        case OP_NEW_INSTANCE                   : goto op_OP_NEW_INSTANCE                   ;
+        case OP_NEW_ARRAY                      : goto op_OP_NEW_ARRAY                      ;
+        case OP_FILLED_NEW_ARRAY               : goto op_OP_FILLED_NEW_ARRAY               ;
+        case OP_FILLED_NEW_ARRAY_RANGE         : goto op_OP_FILLED_NEW_ARRAY_RANGE         ;
+        case OP_FILL_ARRAY_DATA                : goto op_OP_FILL_ARRAY_DATA                ;
+        case OP_THROW                          : goto op_OP_THROW                          ;
+        case OP_GOTO                           : goto op_OP_GOTO                           ;
+        case OP_GOTO_16                        : goto op_OP_GOTO_16                        ;
+        case OP_GOTO_32                        : goto op_OP_GOTO_32                        ;
+        case OP_PACKED_SWITCH                  : goto op_OP_PACKED_SWITCH                  ;
+        case OP_SPARSE_SWITCH                  : goto op_OP_SPARSE_SWITCH                  ;
+        case OP_CMPL_FLOAT                     : goto op_OP_CMPL_FLOAT                     ;
+        case OP_CMPG_FLOAT                     : goto op_OP_CMPG_FLOAT                     ;
+        case OP_CMPL_DOUBLE                    : goto op_OP_CMPL_DOUBLE                    ;
+        case OP_CMPG_DOUBLE                    : goto op_OP_CMPG_DOUBLE                    ;
+        case OP_CMP_LONG                       : goto op_OP_CMP_LONG                       ;
+        case OP_IF_EQ                          : goto op_OP_IF_EQ                          ;
+        case OP_IF_NE                          : goto op_OP_IF_NE                          ;
+        case OP_IF_LT                          : goto op_OP_IF_LT                          ;
+        case OP_IF_GE                          : goto op_OP_IF_GE                          ;
+        case OP_IF_GT                          : goto op_OP_IF_GT                          ;
+        case OP_IF_LE                          : goto op_OP_IF_LE                          ;
+        case OP_IF_EQZ                         : goto op_OP_IF_EQZ                         ;
+        case OP_IF_NEZ                         : goto op_OP_IF_NEZ                         ;
+        case OP_IF_LTZ                         : goto op_OP_IF_LTZ                         ;
+        case OP_IF_GEZ                         : goto op_OP_IF_GEZ                         ;
+        case OP_IF_GTZ                         : goto op_OP_IF_GTZ                         ;
+        case OP_IF_LEZ                         : goto op_OP_IF_LEZ                         ;
+        case OP_UNUSED_3E                      : goto op_OP_UNUSED_3E                      ;
+        case OP_UNUSED_3F                      : goto op_OP_UNUSED_3F                      ;
+        case OP_UNUSED_40                      : goto op_OP_UNUSED_40                      ;
+        case OP_UNUSED_41                      : goto op_OP_UNUSED_41                      ;
+        case OP_UNUSED_42                      : goto op_OP_UNUSED_42                      ;
+        case OP_UNUSED_43                      : goto op_OP_UNUSED_43                      ;
+        case OP_AGET                           : goto op_OP_AGET                           ;
+        case OP_AGET_WIDE                      : goto op_OP_AGET_WIDE                      ;
+        case OP_AGET_OBJECT                    : goto op_OP_AGET_OBJECT                    ;
+        case OP_AGET_BOOLEAN                   : goto op_OP_AGET_BOOLEAN                   ;
+        case OP_AGET_BYTE                      : goto op_OP_AGET_BYTE                      ;
+        case OP_AGET_CHAR                      : goto op_OP_AGET_CHAR                      ;
+        case OP_AGET_SHORT                     : goto op_OP_AGET_SHORT                     ;
+        case OP_APUT                           : goto op_OP_APUT                           ;
+        case OP_APUT_WIDE                      : goto op_OP_APUT_WIDE                      ;
+        case OP_APUT_OBJECT                    : goto op_OP_APUT_OBJECT                    ;
+        case OP_APUT_BOOLEAN                   : goto op_OP_APUT_BOOLEAN                   ;
+        case OP_APUT_BYTE                      : goto op_OP_APUT_BYTE                      ;
+        case OP_APUT_CHAR                      : goto op_OP_APUT_CHAR                      ;
+        case OP_APUT_SHORT                     : goto op_OP_APUT_SHORT                     ;
+        case OP_IGET                           : goto op_OP_IGET                           ;
+        case OP_IGET_WIDE                      : goto op_OP_IGET_WIDE                      ;
+        case OP_IGET_OBJECT                    : goto op_OP_IGET_OBJECT                    ;
+        case OP_IGET_BOOLEAN                   : goto op_OP_IGET_BOOLEAN                   ;
+        case OP_IGET_BYTE                      : goto op_OP_IGET_BYTE                      ;
+        case OP_IGET_CHAR                      : goto op_OP_IGET_CHAR                      ;
+        case OP_IGET_SHORT                     : goto op_OP_IGET_SHORT                     ;
+        case OP_IPUT                           : goto op_OP_IPUT                           ;
+        case OP_IPUT_WIDE                      : goto op_OP_IPUT_WIDE                      ;
+        case OP_IPUT_OBJECT                    : goto op_OP_IPUT_OBJECT                    ;
+        case OP_IPUT_BOOLEAN                   : goto op_OP_IPUT_BOOLEAN                   ;
+        case OP_IPUT_BYTE                      : goto op_OP_IPUT_BYTE                      ;
+        case OP_IPUT_CHAR                      : goto op_OP_IPUT_CHAR                      ;
+        case OP_IPUT_SHORT                     : goto op_OP_IPUT_SHORT                     ;
+        case OP_SGET                           : goto op_OP_SGET                           ;
+        case OP_SGET_WIDE                      : goto op_OP_SGET_WIDE                      ;
+        case OP_SGET_OBJECT                    : goto op_OP_SGET_OBJECT                    ;
+        case OP_SGET_BOOLEAN                   : goto op_OP_SGET_BOOLEAN                   ;
+        case OP_SGET_BYTE                      : goto op_OP_SGET_BYTE                      ;
+        case OP_SGET_CHAR                      : goto op_OP_SGET_CHAR                      ;
+        case OP_SGET_SHORT                     : goto op_OP_SGET_SHORT                     ;
+        case OP_SPUT                           : goto op_OP_SPUT                           ;
+        case OP_SPUT_WIDE                      : goto op_OP_SPUT_WIDE                      ;
+        case OP_SPUT_OBJECT                    : goto op_OP_SPUT_OBJECT                    ;
+        case OP_SPUT_BOOLEAN                   : goto op_OP_SPUT_BOOLEAN                   ;
+        case OP_SPUT_BYTE                      : goto op_OP_SPUT_BYTE                      ;
+        case OP_SPUT_CHAR                      : goto op_OP_SPUT_CHAR                      ;
+        case OP_SPUT_SHORT                     : goto op_OP_SPUT_SHORT                     ;
+        case OP_INVOKE_VIRTUAL                 : goto op_OP_INVOKE_VIRTUAL                 ;
+        case OP_INVOKE_SUPER                   : goto op_OP_INVOKE_SUPER                   ;
+        case OP_INVOKE_DIRECT                  : goto op_OP_INVOKE_DIRECT                  ;
+        case OP_INVOKE_STATIC                  : goto op_OP_INVOKE_STATIC                  ;
+        case OP_INVOKE_INTERFACE               : goto op_OP_INVOKE_INTERFACE               ;
+        case OP_UNUSED_73                      : goto op_OP_UNUSED_73                      ;
+        case OP_INVOKE_VIRTUAL_RANGE           : goto op_OP_INVOKE_VIRTUAL_RANGE           ;
+        case OP_INVOKE_SUPER_RANGE             : goto op_OP_INVOKE_SUPER_RANGE             ;
+        case OP_INVOKE_DIRECT_RANGE            : goto op_OP_INVOKE_DIRECT_RANGE            ;
+        case OP_INVOKE_STATIC_RANGE            : goto op_OP_INVOKE_STATIC_RANGE            ;
+        case OP_INVOKE_INTERFACE_RANGE         : goto op_OP_INVOKE_INTERFACE_RANGE         ;
+        case OP_UNUSED_79                      : goto op_OP_UNUSED_79                      ;
+        case OP_UNUSED_7A                      : goto op_OP_UNUSED_7A                      ;
+        case OP_NEG_INT                        : goto op_OP_NEG_INT                        ;
+        case OP_NOT_INT                        : goto op_OP_NOT_INT                        ;
+        case OP_NEG_LONG                       : goto op_OP_NEG_LONG                       ;
+        case OP_NOT_LONG                       : goto op_OP_NOT_LONG                       ;
+        case OP_NEG_FLOAT                      : goto op_OP_NEG_FLOAT                      ;
+        case OP_NEG_DOUBLE                     : goto op_OP_NEG_DOUBLE                     ;
+        case OP_INT_TO_LONG                    : goto op_OP_INT_TO_LONG                    ;
+        case OP_INT_TO_FLOAT                   : goto op_OP_INT_TO_FLOAT                   ;
+        case OP_INT_TO_DOUBLE                  : goto op_OP_INT_TO_DOUBLE                  ;
+        case OP_LONG_TO_INT                    : goto op_OP_LONG_TO_INT                    ;
+        case OP_LONG_TO_FLOAT                  : goto op_OP_LONG_TO_FLOAT                  ;
+        case OP_LONG_TO_DOUBLE                 : goto op_OP_LONG_TO_DOUBLE                 ;
+        case OP_FLOAT_TO_INT                   : goto op_OP_FLOAT_TO_INT                   ;
+        case OP_FLOAT_TO_LONG                  : goto op_OP_FLOAT_TO_LONG                  ;
+        case OP_FLOAT_TO_DOUBLE                : goto op_OP_FLOAT_TO_DOUBLE                ;
+        case OP_DOUBLE_TO_INT                  : goto op_OP_DOUBLE_TO_INT                  ;
+        case OP_DOUBLE_TO_LONG                 : goto op_OP_DOUBLE_TO_LONG                 ;
+        case OP_DOUBLE_TO_FLOAT                : goto op_OP_DOUBLE_TO_FLOAT                ;
+        case OP_INT_TO_BYTE                    : goto op_OP_INT_TO_BYTE                    ;
+        case OP_INT_TO_CHAR                    : goto op_OP_INT_TO_CHAR                    ;
+        case OP_INT_TO_SHORT                   : goto op_OP_INT_TO_SHORT                   ;
+        case OP_ADD_INT                        : goto op_OP_ADD_INT                        ;
+        case OP_SUB_INT                        : goto op_OP_SUB_INT                        ;
+        case OP_MUL_INT                        : goto op_OP_MUL_INT                        ;
+        case OP_DIV_INT                        : goto op_OP_DIV_INT                        ;
+        case OP_REM_INT                        : goto op_OP_REM_INT                        ;
+        case OP_AND_INT                        : goto op_OP_AND_INT                        ;
+        case OP_OR_INT                         : goto op_OP_OR_INT                         ;
+        case OP_XOR_INT                        : goto op_OP_XOR_INT                        ;
+        case OP_SHL_INT                        : goto op_OP_SHL_INT                        ;
+        case OP_SHR_INT                        : goto op_OP_SHR_INT                        ;
+        case OP_USHR_INT                       : goto op_OP_USHR_INT                       ;
+        case OP_ADD_LONG                       : goto op_OP_ADD_LONG                       ;
+        case OP_SUB_LONG                       : goto op_OP_SUB_LONG                       ;
+        case OP_MUL_LONG                       : goto op_OP_MUL_LONG                       ;
+        case OP_DIV_LONG                       : goto op_OP_DIV_LONG                       ;
+        case OP_REM_LONG                       : goto op_OP_REM_LONG                       ;
+        case OP_AND_LONG                       : goto op_OP_AND_LONG                       ;
+        case OP_OR_LONG                        : goto op_OP_OR_LONG                        ;
+        case OP_XOR_LONG                       : goto op_OP_XOR_LONG                       ;
+        case OP_SHL_LONG                       : goto op_OP_SHL_LONG                       ;
+        case OP_SHR_LONG                       : goto op_OP_SHR_LONG                       ;
+        case OP_USHR_LONG                      : goto op_OP_USHR_LONG                      ;
+        case OP_ADD_FLOAT                      : goto op_OP_ADD_FLOAT                      ;
+        case OP_SUB_FLOAT                      : goto op_OP_SUB_FLOAT                      ;
+        case OP_MUL_FLOAT                      : goto op_OP_MUL_FLOAT                      ;
+        case OP_DIV_FLOAT                      : goto op_OP_DIV_FLOAT                      ;
+        case OP_REM_FLOAT                      : goto op_OP_REM_FLOAT                      ;
+        case OP_ADD_DOUBLE                     : goto op_OP_ADD_DOUBLE                     ;
+        case OP_SUB_DOUBLE                     : goto op_OP_SUB_DOUBLE                     ;
+        case OP_MUL_DOUBLE                     : goto op_OP_MUL_DOUBLE                     ;
+        case OP_DIV_DOUBLE                     : goto op_OP_DIV_DOUBLE                     ;
+        case OP_REM_DOUBLE                     : goto op_OP_REM_DOUBLE                     ;
+        case OP_ADD_INT_2ADDR                  : goto op_OP_ADD_INT_2ADDR                  ;
+        case OP_SUB_INT_2ADDR                  : goto op_OP_SUB_INT_2ADDR                  ;
+        case OP_MUL_INT_2ADDR                  : goto op_OP_MUL_INT_2ADDR                  ;
+        case OP_DIV_INT_2ADDR                  : goto op_OP_DIV_INT_2ADDR                  ;
+        case OP_REM_INT_2ADDR                  : goto op_OP_REM_INT_2ADDR                  ;
+        case OP_AND_INT_2ADDR                  : goto op_OP_AND_INT_2ADDR                  ;
+        case OP_OR_INT_2ADDR                   : goto op_OP_OR_INT_2ADDR                   ;
+        case OP_XOR_INT_2ADDR                  : goto op_OP_XOR_INT_2ADDR                  ;
+        case OP_SHL_INT_2ADDR                  : goto op_OP_SHL_INT_2ADDR                  ;
+        case OP_SHR_INT_2ADDR                  : goto op_OP_SHR_INT_2ADDR                  ;
+        case OP_USHR_INT_2ADDR                 : goto op_OP_USHR_INT_2ADDR                 ;
+        case OP_ADD_LONG_2ADDR                 : goto op_OP_ADD_LONG_2ADDR                 ;
+        case OP_SUB_LONG_2ADDR                 : goto op_OP_SUB_LONG_2ADDR                 ;
+        case OP_MUL_LONG_2ADDR                 : goto op_OP_MUL_LONG_2ADDR                 ;
+        case OP_DIV_LONG_2ADDR                 : goto op_OP_DIV_LONG_2ADDR                 ;
+        case OP_REM_LONG_2ADDR                 : goto op_OP_REM_LONG_2ADDR                 ;
+        case OP_AND_LONG_2ADDR                 : goto op_OP_AND_LONG_2ADDR                 ;
+        case OP_OR_LONG_2ADDR                  : goto op_OP_OR_LONG_2ADDR                  ;
+        case OP_XOR_LONG_2ADDR                 : goto op_OP_XOR_LONG_2ADDR                 ;
+        case OP_SHL_LONG_2ADDR                 : goto op_OP_SHL_LONG_2ADDR                 ;
+        case OP_SHR_LONG_2ADDR                 : goto op_OP_SHR_LONG_2ADDR                 ;
+        case OP_USHR_LONG_2ADDR                : goto op_OP_USHR_LONG_2ADDR                ;
+        case OP_ADD_FLOAT_2ADDR                : goto op_OP_ADD_FLOAT_2ADDR                ;
+        case OP_SUB_FLOAT_2ADDR                : goto op_OP_SUB_FLOAT_2ADDR                ;
+        case OP_MUL_FLOAT_2ADDR                : goto op_OP_MUL_FLOAT_2ADDR                ;
+        case OP_DIV_FLOAT_2ADDR                : goto op_OP_DIV_FLOAT_2ADDR                ;
+        case OP_REM_FLOAT_2ADDR                : goto op_OP_REM_FLOAT_2ADDR                ;
+        case OP_ADD_DOUBLE_2ADDR               : goto op_OP_ADD_DOUBLE_2ADDR               ;
+        case OP_SUB_DOUBLE_2ADDR               : goto op_OP_SUB_DOUBLE_2ADDR               ;
+        case OP_MUL_DOUBLE_2ADDR               : goto op_OP_MUL_DOUBLE_2ADDR               ;
+        case OP_DIV_DOUBLE_2ADDR               : goto op_OP_DIV_DOUBLE_2ADDR               ;
+        case OP_REM_DOUBLE_2ADDR               : goto op_OP_REM_DOUBLE_2ADDR               ;
+        case OP_ADD_INT_LIT16                  : goto op_OP_ADD_INT_LIT16                  ;
+        case OP_RSUB_INT                       : goto op_OP_RSUB_INT                       ;
+        case OP_MUL_INT_LIT16                  : goto op_OP_MUL_INT_LIT16                  ;
+        case OP_DIV_INT_LIT16                  : goto op_OP_DIV_INT_LIT16                  ;
+        case OP_REM_INT_LIT16                  : goto op_OP_REM_INT_LIT16                  ;
+        case OP_AND_INT_LIT16                  : goto op_OP_AND_INT_LIT16                  ;
+        case OP_OR_INT_LIT16                   : goto op_OP_OR_INT_LIT16                   ;
+        case OP_XOR_INT_LIT16                  : goto op_OP_XOR_INT_LIT16                  ;
+        case OP_ADD_INT_LIT8                   : goto op_OP_ADD_INT_LIT8                   ;
+        case OP_RSUB_INT_LIT8                  : goto op_OP_RSUB_INT_LIT8                  ;
+        case OP_MUL_INT_LIT8                   : goto op_OP_MUL_INT_LIT8                   ;
+        case OP_DIV_INT_LIT8                   : goto op_OP_DIV_INT_LIT8                   ;
+        case OP_REM_INT_LIT8                   : goto op_OP_REM_INT_LIT8                   ;
+        case OP_AND_INT_LIT8                   : goto op_OP_AND_INT_LIT8                   ;
+        case OP_OR_INT_LIT8                    : goto op_OP_OR_INT_LIT8                    ;
+        case OP_XOR_INT_LIT8                   : goto op_OP_XOR_INT_LIT8                   ;
+        case OP_SHL_INT_LIT8                   : goto op_OP_SHL_INT_LIT8                   ;
+        case OP_SHR_INT_LIT8                   : goto op_OP_SHR_INT_LIT8                   ;
+        case OP_USHR_INT_LIT8                  : goto op_OP_USHR_INT_LIT8                  ;
+        case OP_IGET_VOLATILE                  : goto op_OP_IGET_VOLATILE                  ;
+        case OP_IPUT_VOLATILE                  : goto op_OP_IPUT_VOLATILE                  ;
+        case OP_SGET_VOLATILE                  : goto op_OP_SGET_VOLATILE                  ;
+        case OP_SPUT_VOLATILE                  : goto op_OP_SPUT_VOLATILE                  ;
+        case OP_IGET_OBJECT_VOLATILE           : goto op_OP_IGET_OBJECT_VOLATILE           ;
+        case OP_IGET_WIDE_VOLATILE             : goto op_OP_IGET_WIDE_VOLATILE             ;
+        case OP_IPUT_WIDE_VOLATILE             : goto op_OP_IPUT_WIDE_VOLATILE             ;
+        case OP_SGET_WIDE_VOLATILE             : goto op_OP_SGET_WIDE_VOLATILE             ;
+        case OP_SPUT_WIDE_VOLATILE             : goto op_OP_SPUT_WIDE_VOLATILE             ;
+        case OP_BREAKPOINT                     : goto op_OP_BREAKPOINT                     ;
+        case OP_THROW_VERIFICATION_ERROR       : goto op_OP_THROW_VERIFICATION_ERROR       ;
+        case OP_EXECUTE_INLINE                 : goto op_OP_EXECUTE_INLINE                 ;
+        case OP_EXECUTE_INLINE_RANGE           : goto op_OP_EXECUTE_INLINE_RANGE           ;
+        case OP_INVOKE_OBJECT_INIT_RANGE       : goto op_OP_INVOKE_OBJECT_INIT_RANGE       ;
+        case OP_RETURN_VOID_BARRIER            : goto op_OP_RETURN_VOID_BARRIER            ;
+        case OP_IGET_QUICK                     : goto op_OP_IGET_QUICK                     ;
+        case OP_IGET_WIDE_QUICK                : goto op_OP_IGET_WIDE_QUICK                ;
+        case OP_IGET_OBJECT_QUICK              : goto op_OP_IGET_OBJECT_QUICK              ;
+        case OP_IPUT_QUICK                     : goto op_OP_IPUT_QUICK                     ;
+        case OP_IPUT_WIDE_QUICK                : goto op_OP_IPUT_WIDE_QUICK                ;
+        case OP_IPUT_OBJECT_QUICK              : goto op_OP_IPUT_OBJECT_QUICK              ;
+        case OP_INVOKE_VIRTUAL_QUICK           : goto op_OP_INVOKE_VIRTUAL_QUICK           ;
+        case OP_INVOKE_VIRTUAL_QUICK_RANGE     : goto op_OP_INVOKE_VIRTUAL_QUICK_RANGE     ;
+        case OP_INVOKE_SUPER_QUICK             : goto op_OP_INVOKE_SUPER_QUICK             ;
+        case OP_INVOKE_SUPER_QUICK_RANGE       : goto op_OP_INVOKE_SUPER_QUICK_RANGE       ;
+        case OP_IPUT_OBJECT_VOLATILE           : goto op_OP_IPUT_OBJECT_VOLATILE           ;
+        case OP_SGET_OBJECT_VOLATILE           : goto op_OP_SGET_OBJECT_VOLATILE           ;
+        case OP_SPUT_OBJECT_VOLATILE           : goto op_OP_SPUT_OBJECT_VOLATILE           ;
+        case OP_DISPATCH_FF                    : goto op_OP_DISPATCH_FF                    ;
+        case OP_CONST_CLASS_JUMBO              : goto op_OP_CONST_CLASS_JUMBO              ;
+        case OP_CHECK_CAST_JUMBO               : goto op_OP_CHECK_CAST_JUMBO               ;
+        case OP_INSTANCE_OF_JUMBO              : goto op_OP_INSTANCE_OF_JUMBO              ;
+        case OP_NEW_INSTANCE_JUMBO             : goto op_OP_NEW_INSTANCE_JUMBO             ;
+        case OP_NEW_ARRAY_JUMBO                : goto op_OP_NEW_ARRAY_JUMBO                ;
+        case OP_FILLED_NEW_ARRAY_JUMBO         : goto op_OP_FILLED_NEW_ARRAY_JUMBO         ;
+        case OP_IGET_JUMBO                     : goto op_OP_IGET_JUMBO                     ;
+        case OP_IGET_WIDE_JUMBO                : goto op_OP_IGET_WIDE_JUMBO                ;
+        case OP_IGET_OBJECT_JUMBO              : goto op_OP_IGET_OBJECT_JUMBO              ;
+        case OP_IGET_BOOLEAN_JUMBO             : goto op_OP_IGET_BOOLEAN_JUMBO             ;
+        case OP_IGET_BYTE_JUMBO                : goto op_OP_IGET_BYTE_JUMBO                ;
+        case OP_IGET_CHAR_JUMBO                : goto op_OP_IGET_CHAR_JUMBO                ;
+        case OP_IGET_SHORT_JUMBO               : goto op_OP_IGET_SHORT_JUMBO               ;
+        case OP_IPUT_JUMBO                     : goto op_OP_IPUT_JUMBO                     ;
+        case OP_IPUT_WIDE_JUMBO                : goto op_OP_IPUT_WIDE_JUMBO                ;
+        case OP_IPUT_OBJECT_JUMBO              : goto op_OP_IPUT_OBJECT_JUMBO              ;
+        case OP_IPUT_BOOLEAN_JUMBO             : goto op_OP_IPUT_BOOLEAN_JUMBO             ;
+        case OP_IPUT_BYTE_JUMBO                : goto op_OP_IPUT_BYTE_JUMBO                ;
+        case OP_IPUT_CHAR_JUMBO                : goto op_OP_IPUT_CHAR_JUMBO                ;
+        case OP_IPUT_SHORT_JUMBO               : goto op_OP_IPUT_SHORT_JUMBO               ;
+        case OP_SGET_JUMBO                     : goto op_OP_SGET_JUMBO                     ;
+        case OP_SGET_WIDE_JUMBO                : goto op_OP_SGET_WIDE_JUMBO                ;
+        case OP_SGET_OBJECT_JUMBO              : goto op_OP_SGET_OBJECT_JUMBO              ;
+        case OP_SGET_BOOLEAN_JUMBO             : goto op_OP_SGET_BOOLEAN_JUMBO             ;
+        case OP_SGET_BYTE_JUMBO                : goto op_OP_SGET_BYTE_JUMBO                ;
+        case OP_SGET_CHAR_JUMBO                : goto op_OP_SGET_CHAR_JUMBO                ;
+        case OP_SGET_SHORT_JUMBO               : goto op_OP_SGET_SHORT_JUMBO               ;
+        case OP_SPUT_JUMBO                     : goto op_OP_SPUT_JUMBO                     ;
+        case OP_SPUT_WIDE_JUMBO                : goto op_OP_SPUT_WIDE_JUMBO                ;
+        case OP_SPUT_OBJECT_JUMBO              : goto op_OP_SPUT_OBJECT_JUMBO              ;
+        case OP_SPUT_BOOLEAN_JUMBO             : goto op_OP_SPUT_BOOLEAN_JUMBO             ;
+        case OP_SPUT_BYTE_JUMBO                : goto op_OP_SPUT_BYTE_JUMBO                ;
+        case OP_SPUT_CHAR_JUMBO                : goto op_OP_SPUT_CHAR_JUMBO                ;
+        case OP_SPUT_SHORT_JUMBO               : goto op_OP_SPUT_SHORT_JUMBO               ;
+        case OP_INVOKE_VIRTUAL_JUMBO           : goto op_OP_INVOKE_VIRTUAL_JUMBO           ;
+        case OP_INVOKE_SUPER_JUMBO             : goto op_OP_INVOKE_SUPER_JUMBO             ;
+        case OP_INVOKE_DIRECT_JUMBO            : goto op_OP_INVOKE_DIRECT_JUMBO            ;
+        case OP_INVOKE_STATIC_JUMBO            : goto op_OP_INVOKE_STATIC_JUMBO            ;
+        case OP_INVOKE_INTERFACE_JUMBO         : goto op_OP_INVOKE_INTERFACE_JUMBO         ;
+        case OP_UNUSED_27FF                    : goto op_OP_UNUSED_27FF                    ;
+        case OP_UNUSED_28FF                    : goto op_OP_UNUSED_28FF                    ;
+        case OP_UNUSED_29FF                    : goto op_OP_UNUSED_29FF                    ;
+        case OP_UNUSED_2AFF                    : goto op_OP_UNUSED_2AFF                    ;
+        case OP_UNUSED_2BFF                    : goto op_OP_UNUSED_2BFF                    ;
+        case OP_UNUSED_2CFF                    : goto op_OP_UNUSED_2CFF                    ;
+        case OP_UNUSED_2DFF                    : goto op_OP_UNUSED_2DFF                    ;
+        case OP_UNUSED_2EFF                    : goto op_OP_UNUSED_2EFF                    ;
+        case OP_UNUSED_2FFF                    : goto op_OP_UNUSED_2FFF                    ;
+        case OP_UNUSED_30FF                    : goto op_OP_UNUSED_30FF                    ;
+        case OP_UNUSED_31FF                    : goto op_OP_UNUSED_31FF                    ;
+        case OP_UNUSED_32FF                    : goto op_OP_UNUSED_32FF                    ;
+        case OP_UNUSED_33FF                    : goto op_OP_UNUSED_33FF                    ;
+        case OP_UNUSED_34FF                    : goto op_OP_UNUSED_34FF                    ;
+        case OP_UNUSED_35FF                    : goto op_OP_UNUSED_35FF                    ;
+        case OP_UNUSED_36FF                    : goto op_OP_UNUSED_36FF                    ;
+        case OP_UNUSED_37FF                    : goto op_OP_UNUSED_37FF                    ;
+        case OP_UNUSED_38FF                    : goto op_OP_UNUSED_38FF                    ;
+        case OP_UNUSED_39FF                    : goto op_OP_UNUSED_39FF                    ;
+        case OP_UNUSED_3AFF                    : goto op_OP_UNUSED_3AFF                    ;
+        case OP_UNUSED_3BFF                    : goto op_OP_UNUSED_3BFF                    ;
+        case OP_UNUSED_3CFF                    : goto op_OP_UNUSED_3CFF                    ;
+        case OP_UNUSED_3DFF                    : goto op_OP_UNUSED_3DFF                    ;
+        case OP_UNUSED_3EFF                    : goto op_OP_UNUSED_3EFF                    ;
+        case OP_UNUSED_3FFF                    : goto op_OP_UNUSED_3FFF                    ;
+        case OP_UNUSED_40FF                    : goto op_OP_UNUSED_40FF                    ;
+        case OP_UNUSED_41FF                    : goto op_OP_UNUSED_41FF                    ;
+        case OP_UNUSED_42FF                    : goto op_OP_UNUSED_42FF                    ;
+        case OP_UNUSED_43FF                    : goto op_OP_UNUSED_43FF                    ;
+        case OP_UNUSED_44FF                    : goto op_OP_UNUSED_44FF                    ;
+        case OP_UNUSED_45FF                    : goto op_OP_UNUSED_45FF                    ;
+        case OP_UNUSED_46FF                    : goto op_OP_UNUSED_46FF                    ;
+        case OP_UNUSED_47FF                    : goto op_OP_UNUSED_47FF                    ;
+        case OP_UNUSED_48FF                    : goto op_OP_UNUSED_48FF                    ;
+        case OP_UNUSED_49FF                    : goto op_OP_UNUSED_49FF                    ;
+        case OP_UNUSED_4AFF                    : goto op_OP_UNUSED_4AFF                    ;
+        case OP_UNUSED_4BFF                    : goto op_OP_UNUSED_4BFF                    ;
+        case OP_UNUSED_4CFF                    : goto op_OP_UNUSED_4CFF                    ;
+        case OP_UNUSED_4DFF                    : goto op_OP_UNUSED_4DFF                    ;
+        case OP_UNUSED_4EFF                    : goto op_OP_UNUSED_4EFF                    ;
+        case OP_UNUSED_4FFF                    : goto op_OP_UNUSED_4FFF                    ;
+        case OP_UNUSED_50FF                    : goto op_OP_UNUSED_50FF                    ;
+        case OP_UNUSED_51FF                    : goto op_OP_UNUSED_51FF                    ;
+        case OP_UNUSED_52FF                    : goto op_OP_UNUSED_52FF                    ;
+        case OP_UNUSED_53FF                    : goto op_OP_UNUSED_53FF                    ;
+        case OP_UNUSED_54FF                    : goto op_OP_UNUSED_54FF                    ;
+        case OP_UNUSED_55FF                    : goto op_OP_UNUSED_55FF                    ;
+        case OP_UNUSED_56FF                    : goto op_OP_UNUSED_56FF                    ;
+        case OP_UNUSED_57FF                    : goto op_OP_UNUSED_57FF                    ;
+        case OP_UNUSED_58FF                    : goto op_OP_UNUSED_58FF                    ;
+        case OP_UNUSED_59FF                    : goto op_OP_UNUSED_59FF                    ;
+        case OP_UNUSED_5AFF                    : goto op_OP_UNUSED_5AFF                    ;
+        case OP_UNUSED_5BFF                    : goto op_OP_UNUSED_5BFF                    ;
+        case OP_UNUSED_5CFF                    : goto op_OP_UNUSED_5CFF                    ;
+        case OP_UNUSED_5DFF                    : goto op_OP_UNUSED_5DFF                    ;
+        case OP_UNUSED_5EFF                    : goto op_OP_UNUSED_5EFF                    ;
+        case OP_UNUSED_5FFF                    : goto op_OP_UNUSED_5FFF                    ;
+        case OP_UNUSED_60FF                    : goto op_OP_UNUSED_60FF                    ;
+        case OP_UNUSED_61FF                    : goto op_OP_UNUSED_61FF                    ;
+        case OP_UNUSED_62FF                    : goto op_OP_UNUSED_62FF                    ;
+        case OP_UNUSED_63FF                    : goto op_OP_UNUSED_63FF                    ;
+        case OP_UNUSED_64FF                    : goto op_OP_UNUSED_64FF                    ;
+        case OP_UNUSED_65FF                    : goto op_OP_UNUSED_65FF                    ;
+        case OP_UNUSED_66FF                    : goto op_OP_UNUSED_66FF                    ;
+        case OP_UNUSED_67FF                    : goto op_OP_UNUSED_67FF                    ;
+        case OP_UNUSED_68FF                    : goto op_OP_UNUSED_68FF                    ;
+        case OP_UNUSED_69FF                    : goto op_OP_UNUSED_69FF                    ;
+        case OP_UNUSED_6AFF                    : goto op_OP_UNUSED_6AFF                    ;
+        case OP_UNUSED_6BFF                    : goto op_OP_UNUSED_6BFF                    ;
+        case OP_UNUSED_6CFF                    : goto op_OP_UNUSED_6CFF                    ;
+        case OP_UNUSED_6DFF                    : goto op_OP_UNUSED_6DFF                    ;
+        case OP_UNUSED_6EFF                    : goto op_OP_UNUSED_6EFF                    ;
+        case OP_UNUSED_6FFF                    : goto op_OP_UNUSED_6FFF                    ;
+        case OP_UNUSED_70FF                    : goto op_OP_UNUSED_70FF                    ;
+        case OP_UNUSED_71FF                    : goto op_OP_UNUSED_71FF                    ;
+        case OP_UNUSED_72FF                    : goto op_OP_UNUSED_72FF                    ;
+        case OP_UNUSED_73FF                    : goto op_OP_UNUSED_73FF                    ;
+        case OP_UNUSED_74FF                    : goto op_OP_UNUSED_74FF                    ;
+        case OP_UNUSED_75FF                    : goto op_OP_UNUSED_75FF                    ;
+        case OP_UNUSED_76FF                    : goto op_OP_UNUSED_76FF                    ;
+        case OP_UNUSED_77FF                    : goto op_OP_UNUSED_77FF                    ;
+        case OP_UNUSED_78FF                    : goto op_OP_UNUSED_78FF                    ;
+        case OP_UNUSED_79FF                    : goto op_OP_UNUSED_79FF                    ;
+        case OP_UNUSED_7AFF                    : goto op_OP_UNUSED_7AFF                    ;
+        case OP_UNUSED_7BFF                    : goto op_OP_UNUSED_7BFF                    ;
+        case OP_UNUSED_7CFF                    : goto op_OP_UNUSED_7CFF                    ;
+        case OP_UNUSED_7DFF                    : goto op_OP_UNUSED_7DFF                    ;
+        case OP_UNUSED_7EFF                    : goto op_OP_UNUSED_7EFF                    ;
+        case OP_UNUSED_7FFF                    : goto op_OP_UNUSED_7FFF                    ;
+        case OP_UNUSED_80FF                    : goto op_OP_UNUSED_80FF                    ;
+        case OP_UNUSED_81FF                    : goto op_OP_UNUSED_81FF                    ;
+        case OP_UNUSED_82FF                    : goto op_OP_UNUSED_82FF                    ;
+        case OP_UNUSED_83FF                    : goto op_OP_UNUSED_83FF                    ;
+        case OP_UNUSED_84FF                    : goto op_OP_UNUSED_84FF                    ;
+        case OP_UNUSED_85FF                    : goto op_OP_UNUSED_85FF                    ;
+        case OP_UNUSED_86FF                    : goto op_OP_UNUSED_86FF                    ;
+        case OP_UNUSED_87FF                    : goto op_OP_UNUSED_87FF                    ;
+        case OP_UNUSED_88FF                    : goto op_OP_UNUSED_88FF                    ;
+        case OP_UNUSED_89FF                    : goto op_OP_UNUSED_89FF                    ;
+        case OP_UNUSED_8AFF                    : goto op_OP_UNUSED_8AFF                    ;
+        case OP_UNUSED_8BFF                    : goto op_OP_UNUSED_8BFF                    ;
+        case OP_UNUSED_8CFF                    : goto op_OP_UNUSED_8CFF                    ;
+        case OP_UNUSED_8DFF                    : goto op_OP_UNUSED_8DFF                    ;
+        case OP_UNUSED_8EFF                    : goto op_OP_UNUSED_8EFF                    ;
+        case OP_UNUSED_8FFF                    : goto op_OP_UNUSED_8FFF                    ;
+        case OP_UNUSED_90FF                    : goto op_OP_UNUSED_90FF                    ;
+        case OP_UNUSED_91FF                    : goto op_OP_UNUSED_91FF                    ;
+        case OP_UNUSED_92FF                    : goto op_OP_UNUSED_92FF                    ;
+        case OP_UNUSED_93FF                    : goto op_OP_UNUSED_93FF                    ;
+        case OP_UNUSED_94FF                    : goto op_OP_UNUSED_94FF                    ;
+        case OP_UNUSED_95FF                    : goto op_OP_UNUSED_95FF                    ;
+        case OP_UNUSED_96FF                    : goto op_OP_UNUSED_96FF                    ;
+        case OP_UNUSED_97FF                    : goto op_OP_UNUSED_97FF                    ;
+        case OP_UNUSED_98FF                    : goto op_OP_UNUSED_98FF                    ;
+        case OP_UNUSED_99FF                    : goto op_OP_UNUSED_99FF                    ;
+        case OP_UNUSED_9AFF                    : goto op_OP_UNUSED_9AFF                    ;
+        case OP_UNUSED_9BFF                    : goto op_OP_UNUSED_9BFF                    ;
+        case OP_UNUSED_9CFF                    : goto op_OP_UNUSED_9CFF                    ;
+        case OP_UNUSED_9DFF                    : goto op_OP_UNUSED_9DFF                    ;
+        case OP_UNUSED_9EFF                    : goto op_OP_UNUSED_9EFF                    ;
+        case OP_UNUSED_9FFF                    : goto op_OP_UNUSED_9FFF                    ;
+        case OP_UNUSED_A0FF                    : goto op_OP_UNUSED_A0FF                    ;
+        case OP_UNUSED_A1FF                    : goto op_OP_UNUSED_A1FF                    ;
+        case OP_UNUSED_A2FF                    : goto op_OP_UNUSED_A2FF                    ;
+        case OP_UNUSED_A3FF                    : goto op_OP_UNUSED_A3FF                    ;
+        case OP_UNUSED_A4FF                    : goto op_OP_UNUSED_A4FF                    ;
+        case OP_UNUSED_A5FF                    : goto op_OP_UNUSED_A5FF                    ;
+        case OP_UNUSED_A6FF                    : goto op_OP_UNUSED_A6FF                    ;
+        case OP_UNUSED_A7FF                    : goto op_OP_UNUSED_A7FF                    ;
+        case OP_UNUSED_A8FF                    : goto op_OP_UNUSED_A8FF                    ;
+        case OP_UNUSED_A9FF                    : goto op_OP_UNUSED_A9FF                    ;
+        case OP_UNUSED_AAFF                    : goto op_OP_UNUSED_AAFF                    ;
+        case OP_UNUSED_ABFF                    : goto op_OP_UNUSED_ABFF                    ;
+        case OP_UNUSED_ACFF                    : goto op_OP_UNUSED_ACFF                    ;
+        case OP_UNUSED_ADFF                    : goto op_OP_UNUSED_ADFF                    ;
+        case OP_UNUSED_AEFF                    : goto op_OP_UNUSED_AEFF                    ;
+        case OP_UNUSED_AFFF                    : goto op_OP_UNUSED_AFFF                    ;
+        case OP_UNUSED_B0FF                    : goto op_OP_UNUSED_B0FF                    ;
+        case OP_UNUSED_B1FF                    : goto op_OP_UNUSED_B1FF                    ;
+        case OP_UNUSED_B2FF                    : goto op_OP_UNUSED_B2FF                    ;
+        case OP_UNUSED_B3FF                    : goto op_OP_UNUSED_B3FF                    ;
+        case OP_UNUSED_B4FF                    : goto op_OP_UNUSED_B4FF                    ;
+        case OP_UNUSED_B5FF                    : goto op_OP_UNUSED_B5FF                    ;
+        case OP_UNUSED_B6FF                    : goto op_OP_UNUSED_B6FF                    ;
+        case OP_UNUSED_B7FF                    : goto op_OP_UNUSED_B7FF                    ;
+        case OP_UNUSED_B8FF                    : goto op_OP_UNUSED_B8FF                    ;
+        case OP_UNUSED_B9FF                    : goto op_OP_UNUSED_B9FF                    ;
+        case OP_UNUSED_BAFF                    : goto op_OP_UNUSED_BAFF                    ;
+        case OP_UNUSED_BBFF                    : goto op_OP_UNUSED_BBFF                    ;
+        case OP_UNUSED_BCFF                    : goto op_OP_UNUSED_BCFF                    ;
+        case OP_UNUSED_BDFF                    : goto op_OP_UNUSED_BDFF                    ;
+        case OP_UNUSED_BEFF                    : goto op_OP_UNUSED_BEFF                    ;
+        case OP_UNUSED_BFFF                    : goto op_OP_UNUSED_BFFF                    ;
+        case OP_UNUSED_C0FF                    : goto op_OP_UNUSED_C0FF                    ;
+        case OP_UNUSED_C1FF                    : goto op_OP_UNUSED_C1FF                    ;
+        case OP_UNUSED_C2FF                    : goto op_OP_UNUSED_C2FF                    ;
+        case OP_UNUSED_C3FF                    : goto op_OP_UNUSED_C3FF                    ;
+        case OP_UNUSED_C4FF                    : goto op_OP_UNUSED_C4FF                    ;
+        case OP_UNUSED_C5FF                    : goto op_OP_UNUSED_C5FF                    ;
+        case OP_UNUSED_C6FF                    : goto op_OP_UNUSED_C6FF                    ;
+        case OP_UNUSED_C7FF                    : goto op_OP_UNUSED_C7FF                    ;
+        case OP_UNUSED_C8FF                    : goto op_OP_UNUSED_C8FF                    ;
+        case OP_UNUSED_C9FF                    : goto op_OP_UNUSED_C9FF                    ;
+        case OP_UNUSED_CAFF                    : goto op_OP_UNUSED_CAFF                    ;
+        case OP_UNUSED_CBFF                    : goto op_OP_UNUSED_CBFF                    ;
+        case OP_UNUSED_CCFF                    : goto op_OP_UNUSED_CCFF                    ;
+        case OP_UNUSED_CDFF                    : goto op_OP_UNUSED_CDFF                    ;
+        case OP_UNUSED_CEFF                    : goto op_OP_UNUSED_CEFF                    ;
+        case OP_UNUSED_CFFF                    : goto op_OP_UNUSED_CFFF                    ;
+        case OP_UNUSED_D0FF                    : goto op_OP_UNUSED_D0FF                    ;
+        case OP_UNUSED_D1FF                    : goto op_OP_UNUSED_D1FF                    ;
+        case OP_UNUSED_D2FF                    : goto op_OP_UNUSED_D2FF                    ;
+        case OP_UNUSED_D3FF                    : goto op_OP_UNUSED_D3FF                    ;
+        case OP_UNUSED_D4FF                    : goto op_OP_UNUSED_D4FF                    ;
+        case OP_UNUSED_D5FF                    : goto op_OP_UNUSED_D5FF                    ;
+        case OP_UNUSED_D6FF                    : goto op_OP_UNUSED_D6FF                    ;
+        case OP_UNUSED_D7FF                    : goto op_OP_UNUSED_D7FF                    ;
+        case OP_UNUSED_D8FF                    : goto op_OP_UNUSED_D8FF                    ;
+        case OP_UNUSED_D9FF                    : goto op_OP_UNUSED_D9FF                    ;
+        case OP_UNUSED_DAFF                    : goto op_OP_UNUSED_DAFF                    ;
+        case OP_UNUSED_DBFF                    : goto op_OP_UNUSED_DBFF                    ;
+        case OP_UNUSED_DCFF                    : goto op_OP_UNUSED_DCFF                    ;
+        case OP_UNUSED_DDFF                    : goto op_OP_UNUSED_DDFF                    ;
+        case OP_UNUSED_DEFF                    : goto op_OP_UNUSED_DEFF                    ;
+        case OP_UNUSED_DFFF                    : goto op_OP_UNUSED_DFFF                    ;
+        case OP_UNUSED_E0FF                    : goto op_OP_UNUSED_E0FF                    ;
+        case OP_UNUSED_E1FF                    : goto op_OP_UNUSED_E1FF                    ;
+        case OP_UNUSED_E2FF                    : goto op_OP_UNUSED_E2FF                    ;
+        case OP_UNUSED_E3FF                    : goto op_OP_UNUSED_E3FF                    ;
+        case OP_UNUSED_E4FF                    : goto op_OP_UNUSED_E4FF                    ;
+        case OP_UNUSED_E5FF                    : goto op_OP_UNUSED_E5FF                    ;
+        case OP_UNUSED_E6FF                    : goto op_OP_UNUSED_E6FF                    ;
+        case OP_UNUSED_E7FF                    : goto op_OP_UNUSED_E7FF                    ;
+        case OP_UNUSED_E8FF                    : goto op_OP_UNUSED_E8FF                    ;
+        case OP_UNUSED_E9FF                    : goto op_OP_UNUSED_E9FF                    ;
+        case OP_UNUSED_EAFF                    : goto op_OP_UNUSED_EAFF                    ;
+        case OP_UNUSED_EBFF                    : goto op_OP_UNUSED_EBFF                    ;
+        case OP_UNUSED_ECFF                    : goto op_OP_UNUSED_ECFF                    ;
+        case OP_UNUSED_EDFF                    : goto op_OP_UNUSED_EDFF                    ;
+        case OP_UNUSED_EEFF                    : goto op_OP_UNUSED_EEFF                    ;
+        case OP_UNUSED_EFFF                    : goto op_OP_UNUSED_EFFF                    ;
+        case OP_UNUSED_F0FF                    : goto op_OP_UNUSED_F0FF                    ;
+        case OP_UNUSED_F1FF                    : goto op_OP_UNUSED_F1FF                    ;
+        case OP_INVOKE_OBJECT_INIT_JUMBO       : goto op_OP_INVOKE_OBJECT_INIT_JUMBO       ;
+        case OP_IGET_VOLATILE_JUMBO            : goto op_OP_IGET_VOLATILE_JUMBO            ;
+        case OP_IGET_WIDE_VOLATILE_JUMBO       : goto op_OP_IGET_WIDE_VOLATILE_JUMBO       ;
+        case OP_IGET_OBJECT_VOLATILE_JUMBO     : goto op_OP_IGET_OBJECT_VOLATILE_JUMBO     ;
+        case OP_IPUT_VOLATILE_JUMBO            : goto op_OP_IPUT_VOLATILE_JUMBO            ;
+        case OP_IPUT_WIDE_VOLATILE_JUMBO       : goto op_OP_IPUT_WIDE_VOLATILE_JUMBO       ;
+        case OP_IPUT_OBJECT_VOLATILE_JUMBO     : goto op_OP_IPUT_OBJECT_VOLATILE_JUMBO     ;
+        case OP_SGET_VOLATILE_JUMBO            : goto op_OP_SGET_VOLATILE_JUMBO            ;
+        case OP_SGET_WIDE_VOLATILE_JUMBO       : goto op_OP_SGET_WIDE_VOLATILE_JUMBO       ;
+        case OP_SGET_OBJECT_VOLATILE_JUMBO     : goto op_OP_SGET_OBJECT_VOLATILE_JUMBO     ;
+        case OP_SPUT_VOLATILE_JUMBO            : goto op_OP_SPUT_VOLATILE_JUMBO            ;
+        case OP_SPUT_WIDE_VOLATILE_JUMBO       : goto op_OP_SPUT_WIDE_VOLATILE_JUMBO       ;
+        case OP_SPUT_OBJECT_VOLATILE_JUMBO     : goto op_OP_SPUT_OBJECT_VOLATILE_JUMBO     ;
+        case OP_THROW_VERIFICATION_ERROR_JUMBO : goto op_OP_THROW_VERIFICATION_ERROR_JUMBO ;
+        default: goto bail;
+    }
+#endif
 
 bail:
 #if __NIX__

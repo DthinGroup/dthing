@@ -25,7 +25,8 @@ bool_t dvmGCStartup()
     globalRoots = heapAllocPersistent(sizeof(Object*) * MAX_GLOBAL_ROOTS_NUM);
 
     if (tempRoots == NULL || globalRoots == NULL)
-    {
+    {
+
         DVMTraceErr("dvmGCStartup - Error, gc starup failure with reason no enough memory\n");
         return FALSE;
     }

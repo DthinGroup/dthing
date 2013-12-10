@@ -272,7 +272,7 @@ StringObject* dvmCreateStringFromUnicode(const u2* unichars, int len)
  *
  * Returns NULL if the object is NULL.
  */
-char* dvmCreateCstrFromString(StringObject* jstr)
+char* dvmCreateCstrFromString(const StringObject* jstr)
 {
     char* newStr;
     ArrayObject* chars;

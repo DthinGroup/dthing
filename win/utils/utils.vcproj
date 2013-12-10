@@ -40,8 +40,8 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\base\inc;"
-				PreprocessorDefinitions="WIN32;_DEBUG;_LIB"
+				AdditionalIncludeDirectories="..\..\base\inc;..\..\vm\inc"
+				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -148,6 +148,10 @@
 		</File>
 		<File
 			RelativePath="..\..\base\src\leb128.c"
+			>
+		</File>
+		<File
+			RelativePath="..\..\base\src\trace.c"
 			>
 		</File>
 	</Files>

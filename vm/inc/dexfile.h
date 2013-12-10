@@ -33,13 +33,15 @@
 #ifndef LIBDEX_DEXFILE_H_
 #define LIBDEX_DEXFILE_H_
 
+#include <stdint.h>
 #include <common.h>
 
+typedef unsigned int size_t;
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-typedef enum PrimitiveType PrimitiveType;
+typedef enum PrimitiveType_s PrimitiveType;
 typedef struct DexFile_s DexFile;
 typedef struct DexHeader_s DexHeader;
 

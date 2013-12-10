@@ -505,15 +505,17 @@ void Schd_SCHEDULER(void)
         {
             currentThread->threadState = THREAD_ACTIVE;
             pResult.j = 0;
-            SCHD_OpenTIMER();
+            vmtime_startTimer();
             //call interp!
+#ifdef ARCH_X86
             (*currentThread->cb)(currentThread);
+#endif
             dvmInterpretEntry(currentThread,&pResult);
 
             /*Thread exe over*/
             if(pResult.j == 0xacacacac )
             {
-                printf("The thread(id:%d) exe over!\n",currentThread->threadId);
+                DVM_LOG("The thread(id:%d) exe over!\n",currentThread->threadId);
                 Schd_ChangeThreadState(currentThread,THREAD_DEAD);
             }
         }
@@ -525,10 +527,16 @@ void Schd_SCHEDULER(void)
             {
                 goto SCHD_END;
             }
-            SCHD_OpenTIMER();
+            vmtime_startTimer();
             do{
                 DVM_LOG("No ready thread,waiting...\n");
+#if defined(ARCH_X86)
                 Sleep(10);
+#elif defined(ARCH_ARM_SPD)
+			SCI_Sleep(10);
+#else
+	#error "Remember me,pls!"
+#endif
             }while(!CAN_SCHEDULE());
         }
 

@@ -40,8 +40,8 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\base\inc"
-				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
+				AdditionalIncludeDirectories="..\..\base\inc;..\..\vm\inc"
+				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -172,7 +172,7 @@
 	</References>
 	<Files>
 		<File
-			RelativePath="..\..\main\main.c"
+			RelativePath="..\..\main\dthing_main.c"
 			>
 		</File>
 	</Files>

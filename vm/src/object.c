@@ -659,7 +659,7 @@ const DexCode* dvmGetMethodCode(const Method* meth)
          * DexCode in front.
          */
         return (const DexCode*)
-            (((const u1*) meth->insns) - offsetof(DexCode, insns));
+            (((const u1*) meth->insns) - CRTL_offsetof(DexCode, insns));
     } else {
         return NULL;
     }

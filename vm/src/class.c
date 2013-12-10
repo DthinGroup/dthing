@@ -641,6 +641,7 @@ static bool_t initClassReferences() {
         /* The corest of the core classes */
         { &gDvm.classJavaLangObject, "Ljava/lang/Object;" },
         { &gDvm.classJavaLangString, "Ljava/lang/String;" },
+		{ NULL,NULL},
     };
 
     int i;

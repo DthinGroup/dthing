@@ -74,8 +74,8 @@ bool_t dvmInSamePackage(const ClassObject* class1, const ClassObject* class2)
 
 
     commonLen = strcmpCount(class1->descriptor, class2->descriptor);
-    if (CRTL_strchr(class1->descriptor + commonLen, '/') != NULL ||
-        CRTL_strchr(class2->descriptor + commonLen, '/') != NULL)
+    if ((char*)CRTL_strchr(class1->descriptor + commonLen, '/') != NULL ||
+        (char*)CRTL_strchr(class2->descriptor + commonLen, '/') != NULL)
     {
         return FALSE;
     }

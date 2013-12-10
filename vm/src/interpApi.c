@@ -7,6 +7,11 @@
 #include <kni.h>
 #include <Object.h>
 
+#include <stdarg.h>
+#ifdef ARCH_ARM_SPD
+#include <cafstdlib.h>
+#endif
+
 #ifdef DVM_LOG
 #undef DVM_LOG
 #endif

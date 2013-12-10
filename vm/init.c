@@ -15,7 +15,7 @@
 #include <dthing.h>
 #include <opl_mm.h>
 #include <opl_file.h>
-#include <vmTime.h>
+//#include <vmTime.h>
 
 #include <class.h>
 #include <gc.h>
@@ -133,7 +133,7 @@ static int32_t processOptions(int32_t argc, const int8_t* const argv[])
         else if (CRTL_strncmp(argv[i], "-D", 2) == 0)
         {
             /* Properties are handled in managed code. We just check syntax. */
-            if (CRTL_strchr(argv[i], '=') == NULL)
+            if ((char*)CRTL_strchr(argv[i], '=') == NULL)
             {
                 DVMTraceErr("Bad system property setting: \"%s\"\n", argv[i]);
                 return -1;
