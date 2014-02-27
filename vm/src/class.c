@@ -1416,6 +1416,7 @@ static bool_t createIftable(ClassObject* clazz)
             //dvmLinearReadOnly(clazz->classLoader, clazz->virtualMethods);
             //TODO: how to use realloc API or to avoid memory leak
             newVirtualMethods = (Method*)heapAllocPersistent(sizeof(Method) * (clazz->virtualMethodCount + mirandaCount));
+            CRTL_memcpy(newVirtualMethods, clazz->virtualMethods, (sizeof(Method) * (clazz->virtualMethodCount)));
         }
         if (newVirtualMethods != clazz->virtualMethods) {
             /*
@@ -1451,7 +1452,13 @@ static bool_t createIftable(ClassObject* clazz)
         //clazz->vtable = (Method**) dvmLinearRealloc(clazz->classLoader,
         //                clazz->vtable,
         //                sizeof(Method*) * (clazz->vtableCount + mirandaCount));
-        clazz->vtable = (Method**) heapAllocPersistent(sizeof(Method*) * (clazz->vtableCount + mirandaCount));
+        {
+            /* temporary solution to fix miranda methods load issues. */
+            void** clsVtable = (void**) heapAllocPersistent(sizeof(Method*) * (clazz->vtableCount + mirandaCount));
+            //clazz->vtable = (Method**) heapAllocPersistent(sizeof(Method*) * (clazz->vtableCount + mirandaCount));
+            CRTL_memcpy((Method**)clsVtable, clazz->vtable, sizeof(Method*) * (clazz->vtableCount + mirandaCount));
+            clazz->vtable = (Method**)clsVtable;
+        }
         if (clazz->vtable == NULL)
         {
             //assert(false);
