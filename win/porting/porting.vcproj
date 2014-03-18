@@ -148,11 +148,31 @@
 			>
 		</File>
 		<File
+			RelativePath="..\..\porting\inc\opl_core.h"
+			>
+		</File>
+		<File
 			RelativePath="..\..\porting\src\opl_file.c"
 			>
 		</File>
 		<File
+			RelativePath="..\..\porting\inc\opl_file.h"
+			>
+		</File>
+		<File
 			RelativePath="..\..\porting\src\opl_mm.c"
+			>
+		</File>
+		<File
+			RelativePath="..\..\porting\inc\opl_mm.h"
+			>
+		</File>
+		<File
+			RelativePath="..\..\porting\src\opl_net.c"
+			>
+		</File>
+		<File
+			RelativePath="..\..\porting\inc\opl_net.h"
 			>
 		</File>
 	</Files>

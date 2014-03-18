@@ -64,7 +64,8 @@ int64_t OPL_core_getCurrentTimeMillis();
  *
  * @param chr the character to print
  */
-void OPL_core_logChar(int chr);
+void OPL_core_logChar(int chr);
+
 
 #ifdef __cplusplus
 }

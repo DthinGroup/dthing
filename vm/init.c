@@ -164,6 +164,8 @@ int32_t DVM_main(int32_t argc, int8_t * argv[])
 
     DVM_native_init();
 
+	ret = sizeof(ArrayObject);
+
     ret = processOptions(argc, argv);
     if (ret < 0) return 0;
 
@@ -181,10 +183,11 @@ int32_t DVM_main(int32_t argc, int8_t * argv[])
 #endif
 
 	/* Find main class */
-	mainClass = dvmFindClass("Lhelloword;");
+	mainClass = dvmFindClass("Ljava/net/SocketTest;");
     //mainClass = dvmFindClass("Lcom/yarlungsoft/main/Main;");
     //mainClass = dvmFindClass("Lcom/yarlungsoft/print/printTest;");
 	/* Find Entry function method */
+	//startMeth = dvmGetStaticMethodID(mainClass, "main", "()V");
 	startMeth = dvmGetStaticMethodID(mainClass, "main", "([Ljava/lang/String;)V");
 
 	dthread_create(startMeth,NULL);

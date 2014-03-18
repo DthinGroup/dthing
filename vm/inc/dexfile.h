@@ -37,6 +37,7 @@
 #include <common.h>
 
 typedef unsigned int size_t;
+
 #ifdef __cplusplus
 extern "C" {
 #endif

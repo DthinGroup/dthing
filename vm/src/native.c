@@ -7,6 +7,7 @@
 #include <nativeObject.h>
 #include <nativeThrowable.h>
 #include <nativeAsyncIO.h>
+#include <nativeNet.h>
 
 KNINativeMethod gNativeMthTab[] = 
 {
@@ -40,9 +41,9 @@ KNINativeMethod gNativeMthTab[] =
 	{"Ljava/lang/Object;","notify" ,        "()V",        (KniFunc)Java_java_lang_Object_notify},
 	{"Ljava/lang/Object;","notifyAll" ,     "(II)V",      (KniFunc)Java_java_lang_Object_notifyAll},
 
-	{"LAsyncIO;","getCurNotifierState" ,     "()I",      (KniFunc)AsyncIO_getCurNotifierState},
-	{"LAsyncIO;","setCurNotifierState" ,     "(I)V",      (KniFunc)AsyncIO_setCurNotifierState},
-	{"LAsyncIO;","waitSignalOrTimeOut" ,     "()V",      (KniFunc)AsyncIO_waitSignalOrTimeOut},
+	{"Ljava/net/AsyncIO;","getCurNotifierState" ,     "()I",      (KniFunc)AsyncIO_getCurNotifierState},
+	{"Ljava/net/AsyncIO;","setCurNotifierState" ,     "(I)V",      (KniFunc)AsyncIO_setCurNotifierState},
+	{"Ljava/net/AsyncIO;","waitSignalOrTimeOut" ,     "()V",      (KniFunc)AsyncIO_waitSignalOrTimeOut},
 
 
     /* java.lang.System native APIs */
@@ -68,6 +69,16 @@ KNINativeMethod gNativeMthTab[] =
 
     /* java.lang.Throwable native APIs */
     {"Ljava/lang/Throwable;", "printStackTrace0",    "(L)V", (KniFunc)Java_java_lang_Throwable_printStackTrace0},    
+    
+    /* java.net.NetNativeBridge native APIs*/
+    {"Ljava/net/NetNativeBridge;", "IsNetworkInited",    "()Z",  (KniFunc)Java_java_net_NetNativeBridge_IsNetworkInited},
+    {"Ljava/net/NetNativeBridge;", "startUpNetwork",     "()I",  (KniFunc)Java_java_net_NetNativeBridge_startUpNetwork},
+    {"Ljava/net/NetNativeBridge;", "socket0",            "(Z)I", (KniFunc)Java_java_net_NetNativeBridge_socket0},
+
+	{"Ljava/net/NetNativeBridge;", "connect0",            "(Z)I", (KniFunc)Java_java_net_NetNativeBridge_connect0},
+	{"Ljava/net/NetNativeBridge;", "recv0",            "(Z)I", (KniFunc)Java_java_net_NetNativeBridge_recv0},
+	{"Ljava/net/NetNativeBridge;", "sendto0",            "(Z)I", (KniFunc)Java_java_net_NetNativeBridge_sendto0},
+    
 };
 
 

@@ -25,6 +25,12 @@ typedef struct
 }KNINativeMethod;
 
 
+//if kni param is byte[] array
+
+#define KNI_GET_ARRAY_BUF(idx)	(char*)((ArrayObject *)idx)->contents
+#define KNI_GET_ARRAY_LEN(idx)	(int)((ArrayObject *)idx)->length  
+
+
 //extern KNINativeMethod gNativeMthTab
 
 

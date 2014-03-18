@@ -25,6 +25,7 @@
 #include <dexfile.h>
 
 typedef unsigned int size_t;
+
 /*
  * Single-thread single-string cache. This structure holds a pointer to
  * a string which is semi-automatically manipulated by some of the

@@ -452,6 +452,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\vm\impl\nativeNet.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\vm\impl\nativeNet.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\vm\impl\nativeObject.c"
 				>
 			</File>
