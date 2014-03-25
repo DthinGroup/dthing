@@ -20,6 +20,12 @@ int Opl_net_connect(int sock,int ip,int port,int timeout);
 
 int Opl_net_recv(int sock,char * recvbuf,int count);
 
-int Opl_net_send(int sock,char * sendbuf,int count,int ip,int port);
+int Opl_net_send(int sock,char * sendbuf,int count);
+
+int Opl_net_recvfrom(int sock,char * recvbuf,int count,int ip,int port);
+
+int Opl_net_sendto(int sock,char * sendbuf,int count,int ip,int port);
+
+int Opl_net_closeSocket(int socket);
 
 #endif

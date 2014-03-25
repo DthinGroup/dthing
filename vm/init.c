@@ -183,7 +183,7 @@ int32_t DVM_main(int32_t argc, int8_t * argv[])
 #endif
 
 	/* Find main class */
-	mainClass = dvmFindClass("Ljava/net/SocketTest;");
+	mainClass = dvmFindClass("Ljava/net/SocketUdpTest;");
     //mainClass = dvmFindClass("Lcom/yarlungsoft/main/Main;");
     //mainClass = dvmFindClass("Lcom/yarlungsoft/print/printTest;");
 	/* Find Entry function method */

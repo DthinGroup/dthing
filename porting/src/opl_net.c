@@ -265,7 +265,7 @@ int Opl_net_connect(int sock,int ip,int port,int timeout)
 }
 
 
-int Opl_net_send(int sock,char * sendbuf,int count,int ip,int port)
+int Opl_net_send(int sock,char * sendbuf,int count)
 {
 	int ret = 0;
 #ifdef ARCH_X86	
@@ -283,7 +283,50 @@ int Opl_net_recv(int sock,char * recvbuf,int count)
 	return ret;
 }
 
-int Opl_net_recvfrom(int sock,char *buff,int count,int ip,int port)
+int Opl_net_recvfrom(int sock,char * recvbuf,int count,int ip,int port)
 {
-	
+	int ret =0;
+	char ipbuf[16] = {0};
+#ifdef ARCH_X86	
+	SOCKADDR_IN addrSrv;
+	int len =0;
+
+	sprintf(ipbuf,"%d.%d.%d.%d",0xff&(ip>>24),0xff&(ip>>16),0xff&(ip>>8),ip&0xff);
+    addrSrv.sin_addr.S_un.S_addr=inet_addr(ipbuf/*"127.0.0.1"*/);//本机地址，服务器在本机开启
+    addrSrv.sin_family=AF_INET;
+    addrSrv.sin_port=htons(port);// 设置端口号	
+	//memset(&addrSrv,0,sizeof(SOCKADDR));
+
+	ret = recvfrom(sock,recvbuf,count,0,(SOCKADDR*)&addrSrv,&len);
+#endif
+
+	return ret;	
+}
+
+int Opl_net_sendto(int sock,char * sendbuf,int count,int ip,int port)
+{
+	int ret =0;
+	char ipbuf[16] = {0};
+#ifdef ARCH_X86	
+	SOCKADDR_IN addrSrv;
+
+	sprintf(ipbuf,"%d.%d.%d.%d",0xff&(ip>>24),0xff&(ip>>16),0xff&(ip>>8),ip&0xff);
+    addrSrv.sin_addr.S_un.S_addr=inet_addr(ipbuf/*"127.0.0.1"*/);//本机地址，服务器在本机开启
+    addrSrv.sin_family=AF_INET;
+    addrSrv.sin_port=htons(port);// 设置端口号	
+
+	ret = sendto(sock,sendbuf,count,0,(SOCKADDR*)&addrSrv,sizeof(SOCKADDR));
+#endif
+
+	return ret;
+}
+
+int Opl_net_closeSocket(int socket)
+{
+	int ret =0;
+#ifdef ARCH_X86	
+
+	ret = closesocket((SOCKET)socket);
+#endif
+	return ret;
 }

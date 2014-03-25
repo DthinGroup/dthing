@@ -74,13 +74,15 @@ KNINativeMethod gNativeMthTab[] =
     {"Ljava/net/NetNativeBridge;", "IsNetworkInited",    "()Z",  (KniFunc)Java_java_net_NetNativeBridge_IsNetworkInited},
     {"Ljava/net/NetNativeBridge;", "startUpNetwork",     "()I",  (KniFunc)Java_java_net_NetNativeBridge_startUpNetwork},
     {"Ljava/net/NetNativeBridge;", "socket0",            "(Z)I", (KniFunc)Java_java_net_NetNativeBridge_socket0},
-
 	{"Ljava/net/NetNativeBridge;", "connect0",            "(Z)I", (KniFunc)Java_java_net_NetNativeBridge_connect0},
 	{"Ljava/net/NetNativeBridge;", "recv0",            "(Z)I", (KniFunc)Java_java_net_NetNativeBridge_recv0},
+	{"Ljava/net/NetNativeBridge;", "send0",            "(Z)I", (KniFunc)Java_java_net_NetNativeBridge_send0},
+	{"Ljava/net/NetNativeBridge;", "recvfrom0",            "(Z)I", (KniFunc)Java_java_net_NetNativeBridge_recvfrom0},
 	{"Ljava/net/NetNativeBridge;", "sendto0",            "(Z)I", (KniFunc)Java_java_net_NetNativeBridge_sendto0},
+	{"Ljava/net/NetNativeBridge;", "closeSocket0",            "(Z)I", (KniFunc)Java_java_net_NetNativeBridge_closeSocket0},
+	
     
 };
-
 
 
 KniFunc Kni_findFuncPtr(const Method * mthd)

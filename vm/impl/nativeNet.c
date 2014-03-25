@@ -102,7 +102,6 @@ void Java_java_net_NetNativeBridge_recv0(const u4* args, JValue* pResult)
 }	
 	
 void Java_java_net_NetNativeBridge_send0(const u4* args, JValue* pResult)
-//(int sock,byte[] bytes,int offset,int count,int family,int ip,int port)
 {
 	int sock = (int)args[1];
 	char * arrbuf = KNI_GET_ARRAY_BUF(args[2]);
@@ -116,7 +115,7 @@ void Java_java_net_NetNativeBridge_send0(const u4* args, JValue* pResult)
 		//throw outofindex exception
 		DVM_ASSERT(0);
 	}
-	ret = Opl_net_send(sock,&arrbuf[offset],count,ip,port);
+	ret = Opl_net_send(sock,&arrbuf[offset],count);
 
 	RETURN_INT(ret);
 	
@@ -140,6 +139,8 @@ void Java_java_net_NetNativeBridge_recvfrom0(const u4* args, JValue* pResult)
 	int conn   = (int)args[8];
 
 	int ret = Opl_net_recvfrom(sock,&arrbuf[offset],count,ip,port);
+
+	RETURN_INT(ret);
 }
 
 /*
@@ -159,5 +160,17 @@ void Java_java_net_NetNativeBridge_sendto0(const u4* args, JValue* pResult)
 	int ip     = (int)args[6];
 	int port   = (int)args[7];
 	
+	int ret = Opl_net_sendto(sock,&arrbuf[offset],count,ip,port);
 
+	RETURN_INT(ret);
+}
+
+void Java_java_net_NetNativeBridge_closeSocket0(const u4* args, JValue* pResult)
+{
+	int sock = (int)args[1];
+	int ret =0;
+
+	ret = Opl_net_closeSocket(sock);
+
+	RETURN_INT(ret);
 }

@@ -494,6 +494,7 @@ void dvmLockObject(Thread* self, Object *obj)
 void dvmClearException(struct dthread* self) 
 {
 	DVM_LOG(">>>call dvmClearException!\n");
+	self->exception =NULL;//simplely handle
 }
 
 void dvmCheckBefore(const u2 *pc, u4 *fp, Thread* self)

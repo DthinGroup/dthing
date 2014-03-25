@@ -66,6 +66,13 @@ void Java_java_net_NetNativeBridge_recvfrom0(const u4* args, JValue* pResult);
  */
 void Java_java_net_NetNativeBridge_sendto0(const u4* args, JValue* pResult);
 
+/*
+ * Class:     java_net_NetNativeBridge
+ * Method:    sendto0
+ * Signature: (Z)I
+ */
+void Java_java_net_NetNativeBridge_closeSocket0(const u4* args, JValue* pResult);
+
 #ifdef __cplusplus
 }
 #endif
