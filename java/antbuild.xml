@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="Custom Ant Build" default="all" basedir=".">
+	<property file="antbuild.properties" />
+	<property name="classes.dir" location="${basedir}/bin" />
+	<property name="dex.output" location="${classes.dir}/classes.dex" />
+	<property name="dex.header" location="${basedir}/../vm/inc/dalvik_core.h" />
+
+	<target name="createDex">
+		<echo
+			message="${dx_tool} --verbose --core-library --dex --output=${dex.output} ${classes.dir}" />
+		<exec executable="${dx_tool}">
+			<arg value="--verbose" />
+			<arg value="--core-library" />
+			<arg value="--dex" />
+			<arg value="--output=${dex.output}" />
+			<arg value="${classes.dir}" />
+		</exec>
+	</target>
+
+	<target name="createDexHeader">
+		<echo message="${basedir}>perl gencarray.pl ${dex.output} ${dex.header}" />
+		<exec executable="perl" dir="${basedir}">
+			<arg value="gencarray.pl" />
+			<arg value="${dex.output}" />
+			<arg value="${dex.header}" />
+		</exec>
+	</target>
+
+	<target name="clean">
+		<delete file="${dex.output}" />
+	</target>
+
+	<target name="all" depends="createDex, createDexHeader" />
+
+</project>
