@@ -1,91 +1,93 @@
+
 package com.yarlungsoft.ams;
 
+import com.yarlungsoft.util.Log;
+
+/**
+ * Store and fetch Applet information.
+ */
 public class AppletContent {
 
-    private String appName;
-    private String appVersion;
-    private String appVendor;
-    private String appFileName;
-    private String appMainClass;
-    private String appFullPathName;
+    private static final String TAG = "AppletContent";
+
+    private String mAppName;
+    private String mAppVersion;
+    private String mAppVendor;
+    private String mAppFileName;
+    private String mAppMainClass;
+    private String mAppFullPathName;
 
     public AppletContent() {
-        appName = "";
-        appVersion = "";
-        appVendor = "";
-        appFileName = "";
-        appMainClass = "";
+        mAppName = "";
+        mAppVersion = "";
+        mAppVendor = "";
+        mAppFileName = "";
+        mAppMainClass = "";
     }
 
-	private static void log(String msg) {
-		Main.log("AppletContent", msg);
-	}
-
-    public AppletContent(String name, String mainClsName) {
-        this(name, null, null, null, mainClsName);
+    public AppletContent(String name, String clsName) {
+        this(name, null, null, null, clsName);
     }
 
-    public AppletContent(String name, String version, String vendor, String filename, String mainClsName) {
-        appName = name;
-        appVersion = version;
-        appVendor = vendor;
-        appFileName = filename;
-        appMainClass = mainClsName;
+    public AppletContent(String name, String version, String vendor, String fname, String clsName) {
+        mAppName = name;
+        mAppVersion = version;
+        mAppVendor = vendor;
+        mAppFileName = fname;
+        mAppMainClass = clsName;
     }
-    
+
     public void setAppName(String name) {
-        log("setAppName---name=(" + name + ")");
-        appName = name;
+        Log.amsLog(TAG, "setAppName---name=(" + name + ")");
+        mAppName = name;
     }
 
     public String getAppName() {
-        return appName;
+        return mAppName;
     }
 
     public void setAppFullPathName(String name) {
-        log("setAppFullPathName---name=(" + name + ")");
-        appFullPathName = name;
+        Log.amsLog(TAG, "setAppFullPathName---name=(" + name + ")");
+        mAppFullPathName = name;
     }
 
     public String getAppFullPathName() {
-        return appFullPathName;
+        return mAppFullPathName;
     }
 
     public void setAppVersion(String version) {
-        log("setAppVersion---version=(" + version + ")");
-        appVersion = version;
+        Log.amsLog(TAG, "setAppVersion---version=(" + version + ")");
+        mAppVersion = version;
     }
 
     public String getAppVersion() {
-        return appVersion;
+        return mAppVersion;
     }
 
     public void setAppVendor(String vendor) {
-        log("setAppVendor---vendor=(" + vendor + ")");
-        appVendor = vendor;
+        Log.amsLog(TAG, "setAppVendor---vendor=(" + vendor + ")");
+        mAppVendor = vendor;
     }
 
     public String getAppVendor() {
-        return appVendor;
+        return mAppVendor;
     }
 
-    public void setAppFileName(String filename) {
-        log("setAppFileName---filename=(" + filename + ")");
-        appFileName = filename;
+    public void setAppFileName(String fname) {
+        Log.amsLog(TAG, "setAppFileName---filename=(" + fname + ")");
+        mAppFileName = fname;
     }
 
     public String getAppFileName() {
-        return appFileName;
+        return mAppFileName;
     }
 
-    public void setAppMainClass(String mainclass) {
-        log("setAppMainClass---mainclass=(" + mainclass + ")");
-        appMainClass = mainclass;
+    public void setAppMainClass(String clsName) {
+        Log.amsLog(TAG, "setAppMainClass---mainclass=(" + clsName + ")");
+        mAppMainClass = clsName;
     }
 
     public String getAppMainClass() {
-        return appMainClass;
+        return mAppMainClass;
     }
-	
-	
 }

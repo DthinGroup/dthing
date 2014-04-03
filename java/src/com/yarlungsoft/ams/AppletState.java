@@ -1,27 +1,33 @@
+
 package com.yarlungsoft.ams;
+
+import com.yarlungsoft.util.Log;
 
 import jp.co.aplix.event.Applet;
 import jp.co.aplix.event.PackageAccess;
 
+/**
+ * Applet state management.
+ */
 public class AppletState implements Runnable {
 
-    private static final boolean DEBUG = AmsConfig.debug();
+    protected static final int ERROR = -1;
+    protected static final int UNINITIALIZED = 0;
+    protected static final int INITIALIZED = 1;
+    protected static final int STARTING = 2;
+    protected static final int STARTED = 3;
+    protected static final int PAUSE_PENDING = 4;
+    protected static final int PAUSING = 5;
+    protected static final int PAUSED = 6;
+    protected static final int RESUME_PENDING = 7;
+    protected static final int RESUMING = 8;
+    protected static final int DESTROY_PENDING = 9;
+    protected static final int DESTROYING = 10;
+    protected static final int INVALID = 11;
 
-    static final int ERROR = -1,
-                     UNINITIALIZED = 0,
-                     INITIALIZED = 1,
-                     STARTING = 2,
-                     STARTED = 3,
-                     PAUSE_PENDING = 4,
-                     PAUSING = 5,
-                     PAUSED = 6,
-                     RESUME_PENDING = 7,
-                     RESUMING = 8,
-                     DESTROY_PENDING = 9,
-                     DESTROYING = 10,
-                     INVALID = 11;
+    private static final String TAG = "AppletState";
 
-    public static final String stateStrings[] = {
+    private static final String[] STATE_STRINGS = {
         "ERROR",
         "UNINITIALIZED",
         "INITIALIZED",
@@ -37,155 +43,147 @@ public class AppletState implements Runnable {
         "INVALID",
     };
 
-    private int state;
-    private int requestState;
-    Applet app;
-    Thread daemonThread;
+    private int mState;
+    private int mRequestState;
+    private Applet mApp;
+    private Thread mDaemonThread;
 
     protected AppletState() {
         this(null);
     }
 
     public AppletState(Applet a) {
-        this.app = a;
-        state = UNINITIALIZED;
-        requestState = INVALID;
+        mApp = a;
+        mState = UNINITIALIZED;
+        mRequestState = INVALID;
         Scheduler.register(this);
     }
 
-    int getState() {
-        return state;
+    protected int getState() {
+        return mState;
     }
 
-    boolean gotoState(int newState) {
-        if (DEBUG)
-            System.out.println("goto State: " + stateStrings[newState+1]);
+    private String getStateString(int state) {
+        state += 1;
+        if (state < 0 || state >= STATE_STRINGS.length) {
+            return "unknown state " + (state - 1);
+        }
+        return STATE_STRINGS[state];
+    }
 
-        synchronized (Scheduler.mutex) {
+    protected boolean gotoState(int newState) {
+        Log.amsLog(TAG, "goto State: " + getStateString(newState));
 
+        synchronized (Scheduler.MUTEX) {
             if (newState < ERROR && newState > INVALID) {
                 return false;
             }
 
             setState(newState);
 
-            if (newState == STARTING || newState == PAUSING ||
-                newState == RESUMING || newState == DESTROYING) {
-                if (daemonThread == null) {
-                    daemonThread = new Thread(this);
-                    daemonThread.start();
+            if (newState == STARTING || newState == PAUSING || newState == RESUMING
+                    || newState == DESTROYING) {
+                if (mDaemonThread == null) {
+                    mDaemonThread = new Thread(this);
+                    mDaemonThread.start();
                 }
             }
         }
         return true;
     }
 
-    void setState(int newState) {
-        if (state == newState) {
-            if (DEBUG) {
-                System.out.println("setState: same state = " + stateStrings[newState+1]);
-            }
+    protected void setState(int newState) {
+        if (mState == newState) {
+            Log.amsLog(TAG, "setState: same mState = " + getStateString(newState));
             return;
         }
-        if (DEBUG) {
-            System.out.println("setState: newState = " + stateStrings[newState+1]);
-        }
-
-        state = newState;
+        Log.amsLog(TAG, "setState: newState = " + getStateString(newState));
+        mState = newState;
     }
 
-    void setRequestState(int nState) {
-        requestState = nState;
+    protected void setRequestState(int nState) {
+        mRequestState = nState;
     }
 
-    int getRequestState() {
-        return requestState;
+    protected int getRequestState() {
+        return mRequestState;
     }
-
 
     public void notifyDestroyed() {
-        if (DEBUG)
-            System.out.println("notifyDestroyed for " + app.toString());
+        Log.amsLog(TAG, "notifyDestroyed for " + mApp.toString());
 
-        synchronized(Scheduler.mutex) {
+        synchronized (Scheduler.MUTEX) {
             setRequestState(DESTROY_PENDING);
-            if (daemonThread == null) {
-                Scheduler.mutex.notify();
+            if (mDaemonThread == null) {
+                Scheduler.MUTEX.notify();
             }
         }
     }
 
-
     public void notifypaused() {
-        if (DEBUG)
-            System.out.println("notifypaused for " + app.toString());
+        Log.amsLog(TAG, "notifypaused for " + mApp.toString());
 
-        synchronized(Scheduler.mutex) {
+        synchronized (Scheduler.MUTEX) {
             setRequestState(PAUSE_PENDING);
-            if (daemonThread == null) {
-                Scheduler.mutex.notify();
+            if (mDaemonThread == null) {
+                Scheduler.MUTEX.notify();
             }
         }
     }
 
     public void resumeRequest() {
-        if (DEBUG)
-            System.out.println("resumeRequest for " + app.toString());
+        Log.amsLog(TAG, "resumeRequest for " + mApp.toString());
 
-        synchronized(Scheduler.mutex) {
+        synchronized (Scheduler.MUTEX) {
             setRequestState(RESUME_PENDING);
-            if (daemonThread == null) {
-                Scheduler.mutex.notify();
+            if (mDaemonThread == null) {
+                Scheduler.MUTEX.notify();
             }
         }
     }
 
     protected void startup() {
-        PackageAccess.Application_startup(app);
+        PackageAccess.Application_startup(mApp);
     }
 
     protected void cleanup() {
-        PackageAccess.Application_cleanup(app);
+        PackageAccess.Application_cleanup(mApp);
     }
 
     protected void processEvent() {
-        PackageAccess.Application_processEvent(app, null);
+        PackageAccess.Application_processEvent(mApp, null);
     }
 
     public void run() {
-
-        if (state != STARTING && state != PAUSING &&
-            state != RESUMING && state != DESTROYING) {
-            //nothing to do here.
-            daemonThread = null;
+        if (mState != STARTING && mState != PAUSING && mState != RESUMING && mState != DESTROYING) {
+            // nothing to do here.
+            mDaemonThread = null;
             return;
         }
 
         try {
-            switch (state) {
+            switch (mState) {
+            case STARTING:
+                startup();
+                setState(STARTED);
+                break;
 
-                case STARTING:
-                    startup();
-                    setState(STARTED);
-                    break;
+            case DESTROYING:
+                processEvent();
+                setState(UNINITIALIZED);
+                break;
 
-                case DESTROYING:
-                	processEvent();
-                    setState(UNINITIALIZED);
-                    break;
-
-                default:
-                    break;
+            default:
+                break;
             }
         } catch (Throwable t) {
-            if (DEBUG)
-                System.out.println("Caught unexpected throwable: " + t);
-            //TODO: report user error info.
+            Log.amsLog(TAG, "Caught unexpected throwable:", t);
+            // TODO: report user error info.
             setState(ERROR);
         } finally {
-            synchronized(Scheduler.mutex) {
-                daemonThread = null;
-                Scheduler.mutex.notify();
+            synchronized (Scheduler.MUTEX) {
+                mDaemonThread = null;
+                Scheduler.MUTEX.notify();
             }
         }
     }

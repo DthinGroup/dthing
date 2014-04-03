@@ -423,6 +423,10 @@
 				RelativePath="..\..\vm\src\native.c"
 				>
 			</File>
+			<File
+				RelativePath="..\..\vm\inc\nativeMethods.h"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="nativeImpl"
@@ -452,6 +456,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\vm\impl\nativeMath.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\vm\impl\nativeMath.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\vm\impl\nativeNet.c"
 				>
 			</File>
@@ -465,6 +477,14 @@
 			</File>
 			<File
 				RelativePath="..\..\vm\impl\nativeObject.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\vm\impl\nativeRuntime.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\vm\impl\nativeRuntime.h"
 				>
 			</File>
 			<File

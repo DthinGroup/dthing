@@ -68,7 +68,7 @@ public class FileOutputStream extends OutputStream {
         if (file == null) {
             throw new NullPointerException("file == null");
         }
-        //@UN-IMPLEMENT
+        // TODO: to be implemented
     }
 
     /**
@@ -80,7 +80,7 @@ public class FileOutputStream extends OutputStream {
         if (fd == null) {
             throw new NullPointerException("fd == null");
         }
-        //@UN-IMPLEMENT
+        // TODO: to be implemented
     }
 
     /**
@@ -106,12 +106,12 @@ public class FileOutputStream extends OutputStream {
 
     @Override
     public void close() throws IOException {
-        //@UN-IMPLEMENT
+        // TODO: to be implemented
     }
 
     @Override 
     protected void finalize() throws IOException {
-        //@UN-IMPLEMENT
+        // TODO: to be implemented
     }
 
     /**
@@ -123,11 +123,11 @@ public class FileOutputStream extends OutputStream {
 
     @Override
     public void write(byte[] buffer, int byteOffset, int byteCount) throws IOException {
-        //@UN-IMPLEMENT
+        // TODO: to be implemented
     }
 
     @Override
     public void write(int oneByte) throws IOException {
-        //@UN-IMPLEMENT
+        // TODO: to be implemented
     }
 }

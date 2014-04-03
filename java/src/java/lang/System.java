@@ -195,7 +195,7 @@ public final class System {
      *         defaultValue} if the property does not exist.
      */
     public static String getProperty(String prop, String defaultValue) {
-    	//@UN-IMPLEMENT
+    	// TODO: to be implemented
     	return null;
     }
 

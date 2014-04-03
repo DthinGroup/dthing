@@ -694,7 +694,7 @@ public class HashMap<K, V> extends Object implements Map<K, V> {
             if (!(o instanceof Entry<?, ?>)) {
                 return false;
             }
-            //@UN-IMPLEMENT
+            // TODO: to be implemented
             return true;
         }
 

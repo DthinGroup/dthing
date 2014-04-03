@@ -1,99 +1,96 @@
+
 package com.yarlungsoft.ams;
+
+import com.yarlungsoft.util.Log;
 
 import jp.co.aplix.event.Applet;
 
+/**
+ * The Scheduler starts and controls Applets through the lifecycle states.
+ */
 public final class Scheduler {
 
-    private static final boolean DEBUG = AmsConfig.debug();
+    protected static final Object MUTEX = new Object();
 
-    static Object mutex = new Object();
+    private static final String TAG = "Scheduler";
 
     /* Current running APP */
-    static Applet app;
+    private static Applet sApp;
 
-    static AppletContent curRunningAppInfo;
+    private static AppletContent sCurRunningAppInfo;
 
-    static AppletState appState;
+    private static AppletState sAppState;
 
     Scheduler() {
-        if (DEBUG)
-            System.out.println("Scheduler constructed!");
+        Log.amsLog(TAG, "Scheduler constructed!");
     }
-    
-    static boolean appInit(String clsName, String appPath) {
 
+    private static boolean appInit(String clsName, String appPath) {
         boolean ret = false;
         try {
-            System.out.println(">>>>>> clsName: " + clsName);
+            Log.amsLog(TAG, ">>>>>> clsName: " + clsName);
             Class<?> c = Class.forName(clsName);
-            app = (Applet)c.newInstance();
+            sApp = (Applet) c.newInstance();
 
-            appState.setState(AppletState.INITIALIZED);
+            sAppState.setState(AppletState.INITIALIZED);
             ret = true;
-
         } catch (Throwable t) {
-            if (DEBUG)
-                System.out.println("app init with throwable : " + t.toString());
+            Log.amsLog(TAG, "sApp init with throwable : " + t.toString());
         }
         return ret;
     }
 
-    static void schedule(AppletContent appContent) {
-
-        curRunningAppInfo = appContent;
+    protected static void schedule(AppletContent appContent) {
+        sCurRunningAppInfo = appContent;
         appInit(appContent.getAppMainClass(), appContent.getAppFullPathName());
 
-        synchronized (mutex) {
-
+        synchronized (MUTEX) {
             try {
+                while (sAppState.getState() > AppletState.UNINITIALIZED) {
+                    switch (sAppState.getState()) {
+                    case AppletState.INITIALIZED:
+                        sAppState.gotoState(AppletState.STARTING);
+                        break;
 
-               while (appState.getState() > AppletState.UNINITIALIZED) {
+                    case AppletState.STARTED:
+                        if (sAppState.getRequestState() == AppletState.PAUSE_PENDING) {
+                            sAppState.gotoState(AppletState.PAUSING);
+                            sAppState.setRequestState(AppletState.INVALID);
+                        } else if (sAppState.getRequestState() == AppletState.DESTROY_PENDING) {
+                            sAppState.gotoState(AppletState.DESTROYING);
+                            sAppState.setRequestState(AppletState.INVALID);
+                        }
+                        break;
 
-                    switch (appState.getState()) {
+                    case AppletState.PAUSED:
+                        if (sAppState.getRequestState() == AppletState.RESUME_PENDING) {
+                            sAppState.gotoState(AppletState.RESUMING);
+                            sAppState.setRequestState(AppletState.INVALID);
+                        } else if (sAppState.getRequestState() == AppletState.DESTROY_PENDING) {
+                            sAppState.gotoState(AppletState.DESTROYING);
+                            sAppState.setRequestState(AppletState.INVALID);
+                        }
+                        break;
 
-                        case AppletState.INITIALIZED:
-                            appState.gotoState(AppletState.STARTING);
-                            break;
+                    case AppletState.STARTING:
+                    case AppletState.PAUSING:
+                    case AppletState.RESUMING:
+                        if (sAppState.getRequestState() == AppletState.DESTROY_PENDING) {
+                            sAppState.gotoState(AppletState.DESTROYING);
+                            sAppState.setRequestState(AppletState.INVALID);
+                        }
+                        break;
 
-                        case AppletState.STARTED:
-                            if (appState.getRequestState() == AppletState.PAUSE_PENDING) {
-                                appState.gotoState(AppletState.PAUSING);
-                                appState.setRequestState(AppletState.INVALID);
-                            } else if (appState.getRequestState() == AppletState.DESTROY_PENDING) {
-                                appState.gotoState(AppletState.DESTROYING);
-                                appState.setRequestState(AppletState.INVALID);
-                            }
-                            break;
+                    case AppletState.DESTROYING:
+                        // nothing to do
+                        sAppState.setRequestState(AppletState.INVALID);
+                        break;
 
-                        case AppletState.PAUSED:
-                            if (appState.getRequestState() == AppletState.RESUME_PENDING) {
-                                appState.gotoState(AppletState.RESUMING);
-                                appState.setRequestState(AppletState.INVALID);
-                            } else if (appState.getRequestState() == AppletState.DESTROY_PENDING) {
-                                appState.gotoState(AppletState.DESTROYING);
-                                appState.setRequestState(AppletState.INVALID);
-                            }
-                            break;
-
-                        case AppletState.STARTING:
-                        case AppletState.PAUSING:
-                        case AppletState.RESUMING:
-                            if (appState.getRequestState() == AppletState.DESTROY_PENDING) {
-                                appState.gotoState(AppletState.DESTROYING);
-                                appState.setRequestState(AppletState.INVALID);
-                            }
-                            break;
-
-                        case AppletState.DESTROYING:
-                            //nothing todo
-                            appState.setRequestState(AppletState.INVALID);
-                            break;
-
-                        default:
-                            appState.setState(AppletState.ERROR);
-                            continue;
+                    default:
+                        sAppState.setState(AppletState.ERROR);
+                        continue;
                     }
-                    mutex.wait();
+                    MUTEX.wait();
                 }
             } catch (Throwable t) {
                 t.printStackTrace();
@@ -101,20 +98,19 @@ public final class Scheduler {
         }
     }
 
-    static Applet getCurrentRunningApp() {
-        return app;
-    }
-    
-    static void register(AppletState as) {
-        appState = as;
+    protected static Applet getCurrentRunningApp() {
+        return sApp;
     }
 
-    static void deregister(AppletState as) {
-        appState = null;
+    protected static void register(AppletState as) {
+        sAppState = as;
     }
 
-    static AppletContent getCurrentRunningAppInfo() {
-        return curRunningAppInfo;
+    protected static void deregister(AppletState as) {
+        sAppState = null;
     }
 
+    protected static AppletContent getCurrentRunningAppInfo() {
+        return sCurRunningAppInfo;
+    }
 }

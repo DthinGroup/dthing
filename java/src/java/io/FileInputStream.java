@@ -57,7 +57,7 @@ public class FileInputStream extends InputStream {
         if (file == null) {
             throw new NullPointerException("file == null");
         }
-        //@UN-IMPLEMENT
+        // TODO: to be implemented
     }
 
     /**
@@ -72,7 +72,7 @@ public class FileInputStream extends InputStream {
         if (fd == null) {
             throw new NullPointerException("fd == null");
         }
-        //@UN-IMPLEMENT
+        // TODO: to be implemented
     }
 
     /**
@@ -84,13 +84,13 @@ public class FileInputStream extends InputStream {
 
     @Override
     public int available() throws IOException {
-        //@UN-IMPLEMENT
+        // TODO: to be implemented
     	return 0;
     }
 
     @Override
     public void close() throws IOException {
-        //@UN-IMPLEMENT
+        // TODO: to be implemented
     }
 
     /**
@@ -102,7 +102,7 @@ public class FileInputStream extends InputStream {
      */
     @Override 
     protected void finalize() throws IOException {
-        //@UN-IMPLEMENT
+        // TODO: to be implemented
     }
 
     /**
@@ -114,19 +114,19 @@ public class FileInputStream extends InputStream {
 
     @Override 
     public int read() throws IOException {
-        //@UN-IMPLEMENT
+        // TODO: to be implemented
     	return 0;
     }
 
     @Override 
     public int read(byte[] buffer, int byteOffset, int byteCount) throws IOException {
-        //@UN-IMPLEMENT
+        // TODO: to be implemented
     	return 0;
     }
 
     @Override
     public long skip(long byteCount) throws IOException {
-        //@UN-IMPLEMENT
+        // TODO: to be implemented
     	return 0;
     }
 }

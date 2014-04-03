@@ -1,35 +1,36 @@
+
 package com.yarlungsoft.ams;
 
+/**
+ * Store and fetch information of applet list node.
+ */
 public class AppletListNode {
-	
-	AppletContent curAppContent;
-	AppletListNode    next;
 
-	AppletListNode(AppletContent ac) {
-		curAppContent = ac;
-		next = null;
-	}
+    private AppletContent mCurAppContent;
+    private AppletListNode mNext;
 
-	AppletListNode () {
-		this(null);
-	}
+    AppletListNode(AppletContent ac) {
+        mCurAppContent = ac;
+        mNext = null;
+    }
 
-	void setAppletContentInfo(AppletContent ac) {
-		curAppContent = ac;
-	}
+    AppletListNode() {
+        this(null);
+    }
 
-	AppletContent getAppletContentInfo () {
-		return curAppContent;
-	}
-	
-	void setAppletListNextNode(AppletListNode nextNode) {
-		next = nextNode;
-	}
-	
-	AppletListNode getAppletListNextNode() {
-		return next;
-	}
-	
-	
-	
+    protected void setAppletContentInfo(AppletContent ac) {
+        mCurAppContent = ac;
+    }
+
+    protected AppletContent getAppletContentInfo() {
+        return mCurAppContent;
+    }
+
+    protected void setAppletListNextNode(AppletListNode nextNode) {
+        mNext = nextNode;
+    }
+
+    protected AppletListNode getAppletListNextNode() {
+        return mNext;
+    }
 }

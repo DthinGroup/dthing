@@ -1,13 +1,16 @@
+
 package com.yarlungsoft.ams;
 
-public class AmsConfig {
+/**
+ * Global configuration of AMS.
+ */
+public final class AmsConfig {
 
-	static boolean debug() {
-		return true;
-	}
-	
-    static String getRoot(){
-        return "D:/";  
+    public static boolean debug() {
+        return true;
     }
 
+    public static String getRoot() {
+        return "D:/";
+    }
 }

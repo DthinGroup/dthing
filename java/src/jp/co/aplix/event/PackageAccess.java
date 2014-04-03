@@ -1,23 +1,31 @@
+
 package jp.co.aplix.event;
 
+import com.yarlungsoft.util.Log;
+
+/**
+ * Package access class for application.
+ */
 public class PackageAccess {
 
-	PackageAccess() {
-	    //nothing to do
-	}
-	
-	public static void Application_startup(Applet a) {
-	    System.out.println("Application_startup");
-	    a.startup();
-	}
-	
-	public static void Application_cleanup(Applet a) {
-	    System.out.println("Application_cleanup");
-	    a.cleanup();
-	}
-	
-	public static void Application_processEvent(Applet a, Event e) {
-	    System.out.println("Application_processEvent");
-	    a.processEvent(e);
-	}
+    private static final String TAG = "PackageAccess";
+
+    PackageAccess() {
+        // nothing to do
+    }
+
+    public static void Application_startup(Applet a) {
+        Log.log(TAG, "Application_startup");
+        a.startup();
+    }
+
+    public static void Application_cleanup(Applet a) {
+        Log.log(TAG, "Application_cleanup");
+        a.cleanup();
+    }
+
+    public static void Application_processEvent(Applet a, Event e) {
+        Log.log(TAG, "Application_processEvent");
+        a.processEvent(e);
+    }
 }

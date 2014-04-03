@@ -2,78 +2,79 @@
 #include <dthing.h>
 #include <kni.h>
 
-/* Header for class java_net_NetNativeBridge */
+/* Header for class java.net.NetNativeBridge */
 
-#ifndef __NATIVENET_H__
-#define __NATIVENET_H__
+#ifndef __NATIVE_NET_H__
+#define __NATIVE_NET_H__
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-/*
+
+/**
  * Class:     java_net_NetNativeBridge
- * Method:    IsNetworkInited
+ * Method:    isNetworkInited
  * Signature: ()Z
  */
-void Java_java_net_NetNativeBridge_IsNetworkInited(const u4* args, JValue* pResult);
+void Java_java_net_NetNativeBridge_isNetworkInited(const u4* args, JValue* pResult);
 
-/*
+/**
  * Class:     java_net_NetNativeBridge
  * Method:    startUpNetwork
- * Signature: ()I
+ * Signature: ([B)I
  */
 void Java_java_net_NetNativeBridge_startUpNetwork(const u4* args, JValue* pResult);
 
-/*
+/**
  * Class:     java_net_NetNativeBridge
  * Method:    socket0
  * Signature: (Z)I
  */
 void Java_java_net_NetNativeBridge_socket0(const u4* args, JValue* pResult);
 
-/*
+/**
  * Class:     java_net_NetNativeBridge
  * Method:    connect0
- * Signature: (Z)I
+ * Signature: (IIII)I
  */
 void Java_java_net_NetNativeBridge_connect0(const u4* args, JValue* pResult);
 
-/*
+/**
  * Class:     java_net_NetNativeBridge
  * Method:    recv0
- * Signature: (Z)I
+ * Signature: (I[BII)I
  */
 void Java_java_net_NetNativeBridge_recv0(const u4* args, JValue* pResult);
 
-/*
+/**
  * Class:     java_net_NetNativeBridge
  * Method:    send0
- * Signature: (Z)I
+ * Signature: (I[BII)I
  */
 void Java_java_net_NetNativeBridge_send0(const u4* args, JValue* pResult);
 
-/*
+/**
  * Class:     java_net_NetNativeBridge
  * Method:    recvfrom0
- * Signature: (Z)I
+ * Signature: (I[BIIIIII)I
  */
 void Java_java_net_NetNativeBridge_recvfrom0(const u4* args, JValue* pResult);
 
-/*
+/**
  * Class:     java_net_NetNativeBridge
  * Method:    sendto0
- * Signature: (Z)I
+ * Signature: (I[BIIIII)I
  */
 void Java_java_net_NetNativeBridge_sendto0(const u4* args, JValue* pResult);
 
-/*
+/**
  * Class:     java_net_NetNativeBridge
- * Method:    sendto0
- * Signature: (Z)I
+ * Method:    closeSocket0
+ * Signature: (I)I
  */
 void Java_java_net_NetNativeBridge_closeSocket0(const u4* args, JValue* pResult);
 
 #ifdef __cplusplus
 }
 #endif
-#endif
+#endif // __NATIVE_NET_H__

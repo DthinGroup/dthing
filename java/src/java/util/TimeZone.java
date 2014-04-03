@@ -100,7 +100,7 @@ public abstract class TimeZone {
      * instance.
      */
     public static synchronized String[] getAvailableIDs() {
-        //@UN-IMPLEMENT;
+        // TODO: to be implemented;
     	return null;
     }
 
@@ -112,7 +112,7 @@ public abstract class TimeZone {
      * @return a possibly-empty array.
      */
     public static synchronized String[] getAvailableIDs(int offsetMillis) {
-        //@UN-IMPLEMENT;
+        // TODO: to be implemented;
     	return null;
     }
 
@@ -124,7 +124,7 @@ public abstract class TimeZone {
      * value. Instead, use this method to look it up for each use.
      */
     public static synchronized TimeZone getDefault() {
-        //@UN-IMPLEMENT;
+        // TODO: to be implemented;
     	return null;
     }
 
@@ -145,7 +145,7 @@ public abstract class TimeZone {
      * @param time the date in milliseconds since January 1, 1970 00:00:00 UTC
      */
     public int getOffset(long time) {
-        //@UN-IMPLEMENT;
+        // TODO: to be implemented;
     	return 0;
     }
 
@@ -188,7 +188,7 @@ public abstract class TimeZone {
      * zone IDs used in Java 1.1.
      */
     public static synchronized TimeZone getTimeZone(String id) {
-        //@UN-IMPLEMENT;
+        // TODO: to be implemented;
     	return null;
     }
 

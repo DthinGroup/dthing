@@ -1,25 +1,28 @@
 /**
- * Copyright (C) 2013 YarlungSoft. All Rights Reserved.
+ * Copyright (C) 2013-2014 YarlungSoft. All Rights Reserved.
  * 
  * Created:         $Date: 2013/09/22 $
- * Last modified:	$Date: 2013/09/22 $
+ * Last modified:   $Date: 2014/04/03 $
  * Version:         $ID: nativeString.h#1
  */
 
-/**
- * The implementation of java.lang.String.
- */
+#include <dthing.h>
+#include <kni.h>
+
+/* Header for class java.lang.String */
 
 #ifndef __NATIVE_STRING_H__
 #define __NATIVE_STRING_H__
-#include <dthing.h>
-#include <kni.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 /**
+ * Class:     java_lang_String
+ * Method:    intern
+ * Signature: ()Ljava/lang/String;
+ *
  * Returns an interned string equal to this string. The VM maintains an internal set of
  * unique strings. All string literals found in loaded classes'
  * constant pools are automatically interned. Manually-interned strings are only weakly
@@ -37,5 +40,4 @@ void Java_java_lang_String_intern(const u4* args, JValue* pResult);
 #ifdef __cplusplus
 }
 #endif
-
-#endif //__NATIVE_STRING_H__
+#endif // __NATIVE_STRING_H__

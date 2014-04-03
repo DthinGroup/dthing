@@ -119,6 +119,6 @@ public class Runtime {
      * @since      JDK1.0
      */
     public void exit(int status) {
-    	//@UN-IMPLEMENT
+    	// TODO: to be implemented
     }
 }

@@ -1,24 +1,28 @@
 /**
- * Copyright (C) 2013 YarlungSoft. All Rights Reserved.
+ * Copyright (C) 2013-2014 YarlungSoft. All Rights Reserved.
  *
  * Created:         $Date: 2013/10/17 $
- * Last modified:	$Date: 2013/10/17 $
+ * Last modified:   $Date: 2014/04/03 $
  * Version:         $ID: nativeClass.h#1
  */
 
+#include <dthing.h>
+#include <kni.h>
+
+/* Header for class java.lang.Class */
 
 #ifndef __NATIVE_CLASS_H__
 #define __NATIVE_CLASS_H__
-
-#include <dthing.h>
-#include <kni.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-
 /**
+ * Class:     java_lang_Class
+ * Method:    forName
+ * Signature: (Ljava/lang/String;)Ljava/lang/Class;
+ *
  * Returns the <code>Class</code> object associated with the class
  * with the given string name.
  * Given the fully-qualified name for a class or interface, this
@@ -41,8 +45,11 @@ extern "C" {
  */
 void Java_java_lang_Class_forName(const u4* args, JValue* pResult);
 
-
 /**
+ * Class:     java_lang_Class
+ * Method:    isInstance
+ * Signature: (Ljava/lang/Object;)Z
+ *
  * Determines if the specified <code>Object</code> is assignment-compatible
  * with the object represented by this <code>Class</code>.  This method is
  * the dynamic equivalent of the Java language <code>instanceof</code>
@@ -74,8 +81,11 @@ void Java_java_lang_Class_forName(const u4* args, JValue* pResult);
  */
 void Java_java_lang_Class_isInstance(const u4* args, JValue* pResult);
 
-
 /**
+ * Class:     java_lang_Class
+ * Method:    isAssignableFrom
+ * Signature: (Ljava/lang/Class;)Z
+ *
  * Determines if the class or interface represented by this
  * <code>Class</code> object is either the same as, or is a superclass or
  * superinterface of, the class or interface represented by the specified
@@ -101,9 +111,11 @@ void Java_java_lang_Class_isInstance(const u4* args, JValue* pResult);
  */
 void Java_java_lang_Class_isAssignableFrom(const u4* args, JValue* pResult);
 
-
-
 /**
+ * Class:     java_lang_Class
+ * Method:    isInterface
+ * Signature: ()Z
+ *
  * Determines if the specified <code>Class</code> object represents an
  * interface type.
  *
@@ -113,6 +125,10 @@ void Java_java_lang_Class_isAssignableFrom(const u4* args, JValue* pResult);
 void Java_java_lang_Class_isInterface(const u4* args, JValue* pResult);
 
 /**
+ * Class:     java_lang_Class
+ * Method:    isArray
+ * Signature: ()Z
+ *
  * Determines if this <code>Class</code> object represents an array class.
  *
  * @return  <code>true</code> if this object represents an array class;
@@ -121,8 +137,11 @@ void Java_java_lang_Class_isInterface(const u4* args, JValue* pResult);
  */
 void Java_java_lang_Class_isArray(const u4* args, JValue* pResult);
 
-
 /**
+ * Class:     java_lang_Class
+ * Method:    newInstance0
+ * Signature: ()Ljava/lang/Object;
+ *
  * Creates a new instance of a class.
  *
  * @return     a newly allocated instance of the class represented by this
@@ -138,6 +157,10 @@ void Java_java_lang_Class_isArray(const u4* args, JValue* pResult);
 void Java_java_lang_Class_newInstance0(const u4* args, JValue* pResult);
 
 /**
+ * Class:     java_lang_Class
+ * Method:    getName
+ * Signature: ()Ljava/lang/String;
+ *
  * Returns the fully-qualified name of the entity (class, interface, array
  * class, primitive type, or void) represented by this <code>Class</code>
  * object, as a <code>String</code>.
@@ -183,6 +206,4 @@ void Java_java_lang_Class_getName(const u4* args, JValue* pResult);
 #ifdef __cplusplus
 }
 #endif
-
-
-#endif //__NATIVE_CLASS_H__
+#endif // __NATIVE_CLASS_H__

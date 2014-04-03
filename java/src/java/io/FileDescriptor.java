@@ -69,7 +69,7 @@ public final class FileDescriptor {
      * is written out to the appropriate device before returning.
      */
     public void sync() throws SyncFailedException {
-    	//@UN-IMPLEMENT
+    	// TODO: to be implemented
     }
 
     /**
