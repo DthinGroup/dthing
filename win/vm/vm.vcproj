@@ -508,7 +508,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\vm\impl\nativethread.h"
+				RelativePath="..\..\vm\impl\nativeThread.h"
 				>
 			</File>
 			<File
