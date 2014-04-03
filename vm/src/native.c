@@ -11,7 +11,7 @@
 #include <nativeRuntime.h>
 #include <nativeString.h>
 #include <nativeSystem.h>
-#include <nativethread.h>
+#include <nativeThread.h>
 #include <nativeThrowable.h>
 #include <nativeMethods.h>
 
