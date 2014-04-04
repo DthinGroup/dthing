@@ -1,35 +1,72 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="Custom Ant Build" default="all" basedir=".">
-	<property file="antbuild.properties" />
-	<property name="classes.dir" location="${basedir}/bin" />
-	<property name="dex.output" location="${classes.dir}/classes.dex" />
-	<property name="dex.header" location="${basedir}/../vm/inc/dalvik_core.h" />
+<project name="Custom Ant Build" default="all" basedir="." xmlns:if="ant:if">
+    <property file="antbuild.properties" />
+    <property name="output.dir" location="${basedir}/bin" />
+    <property name="classes.dir" location="${basedir}/bin" />
+    <property name="dex.out" location="${output.dir}/classes.dex" />
+    <property name="dex.header.src" location="${basedir}/../vm/inc/dalvik_core.h" />
+    <property name="dex.header.out" location="${output.dir}/dalvik_core.h" />
+    <property name="kni.header.src" location="${basedir}/../vm/inc/nativeMethods.h" />
+    <property name="kni.header.out" location="${output.dir}/nativeMethods.h" />
+    <property name="java.src" location="${basedir}/src" />
 
-	<target name="createDex">
-		<echo
-			message="${dx_tool} --verbose --core-library --dex --output=${dex.output} ${classes.dir}" />
-		<exec executable="${dx_tool}">
-			<arg value="--verbose" />
-			<arg value="--core-library" />
-			<arg value="--dex" />
-			<arg value="--output=${dex.output}" />
-			<arg value="${classes.dir}" />
-		</exec>
-	</target>
+    <macrodef name="updateFileIfNecessary">
+        <attribute name="srcFile" />
+        <attribute name="dstFile" />
+        <attribute name="updateMsg" />
+        <sequential>
+            <condition property="do_update">
+                <not>
+                    <filesmatch file1="@{srcFile}" file2="@{dstFile}" />
+                </not>
+            </condition>
+            <copy if:true="${do_update}" file="@{srcFile}" tofile="@{dstFile}" />
+            <echo if:true="${do_update}" message="@{updateMsg}" />
+        </sequential>
+    </macrodef>
 
-	<target name="createDexHeader">
-		<echo message="${basedir}>perl gencarray.pl ${dex.output} ${dex.header}" />
-		<exec executable="perl" dir="${basedir}">
-			<arg value="gencarray.pl" />
-			<arg value="${dex.output}" />
-			<arg value="${dex.header}" />
-		</exec>
-	</target>
+    <target name="createDex">
+        <echo message="${dx_tool} --verbose --core-library --dex --output=${dex.out} ${classes.dir}" />
+        <exec executable="${dx_tool}" failonerror="true">
+            <arg value="--verbose" />
+            <arg value="--core-library" />
+            <arg value="--dex" />
+            <arg value="--output=${dex.out}" />
+            <arg value="${classes.dir}" />
+        </exec>
+    </target>
 
-	<target name="clean">
-		<delete file="${dex.output}" />
-	</target>
+    <target name="createDexHeader">
+        <echo message="${basedir}>perl gencarray.pl ${dex.out} ${dex.header.out}" />
+        <exec executable="perl" dir="${basedir}" failonerror="true">
+            <arg value="gencarray.pl" />
+            <arg value="${dex.out}" />
+            <arg value="${dex.header.out}" />
+        </exec>
+        <updateFileIfNecessary srcFile="${dex.header.out}" dstFile="${dex.header.src}" updateMsg="update ${dex.header.src}" />
+    </target>
 
-	<target name="all" depends="createDex, createDexHeader" />
+    <target name="createKniHeaders">
+        <echo message="${basedir}>python gen_kni_headers.py -f ${kni.header.src} -d ${output.dir} -s ${java.src}" />
+        <exec executable="python" dir="${basedir}" failonerror="true">
+            <arg value="gen_kni_headers.py" />
+            <arg value="-f" />
+            <arg value="${kni.header.src}" />
+            <arg value="-d" />
+            <arg value="${output.dir}" />
+            <arg value="-s" />
+            <arg value="${java.src}" />
+        </exec>
+        <updateFileIfNecessary srcFile="${kni.header.out}" dstFile="${kni.header.src}" updateMsg="WARNING: ${kni.header.src} has been updated, please update other KNI declarations headers by referring headers under ${output.dir}!" />
+    </target>
+
+    <target name="clean">
+        <delete file="${dex.out}" />
+        <delete>
+            <fileset dir="${output.dir}" includes="*.h" />
+        </delete>
+    </target>
+
+    <target name="all" depends="createDex, createDexHeader, createKniHeaders" />
 
 </project>
