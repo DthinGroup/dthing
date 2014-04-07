@@ -15,22 +15,30 @@
  *  limitations under the License.
  */
 
-package java.net;
-
-import java.io.Serializable;
+package java.io;
 
 /**
- * This abstract class represents a protocol-independent base for
- * socket-endpoint representing classes. The class has to be implemented
- * according to a specific protocol.
+ * Thrown when a file specified by a program cannot be found.
  */
-public abstract class SocketAddress implements Serializable {
+public class FileNotFoundException extends IOException {
 
-    private static final long serialVersionUID = 5215720748342549866L;
+    private static final long serialVersionUID = -897856973823710492L;
 
     /**
-     * Creates a new {@code SocketAddress} instance.
+     * Constructs a new {@code FileNotFoundException} with its stack trace
+     * filled in.
      */
-    public SocketAddress() {
+    public FileNotFoundException() {
+    }
+
+    /**
+     * Constructs a new {@code FileNotFoundException} with its stack trace and
+     * detail message filled in.
+     *
+     * @param detailMessage
+     *            the detail message for this exception.
+     */
+    public FileNotFoundException(String detailMessage) {
+        super(detailMessage);
     }
 }

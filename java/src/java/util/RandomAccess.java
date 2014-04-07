@@ -15,22 +15,12 @@
  *  limitations under the License.
  */
 
-package java.net;
-
-import java.io.Serializable;
+package java.util;
 
 /**
- * This abstract class represents a protocol-independent base for
- * socket-endpoint representing classes. The class has to be implemented
- * according to a specific protocol.
+ * RandomAccess is implemented by {@code List} implementations that support fast
+ * (usually constant time) random access.
  */
-public abstract class SocketAddress implements Serializable {
-
-    private static final long serialVersionUID = 5215720748342549866L;
-
-    /**
-     * Creates a new {@code SocketAddress} instance.
-     */
-    public SocketAddress() {
-    }
+public interface RandomAccess {
+    /* empty */
 }

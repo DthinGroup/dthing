@@ -17,6 +17,7 @@
 
 package java.util;
 
+import java.io.Serializable;
 
 /**
  * {@code Calendar} is an abstract base class for converting between a
@@ -278,9 +279,18 @@ package java.util;
  * @see GregorianCalendar
  * @see TimeZone
  */
-public abstract class Calendar {
+public abstract class Calendar implements Serializable, Cloneable {
 
     private static final long serialVersionUID = -1807547505821590642L;
+
+    /**
+     * True iff the values in {@code fields[]} correspond to {@code time}. Despite the name, this
+     * is effectively "are the values in fields[] up-to-date?" --- {@code fields[]} may contain
+     * non-zero values and {@code isSet[]} may contain {@code true} values even when
+     * {@code areFieldsSet} is false.
+     * Accessing the fields via {@code get} will ensure the fields are up-to-date.
+     */
+    protected boolean areFieldsSet;
 
     /**
      * Contains broken-down field values for the current value of {@code time} if
@@ -289,6 +299,24 @@ public abstract class Calendar {
      * The array length is always {@code FIELD_COUNT}.
      */
     protected int[] fields;
+
+    /**
+     * Whether the corresponding element in {@code field[]} has been set. Initially, these are all
+     * false. The first time the fields are computed, these are set to true and remain set even if
+     * the data becomes stale: you <i>must</i> check {@code areFieldsSet} if you want to know
+     * whether the value is up-to-date.
+     * Note that {@code isSet} is <i>not</i> a safe alternative to accessing this array directly,
+     * and will likewise return stale data!
+     * The array length is always {@code FIELD_COUNT}.
+     */
+    protected boolean[] isSet;
+
+    /**
+     * Whether {@code time} corresponds to the values in {@code fields[]}. If false, {@code time}
+     * is out-of-date with respect to changes {@code fields[]}.
+     * Accessing the time via {@code getTimeInMillis} will always return the correct value.
+     */
+    protected boolean isTimeSet;
 
     /**
      * A time in milliseconds since January 1, 1970. See {@code isTimeSet}.
@@ -665,7 +693,30 @@ public abstract class Calendar {
      * Constructs a {@code Calendar} instance using the default {@code TimeZone} and {@code Locale}.
      */
     protected Calendar() {
-    	
+        this(TimeZone.getDefault(), Locale.getDefault());
+    }
+
+    Calendar(TimeZone timezone) {
+        fields = new int[FIELD_COUNT];
+        isSet = new boolean[FIELD_COUNT];
+        areFieldsSet = isTimeSet = false;
+        setLenient(true);
+        setTimeZone(timezone);
+    }
+
+    /**
+     * Constructs a {@code Calendar} instance using the specified {@code TimeZone} and {@code Locale}.
+     *
+     * @param timezone
+     *            the timezone.
+     * @param locale
+     *            the locale.
+     */
+    protected Calendar(TimeZone timezone, Locale locale) {
+        this(timezone);
+        // TODO: Implement native method to replace the following hard coding.
+        setFirstDayOfWeek(MONDAY);
+        setMinimalDaysInFirstWeek(4);
     }
 
 
@@ -725,7 +776,11 @@ public abstract class Calendar {
      * zero.
      */
     public final void clear() {
-    	// TODO: to be implemented
+        for (int i = 0; i < FIELD_COUNT; i++) {
+            fields[i] = 0;
+            isSet[i] = false;
+        }
+        areFieldsSet = isTimeSet = false;
     }
 
     /**
@@ -735,7 +790,9 @@ public abstract class Calendar {
      *            the field to clear.
      */
     public final void clear(int field) {
-    	// TODO: to be implemented
+        fields[field] = 0;
+        isSet[field] = false;
+        areFieldsSet = isTimeSet = false;
     }
 
     /**
@@ -747,8 +804,15 @@ public abstract class Calendar {
      */
     @Override
     public Object clone() {
-    	// TODO: to be implemented
-    	return null;
+        try {
+            Calendar clone = (Calendar) super.clone();
+            clone.fields = fields.clone();
+            clone.isSet = isSet.clone();
+            clone.zone = (TimeZone) zone.clone();
+            return clone;
+        } catch (CloneNotSupportedException e) {
+            throw new AssertionError(e);
+        }
     }
 
     /**
@@ -760,7 +824,14 @@ public abstract class Calendar {
      *                from the current field values.
      */
     protected void complete() {
-    	// TODO: to be implemented
+        if (!isTimeSet) {
+            computeTime();
+            isTimeSet = true;
+        }
+        if (!areFieldsSet) {
+            computeFields();
+            areFieldsSet = true;
+        }
     }
 
     /**
@@ -832,8 +903,21 @@ public abstract class Calendar {
      * @return the maximum value of the specified field.
      */
     public int getActualMaximum(int field) {
-    	// TODO: to be implemented
-    	return 0;
+        int value, next;
+        if (getMaximum(field) == (next = getLeastMaximum(field))) {
+            return next;
+        }
+        complete();
+        long orgTime = time;
+        set(field, next);
+        do {
+            value = next;
+            roll(field, true);
+            next = get(field);
+        } while (next > value);
+        time = orgTime;
+        areFieldsSet = false;
+        return value;
     }
 
     /**
@@ -844,8 +928,30 @@ public abstract class Calendar {
      * @return the minimum value of the specified field.
      */
     public int getActualMinimum(int field) {
-    	// TODO: to be implemented
-    	return 0;
+        int value, next;
+        if (getMinimum(field) == (next = getGreatestMinimum(field))) {
+            return next;
+        }
+        complete();
+        long orgTime = time;
+        set(field, next);
+        do {
+            value = next;
+            roll(field, false);
+            next = get(field);
+        } while (next < value);
+        time = orgTime;
+        areFieldsSet = false;
+        return value;
+    }
+
+    /**
+     * Returns an array of locales for which custom {@code Calendar} instances
+     * are available.
+     * <p>Note that Android does not support user-supplied locale service providers.
+     */
+    public static synchronized Locale[] getAvailableLocales() {
+        return Locale.getAvailableLocales();
     }
 
     /**
@@ -855,6 +961,68 @@ public abstract class Calendar {
      */
     public int getFirstDayOfWeek() {
         return firstDayOfWeek;
+    }
+
+    /**
+     * Gets the greatest minimum value of the specified field. This is the
+     * biggest value that {@code getActualMinimum} can return for any possible
+     * time.
+     *
+     * @param field
+     *            the field.
+     * @return the greatest minimum value of the specified field.
+     */
+    public abstract int getGreatestMinimum(int field);
+
+    /**
+     * Constructs a new instance of the {@code Calendar} subclass appropriate for the
+     * default {@code Locale}.
+     *
+     * @return a {@code Calendar} subclass instance set to the current date and time in
+     *         the default {@code Timezone}.
+     */
+    public static synchronized Calendar getInstance() {
+        return new GregorianCalendar();
+    }
+
+    /**
+     * Constructs a new instance of the {@code Calendar} subclass appropriate for the
+     * specified {@code Locale}.
+     *
+     * @param locale
+     *            the locale to use.
+     * @return a {@code Calendar} subclass instance set to the current date and time.
+     */
+    public static synchronized Calendar getInstance(Locale locale) {
+        return new GregorianCalendar(locale);
+    }
+
+    /**
+     * Constructs a new instance of the {@code Calendar} subclass appropriate for the
+     * default {@code Locale}, using the specified {@code TimeZone}.
+     *
+     * @param timezone
+     *            the {@code TimeZone} to use.
+     * @return a {@code Calendar} subclass instance set to the current date and time in
+     *         the specified timezone.
+     */
+    public static synchronized Calendar getInstance(TimeZone timezone) {
+        return new GregorianCalendar(timezone);
+    }
+
+    /**
+     * Constructs a new instance of the {@code Calendar} subclass appropriate for the
+     * specified {@code Locale}.
+     *
+     * @param timezone
+     *            the {@code TimeZone} to use.
+     * @param locale
+     *            the {@code Locale} to use.
+     * @return a {@code Calendar} subclass instance set to the current date and time in
+     *         the specified timezone.
+     */
+    public static synchronized Calendar getInstance(TimeZone timezone, Locale locale) {
+        return new GregorianCalendar(timezone, locale);
     }
 
     /**
@@ -920,8 +1088,11 @@ public abstract class Calendar {
      *                from the current field values.
      */
     public long getTimeInMillis() {
-    	// TODO: to be implemented
-    	return 0;
+        if (!isTimeSet) {
+            computeTime();
+            isTimeSet = true;
+        }
+        return time;
     }
 
     /**
@@ -985,8 +1156,7 @@ public abstract class Calendar {
      * @return {@code true} if the specified field is set, {@code false} otherwise.
      */
     public final boolean isSet(int field) {
-    	// TODO: to be implemented
-    	return false;
+        return isSet[field];
     }
 
     /**
@@ -1030,7 +1200,18 @@ public abstract class Calendar {
      *            the value.
      */
     public void set(int field, int value) {
-    	// TODO: to be implemented
+        fields[field] = value;
+        isSet[field] = true;
+        areFieldsSet = isTimeSet = false;
+        if (field > MONTH && field < AM_PM) {
+            lastDateFieldSet = field;
+        }
+        if (field == HOUR || field == HOUR_OF_DAY) {
+            lastTimeFieldSet = field;
+        }
+        if (field == AM_PM) {
+            lastTimeFieldSet = HOUR;
+        }
     }
 
     /**
@@ -1143,7 +1324,12 @@ public abstract class Calendar {
      *            the time as the number of milliseconds since Jan. 1, 1970.
      */
     public void setTimeInMillis(long milliseconds) {
-    	// TODO: to be implemented
+        if (!isTimeSet || !areFieldsSet || time != milliseconds) {
+            time = milliseconds;
+            isTimeSet = true;
+            areFieldsSet = false;
+            complete();
+        }
     }
 
     /**
@@ -1153,7 +1339,8 @@ public abstract class Calendar {
      *            a {@code TimeZone}.
      */
     public void setTimeZone(TimeZone timezone) {
-    	// TODO: to be implemented
+        zone = timezone;
+        areFieldsSet = false;
     }
 
     /**
@@ -1161,7 +1348,24 @@ public abstract class Calendar {
      */
     @Override
     public String toString() {
-    	// TODO: to be implemented
-    	return null;
+        StringBuilder result = new StringBuilder(getClass().getName() +
+                "[time=" + (isTimeSet ? String.valueOf(time) : "?") +
+                ",areFieldsSet=" + areFieldsSet +
+                ",lenient=" + lenient +
+                ",zone=" + zone.getID() +
+                ",firstDayOfWeek=" + firstDayOfWeek +
+                ",minimalDaysInFirstWeek=" + minimalDaysInFirstWeek);
+        for (int i = 0; i < FIELD_COUNT; i++) {
+            result.append(',');
+            result.append(FIELD_NAMES[i]);
+            result.append('=');
+            if (isSet[i]) {
+                result.append(fields[i]);
+            } else {
+                result.append('?');
+            }
+        }
+        result.append(']');
+        return result.toString();
     }
 }

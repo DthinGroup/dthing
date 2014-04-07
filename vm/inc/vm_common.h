@@ -21,23 +21,26 @@ typedef enum
 #include <assert.h>
 
 
-typedef uint8_t		u1 ;
-typedef uint16_t	u2 ;
-typedef uint32_t	u4 ;
-typedef uint64_t	u8 ;
-typedef  int8_t		s1 ;
-typedef  int16_t	s2 ;
-typedef  int32_t	s4 ;
-typedef  int64_t	s8 ;
-typedef  int   vbool;
+#ifndef VM_BASETYPES
+#define VM_BASETYPES
+typedef uint8_t  u1;
+typedef uint16_t u2;
+typedef uint32_t u4;
+typedef uint64_t u8;
+typedef int8_t   s1;
+typedef int16_t  s2;
+typedef int32_t  s4;
+typedef int64_t  s8;
+#endif // VM_BASETYPES
+typedef int      vbool;
 
 
 
-#define DVM_MALLOC		CRTL_malloc
-#define DVM_MEMSET		CRTL_memset
-#define DVM_FREE		CRTL_free
-#define DVM_STRCMP      CRTL_strcmp
-#define DVM_ASSERT		assert
+#define DVM_MALLOC  CRTL_malloc
+#define DVM_MEMSET  CRTL_memset
+#define DVM_FREE    CRTL_free
+#define DVM_STRCMP  CRTL_strcmp
+#define DVM_ASSERT  assert
 
 #define false (0)
 #define true  (1)

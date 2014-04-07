@@ -2,11 +2,8 @@
  * Record:
  * 1.delete API: @Override public boolean isMCGlobal()
  */
- 
-package java.net;
 
-//import java.io.ObjectStreamException;
-//import static libcore.io.OsConstants.*;
+package java.net;
 
 /**
  * An IPv4 address. See {@link InetAddress}.
@@ -38,54 +35,54 @@ public final class Inet4Address extends InetAddress {
         super(NetConstants.AF_INET, ipaddress, null);
     }
 
-    //@Override 
+    //@Override
     public boolean isAnyLocalAddress() {
         return ipaddress[0] == 0 && ipaddress[1] == 0 && ipaddress[2] == 0 && ipaddress[3] == 0; // 0.0.0.0
     }
 
-    //@Override 
+    //@Override
     public boolean isLinkLocalAddress() {
         // The RI does not return true for loopback addresses even though RFC 3484 says to do so.
         return ((ipaddress[0] & 0xff) == 169) && ((ipaddress[1] & 0xff) == 254); // 169.254/16
     }
 
-    //@Override 
+    //@Override
     public boolean isLoopbackAddress() {
         return ((ipaddress[0] & 0xff) == 127); // 127/8
     }
 
-    //@Override 
-    public boolean isMCGlobal() 
-    {    
+    //@Override
+    public boolean isMCGlobal()
+    {
         return false;
     }
 
-    //@Override 
+    //@Override
     public boolean isMCLinkLocal() {
         return ((ipaddress[0] & 0xff) == 224) && (ipaddress[1] == 0) && (ipaddress[2] == 0); // 224.0.0/24
     }
 
-    //@Override 
+    //@Override
     public boolean isMCNodeLocal() {
         return false;
     }
 
-    //@Override 
+    //@Override
     public boolean isMCOrgLocal() {
         return ((ipaddress[0] & 0xff) == 239) && ((ipaddress[1] & 0xfc) == 192); // 239.192/14
     }
 
-    //@Override 
+    //@Override
     public boolean isMCSiteLocal() {
         return ((ipaddress[0] & 0xff) == 239) && ((ipaddress[1] & 0xff) == 255); // 239.255/16
     }
 
-    //@Override 
+    //@Override
     public boolean isMulticastAddress() {
         return (ipaddress[0] & 0xf0) == 224; // 224/4
     }
 
-    //@Override 
+    //@Override
     public boolean isSiteLocalAddress() {
         if ((ipaddress[0] & 0xff) == 10) { // 10/8
             return true;
@@ -96,9 +93,4 @@ public final class Inet4Address extends InetAddress {
         }
         return false;
     }
-/*
-    private Object writeReplace() throws ObjectStreamException {
-        return new Inet4Address(ipaddress);
-    }
-    */
 }

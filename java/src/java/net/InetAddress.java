@@ -17,6 +17,7 @@
 
 package java.net;
 
+import java.io.Serializable;
 
 /**
  * An Internet Protocol (IP) address. This can be either an IPv4 address or an IPv6 address, and
@@ -115,7 +116,7 @@ public class InetAddress implements Serializable {
     byte[] ipaddress;
 
     String hostName;
-    
+
 
     /**
      * Used by the DatagramSocket.disconnect implementation.
@@ -144,7 +145,7 @@ public class InetAddress implements Serializable {
      *            the object to be tested for equality.
      * @return {@code true} if both objects are equal, {@code false} otherwise.
      */
-    public boolean equals(Object obj) 
+    public boolean equals(Object obj)
     {
         if (obj == null) {
             return false;
@@ -152,7 +153,7 @@ public class InetAddress implements Serializable {
         if (obj.getClass() != this.getClass()) {
             return false;
         }
-        
+
         // now check if their byte arrays match...
         byte[] objIPaddress = ((InetAddress) obj).ipaddress;
         for (int i = 0; i < objIPaddress.length; i++) {
@@ -161,7 +162,7 @@ public class InetAddress implements Serializable {
             }
         }
         return true;
-    }        
+    }
 
     /**
      * Returns the IP address represented by this {@code InetAddress} instance
@@ -173,11 +174,11 @@ public class InetAddress implements Serializable {
     public byte[] getAddress() {
         return ipaddress;//.clone();
     }
-    
+
     public int getAddressToInt() {
         return bytesToInt(ipaddress,0);
     }
-    
+
     public int getFamily()
     {
     	return family;
@@ -251,7 +252,7 @@ public class InetAddress implements Serializable {
      * @hide
      */
     public static void clearDnsCache() {
-        
+
     }
 
     /**
@@ -264,7 +265,7 @@ public class InetAddress implements Serializable {
     public String toString() {
         return "ip adr:"+(hostName == null ? "" : hostName);
     }
-    
+
     /**
      * Returns whether this is the IPv6 unspecified wildcard address {@code ::}
      * or the IPv4 "any" address, {@code 0.0.0.0}.
@@ -397,8 +398,8 @@ public class InetAddress implements Serializable {
     public boolean isSiteLocalAddress() {
         return false;
     }
-    
-    
+
+
     /**
      * Equivalent to {@code getByAddress(null, ipAddress)}. Handy for addresses with
      * no associated hostname.
@@ -457,7 +458,7 @@ public class InetAddress implements Serializable {
         bytes[start + 2] = (byte) ((value >> 8) & 255);
         bytes[start + 3] = (byte) (value & 255);
     }
-    
+
     /**
      * Takes the byte array and creates an integer out of four bytes starting at
      * start as the high-order byte. This method makes no checks on the validity

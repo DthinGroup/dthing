@@ -65,35 +65,29 @@ package java.lang;
 public class Thread implements Runnable {
 
     /**
-     * A representation of a thread's state. A given thread may only be in one
-     * state at a time.
+     * The thread has been created, but has never been started.
      */
-    public enum State {
-        /**
-         * The thread has been created, but has never been started.
-         */
-        NEW,
-        /**
-         * The thread may be run.
-         */
-        RUNNABLE,
-        /**
-         * The thread is blocked and waiting for a lock.
-         */
-        BLOCKED,
-        /**
-         * The thread is waiting.
-         */
-        WAITING,
-        /**
-         * The thread is waiting for a specified amount of time.
-         */
-        TIMED_WAITING,
-        /**
-         * The thread has been terminated.
-         */
-        TERMINATED
-    }
+    public static final int STATE_NEW = 0;
+    /**
+     * The thread may be run.
+     */
+    public static final int STATE_RUNNABLE = 1;
+    /**
+     * The thread is blocked and waiting for a lock.
+     */
+    public static final int STATE_BLOCKED = 2;
+    /**
+     * The thread is waiting.
+     */
+    public static final int STATE_WAITING = 3;
+    /**
+     * The thread is waiting for a specified amount of time.
+     */
+    public static final int STATE_TIMED_WAITING = 4;
+    /**
+     * The thread has been terminated.
+     */
+    public static final int STATE_TERMINATED = 5;
 
     /**
      * The maximum priority value allowed for a thread.
@@ -558,7 +552,7 @@ public class Thread implements Runnable {
      * is ready to run. The actual scheduling is implementation-dependent.
      */
     public static native void yield();
-    
+
     /**
      * Indicates whether the current Thread has a monitor lock on the specified
      * object.

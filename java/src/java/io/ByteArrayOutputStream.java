@@ -136,29 +136,6 @@ public class ByteArrayOutputStream extends OutputStream {
     }
 
     /**
-     * Returns the contents of this ByteArrayOutputStream as a string. Each byte
-     * {@code b} in this stream is converted to a character {@code c} using the
-     * following function:
-     * {@code c == (char)(((hibyte & 0xff) << 8) | (b & 0xff))}. This method is
-     * deprecated and either {@link #toString()} or {@link #toString(String)}
-     * should be used.
-     *
-     * @param hibyte
-     *            the high byte of each resulting Unicode character.
-     * @return this stream's current contents as a string with the high byte set
-     *         to {@code hibyte}.
-     * @deprecated Use {@link #toString()}.
-     */
-    @Deprecated
-    public String toString(int hibyte) {
-        char[] newBuf = new char[size()];
-        for (int i = 0; i < newBuf.length; i++) {
-            newBuf[i] = (char) (((hibyte & 0xff) << 8) | (buf[i] & 0xff));
-        }
-        return new String(newBuf);
-    }
-
-    /**
      * Returns the contents of this ByteArrayOutputStream as a string converted
      * according to the encoding declared in {@code enc}.
      *

@@ -15,22 +15,30 @@
  *  limitations under the License.
  */
 
-package java.net;
-
-import java.io.Serializable;
+package java.io;
 
 /**
- * This abstract class represents a protocol-independent base for
- * socket-endpoint representing classes. The class has to be implemented
- * according to a specific protocol.
+ * Thrown when a program encounters the end of a file or stream during an input
+ * operation.
  */
-public abstract class SocketAddress implements Serializable {
+public class EOFException extends IOException {
 
-    private static final long serialVersionUID = 5215720748342549866L;
+    private static final long serialVersionUID = 6433858223774886977L;
 
     /**
-     * Creates a new {@code SocketAddress} instance.
+     * Constructs a new {@code EOFException} with its stack trace filled in.
      */
-    public SocketAddress() {
+    public EOFException() {
+    }
+
+    /**
+     * Constructs a new {@code EOFException} with its stack trace and detail
+     * message filled in.
+     *
+     * @param detailMessage
+     *            the detail message for this exception.
+     */
+    public EOFException(String detailMessage) {
+        super(detailMessage);
     }
 }

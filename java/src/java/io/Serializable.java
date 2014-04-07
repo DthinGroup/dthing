@@ -15,22 +15,23 @@
  *  limitations under the License.
  */
 
-package java.net;
-
-import java.io.Serializable;
+package java.io;
 
 /**
- * This abstract class represents a protocol-independent base for
- * socket-endpoint representing classes. The class has to be implemented
- * according to a specific protocol.
+ * An empty marker interface for classes that want to support serialization and
+ * deserialization based on the {@code ObjectOutputStream} and {@code
+ * ObjectInputStream} classes. Implementing this interface is enough to make
+ * most classes serializable. If a class needs more fine-grained control over
+ * the serialization process (for example to implement compatibility with older
+ * versions of the class), it can achieve this by providing the following two
+ * methods (signatures must match exactly):
+ * <p>
+ * {@code private void writeObject(java.io.ObjectOutputStream out) throws
+ * IOException}
+ * <p>
+ * {@code private void readObject(java.io.ObjectInputStream in) throws
+ * IOException, ClassNotFoundException}
  */
-public abstract class SocketAddress implements Serializable {
-
-    private static final long serialVersionUID = 5215720748342549866L;
-
-    /**
-     * Creates a new {@code SocketAddress} instance.
-     */
-    public SocketAddress() {
-    }
+public interface Serializable {
+    /* empty */
 }

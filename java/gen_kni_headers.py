@@ -310,7 +310,7 @@ typedef struct {
 typedef struct {
     const char* classpath;
     KniNativeMethodInfo* methods;
-	int methodCount;
+    int methodCount;
 } KniClassNativeMethodInfo;
 
 #define NATIVE_CLASSES_COUNT %d

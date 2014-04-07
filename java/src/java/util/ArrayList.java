@@ -45,13 +45,13 @@ public class ArrayList<E> {
      * with 0 (sans allocation) and jump to 12.
      */
     private static final int MIN_CAPACITY_INCREMENT = 12;
-    
-    
+
+
     /**
      * A counter for changes to the list.
      */
     private transient int modCount;
-    
+
 
     /**
      * The number of elements in this list.
@@ -495,27 +495,6 @@ public class ArrayList<E> {
         System.arraycopy(array, 0, result, 0, s);
         return result;
     }
-
-    /**
-     * Returns an array containing all elements contained in this
-     * {@code ArrayList}. If the specified array is large enough to hold the
-     * elements, the specified array is used, otherwise an array of the same
-     * type is created. If the specified array is used and is larger than this
-     * {@code ArrayList}, the array element following the collection elements
-     * is set to null.
-     *
-     * @param contents
-     *            the array.
-     * @return an array of the elements from this {@code ArrayList}.
-     * @throws ArrayStoreException
-     *             when the type of an element in this {@code ArrayList} cannot
-     *             be stored in the type of the specified array.
-     */
-	public <T> T[] toArray(T[] contents) {
-	   
-	   // TODO: to be implemented
-	   return null;
-	}
 
     /**
      * Sets the capacity of this {@code ArrayList} to be the same as the current

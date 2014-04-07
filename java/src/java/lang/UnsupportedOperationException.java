@@ -15,22 +15,30 @@
  *  limitations under the License.
  */
 
-package java.net;
-
-import java.io.Serializable;
+package java.lang;
 
 /**
- * This abstract class represents a protocol-independent base for
- * socket-endpoint representing classes. The class has to be implemented
- * according to a specific protocol.
+ * Thrown when an unsupported operation is attempted.
  */
-public abstract class SocketAddress implements Serializable {
+public class UnsupportedOperationException extends RuntimeException {
 
-    private static final long serialVersionUID = 5215720748342549866L;
+    private static final long serialVersionUID = -1242599979055084673L;
 
     /**
-     * Creates a new {@code SocketAddress} instance.
+     * Constructs a new {@code UnsupportedOperationException} that includes the
+     * current stack trace.
      */
-    public SocketAddress() {
+    public UnsupportedOperationException() {
+    }
+
+    /**
+     * Constructs a new {@code UnsupportedOperationException} with the current
+     * stack trace and the specified detail message.
+     *
+     * @param detailMessage
+     *            the detail message for this exception.
+     */
+    public UnsupportedOperationException(String detailMessage) {
+        super(detailMessage);
     }
 }

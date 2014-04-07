@@ -15,22 +15,34 @@
  *  limitations under the License.
  */
 
-package java.net;
+package java.lang;
 
-import java.io.Serializable;
 
 /**
- * This abstract class represents a protocol-independent base for
- * socket-endpoint representing classes. The class has to be implemented
- * according to a specific protocol.
+ * {@code LinkageError} is the superclass of all error classes that occur when
+ * loading and linking class files.
+ *
+ * @see Error
  */
-public abstract class SocketAddress implements Serializable {
+public class LinkageError extends Error {
 
-    private static final long serialVersionUID = 5215720748342549866L;
+    private static final long serialVersionUID = 3579600108157160122L;
 
     /**
-     * Creates a new {@code SocketAddress} instance.
+     * Constructs a new {@code LinkageError} that includes the current stack
+     * trace.
      */
-    public SocketAddress() {
+    public LinkageError() {
+    }
+
+    /**
+     * Constructs a new {@code LinkageError} with the current stack trace and
+     * the specified detail message.
+     *
+     * @param detailMessage
+     *            the detail message for this error.
+     */
+    public LinkageError(String detailMessage) {
+        super(detailMessage);
     }
 }

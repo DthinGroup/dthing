@@ -17,6 +17,8 @@
 
 package java.util;
 
+import java.io.Serializable;
+import java.util.ArrayList;
 
 /**
  * {@code TimeZone} represents a time zone, primarily used for configuring a {@link Calendar} or
@@ -58,7 +60,7 @@ package java.util;
  * @see SimpleDateFormat
  * @see SimpleTimeZone
  */
-public abstract class TimeZone {
+public abstract class TimeZone implements Serializable, Cloneable {
     private static final long serialVersionUID = 3581463369166924961L;
 
     /**
@@ -75,7 +77,49 @@ public abstract class TimeZone {
 
     static final TimeZone GMT = new SimpleTimeZone(0, "GMT"); // Greenwich Mean Time
 
-    //private static TimeZone defaultTimeZone;
+    private static String[] ids = new String[] {
+        "GMT-12",
+        "GMT-11",
+        "GMT-10",
+        "GMT-9:30",
+        "GMT-9",
+        "GMT-8",
+        "GMT-7",
+        "GMT-6",
+        "GMT-5",
+        "GMT-4:30",
+        "GMT-4",
+        "GMT-3:30",
+        "GMT-3",
+        "GMT-2",
+        "GMT-1",
+        "GMT",
+        "GMT+1",
+        "GMT+2",
+        "GMT+3",
+        "GMT+3:30",
+        "GMT+4",
+        "GMT+4:30",
+        "GMT+5",
+        "GMT+5:30",
+        "GMT+5:45",
+        "GMT+6",
+        "GMT+6:30",
+        "GMT+7",
+        "GMT+8",
+        "GMT+9",
+        "GMT+9:30",
+        "GMT+10",
+        "GMT+10:30",
+        "GMT+11",
+        "GMT+11:30",
+        "GMT+12",
+        "GMT+12:45",
+        "GMT+13",
+        "GMT+14"
+    };
+
+    private static TimeZone defaultTimeZone;
 
     private String ID;
 
@@ -85,7 +129,7 @@ public abstract class TimeZone {
      * Returns a new time zone with the same ID, raw offset, and daylight
      * savings time rules as this time zone.
      */
-    @Override 
+    @Override
     public Object clone() {
         try {
             return super.clone();
@@ -97,11 +141,10 @@ public abstract class TimeZone {
     /**
      * Returns the system's installed time zone IDs. Any of these IDs can be
      * passed to {@link #getTimeZone} to lookup the corresponding time zone
-     * instance.
+     * instance. Currently only support {@code GMT[+|-]hh[[:]mm]} ids.
      */
     public static synchronized String[] getAvailableIDs() {
-        // TODO: to be implemented;
-    	return null;
+        return ids.clone();
     }
 
     /**
@@ -112,8 +155,14 @@ public abstract class TimeZone {
      * @return a possibly-empty array.
      */
     public static synchronized String[] getAvailableIDs(int offsetMillis) {
-        // TODO: to be implemented;
-    	return null;
+        ArrayList<String> matches = new ArrayList<String>();
+        for (int i = 0; i < ids.length; i++) {
+            TimeZone tz = getTimeZone(ids[i]);
+            if (tz.getRawOffset() == offsetMillis) {
+                matches.add(ids[i]);
+            }
+        }
+        return (String[]) matches.toArray();
     }
 
     /**
@@ -124,9 +173,16 @@ public abstract class TimeZone {
      * value. Instead, use this method to look it up for each use.
      */
     public static synchronized TimeZone getDefault() {
-        // TODO: to be implemented;
-    	return null;
+        if (defaultTimeZone == null) {
+            defaultTimeZone = getTimeZone(getDefaultId());
+        }
+        return (TimeZone) defaultTimeZone.clone();
     }
+
+    /**
+     * @return The GMT format ID of system default {@code TimeZone}.
+     */
+    public static native String getDefaultId();
 
     /**
      * Returns the ID of this {@code TimeZone}, such as
@@ -136,6 +192,21 @@ public abstract class TimeZone {
         return ID;
     }
 
+    /**
+     * Returns the daylight savings offset in milliseconds for this time zone.
+     * The base implementation returns {@code 3600000} (1 hour) for time zones
+     * that use daylight savings time and {@code 0} for timezones that do not.
+     * Subclasses should override this method for other daylight savings
+     * offsets.
+     *
+     * <p>Note that this method doesn't tell you whether or not to apply the
+     * offset: you need to call {@code inDaylightTime} for the specific time
+     * you're interested in. If this method returns a non-zero offset, that only
+     * tells you that this {@code TimeZone} sometimes observes daylight savings.
+     */
+    public int getDSTSavings() {
+        return useDaylightTime() ? 3600000 : 0;
+    }
 
     /**
      * Returns the offset in milliseconds from UTC for this time zone at {@code
@@ -145,8 +216,10 @@ public abstract class TimeZone {
      * @param time the date in milliseconds since January 1, 1970 00:00:00 UTC
      */
     public int getOffset(long time) {
-        // TODO: to be implemented;
-    	return 0;
+        if (inDaylightTime(new Date(time))) {
+            return getRawOffset() + getDSTSavings();
+        }
+        return getRawOffset();
     }
 
     /**
@@ -188,10 +261,142 @@ public abstract class TimeZone {
      * zone IDs used in Java 1.1.
      */
     public static synchronized TimeZone getTimeZone(String id) {
-        // TODO: to be implemented;
-    	return null;
+        TimeZone zone = null;
+        if (id == null) {
+            id = "GMT";
+        }
+        if (id.length() > 3 && id.startsWith("GMT")) {
+            zone = getCustomTimeZone(id);
+        }
+        if (zone == null) {
+            zone = (TimeZone) GMT.clone();
+        }
+        return zone;
     }
 
+    /**
+     * Returns a new SimpleTimeZone for an id of the form "GMT[+|-]hh[[:]mm]", or null.
+     */
+    private static TimeZone getCustomTimeZone(String id) {
+        char sign = id.charAt(3);
+        if (sign != '+' && sign != '-') {
+            return null;
+        }
+        int[] position = new int[1];
+        String formattedName = formatTimeZoneName(id, 4);
+        int hour = parseNumber(formattedName, 4, position);
+        if (hour < 0 || hour > 23) {
+        	return null;
+        }
+        int index = position[0];
+        if (index == -1) {
+            return null;
+        }
+        int raw = hour * 3600000;
+        if (index < formattedName.length() && formattedName.charAt(index) == ':') {
+            int minute = parseNumber(formattedName, index + 1, position);
+            if (position[0] == -1 || minute < 0 || minute > 59) {
+                return null;
+            }
+            raw += minute * 60000;
+        } else if (hour >= 30 || index > 6) {
+            raw = (hour / 100 * 3600000) + (hour % 100 * 60000);
+        }
+        if (sign == '-') {
+            raw = -raw;
+        }
+        return new SimpleTimeZone(raw, formattedName);
+    }
+
+    private static String formatTimeZoneName(String name, int offset) {
+        StringBuilder buf = new StringBuilder();
+        int index = offset, length = name.length();
+        buf.append(name.substring(0, offset));
+
+        while (index < length) {
+            if (Character.digit(name.charAt(index), 10) != -1) {
+                buf.append(name.charAt(index));
+                if ((length - (index + 1)) == 2) {
+                    buf.append(':');
+                }
+            } else if (name.charAt(index) == ':') {
+                buf.append(':');
+            }
+            index++;
+        }
+
+        if (buf.toString().indexOf(":") == -1) {
+            buf.append(':');
+            buf.append("00");
+        }
+
+        if (buf.toString().indexOf(":") == 5) {
+            buf.insert(4, '0');
+        }
+
+        return buf.toString();
+    }
+
+    /**
+     * Returns true if {@code timeZone} has the same rules as this time zone.
+     *
+     * <p>The base implementation returns true if both time zones have the same
+     * raw offset.
+     */
+    public boolean hasSameRules(TimeZone timeZone) {
+        if (timeZone == null) {
+            return false;
+        }
+        return getRawOffset() == timeZone.getRawOffset();
+    }
+
+    /**
+     * Returns true if {@code time} is in a daylight savings time period for
+     * this time zone.
+     */
+    public abstract boolean inDaylightTime(Date time);
+
+    private static int parseNumber(String string, int offset, int[] position) {
+        int index = offset, length = string.length(), digit, result = 0;
+        while (index < length
+                && (digit = Character.digit(string.charAt(index), 10)) != -1) {
+            index++;
+            result = result * 10 + digit;
+        }
+        position[0] = index == offset ? -1 : index;
+        return result;
+    }
+
+    /**
+     * Overrides the default time zone for the current process only.
+     *
+     * <p><strong>Warning</strong>: avoid using this method to use a custom time
+     * zone in your process. This value may be cleared or overwritten at any
+     * time, which can cause unexpected behavior. Instead, manually supply a
+     * custom time zone as needed.
+     *
+     * @param timeZone a custom time zone, or {@code null} to set the default to
+     *     the user's preferred value.
+     */
+    public static synchronized void setDefault(TimeZone timeZone) {
+        defaultTimeZone = timeZone != null ? (TimeZone) timeZone.clone() : null;
+    }
+
+    /**
+     * Sets the ID of this {@code TimeZone}.
+     */
+    public void setID(String id) {
+        if (id == null) {
+            throw new NullPointerException();
+        }
+        ID = id;
+    }
+
+    /**
+     * Sets the offset in milliseconds from UTC of this time zone's standard
+     * time.
+     */
+    public abstract void setRawOffset(int offsetMillis);
 
     /**
      * Returns true if this time zone has a future transition to or from

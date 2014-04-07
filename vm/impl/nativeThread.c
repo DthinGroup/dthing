@@ -62,7 +62,7 @@ void Java_java_lang_Thread_sleep(const u4* args, JValue* pResult) {
 
 void Java_java_lang_Thread_start(const u4* args, JValue* pResult) {
     //self->threadObj->clazz->vtable[gDvm.voffJavaLangThread_run]
-    Method * runMeth = NULL;		//
+    Method * runMeth = NULL;
     Object * thisObj = (Object*) args[0];
 
     DVM_ASSERT(thisObj != NULL);
@@ -78,18 +78,11 @@ void Java_java_lang_Thread_start(const u4* args, JValue* pResult) {
 void Java_java_lang_Thread_isAlive(const u4* args, JValue* pResult) {
     Thread * thd = NULL;
     Object * thisObj = (Object*) args[0];
-    int ret = 0;
+    jboolean ret = false;
 
     DVM_ASSERT(thisObj != NULL);
     thd = Schd_FindThreadByJavaObj(thisObj);
-
-    if (thd != NULL && (thd->threadState < THREAD_DEAD)) {
-        ret = 1;
-    } else {
-        ret = 0;
-    }
-
-    //pResult->b = ret;
+    ret = (thd != NULL && (thd->threadState < THREAD_DEAD));
     RETURN_BOOLEAN(ret);
 }
 

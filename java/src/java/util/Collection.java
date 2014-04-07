@@ -290,27 +290,4 @@ public interface Collection<E> extends Iterable<E> {
      * @return an array of the elements from this {@code Collection}.
      */
     public Object[] toArray();
-
-    /**
-     * Returns an array containing all elements contained in this {@code Collection}. If
-     * the specified array is large enough to hold the elements, the specified
-     * array is used, otherwise an array of the same type is created. If the
-     * specified array is used and is larger than this {@code Collection}, the array
-     * element following the {@code Collection} elements is set to null.
-     *
-     * If the implementation has ordered elements it will return the element
-     * array in the same order as an iterator would return them.
-     *
-     * {@code toArray(new Object[0])} behaves exactly the same way as
-     * {@code toArray()} does.
-     *
-     * @param array
-     *            the array.
-     * @return an array of the elements from this {@code Collection}.
-     *
-     * @throws ArrayStoreException
-     *                if the type of an element in this {@code Collection} cannot be
-     *                stored in the type of the specified array.
-     */
-    public <T> T[] toArray(T[] array);
 }

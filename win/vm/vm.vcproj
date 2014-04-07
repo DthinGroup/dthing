@@ -448,6 +448,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\vm\impl\nativeFile.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\vm\impl\nativeFile.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\vm\impl\nativeFloat.c"
 				>
 			</File>
@@ -517,6 +525,14 @@
 			</File>
 			<File
 				RelativePath="..\..\vm\impl\nativeThrowable.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\vm\impl\nativeTimeZone.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\vm\impl\nativeTimeZone.h"
 				>
 			</File>
 		</Filter>

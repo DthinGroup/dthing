@@ -8,7 +8,7 @@
  * Signature: ()Z
  */
 void Java_java_net_NetNativeBridge_isNetworkInited(const u4* args, JValue* pResult) {
-    int ret = OPL_NET_SUCCESS;
+    jboolean ret = true;
     printf("call isNetworkInited!\n");
 
     RETURN_BOOLEAN(ret);

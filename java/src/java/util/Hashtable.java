@@ -18,10 +18,6 @@
 package java.util;
 
 import java.io.IOException;
-import java.io.InvalidObjectException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.ObjectStreamField;
 import java.io.Serializable;
 
 /**
@@ -955,11 +951,6 @@ public class Hashtable<K, V> extends Dictionary<K, V>
                 return super.toArray();
             }
         }
-        public <T> T[] toArray(T[] a) {
-            synchronized (Hashtable.this) {
-                return super.toArray(a);
-            }
-        }
     }
 
     private final class Values extends AbstractCollection<V> {
@@ -988,11 +979,6 @@ public class Hashtable<K, V> extends Dictionary<K, V>
         public Object[] toArray() {
             synchronized (Hashtable.this) {
                 return super.toArray();
-            }
-        }
-        public <T> T[] toArray(T[] a) {
-            synchronized (Hashtable.this) {
-                return super.toArray(a);
             }
         }
     }
@@ -1052,11 +1038,6 @@ public class Hashtable<K, V> extends Dictionary<K, V>
                 return super.toArray();
             }
         }
-        public <T> T[] toArray(T[] a) {
-            synchronized (Hashtable.this) {
-                return super.toArray(a);
-            }
-        }
     }
 
     /**
@@ -1092,53 +1073,4 @@ public class Hashtable<K, V> extends Dictionary<K, V>
     }
 
     private static final long serialVersionUID = 1421746759512286392L;
-
-    private static final ObjectStreamField[] serialPersistentFields = {
-        new ObjectStreamField("threshold", int.class),
-        new ObjectStreamField("loadFactor", float.class),
-    };
-
-    private synchronized void writeObject(ObjectOutputStream stream)
-            throws IOException {
-        // Emulate loadFactor field for other implementations to read
-        ObjectOutputStream.PutField fields = stream.putFields();
-        fields.put("threshold",  (int) (DEFAULT_LOAD_FACTOR * table.length));
-        fields.put("loadFactor", DEFAULT_LOAD_FACTOR);
-        stream.writeFields();
-
-        stream.writeInt(table.length); // Capacity
-        stream.writeInt(size);
-        for (Entry<K, V> e : entrySet()) {
-            stream.writeObject(e.getKey());
-            stream.writeObject(e.getValue());
-        }
-    }
-
-    private void readObject(ObjectInputStream stream) throws IOException,
-            ClassNotFoundException {
-        stream.defaultReadObject();
-        int capacity = stream.readInt();
-        if (capacity < 0) {
-            throw new InvalidObjectException("Capacity: " + capacity);
-        }
-        if (capacity < MINIMUM_CAPACITY) {
-            capacity = MINIMUM_CAPACITY;
-        } else if (capacity > MAXIMUM_CAPACITY) {
-            capacity = MAXIMUM_CAPACITY;
-        } else {
-            capacity = roundUpToPowerOfTwo(capacity);
-        }
-        makeTable(capacity);
-
-        int size = stream.readInt();
-        if (size < 0) {
-            throw new InvalidObjectException("Size: " + size);
-        }
-
-        for (int i = 0; i < size; i++) {
-            @SuppressWarnings("unchecked") K key = (K) stream.readObject();
-            @SuppressWarnings("unchecked") V val = (V) stream.readObject();
-            constructorPut(key, val);
-        }
-    }
 }

@@ -15,22 +15,24 @@
  *  limitations under the License.
  */
 
-package java.net;
-
-import java.io.Serializable;
+package java.io;
 
 /**
- * This abstract class represents a protocol-independent base for
- * socket-endpoint representing classes. The class has to be implemented
- * according to a specific protocol.
+ * Signals that the {@link FileDescriptor#sync()} method has failed to
+ * complete.
  */
-public abstract class SocketAddress implements Serializable {
+public class SyncFailedException extends IOException {
 
-    private static final long serialVersionUID = 5215720748342549866L;
+    private static final long serialVersionUID = -2353342684412443330L;
 
     /**
-     * Creates a new {@code SocketAddress} instance.
+     * Constructs a new {@code SyncFailedException} with its stack trace and
+     * detail message filled in.
+     *
+     * @param detailMessage
+     *            the detail message for this exception.
      */
-    public SocketAddress() {
+    public SyncFailedException(String detailMessage) {
+        super(detailMessage);
     }
 }

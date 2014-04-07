@@ -18,10 +18,10 @@ typedef struct {
 typedef struct {
     const char* classpath;
     KniNativeMethodInfo* methods;
-	int methodCount;
+    int methodCount;
 } KniClassNativeMethodInfo;
 
-#define NATIVE_CLASSES_COUNT 15
+#define NATIVE_CLASSES_COUNT 17
 
 /* com.yarlungsoft.util.SystemInputStream native APIs */
 KniNativeMethodInfo gJava_com_yarlungsoft_util_SystemInputStream[1] = {
@@ -32,6 +32,18 @@ KniNativeMethodInfo gJava_com_yarlungsoft_util_SystemInputStream[1] = {
 KniNativeMethodInfo gJava_com_yarlungsoft_util_SystemPrintStream[2] = {
     {"flush", "()V",  (KniFunc)Java_com_yarlungsoft_util_SystemPrintStream_flush},
     {"write", "(I)V", (KniFunc)Java_com_yarlungsoft_util_SystemPrintStream_write},
+};
+
+/* java.io.File native APIs */
+KniNativeMethodInfo gJava_java_io_File[8] = {
+    {"createFile0",   "(Ljava/lang/String;)Z",                   (KniFunc)Java_java_io_File_createFile0},
+    {"delete0",       "(Ljava/lang/String;)Z",                   (KniFunc)Java_java_io_File_delete0},
+    {"exists0",       "(Ljava/lang/String;)Z",                   (KniFunc)Java_java_io_File_exists0},
+    {"isDirectory0",  "(Ljava/lang/String;)Z",                   (KniFunc)Java_java_io_File_isDirectory0},
+    {"isFile0",       "(Ljava/lang/String;)Z",                   (KniFunc)Java_java_io_File_isFile0},
+    {"lastModified0", "(Ljava/lang/String;)J",                   (KniFunc)Java_java_io_File_lastModified0},
+    {"length0",       "(Ljava/lang/String;)J",                   (KniFunc)Java_java_io_File_length0},
+    {"list0",         "(Ljava/lang/String;)[Ljava/lang/String;", (KniFunc)Java_java_io_File_list0},
 };
 
 /* java.lang.AsyncIO native APIs */
@@ -145,9 +157,15 @@ KniNativeMethodInfo gJava_java_net_NetNativeBridge[9] = {
     {"closeSocket0",    "(I)I",         (KniFunc)Java_java_net_NetNativeBridge_closeSocket0},
 };
 
+/* java.util.TimeZone native APIs */
+KniNativeMethodInfo gJava_java_util_TimeZone[1] = {
+    {"getDefaultId", "()Ljava/lang/String;", (KniFunc)Java_java_util_TimeZone_getDefaultId},
+};
+
 KniClassNativeMethodInfo gNativeMthTab[NATIVE_CLASSES_COUNT] = {
     {"Lcom/yarlungsoft/util/SystemInputStream;", gJava_com_yarlungsoft_util_SystemInputStream, 1},
     {"Lcom/yarlungsoft/util/SystemPrintStream;", gJava_com_yarlungsoft_util_SystemPrintStream, 2},
+    {"Ljava/io/File;",                           gJava_java_io_File,                           8},
     {"Ljava/lang/AsyncIO;",                      gJava_java_lang_AsyncIO,                      3},
     {"Ljava/lang/Class;",                        gJava_java_lang_Class,                        7},
     {"Ljava/lang/DThread;",                      gJava_java_lang_DThread,                      5},
@@ -161,6 +179,7 @@ KniClassNativeMethodInfo gNativeMthTab[NATIVE_CLASSES_COUNT] = {
     {"Ljava/lang/Thread;",                       gJava_java_lang_Thread,                       11},
     {"Ljava/lang/Throwable;",                    gJava_java_lang_Throwable,                    1},
     {"Ljava/net/NetNativeBridge;",               gJava_java_net_NetNativeBridge,               9},
+    {"Ljava/util/TimeZone;",                     gJava_java_util_TimeZone,                     1},
 };
 
 #ifdef __cplusplus

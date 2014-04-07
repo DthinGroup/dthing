@@ -3,7 +3,7 @@
 
 #include <nativeAsyncIO.h>
 #include <nativeClass.h>
-#include <nativeDThread.h>
+#include <nativeFile.h>
 #include <nativeFloat.h>
 #include <nativeMath.h>
 #include <nativeNet.h>
@@ -13,12 +13,13 @@
 #include <nativeSystem.h>
 #include <nativeThread.h>
 #include <nativeThrowable.h>
+#include <nativeTimeZone.h>
 #include <nativeMethods.h>
 
 KniFunc Kni_findFuncPtr(const Method * mthd) {
     ClassObject * clazz = NULL;
     KniFunc funcPtr = NULL;
-	int i, j;
+    int i, j;
 
     DVM_ASSERT(mthd != NULL);
     clazz = mthd->clazz;

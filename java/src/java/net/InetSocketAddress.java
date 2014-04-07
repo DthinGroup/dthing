@@ -71,8 +71,8 @@ public class InetSocketAddress extends SocketAddress {
         this.hostip = null;
         this.port = port;
     }
-    
-    
+
+
     private static byte[] getIP(String addr) throws IllegalArgumentException {
 		byte[] ip = new byte[4];
 	    int i = addr.indexOf('.');
@@ -81,9 +81,9 @@ public class InetSocketAddress extends SocketAddress {
 	    ip[1] = Byte.parseByte(addr.substring(i, j++));
 	    i = addr.indexOf('.',j);
 	    ip[2] = Byte.parseByte(addr.substring(j, i++));
-	
+
 	    ip[3] = Byte.parseByte(addr.substring(i));
-	    
+
 	    return ip;
 	}
 
@@ -97,9 +97,9 @@ public class InetSocketAddress extends SocketAddress {
      *            the specified port number to which this socket is bound.
      * @param host
      *            the specified hostname to which this socket is bound.
-     */    
-    public InetSocketAddress(String host, int port) 
-    {   
+     */
+    public InetSocketAddress(String host, int port)
+    {
     	//host format is ip "xx.x.x.x"
         if (host == null || port < 0 || port > 65535) {
             throw new IllegalArgumentException("host=" + host + ", port=" + port);
@@ -107,10 +107,10 @@ public class InetSocketAddress extends SocketAddress {
 
 		byte[] ip = getIP(host);
         InetAddress addr = new Inet4Address(ip);
-        
+
         this.addr = addr;
         this.hostip = host;
-        this.port = port;    
+        this.port = port;
     }
 
     /**
@@ -201,9 +201,4 @@ public class InetSocketAddress extends SocketAddress {
         }
         return addr.hashCode() + port;
     }
-/*
-    private void readObject(ObjectInputStream stream) throws IOException, ClassNotFoundException {
-        stream.defaultReadObject();
-    }
-*/    
 }

@@ -1,8 +1,8 @@
 /**
- * Copyright (C) 2013 YarlungSoft. All Rights Reserved.
+ * Copyright (C) 2013-2014 YarlungSoft. All Rights Reserved.
  * 
  * Created:         $Date: 2013/06/25 $
- * Last modified:	$Date: 2013/06/28 $
+ * Last modified:   $Date: 2014/04/07 $
  * Version:         $ID: heap.c#1
  */
 
@@ -16,15 +16,26 @@
 /*
  * These match the definitions in the VM specification.
  */
-typedef uint8_t             u1;
-typedef uint16_t            u2;
-typedef uint32_t            u4;
-typedef uint64_t            u8;
-typedef int8_t              s1;
-typedef int16_t             s2;
-typedef int32_t             s4;
-typedef int64_t             s8;
+#ifndef VM_BASETYPES
+#define VM_BASETYPES
+typedef uint8_t  u1;
+typedef uint16_t u2;
+typedef uint32_t u4;
+typedef uint64_t u8;
+typedef int8_t   s1;
+typedef int16_t  s2;
+typedef int32_t  s4;
+typedef int64_t  s8;
+#endif // VM_BASETYPES
 
+typedef u1     jboolean;
+typedef s1     jbyte;
+typedef u2     jchar;
+typedef s2     jshort;
+typedef s4     jint;
+typedef s8     jlong;
+typedef float  jfload;
+typedef double jdouble;
 
 /*
  * Storage for primitive types and object references.
@@ -36,15 +47,15 @@ typedef int64_t             s8;
  */
 
 typedef union JValue_u {
-    u1      z;
-    s1      b;
-    u2      c;
-    s2      s;
-    s4      i;
-    s8      j;
-    float   f;
-    double  d;
-    void*   l;
+    jboolean z;
+    jbyte    b;
+    jchar    c;
+    jshort   s;
+    jint     i;
+    jlong    j;
+    jfload   f;
+    jdouble  d;
+    void*    l;
 } JValue;
 
 #define NELEM(x) ((int) (sizeof(x) / sizeof((x)[0])))

@@ -334,20 +334,4 @@ public interface List<E> extends Collection<E> {
      * @return an array of the elements from this {@code List}.
      */
     public Object[] toArray();
-
-    /**
-     * Returns an array containing all elements contained in this {@code List}. If the
-     * specified array is large enough to hold the elements, the specified array
-     * is used, otherwise an array of the same type is created. If the specified
-     * array is used and is larger than this {@code List}, the array element following
-     * the collection elements is set to null.
-     *
-     * @param array
-     *            the array.
-     * @return an array of the elements from this {@code List}.
-     * @throws ArrayStoreException
-     *                if the type of an element in this {@code List} cannot be stored
-     *                in the type of the specified array.
-     */
-    public <T> T[] toArray(T[] array);
 }

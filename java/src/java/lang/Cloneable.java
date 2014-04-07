@@ -15,22 +15,18 @@
  *  limitations under the License.
  */
 
-package java.net;
+package java.lang;
 
-import java.io.Serializable;
 
 /**
- * This abstract class represents a protocol-independent base for
- * socket-endpoint representing classes. The class has to be implemented
- * according to a specific protocol.
+ * This (empty) interface must be implemented by all classes that wish to
+ * support cloning. The implementation of {@code clone()} in {@code Object}
+ * checks if the object being cloned implements this interface and throws
+ * {@code CloneNotSupportedException} if it does not.
+ *
+ * @see Object#clone
+ * @see CloneNotSupportedException
  */
-public abstract class SocketAddress implements Serializable {
-
-    private static final long serialVersionUID = 5215720748342549866L;
-
-    /**
-     * Creates a new {@code SocketAddress} instance.
-     */
-    public SocketAddress() {
-    }
+public interface Cloneable {
+    // Marker interface
 }
