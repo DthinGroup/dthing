@@ -25,6 +25,11 @@
         </sequential>
     </macrodef>
 
+    <target name="buildJava">
+        <mkdir dir="${output.dir}" />
+        <javac srcdir="${java.src}" destdir="${output.dir}" source="1.6" target="1.6" />
+    </target>
+
     <target name="createDex">
         <echo message="${dx_tool} --verbose --core-library --dex --output=${dex.out} ${classes.dir}" />
         <exec executable="${dx_tool}" failonerror="true">
@@ -67,6 +72,7 @@
         </delete>
     </target>
 
-    <target name="all" depends="createDex, createDexHeader, createKniHeaders" />
+    <target name="all" depends="buildJava, createDex, createDexHeader, createKniHeaders" />
+    <target name="cleanbuild" depends="clean, all" />
 
 </project>
