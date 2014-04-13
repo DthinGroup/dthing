@@ -266,7 +266,6 @@ StringObject* dvmCreateStringFromUnicode(const u2* unichars, int len)
     return newObj;
 }
 
-
 /*
  * Create a new C string from a java/lang/String object.
  *
@@ -275,29 +274,50 @@ StringObject* dvmCreateStringFromUnicode(const u2* unichars, int len)
 char* dvmCreateCstrFromString(const StringObject* jstr)
 {
     char* newStr;
-    ArrayObject* chars;
-    int len, byteLen, offset;
-    const u2* data;
+	const u2* data = dvmGetStringData(jstr);
+	int len = dvmGetStringLength(jstr);
+	int byteLen = 0;
 
-    //assert(gDvm.javaLangStringReady > 0);
-
-    if (jstr == NULL)
+	if (data == NULL || len == 0) {
         return NULL;
-
-    len = dvmGetFieldInt((Object*) jstr, STRING_FIELDOFF_COUNT);
-    offset = dvmGetFieldInt((Object*) jstr, STRING_FIELDOFF_OFFSET);
-    chars = (ArrayObject*) dvmGetFieldObject((Object*) jstr,
-                                STRING_FIELDOFF_VALUE);
-    data = (const u2*) chars->contents + offset;
-    //assert(offset + len <= (int) chars->length);
+	}
 
     byteLen = utf16_utf8ByteLen(data, len);
-    newStr = (char*) CRTL_malloc(byteLen+1);
-    if (newStr == NULL)
+    newStr = (char*) CRTL_malloc(byteLen + 1);
+	if (newStr == NULL) {
         return NULL;
+	}
     convertUtf16ToUtf8(newStr, data, len);
 
     return newStr;
 }
 
+/*
+ * Get UTF-16 characters address of a java/lang/String.
+ *
+ * @return NULL if "jstr" is NULL.
+ */
+const u2* dvmGetStringData(const StringObject* jstr) {
+	ArrayObject* chars;
+	int offset;
 
+	if (jstr == NULL) {
+		return NULL;
+	}
+
+	offset = dvmGetFieldInt((Object*) jstr, STRING_FIELDOFF_OFFSET);
+	chars = (ArrayObject*) dvmGetFieldObject((Object*) jstr, STRING_FIELDOFF_VALUE);
+	return (const u2*) chars->contents + offset;
+}
+
+/*
+ * Get UTF-16 characters count of a java/lang/String.
+ *
+ * @return 0 if "jstr" is NULL.
+ */
+int dvmGetStringLength(const StringObject* jstr) {
+	if (jstr == NULL) {
+		return 0;
+	}
+	return dvmGetFieldInt((Object*) jstr, STRING_FIELDOFF_COUNT);
+}

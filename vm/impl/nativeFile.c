@@ -6,6 +6,7 @@
 #include <vm_common.h>
 #include <utfstring.h>
 #include <array.h>
+#include <opl_file.h>
 
 /**
  * Class:     java_io_File
@@ -14,13 +15,23 @@
  */
 void Java_java_io_File_createFile0(const u4* args, JValue* pResult) {
     StringObject* pathObj = (StringObject*) args[0];
-    char* path = dvmCreateCstrFromString(pathObj);
-    jboolean ret = false;
+	const jchar* path = dvmGetStringData(pathObj);
+	int pathLen = dvmGetStringLength(pathObj);
+	int32_t fioRes = FILE_RES_FAILURE;
+	int32_t handle = NULL;
 
-    // TODO : create file
+	if (path == NULL || pathLen <= 0) {
+		RETURN_BOOLEAN(false);
+	}
 
-    CRTL_free(path);
-    RETURN_BOOLEAN(ret);
+	fioRes = file_open(path, pathLen, FILE_MODE_WR, &handle);
+	if (fioRes != FILE_RES_SUCCESS || handle == NULL) {
+		RETURN_BOOLEAN(false);
+	}
+
+	fioRes = file_close(handle);
+
+    RETURN_BOOLEAN(fioRes == FILE_RES_SUCCESS);
 }
 
 /**
@@ -29,14 +40,18 @@ void Java_java_io_File_createFile0(const u4* args, JValue* pResult) {
  * Signature: (Ljava/lang/String;)Z
  */
 void Java_java_io_File_delete0(const u4* args, JValue* pResult) {
-    StringObject* pathObj = (StringObject*) args[0];
-    char* path = dvmCreateCstrFromString(pathObj);
-    jboolean ret = false;
+	StringObject* pathObj = (StringObject*) args[0];
+	const jchar* path = dvmGetStringData(pathObj);
+	int pathLen = dvmGetStringLength(pathObj);
+	int32_t fioRes = FILE_RES_FAILURE;
 
-    // TODO : delete file
+	if (path == NULL || pathLen <= 0) {
+		RETURN_BOOLEAN(false);
+	}
 
-    CRTL_free(path);
-    RETURN_BOOLEAN(ret);
+	fioRes = file_delete(path, pathLen);
+
+	RETURN_BOOLEAN(fioRes == FILE_RES_SUCCESS);
 }
 
 /**
@@ -45,14 +60,18 @@ void Java_java_io_File_delete0(const u4* args, JValue* pResult) {
  * Signature: (Ljava/lang/String;)Z
  */
 void Java_java_io_File_exists0(const u4* args, JValue* pResult) {
-    StringObject* pathObj = (StringObject*) args[0];
-    char* path = dvmCreateCstrFromString(pathObj);
-    jboolean ret = false;
+	StringObject* pathObj = (StringObject*) args[0];
+	const jchar* path = dvmGetStringData(pathObj);
+	int pathLen = dvmGetStringLength(pathObj);
+	int32_t fioRes = FILE_RES_FAILURE;
 
-    // TODO : check file existence
+	if (path == NULL || pathLen <= 0) {
+		RETURN_BOOLEAN(false);
+	}
 
-    CRTL_free(path);
-    RETURN_BOOLEAN(ret);
+	fioRes = file_exists(path, pathLen);
+
+	RETURN_BOOLEAN(fioRes == FILE_RES_ISDIR || fioRes == FILE_RES_ISREG);
 }
 
 /**
@@ -61,14 +80,18 @@ void Java_java_io_File_exists0(const u4* args, JValue* pResult) {
  * Signature: (Ljava/lang/String;)Z
  */
 void Java_java_io_File_isDirectory0(const u4* args, JValue* pResult) {
-    StringObject* pathObj = (StringObject*) args[0];
-    char* path = dvmCreateCstrFromString(pathObj);
-    jboolean ret = false;
+	StringObject* pathObj = (StringObject*) args[0];
+	const jchar* path = dvmGetStringData(pathObj);
+	int pathLen = dvmGetStringLength(pathObj);
+	int32_t fioRes = FILE_RES_FAILURE;
 
-    // TODO : check whether path is a directory
+	if (path == NULL || pathLen <= 0) {
+		RETURN_BOOLEAN(false);
+	}
 
-    CRTL_free(path);
-    RETURN_BOOLEAN(ret);
+	fioRes = file_exists(path, pathLen);
+
+	RETURN_BOOLEAN(fioRes == FILE_RES_ISDIR);
 }
 
 /**
@@ -77,14 +100,18 @@ void Java_java_io_File_isDirectory0(const u4* args, JValue* pResult) {
  * Signature: (Ljava/lang/String;)Z
  */
 void Java_java_io_File_isFile0(const u4* args, JValue* pResult) {
-    StringObject* pathObj = (StringObject*) args[0];
-    char* path = dvmCreateCstrFromString(pathObj);
-    jboolean ret = false;
+	StringObject* pathObj = (StringObject*) args[0];
+	const jchar* path = dvmGetStringData(pathObj);
+	int pathLen = dvmGetStringLength(pathObj);
+	int32_t fioRes = FILE_RES_FAILURE;
 
-    // TODO : check whether path is a file
+	if (path == NULL || pathLen <= 0) {
+		RETURN_BOOLEAN(false);
+	}
 
-    CRTL_free(path);
-    RETURN_BOOLEAN(ret);
+	fioRes = file_exists(path, pathLen);
+
+	RETURN_BOOLEAN(fioRes == FILE_RES_ISREG);
 }
 
 /**
@@ -94,12 +121,12 @@ void Java_java_io_File_isFile0(const u4* args, JValue* pResult) {
  */
 void Java_java_io_File_lastModified0(const u4* args, JValue* pResult) {
     StringObject* pathObj = (StringObject*) args[0];
-    char* path = dvmCreateCstrFromString(pathObj);
+	const jchar* path = dvmGetStringData(pathObj);
+	int pathLen = dvmGetStringLength(pathObj);
     jlong ret = 0;
 
     // TODO : get last modification of file/directory
 
-    CRTL_free(path);
     RETURN_LONG(ret);
 }
 
@@ -110,12 +137,24 @@ void Java_java_io_File_lastModified0(const u4* args, JValue* pResult) {
  */
 void Java_java_io_File_length0(const u4* args, JValue* pResult) {
     StringObject* pathObj = (StringObject*) args[0];
-    char* path = dvmCreateCstrFromString(pathObj);
+	const jchar* path = dvmGetStringData(pathObj);
+	int pathLen = dvmGetStringLength(pathObj);
+	int32_t fioRes = FILE_RES_FAILURE;
+	int32_t handle = NULL;
     jlong ret = 0;
 
-    // TODO : fetch the file size
+	if (path == NULL || pathLen <= 0) {
+		RETURN_BOOLEAN(0);
+	}
 
-    CRTL_free(path);
+	fioRes = file_open(path, pathLen, FILE_MODE_RD, &handle);
+	if (fioRes != FILE_RES_SUCCESS || handle == NULL) {
+		RETURN_BOOLEAN(0);
+	}
+
+	ret = file_getLengthByFd(handle);
+
+	fioRes = file_close(handle);
     RETURN_LONG(ret);
 }
 
@@ -134,19 +173,19 @@ void Java_java_io_File_list0(const u4* args, JValue* pResult) {
     int filesCount = 0;
 
     if (path == NULL) {
-        RETURN_PTR(ret);
+        RETURN_PTR(NULL);
     }
 
     classArrayString = dvmFindArrayClass("[Ljava/lang/String;");
     if (classArrayString == NULL) {
-        RETURN_PTR(ret);
+        RETURN_PTR(NULL);
     }
 
     // TODO : list files under specified path
 
     ret = dvmAllocArrayByClass(gDvm.classArrayLong, filesCount, ALLOC_DEFAULT);
     if (ret == NULL) {
-        RETURN_PTR(ret);
+        RETURN_PTR(NULL);
     }
 
     for (i = 0; i < filesCount; i++) {

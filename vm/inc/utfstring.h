@@ -106,6 +106,20 @@ StringObject* dvmCreateStringFromUnicode(const u2* unichars, int len);
 char* dvmCreateCstrFromString(const StringObject* jstr);
 
 /*
+ * Get UTF-16 characters address of a java/lang/String.
+ *
+ * @return NULL if "jstr" is NULL.
+ */
+const u2* dvmGetStringData(const StringObject* jstr);
+
+/*
+ * Get UTF-16 characters count of a java/lang/String.
+ *
+ * @return 0 if "jstr" is NULL.
+ */
+int dvmGetStringLength(const StringObject* jstr);
+
+/*
  * Compare two string objects.  (This is a dvmHashTableLookup() callback.)
  */
 int dvmHashcmpStrings(const void* vstrObj1, const void* vstrObj2);
