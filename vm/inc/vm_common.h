@@ -18,6 +18,7 @@ typedef enum
 #include <stdint.h>
 #include <crtl.h>
 #include <stdio.h>
+#include <stdarg.h>
 #include <assert.h>
 
 

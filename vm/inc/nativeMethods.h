@@ -21,7 +21,13 @@ typedef struct {
     int methodCount;
 } KniClassNativeMethodInfo;
 
-#define NATIVE_CLASSES_COUNT 17
+#define NATIVE_CLASSES_COUNT 18
+
+/* com.yarlungsoft.ams.Scheduler native APIs */
+KniNativeMethodInfo gJava_com_yarlungsoft_ams_Scheduler[2] = {
+    {"reportState",         "(I)V",                  (KniFunc)Java_com_yarlungsoft_ams_Scheduler_reportState},
+    {"reportRunningObject", "(Ljava/lang/Object;)V", (KniFunc)Java_com_yarlungsoft_ams_Scheduler_reportRunningObject},
+};
 
 /* com.yarlungsoft.util.SystemInputStream native APIs */
 KniNativeMethodInfo gJava_com_yarlungsoft_util_SystemInputStream[1] = {
@@ -163,6 +169,7 @@ KniNativeMethodInfo gJava_java_util_TimeZone[1] = {
 };
 
 KniClassNativeMethodInfo gNativeMthTab[NATIVE_CLASSES_COUNT] = {
+    {"Lcom/yarlungsoft/ams/Scheduler;",          gJava_com_yarlungsoft_ams_Scheduler,          2},
     {"Lcom/yarlungsoft/util/SystemInputStream;", gJava_com_yarlungsoft_util_SystemInputStream, 1},
     {"Lcom/yarlungsoft/util/SystemPrintStream;", gJava_com_yarlungsoft_util_SystemPrintStream, 2},
     {"Ljava/io/File;",                           gJava_java_io_File,                           8},

@@ -215,6 +215,64 @@ bail:
     return result;
 }
 
+/*
+ * Given an open optimized DEX file, map it into read-only shared memory and
+ * parse the contents.
+ *
+ * Returns nonzero on error.
+ */
+int dvmDexFileOpenFromZipFd(int zipFd, DvmDex** ppDvmDex)
+{
+    DvmDex*  pDvmDex;
+    DexFile* pDexFile;
+    int32_t  result = -1;
+    u1*      fData = NULL;
+    int32_t  dataBytes = 0;
+    int32_t  readSize = 0;
+    DexClassLookup* pLookup;
+
+    /* read full file content into persistent area */
+    
+    //fileLength = file_getLengthByFd(fd);
+    //fData = heapAllocPersistent(fileLength);
+    //readSize = file_read(fd, fData, fileLength);
+    fData = getJarContentByFileName(zipFd, "classes.dex", &dataBytes);
+
+    if (dataBytes < 0)
+    {
+        /**
+         * TODO: should read file content in a loop as file_read may returns
+         * part of file content?
+         */
+        goto bail;
+    }
+
+    pDexFile = dexFileParse(fData, dataBytes);
+    if (pDexFile == NULL)
+    {
+        DVMTraceErr("dvmDexFileOpenFromFd - Error: DEX parse failed\n");
+        goto bail;
+    }
+
+    pDvmDex = allocateAuxStructures(pDexFile);
+    if (pDvmDex == NULL)
+    {
+        DVMTraceErr("dvmDexFileOpenFromFd - Error: allocateAuxStructures failed\n");
+        goto bail;
+    }
+
+    /* create dex classes lookup table */
+    pLookup = dexCreateClassLookup(pDvmDex->pDexFile);
+    pDvmDex->pDexFile->pClassLookup = pLookup;
+
+    /* tuck this into the DexFile so it gets released later */
+    *ppDvmDex = pDvmDex;
+    result = 0;
+
+bail:
+    return result;
+}
+
 
 /*
  * Return the requested item if it has been resolved, or NULL if it hasn't.

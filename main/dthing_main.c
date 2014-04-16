@@ -5,13 +5,12 @@
 #include <priority_app.h>
 #endif
 
-extern int32_t DVM_main(int32_t argc, int8_t * argv[]);
-
 #if defined(ARCH_X86)
 
 int main(int argc, char *argv[])
 {
-	DVM_main(argc, argv);
+	//DVM_main(argc, argv);
+    launchRemoteAMSClient(FALSE, argc, argv);
 	return 1;
 }
 
@@ -31,7 +30,8 @@ static void Dthing_IThreadProc(int argc, void * argv)
     int    arg = 2;
     char * arga[2] = {"-cp","D:\\helloword.dex"};
 
-    DVM_main(arg,arga);
+    //DVM_main(arg,arga);
+    launchRemoteAMSClient(FALSE, arg, arga);
     
     if(SCI_INVALID_BLOCK_ID != dvm_threadId)
     {

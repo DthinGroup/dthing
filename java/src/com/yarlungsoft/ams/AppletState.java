@@ -99,6 +99,7 @@ public class AppletState implements Runnable {
         }
         Log.amsLog(TAG, "setState: newState = " + getStateString(newState));
         mState = newState;
+        Scheduler.reportState(mState);
     }
 
     protected void setRequestState(int nState) {
@@ -110,7 +111,7 @@ public class AppletState implements Runnable {
     }
 
     public void notifyDestroyed() {
-        Log.amsLog(TAG, "notifyDestroyed for " + mApp.toString());
+        Log.amsLog(TAG, "notifyDestroyed");
 
         synchronized (Scheduler.MUTEX) {
             setRequestState(DESTROY_PENDING);
@@ -155,25 +156,28 @@ public class AppletState implements Runnable {
     }
 
     public void run() {
-        if (mState != STARTING && mState != PAUSING && mState != RESUMING && mState != DESTROYING) {
+        if (mState != STARTING && mState != PAUSING && 
+        		mState != RESUMING && mState != DESTROYING) {
             // nothing to do here.
             mDaemonThread = null;
+            Log.amsLog(TAG, "AMS thread, mState = " + mState);
             return;
         }
 
         try {
             switch (mState) {
-            case STARTING:
+            case STARTING:            	
                 startup();
                 setState(STARTED);
                 break;
 
             case DESTROYING:
-                processEvent();
+            	cleanup();
                 setState(UNINITIALIZED);
                 break;
 
             default:
+                Log.amsLog(TAG, "AMS Thread, default mState = " + mState);
                 break;
             }
         } catch (Throwable t) {

@@ -95,16 +95,24 @@ LOCAL void DVM_lifecycle_final()
  * Returns 0 on success, -1 on failure, and 1 for the special case of
  * "-version" where we want to stop without showing an error message.
  */
-static int32_t processOptions(int32_t argc, const int8_t* const argv[])
+static uint8_t** processOptions(int32_t argc, const uint8_t* const argv[], int32_t* newArgc)
 {
-    int i;
+    int32_t   i, j;
+    uint8_t** newArgv = NULL;
 
     DVMTraceDbg("VM options (%d):\n", argc);
     for (i = 0; i < argc; i++) {
         DVMTraceDbg("  %d: '%s'", i, argv[i]);
     }
 
-    for (i = 0; i < argc; i++)
+    newArgv = (uint8_t**)CRTL_malloc(argc * sizeof(uint8_t*));
+    if (newArgv == NULL)
+    {
+        DVMTraceErr("processOptions: Not enough memory\n");
+        return -1;
+    }
+
+    for (i = 0, j = 0; i < argc; i++)
     {
         if (CRTL_strcmp(argv[i], "-classpath") == 0 || CRTL_strcmp(argv[i], "-cp") == 0)
         {
@@ -124,11 +132,13 @@ static int32_t processOptions(int32_t argc, const int8_t* const argv[])
 
             if (*path == '\0')
             {
-                DVMTraceErr("Missing bootclasspath path list\n");
+                DVMTraceErr("Missing applet path list\n");
                 return -1;
             }
             gDvm.appPathStr = CRTL_strdup(path);
-            DVMTraceDbg("-Xbootclasspath  appPathStr (%s)\n", gDvm.appPathStr);
+            newArgv[j++] = "-run";
+            newArgv[j++] = argv[++i];
+            DVMTraceDbg("applet appPathStr (%s)\n", gDvm.appPathStr);
         }
         else if (CRTL_strncmp(argv[i], "-D", 2) == 0)
         {
@@ -144,10 +154,11 @@ static int32_t processOptions(int32_t argc, const int8_t* const argv[])
         else
         {
             DVMTraceErr( "Unrecognized option '%s'\n", argv[i]);
+            newArgv[j++] = argv[i];
         }
     }
-
-    return 0;
+    *newArgc = j;
+    return newArgv;
 }
 
 
@@ -157,17 +168,25 @@ static int32_t processOptions(int32_t argc, const int8_t* const argv[])
  */
 int32_t DVM_main(int32_t argc, int8_t * argv[])
 {
-    int ret;
+    uint8_t** newArgv;
+    int32_t   newArgc;
 	/* Find main class */
-	ClassObject * mainClass = NULL;
-	Method * startMeth = NULL;
+	ClassObject* mainClass = NULL;
+	Method*      startMeth = NULL;
+
+    /* dummy thread class */
+    ClassObject* dummyThreadCls = NULL;
+    Object*      dummyThreadObj = NULL;
 
     DVM_native_init();
 
-	ret = sizeof(ArrayObject);
+	//ret = sizeof(ArrayObject);
 
-    ret = processOptions(argc, argv);
-    if (ret < 0) return 0;
+    newArgv = processOptions(argc, argv, &newArgc);
+    if (newArgv == NULL)
+    {
+        DVMTraceDbg("DVM_main: no extra arguments\n");
+    }
 
     DVM_lifecycle_init();
 
@@ -183,14 +202,35 @@ int32_t DVM_main(int32_t argc, int8_t * argv[])
 #endif
 
 	/* Find main class */
-	mainClass = dvmFindClass("Ljava/net/SocketUdpTest;");
-    //mainClass = dvmFindClass("Lcom/yarlungsoft/main/Main;");
+	//mainClass = dvmFindClass("Ljava/net/SocketUdpTest;");
+    mainClass = dvmFindClass("Lcom/yarlungsoft/ams/Main;");
     //mainClass = dvmFindClass("Lcom/yarlungsoft/print/printTest;");
 	/* Find Entry function method */
 	//startMeth = dvmGetStaticMethodID(mainClass, "main", "()V");
 	startMeth = dvmGetStaticMethodID(mainClass, "main", "([Ljava/lang/String;)V");
+    dummyThreadCls = dvmFindClass("Ljava/lang/Thread;");
+    dummyThreadObj = dvmAllocObject(dummyThreadCls, 0);
+    
+    if (newArgc == 0)
+    {
+	    dthread_create(startMeth, dummyThreadObj);
+    }
+    else if (newArgc > 0)
+    {
+        int i;
+        ClassObject* strCls = NULL;
+        ArrayObject* params = NULL; 
 
-	dthread_create(startMeth,NULL);
+        strCls = dvmFindClass("[Ljava/lang/String;");
+        params = dvmAllocArrayByClass(strCls, newArgc, 0);
+        for (i = 0; i < newArgc; i++)
+        {
+            StringObject* strObj = NewStringUTF(newArgv[i]);
+            dvmSetObjectArrayElement(params, i, strObj);
+        }
+
+        dthread_create_params(startMeth, dummyThreadObj, params);
+    }
 
     //entry interpret;
     Schd_SCHEDULER();

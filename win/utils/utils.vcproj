@@ -143,7 +143,19 @@
 	</References>
 	<Files>
 		<File
+			RelativePath="..\..\base\src\ansicextend.c"
+			>
+		</File>
+		<File
+			RelativePath="..\..\base\inc\crtl.h"
+			>
+		</File>
+		<File
 			RelativePath="..\..\base\src\encoding.c"
+			>
+		</File>
+		<File
+			RelativePath="..\..\base\inc\encoding.h"
 			>
 		</File>
 		<File
@@ -151,7 +163,35 @@
 			>
 		</File>
 		<File
+			RelativePath="..\..\base\inc\leb128.h"
+			>
+		</File>
+		<File
+			RelativePath="..\..\base\src\properties.c"
+			>
+		</File>
+		<File
+			RelativePath="..\..\base\inc\properties.h"
+			>
+		</File>
+		<File
+			RelativePath="..\..\base\inc\std_global.h"
+			>
+		</File>
+		<File
+			RelativePath="..\..\base\inc\std_types.h"
+			>
+		</File>
+		<File
+			RelativePath="..\..\base\inc\stdint.h"
+			>
+		</File>
+		<File
 			RelativePath="..\..\base\src\trace.c"
+			>
+		</File>
+		<File
+			RelativePath="..\..\base\inc\trace.h"
 			>
 		</File>
 	</Files>

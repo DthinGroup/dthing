@@ -411,3 +411,74 @@ s4 dvmInterpHandlePackedSwitch(const u2* switchData, s4 testVal)
     return s4FromSwitchData(&entries[testVal - firstKey]);
 
 }
+
+/*
+ * Find the matching case.  Returns the offset to the handler instructions.
+ *
+ * Returns 3 if we don't find a match (it's the size of the sparse-switch
+ * instruction).
+ */
+s4 dvmInterpHandleSparseSwitch(const u2* switchData, s4 testVal)
+{
+    int lo = 0;
+    int hi;
+    const int kInstrLen = 3;
+    u2 size;
+    const s4* keys;
+    const s4* entries;
+
+    /*
+     * Sparse switch data format:
+     *  ushort ident = 0x0200   magic value
+     *  ushort size             number of entries in the table; > 0
+     *  int keys[size]          keys, sorted low-to-high; 32-bit aligned
+     *  int targets[size]       branch targets, relative to switch opcode
+     *
+     * Total size is (2+size*4) 16-bit code units.
+     */
+
+    if (*switchData++ != kSparseSwitchSignature) {
+        /* should have been caught by verifier */
+        dvmThrowInternalError("bad sparse switch magic");
+        return kInstrLen;
+    }
+
+    size = *switchData++;
+    assert(size > 0);
+
+    /* The keys are guaranteed to be aligned on a 32-bit boundary;
+     * we can treat them as a native int array.
+     */
+    keys = (const s4*) switchData;
+    assert(((u4)keys & 0x3) == 0);
+
+    /* The entries are guaranteed to be aligned on a 32-bit boundary;
+     * we can treat them as a native int array.
+     */
+    entries = keys + size;
+    assert(((u4)entries & 0x3) == 0);
+
+    /*
+     * Binary-search through the array of keys, which are guaranteed to
+     * be sorted low-to-high.
+     */
+    hi = size - 1;
+    while (lo <= hi) {
+        int mid = (lo + hi) >> 1;
+
+        s4 foundVal = s4FromSwitchData(&keys[mid]);
+        if (testVal < foundVal) {
+            hi = mid - 1;
+        } else if (testVal > foundVal) {
+            lo = mid + 1;
+        } else {
+        
+            DVM_LOG("Value %d found in entry %d (goto 0x%02x)",
+                testVal, mid, s4FromSwitchData(&entries[mid]));
+            return s4FromSwitchData(&entries[mid]);
+        }
+    }
+
+    DVM_LOG("Value %d not found in switch", testVal);
+    return kInstrLen;
+}

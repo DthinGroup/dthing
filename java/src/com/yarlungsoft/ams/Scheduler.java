@@ -2,7 +2,6 @@
 package com.yarlungsoft.ams;
 
 import com.yarlungsoft.util.Log;
-
 import jp.co.aplix.event.Applet;
 
 /**
@@ -16,8 +15,6 @@ public final class Scheduler {
 
     /* Current running APP */
     private static Applet sApp;
-
-    private static AppletContent sCurRunningAppInfo;
 
     private static AppletState sAppState;
 
@@ -34,6 +31,7 @@ public final class Scheduler {
 
             sAppState.setState(AppletState.INITIALIZED);
             ret = true;
+            reportRunningObject(sApp);
         } catch (Throwable t) {
             Log.amsLog(TAG, "sApp init with throwable : " + t.toString());
         }
@@ -41,7 +39,6 @@ public final class Scheduler {
     }
 
     protected static void schedule(AppletContent appContent) {
-        sCurRunningAppInfo = appContent;
         appInit(appContent.getAppMainClass(), appContent.getAppFullPathName());
 
         synchronized (MUTEX) {
@@ -90,7 +87,9 @@ public final class Scheduler {
                         sAppState.setState(AppletState.ERROR);
                         continue;
                     }
+                    Log.amsLog(TAG, "schedule MUTEX.wait.1");
                     MUTEX.wait();
+                    Log.amsLog(TAG, "schedule MUTEX.wait.2");
                 }
             } catch (Throwable t) {
                 t.printStackTrace();
@@ -109,8 +108,7 @@ public final class Scheduler {
     protected static void deregister(AppletState as) {
         sAppState = null;
     }
-
-    protected static AppletContent getCurrentRunningAppInfo() {
-        return sCurRunningAppInfo;
-    }
+    
+    native static void reportState(int state);
+    native static void reportRunningObject(Object obj);
 }

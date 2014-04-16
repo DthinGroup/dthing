@@ -168,7 +168,8 @@ ClassObject* dvmFindClassByName(StringObject* nameObj)
         goto bail;
     }
 
-    clazz = dvmFindClassNoInit(descriptor);
+    //clazz = dvmFindClassNoInit(descriptor);
+    clazz = dvmFindClass(descriptor);
 
     if (clazz == NULL) {
         //Thread* self = NULL;

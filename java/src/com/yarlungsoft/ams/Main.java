@@ -23,7 +23,6 @@ import com.yarlungsoft.util.Log;
 public class Main {
 
     private static final String AMS_NAME = "AppletsManager";
-    private static final String INSTALLED_PATH = "appdb/";
     private static final String TAG = "Main";
     private static CommandProcessor sCmdState;
 
@@ -38,7 +37,7 @@ public class Main {
 
         switch (sCmdState.getCurCmd()) {
         case CommandProcessor.CMD_RUN:
-            launchApp(sCmdState.getAppName());
+            launchApp(sCmdState.getMainClsName());
             break;
 
         case CommandProcessor.CMD_LIST:
@@ -56,10 +55,6 @@ public class Main {
         return sCmdState;
     }
 
-    private static AppletListNode listApplets() {
-        return null;
-    }
-
     private static void launchAms() {
         try {
             AppletContent ac = new AppletContent(AMS_NAME, "com.yarlungsoft.ams.AppletsManager");
@@ -70,33 +65,14 @@ public class Main {
         }
     }
 
-    private static void launchApp(String appName) {
+    private static void launchApp(String mClsName) {
         AppletContent ac = null;
-        String appPath = AmsConfig.getRoot() + INSTALLED_PATH;
-
-//        AppletContent ac = null;
-//        String appfolder = AmsConfig.getRoot() + "/AppList/";
-//
-//        appInfoManage appInfoNode = fb.List("file:///" + appfolder);
-//
-//        // search the corresponding appInfo
-//        while (appInfoNode != null) {
-//            ai = appInfoNode.getCurAppInfo();
-//            if (ai.getAppName().equals(appName)) {
-//                break;
-//            }
-//            appInfoNode = appInfoNode.getNextInfoNode();
-//        }
-//        if (appInfoNode == null) {
-//            // should notify user no this application!
-//            if (DEBUG)
-//                Log.amsLog(TAG, "Do not find request app!");
-//        }
-//
-//        try {
-//            Scheduler.schedule(ai);
-//        } catch (Throwable t) {
-//            Log.amsLog(TAG, "launch APP failure!");
-//        }
+        /* how to get App Name in java side? */
+        ac = new AppletContent("test", mClsName);
+		try {
+			Scheduler.schedule(ac);
+		} catch (Throwable t) {
+			Log.amsLog(TAG, "launch APP failure!");
+		}
     }
 }

@@ -14,6 +14,7 @@
 #include <nativeThread.h>
 #include <nativeThrowable.h>
 #include <nativeTimeZone.h>
+#include <nativeScheduler.h>
 #include <nativeMethods.h>
 
 KniFunc Kni_findFuncPtr(const Method * mthd) {

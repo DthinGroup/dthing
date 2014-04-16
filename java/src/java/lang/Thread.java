@@ -227,7 +227,6 @@ public class Thread implements Runnable {
         synchronized (Thread.class) {
             id = ++Thread.count;
         }
-
         if (threadName == null) {
             this.name = "Thread-" + id;
         } else {
@@ -237,7 +236,12 @@ public class Thread implements Runnable {
         this.target = runnable;
         this.stackSize = stackSize;
 
-        this.priority = currentThread.getPriority();
+        if (currentThread != null) {
+        	this.priority = currentThread.getPriority();
+        } else {
+        	this.priority = NORM_PRIORITY;
+        }
+        
     }
 
     /**

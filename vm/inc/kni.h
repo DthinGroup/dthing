@@ -5,6 +5,11 @@
 #include <common.h>
 #include <dvmdex.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+
 #define RETURN_VOID()           return
 #define RETURN_BOOLEAN(_val)    do { pResult->z = (_val); return; } while(0)
 #define RETURN_INT(_val)        do { pResult->i = (_val); return; } while(0)
@@ -21,5 +26,12 @@ typedef void (/*__stdcall*/*KniFunc)(const u4 * argv, JValue* pResult);
 #define KNI_GET_ARRAY_LEN(idx)  (int)((ArrayObject *)idx)->length  
 
 KniFunc Kni_findFuncPtr(const Method * mthd);
+
+StringObject* NewStringUTF(const char* bytes);
+
+#ifdef __cplusplus
+}
+#endif
+
 
 #endif

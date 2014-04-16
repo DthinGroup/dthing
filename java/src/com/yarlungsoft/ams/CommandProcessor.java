@@ -28,11 +28,13 @@ public class CommandProcessor {
 
     private int mCurCmd;
     private String mAppName;
+    private String mClsName;
     private String mInstallURL;
 
     protected CommandProcessor() {
         mCurCmd = CMD_NONE;
         mAppName = null;
+        mClsName = null;
     }
 
     protected void setCurCmd(int cmd) {
@@ -45,6 +47,10 @@ public class CommandProcessor {
 
     protected String getAppName() {
         return mAppName;
+    }
+    
+    protected String getMainClsName() {
+    	return mClsName;
     }
 
     protected String getInstallURL() {
@@ -60,7 +66,7 @@ public class CommandProcessor {
             try {
                 if ("-run".equals(arg) || "-runapk".equals(arg)) {
                     mCurCmd = CMD_RUN;
-                    mAppName = args[++i];
+                    mClsName = args[++i];
                 } else if ("-list".equals(arg)) {
                     mCurCmd = CMD_LIST;
                 } else if ("-install".equals(arg)) {

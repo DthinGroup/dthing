@@ -20,6 +20,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stddef.h>
+#include <ctype.h>
 #endif 
 
 
@@ -260,6 +261,14 @@ extern  char * CRTL_strdup(const char *str);
 /*
  * ============== ANSI style character classification/translation =============
  */
+#ifndef CRTL_isascii
+extern int CRTL_isascii(int c);
+#endif
+
+#ifndef CRTL_isxdigit
+extern int CRTL_isxdigit(int c);
+#endif
+
 #ifndef CRTL_isalpha
 extern int CRTL_isalpha(int c);
 #endif
@@ -328,6 +337,10 @@ extern void CRTL_free(void *ptr);
 
 #ifndef CRTL_calloc
 extern void *CRTL_calloc(size_t num, size_t size);
+#endif
+
+#ifndef CRTL_realloc
+extern void *CRTL_realloc(void* mem_addr, unsigned int new_size);
 #endif
 
 /*
@@ -489,6 +502,22 @@ extern void CRTL_qsort(void *arr, size_t nelems, size_t esize,
 
 #ifndef CRTL_getenv
 extern const char *CRTL_getenv(const char *name);
+#endif
+
+#ifndef CRTL_wcslen
+extern int32_t CRTL_wcslen(const uint16_t* s);
+#endif
+
+#ifndef CRTL_wcscmp
+extern int32_t CRTL_wcscmp(const uint16_t* s1, const uint16_t* s2);
+#endif
+
+#ifndef CRTL_wcscpy
+extern int32_t CRTL_wcscpy(uint16_t* s1, const uint16_t* s2);
+#endif
+
+#ifndef CRTL_wcscat
+extern int32_t CRTL_wcscat(uint16_t* s1, const uint16_t* s2);
 #endif
 
 #ifdef __cplusplus

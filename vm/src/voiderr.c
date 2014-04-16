@@ -426,12 +426,13 @@ void dvmThrowArrayIndexOutOfBoundsException(int length, int index)
 	DVM_LOG(">>>call dvmThrowArrayIndexOutOfBoundsException!\n");
 }
 
+#if 0
 s4 dvmInterpHandleSparseSwitch(const u2* switchData, s4 testVal)
 {
 	DVM_LOG(">>>call dvmInterpHandleSparseSwitch!\n");
 	return 0;
 }
-
+#endif
 
 vbool dvmCheckSuspendPending(Thread* self)
 {

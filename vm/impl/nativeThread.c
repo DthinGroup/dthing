@@ -39,7 +39,7 @@ void Java_java_lang_Thread_currentThread(const u4* args, JValue* pResult) {
     Object * cur = NULL;
     Thread * curthd = NULL;
     curthd = dthread_currentThread();
-    DVM_ASSERT(cur != NULL);
+    DVM_ASSERT(curthd != NULL);
     cur = curthd->threadObj;
     //pResult->l = cur;
     RETURN_PTR(cur);
@@ -66,7 +66,8 @@ void Java_java_lang_Thread_start(const u4* args, JValue* pResult) {
     Object * thisObj = (Object*) args[0];
 
     DVM_ASSERT(thisObj != NULL);
-    runMeth = thisObj->clazz->vtable[14];   //gDvm.voffJavaLangThread_run
+    /* super hard code 21, need to use gDvm.voffJavaLangThread_run to replace. */
+    runMeth = thisObj->clazz->vtable[21];
 
     DVMTraceInf("Java_java_lang_Thread_start..\n");
 

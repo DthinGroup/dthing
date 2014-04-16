@@ -175,6 +175,14 @@
 			RelativePath="..\..\porting\inc\opl_net.h"
 			>
 		</File>
+		<File
+			RelativePath="..\..\porting\src\opl_rams.c"
+			>
+		</File>
+		<File
+			RelativePath="..\..\porting\inc\opl_rams.h"
+			>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>

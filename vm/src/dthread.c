@@ -113,6 +113,112 @@ Thread * dthread_alloc(int stackSize)
     return tmp;
 }
 
+void dthread_create_params(const Method* mth, Object* obj, ...)
+{
+	const char* desc = &(mth->shorty[1]); // [0] is the return type.
+	ClassObject* clazz = NULL;
+    Thread * jthread   = NULL;
+    int verifyCount    = 0;
+    u4* ins            = NULL;
+	
+	DVM_LOG("call dthread_create \n" );
+
+	if(obj != NULL)
+		clazz = obj->clazz;
+	else
+		clazz = mth->clazz;
+
+	if(clazz ==NULL)
+	{
+		DVM_ASSERT(0);
+	}
+
+	jthread = dthread_alloc(kDefaultStackSize);
+    if(jthread == NULL)
+    {
+        DVM_ASSERT(0);
+    }
+    
+    /*modify all registers,method,stack,etc...*/
+    //
+#ifdef ARCH_X86
+	jthread->cb = printTrace;
+#endif
+    
+    jthread->threadId = genThreadId();  /*magic number*/
+    jthread->threadState = THREAD_READY;
+
+	jthread->beBroken = TRUE;	//only the ghost thread can be TRUE!!!
+	jthread->bInterpFirst = TRUE;
+	jthread->threadObj = (Object *)obj;
+	jthread->entryMthd = (Method *)mth;
+	jthread->creatTime = vmtime_getTickCount();
+	jthread->asynNotifier->asynIoState = ASYNC_IO_IDLE;
+	jthread->asynNotifier->timeout = 0;
+	jthread->asynNotifier->notified = FALSE;
+	jthread->asynNotifier->ownthread = jthread;
+
+	dvmPushInterpFrame(jthread,mth);
+
+	/* "ins" for new frame start at frame pointer plus locals */
+    ins = ((u4*)jthread->interpSave.curFrame) +
+           (mth->registersSize - mth->insSize);
+
+	/* put "this" pointer into in0 if appropriate */
+	if (!dvmIsStaticMethod(mth)) 
+	{
+#ifdef WITH_EXTRA_OBJECT_VALIDATION
+        assert(obj != NULL && dvmIsHeapAddress(obj));
+#endif
+        *ins++ = (u4) obj;
+        verifyCount++;
+    }
+    
+	/*
+     * Add java API arguments into java stack.
+	 */
+	if (*desc != '\0')
+    {
+        va_list args;
+        va_start(args, obj);
+        while (*desc != '\0')
+        {
+            switch (*(desc++)) {
+                case 'D': case 'J': {
+                    u8 val = va_arg(args, u8);
+                    CRTL_memcpy(ins, &val, 8);       // EABI prevents direct store
+                    ins += 2;
+                    verifyCount += 2;
+                    break;
+                }
+                case 'F': {
+                    /* floats were normalized to doubles; convert back */
+                    float f = (float) va_arg(args, double);
+                    *ins++ = dvmFloatToU4(f);
+                    verifyCount++;
+                    break;
+                }
+                case 'L': {     /* 'shorty' descr uses L for all refs, incl array */
+                    void* argObj = va_arg(args, void*);
+                    *ins++ = (u4) argObj;
+                    verifyCount++;
+                    break;
+                }
+                default: {
+                    /* Z B C S I -- all passed as 32-bit integers */
+                    *ins++ = va_arg(args, u4);
+                    verifyCount++;
+                    break;
+                }
+            }
+        }
+        va_end(args);
+    }
+
+
+    Schd_PushToReadyListHead(jthread);
+}
+
 void dthread_create(const Method * mth,Object* obj)
 {
 	const char* desc = &(mth->shorty[1]); // [0] is the return type.
@@ -293,7 +399,7 @@ void dthread_fill_ghost(const Method * mth,Object* obj)
 
 	DVM_ASSERT(ghostThread != NULL);
 
-	ghostThread->threadState  = THREAD_READY;
+	ghostThread->threadState  = THREAD_ACTIVE;
 	ghostThread->beBroken = FALSE;	//only the ghost thread can be FALSE!!!
 	ghostThread->bInterpFirst = TRUE;
 	ghostThread->threadObj = (Object *)obj;

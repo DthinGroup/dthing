@@ -86,6 +86,57 @@ int dvmRawDexFileOpen(const char* fileName, DvmDex** ppDDex)
     result = 0;
 
 bail:
+    file_close(fhandle);
     return result;
 }
+
+/* See documentation comment in header. */
+int dvmZipDexFileOpen(const char* zipFN, DvmDex** ppDDex)
+{
+    /*
+     * TODO: This duplicates a lot of code from dvmJarFileOpen() in
+     * JarFile.c. This should be refactored.
+     */
+
+    DvmDex* pDvmDex = NULL;
+    int32_t fhandle;
+
+    uint16_t fUcs2Name[MAX_FILE_NAME_LEN] = {0x0,};
+    int32_t  srcBytes = (int32_t)CRTL_strlen(zipFN);
+    int32_t  dstChars = 0;
+    int32_t  result = -1;
+
+    dstChars = convertAsciiToUcs2(zipFN, srcBytes, fUcs2Name, MAX_FILE_NAME_LEN);
+    if (dstChars <= 0)
+    {
+        DVMTraceErr("dvmZipDexFileOpen - Error: corrupt file name\n");
+        return -1;
+    }
+
+    fhandle = openJar(fUcs2Name);
+    if (fhandle < 0)
+    {
+        DVMTraceErr("dvmZipDexFileOpen - Error: open zip file failure\n");
+        return -1;
+    }
+    /*
+     * Map the cached version.  This immediately rewinds the fd, so it
+     * doesn't have to be seeked anywhere in particular.
+     */
+    if (dvmDexFileOpenFromZipFd(fhandle, &pDvmDex) != 0) {
+        DVMTraceErr("Unable to open dex file: %s\n", zipFN);
+        goto bail;
+    }
+    DVMTraceInf("Successfully opened '%s'", zipFN);
+
+    *ppDDex = pDvmDex;
+
+    /* success */
+    result = 0;
+
+bail:
+    closeJar(fhandle);
+    return result;
+}
+
 

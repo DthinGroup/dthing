@@ -590,10 +590,12 @@ static bool_t processClassPath(const char* pathStr)
             else if ((CRTL_strcmp(suffix, "jar") == 0) || (CRTL_strcmp(suffix, "zip") == 0)
                     ||(CRTL_strcmp(suffix, "apk") == 0))
             {
-                //TODO: not support yet.
-                DVMTraceDbg("prepareCpe - suffix(%s) not supported yet.\n", suffix);
-                pClsEntry->kind = kCpeDex;
-                pClsEntry->pDvmDex = NULL;
+                DvmDex* pDvmDex;
+                if (dvmZipDexFileOpen(pClsEntry->fileName, &pDvmDex) == 0)
+                {
+                    pClsEntry->kind = kCpeJar;
+                    pClsEntry->pDvmDex = pDvmDex;
+                }
             }
             else
             {
@@ -708,7 +710,7 @@ bool_t dvmClassStartup()
      */
     if (gDvm.appPathStr == NULL)
     {
-        DVMTraceDbg("Dvm_class_startup - launching AMS");
+        DVMTraceDbg("Dvm_class_startup - launching AMS\n");
         //TODO: should hint to launch AMS here?
     }
     else
@@ -716,13 +718,35 @@ bool_t dvmClassStartup()
         processClassPath(gDvm.appPathStr);
     }
 
+    /*
+     * Explicitly initialize java.lang.Class.  This doesn't happen
+     * automatically because it's allocated specially (it's an instance
+     * of itself).  Must happen before registration of system natives,
+     * which make some calls that throw assertions if the classes they
+     * operate on aren't initialized.
+     */
+    dvmFindClassNoInit("Ljava/lang/Class;");
+    if (!dvmInitClass(gDvm.classJavaLangClass)) {
+        DVMTraceErr("gDvm.classJavaLangClass initial error\n");
+        return FALSE;
+    }
+    
     return TRUE;
 }
 
 void dvmClassShutdown()
 {
+    int32_t i;
     CRTL_freeif(gDvm.classPathStr);
     CRTL_freeif(gDvm.appPathStr);
+
+    for (i = 0; i < MAX_NUM_CLASSES_ENTRY; i++)
+    {
+        if (gDvm.pClsEntry[i].kind == kCpeJar)
+        {
+            CRTL_freeif(gDvm.pClsEntry[i].pDvmDex->pDexFile->baseAddr);
+        }
+    }
 }
 
 
@@ -754,11 +778,19 @@ static ClassObject* loadClassFromDex0(DvmDex* pDvmDex,
      * finalize().
      */
     /* TODO: Can there be fewer special checks in the usual path? */
-    size = (int32_t)classObjectSize(pHeader->staticFieldsSize);
-    newClass = (ClassObject*)heapAllocPersistent(size);
-    if (newClass == NULL)
-        return NULL;
-    CRTL_memset(newClass, 0x0, size);
+    if (CRTL_strcmp(descriptor, "Ljava/lang/Class;") == 0)
+    {
+        newClass = gDvm.classJavaLangClass;
+    }
+    else
+    {
+        size = (int32_t)classObjectSize(pHeader->staticFieldsSize);
+        newClass = (ClassObject*)heapAllocPersistent(size);
+        if (newClass == NULL)
+            return NULL;
+        CRTL_memset(newClass, 0x0, size);
+    }
+
     DVM_OBJECT_INIT(&newClass->obj, gDvm.classJavaLangClass);
 
     newClass->descriptor = descriptor;
@@ -2297,7 +2329,7 @@ ClassObject* dvmLookupClass(const char* descriptor)
      * the wait-for-class code centralized.
      */
     if (found && !dvmIsClassLinked((ClassObject*)found)) {
-        DVMTraceInf("Ignoring not-yet-ready %s, using slow path",
+        DVMTraceWar("Ignoring not-yet-ready %s, using slow path",
             ((ClassObject*)found)->descriptor);
         found = NULL;
     }
@@ -2649,7 +2681,7 @@ bool_t dvmInitClass(ClassObject* clazz)
 
     const Method* method;
 
-    if (!(dvmIsClassLinked(clazz) || clazz->status == CLASS_ERROR))
+    if (!(dvmIsClassLinked(clazz) || clazz->status == CLASS_ERROR || clazz->status == CLASS_NOTREADY))
     {
         DVMTraceErr("dvmInitClass - error: wrong class loading status\n");
         return FALSE;
@@ -2837,7 +2869,7 @@ bail_unlock:
  */
 ClassObject* dvmFindClassNoInit(const char* descriptor)
 {
-    DVMTraceErr("FindClassNoInit '%s'", descriptor);
+    DVMTraceInf("FindClassNoInit '%s'", descriptor);
 
     if (*descriptor == '[') {
         /*
@@ -2877,7 +2909,7 @@ ClassObject* dvmFindClass(const char* descriptor)
         ClassesEntry* pFirstClsEntry = NULL;
         for (i = 1; i < MAX_NUM_CLASSES_ENTRY; i++)
         {
-            if (gDvm.pClsEntry[i].kind == kCpeDex && 
+            if ((gDvm.pClsEntry[i].kind == kCpeDex || gDvm.pClsEntry[i].kind == kCpeJar) && 
                 (clazz = findClassNoInit(descriptor, gDvm.pClsEntry[i].pDvmDex)) != NULL)
             {
                 DVMTraceInf("FindClass from class path\n");

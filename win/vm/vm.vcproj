@@ -40,7 +40,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\base\inc;..\..\porting\inc;..\..\vm;..\..\vm\inc;..\..\vm\impl"
+				AdditionalIncludeDirectories="..\..\base\inc;..\..\porting\inc;..\..\vm;..\..\vm\inc;..\..\vm\impl;..\..\rams\inc;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -416,6 +416,10 @@
 			Name="kni"
 			>
 			<File
+				RelativePath="..\..\vm\src\kni.c"
+				>
+			</File>
+			<File
 				RelativePath="..\..\vm\inc\kni.h"
 				>
 			</File>
@@ -425,6 +429,10 @@
 			</File>
 			<File
 				RelativePath="..\..\vm\inc\nativeMethods.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\vm\src\upcall.c"
 				>
 			</File>
 		</Filter>
@@ -493,6 +501,14 @@
 			</File>
 			<File
 				RelativePath="..\..\vm\impl\nativeRuntime.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\vm\impl\nativeScheduler.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\vm\impl\nativeScheduler.h"
 				>
 			</File>
 			<File

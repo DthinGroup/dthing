@@ -93,6 +93,23 @@ LOCAL uint16_t* hostNameConvert(const uint16_t* name,
 }
 #endif
 
+
+LOCAL const char *trstr(const uint16_t *strData, int32_t strLength)
+{
+    char tbuf[MAX_FILENAME_LEN];
+    char *p = tbuf;
+
+    if (strLength > MAX_FILENAME_LEN-1)
+        strLength = MAX_FILENAME_LEN-1;
+
+    while (--strLength >= 0)
+        *p++ = (char)*strData++;
+
+    *p = 0;
+
+    return tbuf;
+}
+
 LOCAL const char *getAsciiName(const uint16_t *strData, int32_t strLength)
 {
     static char tbuf[MAX_FILE_NAME_LEN];
@@ -157,20 +174,124 @@ int32_t file_getLengthByName(const uint16_t* name, int32_t nameLen)
 
 int32_t file_listOpen(const uint16_t* prefix, int32_t prefixLen, int32_t* session)
 {
-    //TODO: to implement
-    return 0;
+    UNUSED(prefix);
+    UNUSED(prefixLen);
+    
+    *session = (int32_t)INVALID_HANDLE_VALUE;
+    return FILE_RES_SUCCESS;
 }
 
 int32_t file_listNextEntry(const uint16_t* prefix, int32_t prefixLen, uint16_t* entry, int32_t entrySize, int32_t* session)
 {
-    //TODO: to implement
-    return 0;
+    HANDLE handle = (HANDLE)*session;
+    uint16_t fname[MAX_FILE_NAME_LEN];
+    int32_t  len;
+    WIN32_FIND_DATAW  fData;     /* Data for find results */
+    bool_t   isDirectory;
+
+    if ((len = convertFileName(prefix, prefixLen, fname)) <= 0 ||
+        (len+2) >= MAX_FILE_NAME_LEN)    /* Ensure space for wildcard */
+    {
+        DVMTraceInf("file_listNextEntry: bad filename\n");
+        return FILE_RES_FAILURE;
+    }
+
+    for(;;) /* Loop until we find an appropriate file */
+    {
+        if (handle == INVALID_HANDLE_VALUE)
+        {
+            /* Append a "*" wildcard to the prefix */
+            fname[len  ] = (uint16_t)'*';
+            fname[len+1] = (uint16_t)'\0';
+
+            handle = FindFirstFileW(fname, &fData);
+            if (handle == INVALID_HANDLE_VALUE)
+            {
+                if (GetLastError() == ERROR_NO_MORE_FILES)
+                {
+                    DVMTraceInf("CPL_file_listNextEntry: no files\n");
+                    *entry = '\0';
+                    return 0;
+                }
+
+                DVMTraceErr("CPL_file_listNextEntry: findFirst failed err %d\n",
+                    GetLastError());
+                return FILE_RES_FAILURE;
+            }
+            *session = (int32_t)handle;
+        }
+        else /* Find the next file... */
+        {
+            if (!FindNextFileW(handle, &fData))
+            {
+                if (GetLastError() == ERROR_NO_MORE_FILES)
+                {
+                    DVMTraceInf("CPL_file_listNextEntry: no more files\n");
+                    *entry = '\0';
+                    return 0;
+                }
+                DVMTraceErr("CPL_file_listNextEntry: findNext failed err %d\n",
+                    GetLastError());
+                return FILE_RES_FAILURE;
+            }
+        }
+
+        /* We have found a matching entry */
+        if (fData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+        {
+            /* Ignore "." and ".." */
+            if ((CRTL_wcscmp(fData.cFileName, L".") == 0) ||
+                    (CRTL_wcscmp(fData.cFileName, L"..") == 0))
+                continue;
+
+            isDirectory = TRUE;
+        }
+        else
+            isDirectory = FALSE;
+
+        /* Find the directory name in the prefix, use fname for indexing to
+         *  handle cases where '/' have been converted to '\' */
+        while (prefixLen > 0)
+        {
+            if (fname[prefixLen - 1] == '\\')
+                break;
+
+            prefixLen--;
+        }
+
+        /* Check the total filename length */
+        len = CRTL_wcslen(fData.cFileName);
+        if ((int32_t)((prefixLen + len + (isDirectory ? 1 : 0))*sizeof(uint16_t)) > entrySize)
+        {
+            DVMTraceInf("ALWAYS: CPL_file_listNextEntry: filename too long\n");
+            continue;
+        }
+
+        CRTL_memcpy(entry, prefix, prefixLen*sizeof(uint16_t));
+        CRTL_memcpy(&entry[prefixLen], fData.cFileName, len*sizeof(uint16_t));
+
+        if (isDirectory)
+            entry[prefixLen + len++] = '/';
+
+        DVMTraceInf("CPL_file_listNextEntry: found %s\n",
+            trstr(entry, prefixLen + len));
+
+        return prefixLen + len;
+    }
+
+    return FILE_RES_FAILURE;
 }
 
 int32_t file_listclose(int32_t* session)
 {
-    //TODO: to implement
-    return 0;
+    HANDLE handle = (HANDLE)*session;
+
+    DVMTraceInf("CPL_file_listClose: handle 0x%08x\n", handle);
+
+    if (handle != INVALID_HANDLE_VALUE)
+        FindClose(handle);
+
+    return FILE_RES_SUCCESS;
 }
 
 int32_t file_rename(const uint16_t* oldName, int32_t oldNameLen, const uint16_t* newName, int32_t newNameLen)
@@ -186,11 +307,11 @@ int32_t file_exists(const uint16_t* name, int32_t nameLen)
     int32_t  fnameLen;
     DWORD    atts;
 
-    DVMTraceInf("file_exists: %s", getAsciiName(name, nameLen));
+    DVMTraceInf("file_exists: %s\n", getAsciiName(name, nameLen));
 
     if ((fnameLen = convertFileName(name, nameLen, fname)) <= 0)
     {
-        DVMTraceErr("file_exists: bad filename");
+        DVMTraceErr("file_exists: bad filename\n");
         return FILE_RES_FAILURE;
     }
 
@@ -204,14 +325,14 @@ int32_t file_exists(const uint16_t* name, int32_t nameLen)
      */
     if ((atts = GetFileAttributesW(fname)) != ~0)
     {
-        DVMTraceInf("file_exists: %s is %s", getAsciiName(name, nameLen),
+        DVMTraceInf("file_exists: %s is %s\n", getAsciiName(name, nameLen),
             (atts & FILE_ATTRIBUTE_DIRECTORY) ? "directory" : "file");
 
         return (atts & FILE_ATTRIBUTE_DIRECTORY) ? FILE_RES_ISDIR : FILE_RES_ISREG;
     }
     else
     {
-        DVMTraceErr("file_exists: %s does not exist", getAsciiName(name, nameLen));
+        DVMTraceErr("file_exists: %s does not exist\n", getAsciiName(name, nameLen));
     }
 
     return FILE_RES_FAILURE;
@@ -297,12 +418,12 @@ int32_t file_open(const uint16_t* name, int32_t nameLen, int32_t mode, int32_t *
 
     if (res == INVALID_HANDLE_VALUE)
     {
-        DVMTraceErr("CPL_file_open: open %s %d failed error=%d",
+        DVMTraceErr("CPL_file_open: open %s %d failed error=%d\n",
             getAsciiName(name, nameLen), mode, GetLastError());
     }
     else /* Success */
     {
-        DVMTraceInf("CPL_file_open: _open %s %d returned 0x%x",
+        DVMTraceInf("CPL_file_open: _open %s %d returned 0x%x\n",
             getAsciiName(name, nameLen), mode, ((int32_t)res));
 
         *handle = (int32_t)res;
@@ -358,8 +479,53 @@ int32_t file_open(const uint16_t* name, int32_t nameLen, int32_t mode, int32_t *
 
 int32_t file_delete(const uint16_t* name, int32_t nameLen)
 {
-    //TODO: to implement
-    return 0;
+    uint16_t fname[MAX_PATH];
+#ifdef ARCH_X86
+    DWORD attribs;
+    if (convertFileName(name, nameLen, fname) <= 0)
+    {
+        DVMTraceErr("file_delete: bad filename\n");
+    }
+    else if ((attribs = GetFileAttributesW(fname)) == ~0)
+    {
+        DVMTraceErr("file_delete: failed to get attributes for %s\n", fname);
+    }
+    else if ((attribs & FILE_ATTRIBUTE_DIRECTORY) && (!RemoveDirectoryW(fname)))
+    {
+        DVMTraceErr("file_delete: failed to delete directory %s error (%d)\n", fname, GetLastError());
+    }
+    else if (!(attribs & FILE_ATTRIBUTE_DIRECTORY) && (!DeleteFileW(fname)))
+    {
+        DVMTraceErr("file_delete: failed to delete file %s errno(%d)\n", fname, GetLastError());
+    }
+    else /* Success */
+    {
+        return FILE_RES_SUCCESS;
+    }
+   
+#elif defined(ARCH_ARM_SPD)
+    int32_t res;
+    if (convertFileName(name, nameLen, fname) <= 0)
+    {
+        DVMTraceErr("file_delete: bad filename\n");
+    }
+    res = CPL_file_exists(name, nameChars, appId, notifier);
+
+    if (res == FILE_RES_ISDIR && SFS_DeleteDirectory(hostName) != SFS_NO_ERROR)
+    {
+        DVMTraceErr("file_delete: failed to remove directory!\n");
+    }
+    else if (res == FILE_RES_ISREG && SFS_DeleteFile(hostName, NULL) != SFS_NO_ERROR)
+    {
+        DVMTraceErr("file_delete: failed to delete file name!\n");
+    }
+    else
+    {
+        return FILE_RES_SUCCESS;
+    }
+
+#endif
+    return FILE_RES_FAILURE;
 }
 
 
@@ -438,38 +604,74 @@ int32_t file_truncate(int32_t handle, int32_t value)
     return 0;
 }
 
-int32_t file_seek(int32_t handle, int32_t value)
+int32_t file_seekex(int32_t handle, int32_t value, int32_t whence)
 {
 #ifdef ARCH_X86
     int32_t prevSize, delta;
+    bool_t  setEnd = FALSE;
+    DWORD   winWhence;  
 
     /* Docs say returns INVALID_SET_FILE_POINTER on error, but that doesn't
      * seem to exist ?
      */
-
     prevSize = (int32_t) GetFileSize((HANDLE)handle, NULL);
-    delta = value - prevSize;
 
-
-    if (value < 0)
+    switch (whence)
     {
-        DVMTraceDbg("file_seek: handle=0x%x negative value (%d)", handle, value);
-    }
-    else if (SetFilePointer((HANDLE)handle, value, NULL, FILE_BEGIN) < 0)
-    {
-        DVMTraceErr("file_seek: handle=0x%x failed - error=%d", handle, GetLastError());
-    }
-    else
-    {
-        if (delta > 0)
+    case FILE_SEEK_BEGIN:
+        winWhence = FILE_BEGIN;
+        if (value < 0)
         {
-            /* Increase file length */
-            SetEndOfFile((HANDLE)handle);
+            DVMTraceDbg("file_seekex(FILE_SEEK_BEGIN): handle=0x%x negative value (%d)", handle, value);
+            return FILE_RES_FAILURE;
         }
-        return FILE_RES_SUCCESS;
+        if (value - prevSize > 0)
+        {
+            setEnd = TRUE;
+        }
+        break;
+
+    case FILE_SEEK_CURRENT:
+        winWhence = FILE_CURRENT;
+        delta = SetFilePointer((HANDLE)handle, 0, NULL, winWhence);
+        if (delta + value < 0)
+        {
+            DVMTraceDbg("file_seekex(FILE_SEEK_CURRENT): handle=0x%x negative value (%d)", handle, value);
+            return FILE_RES_FAILURE;
+        }
+        if (delta + value > prevSize)
+        {
+            setEnd = TRUE;
+        }
+        break;
+
+    case FILE_SEEK_END:
+        winWhence = FILE_END;
+        if (prevSize + value < 0)
+        {
+            DVMTraceDbg("file_seekex(FILE_SEEK_END): handle=0x%x negative value (%d)", handle, value);
+            return FILE_RES_FAILURE;
+        }
+        if (value > 0)
+        {
+            setEnd = TRUE;
+        }
+        break;
     }
 
-    return FILE_RES_FAILURE;
+
+    if (SetFilePointer((HANDLE)handle, value, NULL, winWhence) < 0)
+    {
+        DVMTraceErr("file_seekex: handle=0x%x failed - error=%d", handle, GetLastError());
+        return FILE_RES_FAILURE;
+    }
+    else if (setEnd)
+    {
+        /* Increase file length */
+        SetEndOfFile((HANDLE)handle);
+    }
+    return FILE_RES_SUCCESS;
+
 #elif defined(ARCH_ARM_SPD)
     int32 fileSize;
 
@@ -502,8 +704,12 @@ int32_t file_seek(int32_t handle, int32_t value)
     }
 
     return FILE_RES_SUCCESS;
-#endif    
-    return 0;
+#endif
+}
+
+int32_t file_seek(int32_t handle, int32_t value)
+{
+    file_seekex(handle, value, FILE_SEEK_BEGIN);
 }
 
 

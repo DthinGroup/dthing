@@ -24,7 +24,7 @@
 /* refer to nativeClass.h */
 void Java_java_lang_Class_forName(const u4* args, JValue* pResult)
 {
-    StringObject* nameObj = (StringObject*) args[0];
+    StringObject* nameObj = (StringObject*) args[1];
 
     RETURN_PTR(dvmFindClassByName(nameObj));
 }

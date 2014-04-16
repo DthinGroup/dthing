@@ -31,7 +31,7 @@ extern "C" {
  * 4 - info
  */
 #ifndef TRACE_LEV 
-#define TRACE_LEV 4
+#define TRACE_LEV 2
 #endif
 
 #define DVMTraceErr (TRACE_LEV < 1) ? (void) 0 : (void)DthingTraceE

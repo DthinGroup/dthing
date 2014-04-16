@@ -33,6 +33,11 @@ extern "C" {
 #define FILE_RES_EOF      -4
 
 
+/** file pointer whence definitions */
+#define FILE_SEEK_BEGIN   0
+#define FILE_SEEK_CURRENT 1
+#define FILE_SEEK_END     2
+
 
 /* file open mode */
 #define FILE_MODE_RD  1
@@ -72,6 +77,8 @@ int32_t file_read(int32_t handle, char * readBuf, int32_t bufSize);
 int32_t file_write(int32_t handle, char * writeBuf, int32_t bufSize);
 
 int32_t file_truncate(int32_t handle, int32_t value);
+
+int32_t file_seekex(int32_t handle, int32_t value, int32_t whence);
 
 int32_t file_seek(int32_t handle, int32_t value);
 

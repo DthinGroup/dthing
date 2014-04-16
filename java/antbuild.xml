@@ -28,6 +28,7 @@
     <target name="buildJava">
         <mkdir dir="${output.dir}" />
         <javac srcdir="${java.src}" destdir="${output.dir}" source="1.6" target="1.6" />
+        <jar jarfile="${output.dir}/../df.jar" basedir="${output.dir}" excludes="*.h,*.dex"/>
     </target>
 
     <target name="createDex">
@@ -52,8 +53,8 @@
     </target>
 
     <target name="createKniHeaders">
-        <echo message="${basedir}>python gen_kni_headers.py -f ${kni.header.src} -d ${output.dir} -s ${java.src}" />
-        <exec executable="python" dir="${basedir}" failonerror="true">
+        <echo message="${basedir}>${PY_CMD} gen_kni_headers.py -f ${kni.header.src} -d ${output.dir} -s ${java.src}" />
+        <exec executable="${PY_CMD}" dir="${basedir}" failonerror="true">
             <arg value="gen_kni_headers.py" />
             <arg value="-f" />
             <arg value="${kni.header.src}" />
