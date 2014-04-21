@@ -15,6 +15,7 @@
 #include <rams.h>
 #include <upcall.h>
 
+/* refer to com/yarlungsoft/ams/Scheduler.java */
 #define APPLET_STATE_ERROR          -1
 #define APPLET_STATE_UNINITIALIZED   0
 #define APPLET_STATE_INITIALIZED     1

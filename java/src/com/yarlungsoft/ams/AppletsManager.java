@@ -1,8 +1,8 @@
 
 package com.yarlungsoft.ams;
 
-import jp.co.aplix.event.Applet;
-import jp.co.aplix.event.Event;
+import jp.co.cmcc.event.Applet;
+import jp.co.cmcc.event.Event;
 
 /**
  * Managing applets.

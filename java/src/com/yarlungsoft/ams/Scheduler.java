@@ -2,7 +2,7 @@
 package com.yarlungsoft.ams;
 
 import com.yarlungsoft.util.Log;
-import jp.co.aplix.event.Applet;
+import jp.co.cmcc.event.Applet;
 
 /**
  * The Scheduler starts and controls Applets through the lifecycle states.

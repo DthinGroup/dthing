@@ -1,4 +1,4 @@
-package jp.co.aplix.event;
+package jp.co.cmcc.event;
 
 import java.io.DataInputStream;
 import java.io.IOException;

@@ -3,8 +3,8 @@ package com.yarlungsoft.ams;
 
 import com.yarlungsoft.util.Log;
 
-import jp.co.aplix.event.Applet;
-import jp.co.aplix.event.PackageAccess;
+import jp.co.cmcc.event.Applet;
+import jp.co.cmcc.event.PackageAccess;
 
 /**
  * Applet state management.

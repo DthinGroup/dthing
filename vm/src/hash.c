@@ -88,7 +88,7 @@ void* dvmHashTableLookup(HashTable* pHashTable, u4 itemHash, void* item, HashCom
     }
     else
     {
-        DVMTraceErr("dvmHashTableLookup - Error. Not find the item!\n");
+        DVMTraceDbg("dvmHashTableLookup - Error. Not find the item!\n");
     }
 
     return result;

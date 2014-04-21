@@ -1,4 +1,4 @@
-package jp.co.aplix.event;
+package jp.co.cmcc.event;
 
 import com.yarlungsoft.ams.AppletState;
 
