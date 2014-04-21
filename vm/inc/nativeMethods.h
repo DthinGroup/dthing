@@ -124,10 +124,11 @@ KniNativeMethodInfo gJava_java_lang_String[1] = {
 };
 
 /* java.lang.System native APIs */
-KniNativeMethodInfo gJava_java_lang_System[3] = {
-    {"arraycopy",         "(Ljava/lang/Object;ILjava/lang/Object;II)V", (KniFunc)Java_java_lang_System_arraycopy},
-    {"currentTimeMillis", "()J",                                        (KniFunc)Java_java_lang_System_currentTimeMillis},
-    {"identityHashCode",  "(Ljava/lang/Object;)I",                      (KniFunc)Java_java_lang_System_identityHashCode},
+KniNativeMethodInfo gJava_java_lang_System[4] = {
+    {"arraycopy",         "(Ljava/lang/Object;ILjava/lang/Object;II)V",               (KniFunc)Java_java_lang_System_arraycopy},
+    {"currentTimeMillis", "()J",                                                      (KniFunc)Java_java_lang_System_currentTimeMillis},
+    {"getProperty",       "(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;", (KniFunc)Java_java_lang_System_getProperty},
+    {"identityHashCode",  "(Ljava/lang/Object;)I",                                    (KniFunc)Java_java_lang_System_identityHashCode},
 };
 
 /* java.lang.Thread native APIs */
@@ -182,7 +183,7 @@ KniClassNativeMethodInfo gNativeMthTab[NATIVE_CLASSES_COUNT] = {
     {"Ljava/lang/Object;",                       gJava_java_lang_Object,                       6},
     {"Ljava/lang/Runtime;",                      gJava_java_lang_Runtime,                      3},
     {"Ljava/lang/String;",                       gJava_java_lang_String,                       1},
-    {"Ljava/lang/System;",                       gJava_java_lang_System,                       3},
+    {"Ljava/lang/System;",                       gJava_java_lang_System,                       4},
     {"Ljava/lang/Thread;",                       gJava_java_lang_Thread,                       11},
     {"Ljava/lang/Throwable;",                    gJava_java_lang_Throwable,                    1},
     {"Ljava/net/NetNativeBridge;",               gJava_java_net_NetNativeBridge,               9},

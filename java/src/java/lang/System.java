@@ -194,10 +194,8 @@ public final class System {
      * @return the value of the specified system property or the {@code
      *         defaultValue} if the property does not exist.
      */
-    public static String getProperty(String prop, String defaultValue) {
-    	// TODO: to be implemented
-    	return null;
-    }
+    public static native String getProperty(String prop, String defaultValue);
+
 
 
     /**

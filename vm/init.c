@@ -19,6 +19,7 @@
 
 #include <class.h>
 #include <gc.h>
+#include <properties.h>
 
 
 GLOBAL DVMGlobal gDvm;
@@ -55,6 +56,10 @@ LOCAL void DVM_native_final()
  */
 LOCAL void DVM_lifecycle_init()
 {
+    file_startup();
+    
+    props_startup();
+
     DVM_mm_initialize();
     dvmGCStartup();
 
@@ -81,6 +86,10 @@ LOCAL void DVM_lifecycle_final()
 
     dvmGCShutdown();
     DVM_mm_finalize();
+    upcall_final();
+
+    props_shutdown();
+    file_shutdown();
 }
 
 

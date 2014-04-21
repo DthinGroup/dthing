@@ -7,7 +7,13 @@
 extern "C" {
 #endif
 
+void props_startup();
 
+void props_shutdown();
+
+const char* props_getValue(const char* key);
+
+const char* props_setValue(const char* key, const char* val);
 
 #ifdef __cplusplus
 }

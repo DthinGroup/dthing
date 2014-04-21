@@ -88,10 +88,11 @@ int32_t  openJar(const uint16_t* jarfn)
             DVMTraceErr("Wrong signature on jar central header\n");
             closeJar(handle);
         }
-
-        next = leIU32(end + 16);
-
-        return handle;
+        else
+        {
+            next = leIU32(end + 16);
+            return handle;
+        }
     }
 
     return -1;//for failure

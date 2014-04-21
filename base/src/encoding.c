@@ -1,8 +1,8 @@
 /**
  * Copyright (C) 2013 YarlungSoft. All Rights Reserved.
  * 
- * Created:         $Date: 2013/07/25 $
- * Last modified:	$Date: 2013/07/28 $
+ * Created:         $Date: 2013/07/18 $
+ * Last modified:	$Date: 2014/04/18 $
  * Version:         $ID: encoding.c#1
  */
 
@@ -190,7 +190,7 @@ static const char *convert_single_utf_char(const char *str, uint16_t* chsite)
     return NULL;
 }
 
-/* See jbed_jbni.h */
+/* See encoding.h */
 int32_t convertUtf8ToUcs2(const char* src, int32_t srcBytes, uint16_t* dst, int32_t dstBytes)
 {
     const char * srcPos = src;

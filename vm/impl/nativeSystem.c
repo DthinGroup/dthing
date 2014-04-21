@@ -16,6 +16,7 @@
 #include <exception.h>
 /* porting layer apis */
 #include <opl_core.h>
+#include <properties.h>
 
 static void move16(void* dest, const void* src, size_t n) {
     //assert((((uintptr_t) dest | (uintptr_t) src | n) & 0x01) == 0);
@@ -238,6 +239,28 @@ void Java_java_lang_System_identityHashCode(const u4* args, JValue* pResult) {
     iHashCode = (u4) thisPtr;
 
     RETURN_INT(iHashCode);
+}
+
+/* see nativeSystem.h */
+void Java_java_lang_System_getProperty(const u4* args, JValue* pResult)
+{
+    StringObject* keyObj = (StringObject*) args[1];
+    StringObject* defValObj = (StringObject*) args[2];
+    
+    char* key = NULL;
+    char* value = NULL;
+
+    key = dvmCreateCstrFromString(keyObj);
+    
+    if (key != NULL && (value=props_getValue(key)) != NULL )
+    {
+        StringObject* valueObj = dvmCreateStringFromCstr(value);
+        RETURN_PTR(valueObj);
+    }
+    else if (defValObj != NULL)
+    {
+        RETURN_PTR(defValObj);
+    }
 }
 
 /* see nativeSystem.h */

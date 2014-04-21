@@ -214,7 +214,8 @@ static AppletProps* listInstalledApplets(const uint16_t* path)
                     break;
                 }
 
-                handle = openJar(foundJarPath);
+                if ((handle = openJar(foundJarPath)) < 0)
+                    continue;
                 data = getJarContentByFileName(handle, MANIFEST_MF, &dataBytes);
                 if (data == NULL)
                 {

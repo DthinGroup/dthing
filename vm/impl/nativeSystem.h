@@ -77,6 +77,13 @@ void Java_java_lang_System_currentTimeMillis(const u4* args, JValue* pResult);
 void Java_java_lang_System_identityHashCode(const u4* args, JValue* pResult);
 
 /**
+ * Class:     java_lang_System
+ * Method:    getProperty
+ * Signature: (Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+ */
+void Java_java_lang_System_getProperty(const u4* args, JValue* pResult);
+
+/**
  * Class:     com_yarlungsoft_util_SystemInputStream
  * Method:    readN
  * Signature: ([BII)I

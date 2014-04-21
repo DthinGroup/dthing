@@ -40,7 +40,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\base\inc;..\..\vm\inc"
+				AdditionalIncludeDirectories="..\..\base\inc;..\..\vm\inc;..\..\porting\inc;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
