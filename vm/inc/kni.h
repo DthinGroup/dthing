@@ -11,7 +11,8 @@ extern "C" {
 
 
 #define RETURN_VOID()           return
-#define RETURN_BOOLEAN(_val)    do { pResult->z = (_val); return; } while(0)
+/*DON'T CHANGE ->i to ->z in RETURN_BOOLEAN*/
+#define RETURN_BOOLEAN(_val)    do { pResult->i = (_val); return; } while(0)
 #define RETURN_INT(_val)        do { pResult->i = (_val); return; } while(0)
 #define RETURN_LONG(_val)       do { pResult->j = (_val); return; } while(0)
 #define RETURN_FLOAT(_val)      do { pResult->f = (_val); return; } while(0)
