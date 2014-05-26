@@ -27,7 +27,7 @@
 
     <target name="buildJava">
         <mkdir dir="${output.dir}" />
-        <javac srcdir="${java.src}" destdir="${output.dir}" source="1.6" target="1.6" />
+        <javac includeantruntime="no" includeJavaRuntime="yes" srcdir="${java.src}" destdir="${output.dir}" source="1.6" target="1.6" />
         <jar jarfile="${output.dir}/../df.jar" basedir="${output.dir}" excludes="*.h,*.dex"/>
     </target>
 
@@ -69,7 +69,7 @@
     <target name="clean">
         <delete file="${dex.out}" />
         <delete>
-            <fileset dir="${output.dir}" includes="*.h" />
+            <fileset dir="${output.dir}" includes="*.h,**/*.class" />
         </delete>
     </target>
 

@@ -38,6 +38,31 @@ public final class Log {
     }
 
     /**
+     * Send a network log message.
+     *
+     * @param tag Used to identify the source of a log message. It usually identifies the class or
+     * activity where the log call occurs.
+     * @param msg The message you would like logged.
+     */
+    public static void netLog(String tag, String msg) {
+        netLog(tag, msg, null);
+    }
+
+    /**
+     * Send a network log message and log the exception.
+     *
+     * @param tag Used to identify the source of a log message. It usually identifies the class or
+     * activity where the log call occurs.
+     * @param msg The message you would like logged.
+     * @param tr An exception to log
+     */
+    public static void netLog(String tag, String msg, Throwable tr) {
+        if (AmsConfig.debugNetwork()) {
+            log("net", tag, msg, tr);
+        }
+    }
+
+    /**
      * Send a log message
      *
      * @param tag Used to identify the source of a log message. It usually identifies the class or

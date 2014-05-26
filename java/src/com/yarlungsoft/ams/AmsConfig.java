@@ -10,6 +10,10 @@ public final class AmsConfig {
         return true;
     }
 
+    public static boolean debugNetwork() {
+        return true;
+    }
+
     public static String getRoot() {
         return "D:/";
     }

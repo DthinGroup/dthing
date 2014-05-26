@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013-2014 YarlungSoft. All Rights Reserved.
- * 
+ *
  * Created:         $Date: 2013/06/25 $
  * Last modified:   $Date: 2014/04/07 $
  * Version:         $ID: heap.c#1
@@ -34,7 +34,7 @@ typedef u2     jchar;
 typedef s2     jshort;
 typedef s4     jint;
 typedef s8     jlong;
-typedef float  jfload;
+typedef float  jfloat;
 typedef double jdouble;
 
 /*
@@ -53,7 +53,7 @@ typedef union JValue_u {
     jshort   s;
     jint     i;
     jlong    j;
-    jfload   f;
+    jfloat   f;
     jdouble  d;
     void*    l;
 } JValue;

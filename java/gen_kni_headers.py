@@ -82,6 +82,7 @@ type_pat = r'[a-zA-Z0-9<>\?\[\]]+\s+'
 name_pat = r'[a-zA-Z0-9_]+\s*'
 type_name_pat = type_pat + name_pat
 throws_pat = r'(?:throws[a-zA-Z0-9_\s,]+)?' #r'(?:throws\s+(?:[a-zA-Z_0-9]+\s*,?\s*)+)?'
+static_pat = r'\sstatic\s'
 
 def get_native_methods(rootdir):
 	'''Find all Java native methods declarations under the specified folder.
@@ -186,16 +187,96 @@ def get_kni_method_declare(jni, type_name_pairs):
 	return_type, method_name = parse_type_name(type_name_pairs[0])
 	return '''void %s(const u4* args, JValue* pResult);''' % (get_native_method_name(jni, method_name, False))
 
+def get_kni_method_define(jni, type_name_pairs):
+	return_type, method_name = parse_type_name(type_name_pairs[0])
+	return '''void %s(const u4* args, JValue* pResult) {''' % (get_native_method_name(jni, method_name, False))
+
+def get_kni_method_init(jni, is_static, type_name_pairs):
+	return_type, method_name = parse_type_name(type_name_pairs[0])
+	codes = []
+	args_off = -1
+
+	if is_static:
+		codes.append('    ClassObject* thisObj = (ClassObject*) args[0];')
+		args_off = 0
+
+	for i in range(1, len(type_name_pairs)):
+		type, name = parse_type_name(type_name_pairs[i])
+		code = ''
+		if type in ['boolean', 'byte', 'char', 'short', 'int', 'long', 'float', 'double']:
+			code = '    j%s %s = (j%s) args[%d];' % (type, name, type, i + args_off)
+		elif type in ['Object', 'Cloneable']:
+			code = '    Object* %sObj = (Object*) args[%d];' % (name, i + args_off)
+		elif type in ['Class', 'Class<?>']:
+			code = '    ClassObject* %sObj = (ClassObject*) args[%d];' % (name, i + args_off)
+		elif type == 'String':     # 'Ljava/lang/String;',
+			code = '''    StringObject * %sObj = (StringObject *) args[%d];
+    const jchar* %s = dvmGetStringData(%sObj);
+//    const char* %s = dvmCreateCstrFromString(%sObj);
+    int %sLen = dvmGetStringLength(%sObj);''' % (name, i + args_off, name, name, name, name, name, name)
+		elif type in ['boolean[]', 'byte[]', 'char[]', 'short[]', 'int[]', 'long[]', 'float[]', 'double[]']:
+			code = '''    ArrayObject * %sArr = (ArrayObject *)args[%d];
+    j%s * %sArrPtr = (%s *)(KNI_GET_ARRAY_BUF(args[%d]));
+    int %sArrLen = KNI_GET_ARRAY_LEN(args[%d]);''' % (name, i + args_off, type[:-2], name, type[:-2], i + args_off, name, i + args_off)
+		else:
+			code = '    // TODO: unknown type of param %d %s: %s' % (i + args_off + 1, name, type)
+		codes.append(code)
+
+	todo_imp = '    // TODO: implementation'
+	if return_type == 'boolean':
+		codes.extend([
+			'    jboolean ret = FALSE;',
+			'', todo_imp, ''
+			'    RETURN_BOOLEAN(ret)'
+		])
+	elif return_type in ['byte', 'char', 'short', 'int', 'long']:
+		codes.extend([
+			'    j%s ret = 0;' % (return_type),
+			'', todo_imp, '',
+			'    RETURN_%s(ret)' % ('LONG' if return_type == 'long' else 'INT')
+		])
+	elif return_type in ['float', 'double']:
+		codes.extend([
+			'    j%s ret = 0.0;' % (return_type),
+			'', todo_imp, '',
+			'    RETURN_%s(ret)' % ('FLOAT' if return_type == 'float' else 'DOUBLE')
+		])
+	elif return_type == 'String':
+		codes.extend([
+			'    StringObject * retObj = NULL;',
+			'',
+			'    // TODO: initialize retObj via dvmCreateStringFrom* methods:',
+			'    // retObj = dvmCreateStringFromCstr("");'
+			'',
+			'    RETURN_PTR(retObj);'
+		])
+	elif return_type == 'Object':
+		codes.extend([
+			'    Object * retObj = NULL;',
+			'',
+			'    // TODO: initialize retObj like:',
+			'    // retObj = (Object *)heapAllocObject(size, ALLOC_DONT_TRACK);'
+			'',
+			'    RETURN_PTR(retObj);'
+		])
+	else:
+		codes.extend([
+			'', todo_imp, '',
+			'    // return type : ' + return_type
+		])
+
+	return '\n'.join(codes) + '\n'
+
 def generate_jni_header(java_native_methods):
 	global modifiers_pat
 	global type_name_pat
 	global throws_pat
+	global static_pat
 
 	modifiers_pat = re.compile(modifiers_pat)
 	type_name_pat = re.compile(type_name_pat)
 	throws_pat = re.compile(throws_pat)
-
-	static_pat = re.compile(r'\sstatic\s')
+	static_pat = re.compile(static_pat)
 
 	for cls in java_native_methods:
 		jni = cls.replace('.', '_')
@@ -276,6 +357,41 @@ extern "C" {
 #endif
 #endif // %s
 ''' % (macro))
+		fp.close()
+
+def generate_kni_c(java_native_methods, out_dir):
+	global modifiers_pat
+	global type_name_pat
+	global throws_pat
+	global static_pat
+
+	modifiers_pat = re.compile(modifiers_pat)
+	type_name_pat = re.compile(type_name_pat)
+	throws_pat = re.compile(throws_pat)
+	static_pat = re.compile(static_pat)
+
+	for cls in java_native_methods:
+		jni = cls.replace('.', '_')
+		header = 'native' + cls.split('.')[-1] + '.h'
+		cfname = header[:-1] + 'c'
+		fname = os.path.join(out_dir, cfname)
+		fp = open(fname, 'w')
+		fp.write('''#include <vm_common.h>
+#include "%s"
+
+''' % (header))
+		for method in java_native_methods[cls]:
+			mthd = modifiers_pat.sub('', method)
+			mthd = throws_pat.sub('', mthd)
+			is_static = static_pat.search(method) is not None
+			pairs = type_name_pat.findall(mthd)
+			comment = get_native_method_comment(jni, pairs, False)
+			fp.write(comment)
+			fp.write('\n')
+			fp.write(get_kni_method_define(jni, pairs))
+			fp.write('\n')
+			fp.write(get_kni_method_init(jni, is_static, pairs))
+			fp.write('}\n\n')
 		fp.close()
 
 def generate_kni_array(java_native_methods, out_header):
@@ -381,4 +497,5 @@ if __name__ == '__main__':
 	#dump_java_native_methods(res)
 	#generate_jni_header(res)
 	generate_kni_header(res, options.out_dir)
+	generate_kni_c(res, options.out_dir)
 	generate_kni_array(res, out_header)

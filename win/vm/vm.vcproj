@@ -440,6 +440,14 @@
 			Name="nativeImpl"
 			>
 			<File
+				RelativePath="..\..\vm\impl\nativeADCManager.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\vm\impl\nativeADCManager.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\vm\impl\nativeAsyncIO.c"
 				>
 			</File>
@@ -448,11 +456,35 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\vm\impl\nativeATCommandConnection.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\vm\impl\nativeATCommandConnection.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\vm\impl\nativeBatteryManager.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\vm\impl\nativeBatteryManager.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\vm\impl\nativeClass.c"
 				>
 			</File>
 			<File
 				RelativePath="..\..\vm\impl\nativeClass.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\vm\impl\nativeEarManager.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\vm\impl\nativeEarManager.h"
 				>
 			</File>
 			<File
@@ -472,11 +504,59 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\vm\impl\nativeGpio.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\vm\impl\nativeGpio.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\vm\impl\nativeI2CManager.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\vm\impl\nativeI2CManager.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\vm\impl\nativeLCD.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\vm\impl\nativeLCD.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\vm\impl\nativeMath.c"
 				>
 			</File>
 			<File
 				RelativePath="..\..\vm\impl\nativeMath.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\vm\impl\nativeMicophone.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\vm\impl\nativeMicophone.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\vm\impl\nativeMyMessageSender.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\vm\impl\nativeMyMessageSender.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\vm\impl\nativeMySmsConnectionThread.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\vm\impl\nativeMySmsConnectionThread.h"
 				>
 			</File>
 			<File
@@ -496,6 +576,22 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\vm\impl\nativePCMChannel.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\vm\impl\nativePCMChannel.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\vm\impl\nativePWMManager.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\vm\impl\nativePWMManager.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\vm\impl\nativeRuntime.c"
 				>
 			</File>
@@ -509,6 +605,30 @@
 			</File>
 			<File
 				RelativePath="..\..\vm\impl\nativeScheduler.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\vm\impl\nativeSimManager.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\vm\impl\nativeSimManager.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\vm\impl\nativeSpeakerManager.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\vm\impl\nativeSpeakerManager.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\vm\impl\nativeSPIManager.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\vm\impl\nativeSPIManager.h"
 				>
 			</File>
 			<File
@@ -549,6 +669,14 @@
 			</File>
 			<File
 				RelativePath="..\..\vm\impl\nativeTimeZone.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\vm\impl\nativeUSBConnection.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\vm\impl\nativeUSBConnection.h"
 				>
 			</File>
 		</Filter>
