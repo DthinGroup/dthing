@@ -14,7 +14,7 @@ void Java_iot_oem_spi_SPIManager_open0(const u4* args, JValue* pResult) {
 
     // TODO: implementation
 
-    RETURN_INT(ret)
+    RETURN_INT(ret);
 }
 
 /**
@@ -29,7 +29,7 @@ void Java_iot_oem_spi_SPIManager_getRate0(const u4* args, JValue* pResult) {
 
     // TODO: implementation
 
-    RETURN_INT(ret)
+    RETURN_INT(ret);
 }
 
 /**
@@ -45,7 +45,7 @@ void Java_iot_oem_spi_SPIManager_setRate0(const u4* args, JValue* pResult) {
 
     // TODO: implementation
 
-    RETURN_INT(ret)
+    RETURN_INT(ret);
 }
 
 /**
@@ -60,7 +60,7 @@ void Java_iot_oem_spi_SPIManager_close0(const u4* args, JValue* pResult) {
 
     // TODO: implementation
 
-    RETURN_INT(ret)
+    RETURN_INT(ret);
 }
 
 /**
@@ -73,14 +73,14 @@ void Java_iot_oem_spi_SPIManager_read0(const u4* args, JValue* pResult) {
     jint busId = (jint) args[1];
     jint addr = (jint) args[2];
     ArrayObject * bufferArr = (ArrayObject *)args[3];
-    jbyte * bufferArrPtr = (byte *)(KNI_GET_ARRAY_BUF(args[3]));
+    jbyte * bufferArrPtr = (jbyte *)(KNI_GET_ARRAY_BUF(args[3]));
     int bufferArrLen = KNI_GET_ARRAY_LEN(args[3]);
     jint len = (jint) args[4];
     jint ret = 0;
 
     // TODO: implementation
 
-    RETURN_INT(ret)
+    RETURN_INT(ret);
 }
 
 /**
@@ -93,13 +93,13 @@ void Java_iot_oem_spi_SPIManager_write0(const u4* args, JValue* pResult) {
     jint busId = (jint) args[1];
     jint addr = (jint) args[2];
     ArrayObject * dataArr = (ArrayObject *)args[3];
-    jbyte * dataArrPtr = (byte *)(KNI_GET_ARRAY_BUF(args[3]));
+    jbyte * dataArrPtr = (jbyte *)(KNI_GET_ARRAY_BUF(args[3]));
     int dataArrLen = KNI_GET_ARRAY_LEN(args[3]);
     jint len = (jint) args[4];
     jint ret = 0;
 
     // TODO: implementation
 
-    RETURN_INT(ret)
+    RETURN_INT(ret);
 }
 

@@ -1,20 +1,36 @@
 #include "vm_common.h"
 #include "kni.h"
 
+#include <nativeADCManager.h>
+#include <nativeATCommandConnection.h>
 #include <nativeAsyncIO.h>
+#include <nativeBatteryManager.h>
 #include <nativeClass.h>
+#include <nativeEarManager.h>
 #include <nativeFile.h>
 #include <nativeFloat.h>
+#include <nativeGpio.h>
+#include <nativeI2CManager.h>
+#include <nativeLCD.h>
 #include <nativeMath.h>
+#include <nativeMicophone.h>
+#include <nativeMyMessageSender.h>
+#include <nativeMySmsConnectionThread.h>
 #include <nativeNet.h>
 #include <nativeObject.h>
+#include <nativePCMChannel.h>
+#include <nativePWMManager.h>
 #include <nativeRuntime.h>
+#include <nativeSPIManager.h>
+#include <nativeScheduler.h>
+#include <nativeSimManager.h>
+#include <nativeSpeakerManager.h>
 #include <nativeString.h>
 #include <nativeSystem.h>
 #include <nativeThread.h>
 #include <nativeThrowable.h>
 #include <nativeTimeZone.h>
-#include <nativeScheduler.h>
+#include <nativeUSBConnection.h>
 #include <nativeMethods.h>
 
 KniFunc Kni_findFuncPtr(const Method * mthd) {

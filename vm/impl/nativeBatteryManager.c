@@ -12,7 +12,7 @@ void Java_iot_oem_battery_BatteryManager_getStatus0(const u4* args, JValue* pRes
 
     // TODO: implementation
 
-    RETURN_INT(ret)
+    RETURN_INT(ret);
 }
 
 /**
@@ -26,6 +26,6 @@ void Java_iot_oem_battery_BatteryManager_getTemperature0(const u4* args, JValue*
 
     // TODO: implementation
 
-    RETURN_INT(ret)
+    RETURN_INT(ret);
 }
 

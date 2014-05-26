@@ -10,7 +10,7 @@ void Java_jp_co_cmcc_message_sms_MySmsConnectionThread_nReadMessage(const u4* ar
     jboolean ret = FALSE;
 
     // TODO: implementation
-    RETURN_BOOLEAN(ret)
+    RETURN_BOOLEAN(ret);
 }
 
 /**
@@ -35,7 +35,7 @@ void Java_jp_co_cmcc_message_sms_MySmsConnectionThread_nRegister(const u4* args,
     jboolean ret = FALSE;
 
     // TODO: implementation
-    RETURN_BOOLEAN(ret)
+    RETURN_BOOLEAN(ret);
 }
 
 /**

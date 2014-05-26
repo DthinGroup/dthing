@@ -1,3 +1,4 @@
+#include <utfstring.h>
 #include <vm_common.h>
 #include "nativeATCommandConnection.h"
 
@@ -12,7 +13,7 @@ void Java_jp_co_cmcc_atcommand_ATCommandConnection_open0(const u4* args, JValue*
 
     // TODO: implementation
 
-    RETURN_INT(ret)
+    RETURN_INT(ret);
 }
 
 /**
@@ -48,7 +49,7 @@ void Java_jp_co_cmcc_atcommand_ATCommandConnection_sendAsyn0(const u4* args, JVa
 
     // TODO: implementation
 
-    RETURN_INT(ret)
+    RETURN_INT(ret);
 }
 
 /**
@@ -76,6 +77,6 @@ void Java_jp_co_cmcc_atcommand_ATCommandConnection_close0(const u4* args, JValue
 
     // TODO: implementation
 
-    RETURN_INT(ret)
+    RETURN_INT(ret);
 }
 

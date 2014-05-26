@@ -1,3 +1,4 @@
+#include <utfstring.h>
 #include <vm_common.h>
 #include "nativeUSBConnection.h"
 
@@ -16,7 +17,7 @@ void Java_iot_oem_usb_USBConnection_open0(const u4* args, JValue* pResult) {
 
     // TODO: implementation
 
-    RETURN_INT(ret)
+    RETURN_INT(ret);
 }
 
 /**
@@ -31,6 +32,6 @@ void Java_iot_oem_usb_USBConnection_close0(const u4* args, JValue* pResult) {
 
     // TODO: implementation
 
-    RETURN_INT(ret)
+    RETURN_INT(ret);
 }
 

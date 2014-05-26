@@ -12,7 +12,7 @@ void Java_iot_oem_micophone_Micophone_open0(const u4* args, JValue* pResult) {
 
     // TODO: implementation
 
-    RETURN_INT(ret)
+    RETURN_INT(ret);
 }
 
 /**
@@ -26,7 +26,7 @@ void Java_iot_oem_micophone_Micophone_getStatus0(const u4* args, JValue* pResult
 
     // TODO: implementation
 
-    RETURN_INT(ret)
+    RETURN_INT(ret);
 }
 
 /**
@@ -41,7 +41,7 @@ void Java_iot_oem_micophone_Micophone_setStatus0(const u4* args, JValue* pResult
 
     // TODO: implementation
 
-    RETURN_INT(ret)
+    RETURN_INT(ret);
 }
 
 /**
@@ -55,7 +55,7 @@ void Java_iot_oem_micophone_Micophone_getInPath0(const u4* args, JValue* pResult
 
     // TODO: implementation
 
-    RETURN_INT(ret)
+    RETURN_INT(ret);
 }
 
 /**
@@ -70,7 +70,7 @@ void Java_iot_oem_micophone_Micophone_setInPath0(const u4* args, JValue* pResult
 
     // TODO: implementation
 
-    RETURN_INT(ret)
+    RETURN_INT(ret);
 }
 
 /**
@@ -84,7 +84,7 @@ void Java_iot_oem_micophone_Micophone_getGain0(const u4* args, JValue* pResult) 
 
     // TODO: implementation
 
-    RETURN_INT(ret)
+    RETURN_INT(ret);
 }
 
 /**
@@ -99,7 +99,7 @@ void Java_iot_oem_micophone_Micophone_setGain0(const u4* args, JValue* pResult) 
 
     // TODO: implementation
 
-    RETURN_INT(ret)
+    RETURN_INT(ret);
 }
 
 /**
@@ -113,6 +113,6 @@ void Java_iot_oem_micophone_Micophone_close0(const u4* args, JValue* pResult) {
 
     // TODO: implementation
 
-    RETURN_INT(ret)
+    RETURN_INT(ret);
 }
 

@@ -1,3 +1,4 @@
+#include <utfstring.h>
 #include <vm_common.h>
 #include "nativeLCD.h"
 
@@ -13,7 +14,7 @@ void Java_iot_oem_lcd_LCD_setBackgroundStatus0(const u4* args, JValue* pResult) 
 
     // TODO: implementation
 
-    RETURN_INT(ret)
+    RETURN_INT(ret);
 }
 
 /**
@@ -27,7 +28,7 @@ void Java_iot_oem_lcd_LCD_getBackgroundStatus0(const u4* args, JValue* pResult) 
 
     // TODO: implementation
 
-    RETURN_INT(ret)
+    RETURN_INT(ret);
 }
 
 /**
@@ -41,7 +42,7 @@ void Java_iot_oem_lcd_LCD_getHeight0(const u4* args, JValue* pResult) {
 
     // TODO: implementation
 
-    RETURN_INT(ret)
+    RETURN_INT(ret);
 }
 
 /**
@@ -55,7 +56,7 @@ void Java_iot_oem_lcd_LCD_getWidth0(const u4* args, JValue* pResult) {
 
     // TODO: implementation
 
-    RETURN_INT(ret)
+    RETURN_INT(ret);
 }
 
 /**
@@ -75,7 +76,7 @@ void Java_iot_oem_lcd_LCD_drawString0(const u4* args, JValue* pResult) {
 
     // TODO: implementation
 
-    RETURN_INT(ret)
+    RETURN_INT(ret);
 }
 
 /**
@@ -89,6 +90,6 @@ void Java_iot_oem_lcd_LCD_clean0(const u4* args, JValue* pResult) {
 
     // TODO: implementation
 
-    RETURN_INT(ret)
+    RETURN_INT(ret);
 }
 

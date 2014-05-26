@@ -13,7 +13,7 @@ void Java_iot_oem_gpio_Gpio_open0(const u4* args, JValue* pResult) {
 
     // TODO: implementation
 
-    RETURN_INT(ret)
+    RETURN_INT(ret);
 }
 
 /**
@@ -29,7 +29,7 @@ void Java_iot_oem_gpio_Gpio_setCurrentMode0(const u4* args, JValue* pResult) {
 
     // TODO: implementation
 
-    RETURN_INT(ret)
+    RETURN_INT(ret);
 }
 
 /**
@@ -44,7 +44,7 @@ void Java_iot_oem_gpio_Gpio_getCurrentMode0(const u4* args, JValue* pResult) {
 
     // TODO: implementation
 
-    RETURN_INT(ret)
+    RETURN_INT(ret);
 }
 
 /**
@@ -59,7 +59,7 @@ void Java_iot_oem_gpio_Gpio_read0(const u4* args, JValue* pResult) {
 
     // TODO: implementation
 
-    RETURN_INT(ret)
+    RETURN_INT(ret);
 }
 
 /**
@@ -75,7 +75,7 @@ void Java_iot_oem_gpio_Gpio_write0(const u4* args, JValue* pResult) {
 
     // TODO: implementation
 
-    RETURN_INT(ret)
+    RETURN_INT(ret);
 }
 
 /**
@@ -91,7 +91,7 @@ void Java_iot_oem_gpio_Gpio_registerInt0(const u4* args, JValue* pResult) {
 
     // TODO: implementation
 
-    RETURN_INT(ret)
+    RETURN_INT(ret);
 }
 
 /**
@@ -106,7 +106,7 @@ void Java_iot_oem_gpio_Gpio_unregisterInt0(const u4* args, JValue* pResult) {
 
     // TODO: implementation
 
-    RETURN_INT(ret)
+    RETURN_INT(ret);
 }
 
 /**
@@ -121,6 +121,6 @@ void Java_iot_oem_gpio_Gpio_close0(const u4* args, JValue* pResult) {
 
     // TODO: implementation
 
-    RETURN_INT(ret)
+    RETURN_INT(ret);
 }
 

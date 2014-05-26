@@ -14,7 +14,7 @@ void Java_iot_oem_i2c_I2CManager_open0(const u4* args, JValue* pResult) {
 
     // TODO: implementation
 
-    RETURN_INT(ret)
+    RETURN_INT(ret);
 }
 
 /**
@@ -29,7 +29,7 @@ void Java_iot_oem_i2c_I2CManager_getRate0(const u4* args, JValue* pResult) {
 
     // TODO: implementation
 
-    RETURN_INT(ret)
+    RETURN_INT(ret);
 }
 
 /**
@@ -45,7 +45,7 @@ void Java_iot_oem_i2c_I2CManager_setRate0(const u4* args, JValue* pResult) {
 
     // TODO: implementation
 
-    RETURN_INT(ret)
+    RETURN_INT(ret);
 }
 
 /**
@@ -60,7 +60,7 @@ void Java_iot_oem_i2c_I2CManager_close0(const u4* args, JValue* pResult) {
 
     // TODO: implementation
 
-    RETURN_INT(ret)
+    RETURN_INT(ret);
 }
 
 /**
@@ -74,14 +74,14 @@ void Java_iot_oem_i2c_I2CManager_read0(const u4* args, JValue* pResult) {
     jint addr = (jint) args[2];
     jint subAddr = (jint) args[3];
     ArrayObject * bufferArr = (ArrayObject *)args[4];
-    jbyte * bufferArrPtr = (byte *)(KNI_GET_ARRAY_BUF(args[4]));
+    jbyte * bufferArrPtr = (jbyte *)(KNI_GET_ARRAY_BUF(args[4]));
     int bufferArrLen = KNI_GET_ARRAY_LEN(args[4]);
     jint len = (jint) args[5];
     jint ret = 0;
 
     // TODO: implementation
 
-    RETURN_INT(ret)
+    RETURN_INT(ret);
 }
 
 /**
@@ -95,13 +95,13 @@ void Java_iot_oem_i2c_I2CManager_write0(const u4* args, JValue* pResult) {
     jint addr = (jint) args[2];
     jint subAddr = (jint) args[3];
     ArrayObject * dataArr = (ArrayObject *)args[4];
-    jbyte * dataArrPtr = (byte *)(KNI_GET_ARRAY_BUF(args[4]));
+    jbyte * dataArrPtr = (jbyte *)(KNI_GET_ARRAY_BUF(args[4]));
     int dataArrLen = KNI_GET_ARRAY_LEN(args[4]);
     jint len = (jint) args[5];
     jint ret = 0;
 
     // TODO: implementation
 
-    RETURN_INT(ret)
+    RETURN_INT(ret);
 }
 

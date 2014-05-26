@@ -194,6 +194,7 @@ def get_kni_method_define(jni, type_name_pairs):
 def get_kni_method_init(jni, is_static, type_name_pairs):
 	return_type, method_name = parse_type_name(type_name_pairs[0])
 	codes = []
+	includes = []
 	args_off = -1
 
 	if is_static:
@@ -206,17 +207,18 @@ def get_kni_method_init(jni, is_static, type_name_pairs):
 		if type in ['boolean', 'byte', 'char', 'short', 'int', 'long', 'float', 'double']:
 			code = '    j%s %s = (j%s) args[%d];' % (type, name, type, i + args_off)
 		elif type in ['Object', 'Cloneable']:
-			code = '    Object* %sObj = (Object*) args[%d];' % (name, i + args_off)
+			code = '    Object * %sObj = (Object *) args[%d];' % (name, i + args_off)
 		elif type in ['Class', 'Class<?>']:
-			code = '    ClassObject* %sObj = (ClassObject*) args[%d];' % (name, i + args_off)
+			code = '    ClassObject * %sObj = (ClassObject *) args[%d];' % (name, i + args_off)
 		elif type == 'String':     # 'Ljava/lang/String;',
 			code = '''    StringObject * %sObj = (StringObject *) args[%d];
     const jchar* %s = dvmGetStringData(%sObj);
 //    const char* %s = dvmCreateCstrFromString(%sObj);
     int %sLen = dvmGetStringLength(%sObj);''' % (name, i + args_off, name, name, name, name, name, name)
+			includes.append('<utfstring.h>')
 		elif type in ['boolean[]', 'byte[]', 'char[]', 'short[]', 'int[]', 'long[]', 'float[]', 'double[]']:
 			code = '''    ArrayObject * %sArr = (ArrayObject *)args[%d];
-    j%s * %sArrPtr = (%s *)(KNI_GET_ARRAY_BUF(args[%d]));
+    j%s * %sArrPtr = (j%s *)(KNI_GET_ARRAY_BUF(args[%d]));
     int %sArrLen = KNI_GET_ARRAY_LEN(args[%d]);''' % (name, i + args_off, type[:-2], name, type[:-2], i + args_off, name, i + args_off)
 		else:
 			code = '    // TODO: unknown type of param %d %s: %s' % (i + args_off + 1, name, type)
@@ -227,19 +229,19 @@ def get_kni_method_init(jni, is_static, type_name_pairs):
 		codes.extend([
 			'    jboolean ret = FALSE;',
 			'', todo_imp, ''
-			'    RETURN_BOOLEAN(ret)'
+			'    RETURN_BOOLEAN(ret);'
 		])
 	elif return_type in ['byte', 'char', 'short', 'int', 'long']:
 		codes.extend([
 			'    j%s ret = 0;' % (return_type),
 			'', todo_imp, '',
-			'    RETURN_%s(ret)' % ('LONG' if return_type == 'long' else 'INT')
+			'    RETURN_%s(ret);' % ('LONG' if return_type == 'long' else 'INT')
 		])
 	elif return_type in ['float', 'double']:
 		codes.extend([
 			'    j%s ret = 0.0;' % (return_type),
 			'', todo_imp, '',
-			'    RETURN_%s(ret)' % ('FLOAT' if return_type == 'float' else 'DOUBLE')
+			'    RETURN_%s(ret);' % ('FLOAT' if return_type == 'float' else 'DOUBLE')
 		])
 	elif return_type == 'String':
 		codes.extend([
@@ -250,6 +252,7 @@ def get_kni_method_init(jni, is_static, type_name_pairs):
 			'',
 			'    RETURN_PTR(retObj);'
 		])
+		includes.append('<utfstring.h>')
 	elif return_type == 'Object':
 		codes.extend([
 			'    Object * retObj = NULL;',
@@ -265,7 +268,7 @@ def get_kni_method_init(jni, is_static, type_name_pairs):
 			'    // return type : ' + return_type
 		])
 
-	return '\n'.join(codes) + '\n'
+	return (includes, '\n'.join(codes) + '\n')
 
 def generate_jni_header(java_native_methods):
 	global modifiers_pat
@@ -375,23 +378,33 @@ def generate_kni_c(java_native_methods, out_dir):
 		header = 'native' + cls.split('.')[-1] + '.h'
 		cfname = header[:-1] + 'c'
 		fname = os.path.join(out_dir, cfname)
-		fp = open(fname, 'w')
-		fp.write('''#include <vm_common.h>
-#include "%s"
-
-''' % (header))
+		includes = ['<vm_common.h>']
+		codes = []
 		for method in java_native_methods[cls]:
 			mthd = modifiers_pat.sub('', method)
 			mthd = throws_pat.sub('', mthd)
 			is_static = static_pat.search(method) is not None
 			pairs = type_name_pat.findall(mthd)
 			comment = get_native_method_comment(jni, pairs, False)
-			fp.write(comment)
-			fp.write('\n')
-			fp.write(get_kni_method_define(jni, pairs))
-			fp.write('\n')
-			fp.write(get_kni_method_init(jni, is_static, pairs))
-			fp.write('}\n\n')
+			ext_incs, init = get_kni_method_init(jni, is_static, pairs)
+			includes.extend(ext_incs)
+
+			codes.append(comment)
+			codes.append('\n')
+			codes.append(get_kni_method_define(jni, pairs))
+			codes.append('\n')
+			codes.append(init)
+			codes.append('}\n\n')
+
+		includes.sort()
+		includes = list(set(includes))
+		includes.append('"%s"' % (header))
+		includes = [i for i in includes if len(i) > 0]
+		includes = '#include ' + '\n#include '.join(includes) + '\n\n'
+		
+		fp = open(fname, 'w')
+		fp.write(''.join(includes))
+		fp.write(''.join(codes))
 		fp.close()
 
 def generate_kni_array(java_native_methods, out_header):

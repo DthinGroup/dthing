@@ -12,7 +12,7 @@ void Java_iot_oem_adc_ADCManager_init0(const u4* args, JValue* pResult) {
 
     // TODO: implementation
 
-    RETURN_INT(ret)
+    RETURN_INT(ret);
 }
 
 /**
@@ -27,7 +27,7 @@ void Java_iot_oem_adc_ADCManager_read0(const u4* args, JValue* pResult) {
 
     // TODO: implementation
 
-    RETURN_INT(ret)
+    RETURN_INT(ret);
 }
 
 /**
@@ -41,6 +41,6 @@ void Java_iot_oem_adc_ADCManager_destroy0(const u4* args, JValue* pResult) {
 
     // TODO: implementation
 
-    RETURN_INT(ret)
+    RETURN_INT(ret);
 }
 

@@ -12,7 +12,7 @@ void Java_iot_oem_ear_EarManager_init0(const u4* args, JValue* pResult) {
 
     // TODO: implementation
 
-    RETURN_INT(ret)
+    RETURN_INT(ret);
 }
 
 /**
@@ -26,7 +26,7 @@ void Java_iot_oem_ear_EarManager_getStatus0(const u4* args, JValue* pResult) {
 
     // TODO: implementation
 
-    RETURN_INT(ret)
+    RETURN_INT(ret);
 }
 
 /**
@@ -41,7 +41,7 @@ void Java_iot_oem_ear_EarManager_setStatus0(const u4* args, JValue* pResult) {
 
     // TODO: implementation
 
-    RETURN_INT(ret)
+    RETURN_INT(ret);
 }
 
 /**
@@ -55,6 +55,6 @@ void Java_iot_oem_ear_EarManager_close0(const u4* args, JValue* pResult) {
 
     // TODO: implementation
 
-    RETURN_INT(ret)
+    RETURN_INT(ret);
 }
 

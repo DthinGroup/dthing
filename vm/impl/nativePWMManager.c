@@ -15,7 +15,7 @@ void Java_iot_oem_pwm_PWMManager_config0(const u4* args, JValue* pResult) {
 
     // TODO: implementation
 
-    RETURN_INT(ret)
+    RETURN_INT(ret);
 }
 
 /**
@@ -32,6 +32,6 @@ void Java_iot_oem_pwm_PWMManager_command0(const u4* args, JValue* pResult) {
 
     // TODO: implementation
 
-    RETURN_INT(ret)
+    RETURN_INT(ret);
 }
 

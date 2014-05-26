@@ -1,3 +1,4 @@
+#include <utfstring.h>
 #include <vm_common.h>
 #include "nativeSimManager.h"
 
@@ -12,7 +13,7 @@ void Java_iot_oem_sim_SimManager_close0(const u4* args, JValue* pResult) {
 
     // TODO: implementation
 
-    RETURN_INT(ret)
+    RETURN_INT(ret);
 }
 
 /**
@@ -30,7 +31,7 @@ void Java_iot_oem_sim_SimManager_enablePinLock0(const u4* args, JValue* pResult)
 
     // TODO: implementation
 
-    RETURN_INT(ret)
+    RETURN_INT(ret);
 }
 
 /**
@@ -48,7 +49,7 @@ void Java_iot_oem_sim_SimManager_disablePinLock0(const u4* args, JValue* pResult
 
     // TODO: implementation
 
-    RETURN_INT(ret)
+    RETURN_INT(ret);
 }
 
 /**
@@ -66,7 +67,7 @@ void Java_iot_oem_sim_SimManager_unlockPin0(const u4* args, JValue* pResult) {
 
     // TODO: implementation
 
-    RETURN_INT(ret)
+    RETURN_INT(ret);
 }
 
 /**
@@ -88,6 +89,6 @@ void Java_iot_oem_sim_SimManager_changePin0(const u4* args, JValue* pResult) {
 
     // TODO: implementation
 
-    RETURN_INT(ret)
+    RETURN_INT(ret);
 }
 

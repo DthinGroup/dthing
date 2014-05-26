@@ -12,7 +12,7 @@ void Java_iot_oem_pcmchannel_PCMChannel_open0(const u4* args, JValue* pResult) {
 
     // TODO: implementation
 
-    RETURN_INT(ret)
+    RETURN_INT(ret);
 }
 
 /**
@@ -26,7 +26,7 @@ void Java_iot_oem_pcmchannel_PCMChannel_getStatus0(const u4* args, JValue* pResu
 
     // TODO: implementation
 
-    RETURN_INT(ret)
+    RETURN_INT(ret);
 }
 
 /**
@@ -41,7 +41,7 @@ void Java_iot_oem_pcmchannel_PCMChannel_setStatus0(const u4* args, JValue* pResu
 
     // TODO: implementation
 
-    RETURN_INT(ret)
+    RETURN_INT(ret);
 }
 
 /**
@@ -55,7 +55,7 @@ void Java_iot_oem_pcmchannel_PCMChannel_getFrequency0(const u4* args, JValue* pR
 
     // TODO: implementation
 
-    RETURN_INT(ret)
+    RETURN_INT(ret);
 }
 
 /**
@@ -70,7 +70,7 @@ void Java_iot_oem_pcmchannel_PCMChannel_setFrequency0(const u4* args, JValue* pR
 
     // TODO: implementation
 
-    RETURN_INT(ret)
+    RETURN_INT(ret);
 }
 
 /**
@@ -84,7 +84,7 @@ void Java_iot_oem_pcmchannel_PCMChannel_getMode0(const u4* args, JValue* pResult
 
     // TODO: implementation
 
-    RETURN_INT(ret)
+    RETURN_INT(ret);
 }
 
 /**
@@ -99,7 +99,7 @@ void Java_iot_oem_pcmchannel_PCMChannel_setMode0(const u4* args, JValue* pResult
 
     // TODO: implementation
 
-    RETURN_INT(ret)
+    RETURN_INT(ret);
 }
 
 /**
@@ -113,6 +113,6 @@ void Java_iot_oem_pcmchannel_PCMChannel_close0(const u4* args, JValue* pResult) 
 
     // TODO: implementation
 
-    RETURN_INT(ret)
+    RETURN_INT(ret);
 }
 
