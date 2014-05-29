@@ -165,3 +165,15 @@ void vmtime_stopTimer(void)
 #endif	
 }
 
+void vmtime_sleep(int  mSecond)
+{
+	if(mSecond <=0)
+		return ;
+#ifdef ARCH_X86
+    Sleep(mSecond);
+#elif defined(ARCH_ARM_SPD)
+    SCI_Sleep(mSecond);
+#else
+    #error "don't forget me!"
+#endif
+}

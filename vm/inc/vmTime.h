@@ -18,4 +18,6 @@ uint64_t vmtime_getTickCount(void);
 void vmtime_startTimer(void);
 void vmtime_stopTimer(void);
 
+void vmtime_sleep(int  mSecond);
+
 #endif

@@ -23,6 +23,8 @@ extern "C" {
 #define FILE_RES_SUCCESS  0
 /* file operation failure */
 #define FILE_RES_FAILURE  -1
+/*invalid file handle*/
+#define INVALID_HANDLE_VALUE -1
 
 /** Type value of a regular file or file name. */
 #define FILE_RES_ISREG    -2
@@ -89,6 +91,10 @@ int32_t file_flush(int32_t handle);
 int32_t file_close(int32_t handle);
 
 int32_t file_mkdir(const uint16_t* name, int32_t nameLen);
+
+uint16_t * file_getDthingDir();
+
+
 
 #if defined(__cplusplus)
 }

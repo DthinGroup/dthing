@@ -4,6 +4,9 @@
 #include <opl_file.h>
 #include <encoding.h>
 #include <upcall.h>
+#include <vm_common.h>
+#include <init.h>
+
 
 /**
  * Global varible, applets list.
@@ -17,7 +20,7 @@ static AppletProps* curActiveApp;
 
 #define REC_TIMEOUT_VAL (2000)
 
-extern int32_t DVM_main(int32_t argc, int8_t * argv[]);
+//extern int32_t DVM_main(int32_t argc, char * argv[]);
 
 /**
  * get default applet installed path.
@@ -26,7 +29,13 @@ extern int32_t DVM_main(int32_t argc, int8_t * argv[]);
  */
 static uint16_t* getDefaultInstalledPath()
 {
+#if defined(ARCH_X86)
+    //return L"D:\\nix.long\\ReDvmAll\\dvm\\appdb\\";
     return L"D:\\dvm\\appdb\\";
+#elif defined(ARCH_ARM_SPD)
+	return file_getDthingDir();
+#endif
+	return NULL;      
 }
 
 static uint8_t* trim(uint8_t* value)
@@ -192,7 +201,6 @@ static AppletProps* listInstalledApplets(const uint16_t* path)
 
         do
         {
-
             CRTL_memset(foundJarPath, 0x0, MAX_FILE_NAME_LEN);
             result = file_listNextEntry(ins_path, pathLen, foundJarPath, MAX_FILE_NAME_LEN<<1, &handle);
             
@@ -408,7 +416,7 @@ static int32_t packageClinetACK(int32_t ack_magic, uint8_t* packBuf, int32_t buf
         {
             int32_t res;
             res = ((int32_t*)packBuf)[0];
-
+            dataSize = 16;
             pb = (uint8_t*)CRTL_malloc(16);
             if (pb == NULL)
             {
@@ -457,8 +465,8 @@ static int32_t packageClinetACK(int32_t ack_magic, uint8_t* packBuf, int32_t buf
     if (pEC == NULL)
     {
         DVMTraceErr("parseServerCommands: Error, The QUEUE is full.\n");
-        return 0;
-        CRTL_freeif(pb);
+	 CRTL_freeif(pb);
+        return 0;        
     }
     pEC->length = dataSize;
     pEC->evtData = pb;
@@ -477,6 +485,7 @@ static int32_t parseAndActionServerCommands(uint8_t* data, int32_t dataBytes)
     int32_t reserve2 = readbeIU32(p+=4);
     int32_t res = cmd;
 
+	DVMTraceErr("parseAndActionServerCommands:cmd - %d\n",cmd);
     switch (cmd)
     {
     case CMD_INSTALL:
@@ -550,7 +559,7 @@ static int32_t remoteAMSThreadProc(int argc, void* argv[])
     UNUSED(argv);
     
     rsHandle = getRemoteServerInstance(RS_ADDRESS, RS_PORT);
-    if (rsHandle < 0)
+    if (rsHandle <= 0)
     {
         DVMTraceErr("remoteAMSThreadProc: create remote server instance failure\n");
         return -1;
@@ -587,6 +596,7 @@ static int32_t remoteAMSThreadProc(int argc, void* argv[])
         {
             if (eventCmdQueue[i].length != 0)
             {
+            	DVMTraceErr("cmd ack!\n");
                 sendData(rsHandle, eventCmdQueue[i].evtData, eventCmdQueue[i].length);
                 eventCmdQueue[i].length = 0;
                 CRTL_freeif(eventCmdQueue[i].evtData);
@@ -605,8 +615,9 @@ static int32_t remoteAMSThreadProc(int argc, void* argv[])
 bool_t launchRemoteAMSClient(bool_t ramsIsolate, int32_t argc, uint8_t* argv[])
 {
     int32_t threadHandle;
+    file_startup();
     appletsList = listInstalledApplets(NULL);
-
+	DVMTraceInf("App list ptr:0x%x\n",appletsList);
     if (ramsIsolate)
     {
         threadHandle = ramsCreateClientThread(remoteAMSThreadProc, argc, argv);
@@ -703,10 +714,11 @@ static uint8_t* combineAppPath(uint16_t* appName)
     return fpath;//this space will be freed in destroyApplet.
 }
 
-extern int32_t DVM_main(int32_t argc, int8_t * argv[]);
-
 static int32_t VMThreadProc(int argc, char* argv[])
 {
+	DVMTraceInf("Enter dvm thread,argc=%d,argv=0x%x\n",argc,(void*)argv);
+	DVMTraceInf("argv-0:%s,argv-1:%s,argv-2:%s\n",argv[0],argv[1],argv[2]);
+    DVMTraceInf("Enter dvm thread,sleep over,sizeof(int)=%d,sizeof(int32_t)=%d\n",sizeof(int),sizeof(int32_t));    
     DVM_main(argc, argv);
     return 0;
 }
@@ -738,7 +750,7 @@ bool_t destroyApplet(int32_t id)
 bool_t runApplet(int32_t id)
 {
     AppletProps *pap;
-    uint8_t  ackBuf[8] = {0x0,};
+    uint8_t  ackBuf[8] = {0x0};
     int32_t* pint;
     bool_t   res = TRUE;
     static char* argv[3];
@@ -756,6 +768,7 @@ bool_t runApplet(int32_t id)
         argv[0] = "-run";
         argv[1] = pap->fpath;
         argv[2] = pap->mainCls;
+	 DVMTraceInf("argv=0x%x,argv-1:%s,argv-2:%s,argv-3:%s\n",(void*)argv,argv[0],argv[1],argv[2]);
         if (ramsCreateVMThread(VMThreadProc, 3, (void**)argv) < 0)
         {
             DVMTraceErr("lauch VM thread failure\n");
@@ -768,16 +781,17 @@ bool_t runApplet(int32_t id)
 
     pint = (int32_t*)ackBuf;
     pint[0] = CMD_RUN;
-    if (!res)
+    if (res)
     {
-        pint[1] = 0;
+        pint[1] = 1;
         packageClinetACK(ACK_RECV_EXEC, ackBuf, 8);
     }
     else
     {
-        pint[1] = 1;
+        pint[1] = 0;
         packageClinetACK(ACK_RECV_WITHOUT_EXEC, ackBuf, 8);
     }
+    DVMTraceInf("App run\n");
     return res;
 }
 
@@ -794,12 +808,12 @@ bool_t sendBackExecResult(int32_t cmd, bool_t res)
     }
     pint = (int32_t*)ackBuf;
     pint[0] = cmd;
-    if (cmd = CMD_RUN)
+    if (cmd == CMD_RUN)
     {
         pint[1] = res ? 1 : 0;
         curActiveApp->isRunning = res ? TRUE : FALSE;
     }
-    else if (cmd = CMD_DESTROY)
+    else if (cmd == CMD_DESTROY)
     {
         pint[1] = res ? 1 : 0;
         curActiveApp->isRunning = res ? FALSE : TRUE;

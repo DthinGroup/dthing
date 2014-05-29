@@ -12,6 +12,8 @@
 #include <std_global.h>
 #include <mm.h>
 #include <opl_mm.h>
+#include <vm_common.h>
+#include <vmTime.h>
 
 /* ------------------- size_t and alignment properties -------------------- */
 /* The byte and bit size of a uint32_t */
@@ -601,7 +603,11 @@ PUBLIC bool_t DVM_mm_initialize()
 	int32_t size;
 	void  * mem_pool;
 
+	DVMTraceInf("DVM_mm_initialize\n");
+
 	Sys_mm_getMemoryPool(&mem_pool, &size);
+
+	DVMTraceInf("DVM_mm_initialize:mem ptr:0x%x,size=%d\n",mem_pool,size);
 
 	if (mem_pool == NULL || size ==0 || (size < sizeof(mpglobal)))
 	{

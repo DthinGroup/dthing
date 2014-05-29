@@ -45,12 +45,12 @@ extern "C" {
  * REMOTE SERVER INFORMATION DEFINTIONS:
  */
 /* remote server address */
-//#define RS_ADDRESS  0x2a79123e
-#define RS_ADDRESS  0x0a0f04dd
-#define RS_ADDRESS  0x7f000001
+#define RS_ADDRESS  0x2a79123e
+//#define RS_ADDRESS  0x0a0f04dd
+//#define RS_ADDRESS  0x7f000001
 
 /* remote server port */
-#define RS_PORT     8888
+#define RS_PORT     7899
 
 
 /**

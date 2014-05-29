@@ -2,6 +2,7 @@
 #include <properties.h>
 #include <opl_file.h>
 #include <encoding.h>
+#include <vm_common.h>
 
 #define SYSTEM_CONFIG_FILE "sys.config"
 
@@ -38,7 +39,12 @@ static ReadStream* createFileReadStream(uint16_t* fn, int32_t len);
 static const char * const builtinProperties[] =
 {
     #define DEF_PROPERTY(k, v)  (k "\0" v)
+#ifdef ARCH_X86	
     DEF_PROPERTY("appdb.dir", "D:/dvm/appdb/"),
+    //DEF_PROPERTY("appdb.dir", "D:/nix.long/ReDvmAll/dvm/appdb/"),
+#elif defined(ARCH_ARM_SPD)
+    DEF_PROPERTY("appdb.dir", "D:/dthing/appdb/"),
+#endif
     DEF_PROPERTY("manufacture", "helio")
 };
 
@@ -170,9 +176,9 @@ static ReadStream* createFileReadStream(uint16_t* fn, int32_t len)
     {
         if (readStream != NULL )
         {
-            readStream->close(&readStream);
-            return NULL;
+            CRTL_free(readStream);            
         }
+		return NULL;
     }
 
     return readStream;

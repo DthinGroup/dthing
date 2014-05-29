@@ -160,7 +160,7 @@ extern Thread *otherThreadListHead;
  *public functions declare
  */
 Thread * dthread_alloc(int stackSize);
-void     dthread_create(const Method * mth,Object* obj, ...);
+void     dthread_create(const Method * mth,Object* obj);
 void     dthread_delete(Thread * thread);
 void     dthread_term(void);
 void     dthread_start(Thread * thread);

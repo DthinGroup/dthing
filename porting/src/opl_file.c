@@ -40,7 +40,9 @@
 
 #define MAX_FILENAME_LEN (256)
 
-#if defined(ARCH_X86)
+#define OPEN_ERROR 0
+
+
 /**
  * Convert a Java string into a nul terminated unicode string to pass
  * onto the Windows APIs.
@@ -71,7 +73,7 @@ LOCAL int32_t convertFileName(const uint16_t *fileName, int32_t nameLen,
 
     return nameLen;
 }
-#elif defined(ARCH_ARM_SPD)
+#if defined(ARCH_ARM_SPD)
 
 static uint16_t hostNames[2][256];
 
@@ -144,15 +146,6 @@ LOCAL const char *getAsciiName(const uint16_t *strData, int32_t strLength)
     return tbuf;
 }
 
-void file_startup()
-{
-}
-
-void file_shutdown() 
-{
-}
-
-
 int64_t file_storageSize(const uint16_t* name, int32_t nameLen)
 {
     //TODO: to implement
@@ -183,6 +176,7 @@ int32_t file_listOpen(const uint16_t* prefix, int32_t prefixLen, int32_t* sessio
 
 int32_t file_listNextEntry(const uint16_t* prefix, int32_t prefixLen, uint16_t* entry, int32_t entrySize, int32_t* session)
 {
+#ifdef ARCH_X86
     HANDLE handle = (HANDLE)*session;
     uint16_t fname[MAX_FILE_NAME_LEN];
     int32_t  len;
@@ -280,10 +274,91 @@ int32_t file_listNextEntry(const uint16_t* prefix, int32_t prefixLen, uint16_t* 
     }
 
     return FILE_RES_FAILURE;
+    
+#elif defined(ARCH_ARM_SPD)
+	SFS_HANDLE      sfsHandle;
+    SFS_FIND_DATA_T sfsAttr;
+    int32_t         fnameSize = 0;
+    int32_t         splashPos = 0;
+    uint16_t 		fname[MAX_FILE_NAME_LEN] = {0};
+    uint8_t 		asciiname[MAX_FILE_NAME_LEN]={0};
+    int32_t  		len =0;    
+
+	DVMTraceInf("file_listNextEntry in\n");
+	if(NULL == prefix)
+    {
+        DVMTraceInf("CPL_file_listNextEntry - ERROR: get host name error!!!");
+        return FILE_RES_FAILURE;
+    }
+    
+	if ((len = convertFileName(prefix, prefixLen, fname)) <= 0 ||
+        (len+2) >= MAX_FILE_NAME_LEN)    /* Ensure space for wildcard */
+    {
+        DVMTraceInf("file_listNextEntry: bad filename\n");
+        return FILE_RES_FAILURE;
+    }
+
+    fname[prefixLen] = '*'; //add matching rule.
+    fname[prefixLen+1] = '\0';
+    
+    CRTL_memset(asciiname,0,sizeof(asciiname));
+    CRTL_wstrtoutf8(asciiname,prefixLen,fname,prefixLen);
+	DVMTraceInf("CPL_file_listNextEntry - match expr:%s,handle:%d\n", asciiname,*session);
+	
+    sfsHandle = *session;
+    if (*session == -1)
+    {
+        if ((sfsHandle = SFS_FindFirstFile(fname, &sfsAttr)) == 0)
+        {
+            DVMTraceInf("CPL_file_listNextEntry - INFO: first NO FILE found!");
+            *entry = '\0';
+            return 0;
+        }
+        *session = sfsHandle;
+    }
+    else if (SFS_FindNextFile(sfsHandle, &sfsAttr) != SFS_NO_ERROR)
+    {
+        DVMTraceInf("CPL_file_listNextEntry - INFO: next NO FILE found!");
+        *entry = '\0';
+        return 0;
+    }
+
+    //find the last separating character.
+    for(splashPos = prefixLen; fname[splashPos] != '\\'; )
+    {
+         --splashPos;
+    }
+    splashPos++;
+
+    fnameSize = splashPos + CRTL_wcslen(sfsAttr.name);
+
+    if (fnameSize >= entrySize)
+    {
+        DVMTraceInf("CPL_file_listNextEntry - ERROR: entrySize is too small!!\n");
+        return 0;
+    }
+
+    CRTL_memcpy(entry, fname, splashPos<<1);
+    CRTL_memcpy(&entry[splashPos], sfsAttr.name, CRTL_wcslen(sfsAttr.name)*sizeof(uint16_t));
+
+    if (sfsAttr.attr & SFS_ATTR_DIR)
+    {
+        entry[fnameSize++] = '/';
+    }
+
+    entry[fnameSize] = '\0';
+    CRTL_memset(asciiname,0,sizeof(asciiname));
+    CRTL_wstrtoutf8(asciiname,fnameSize,entry,fnameSize);
+
+    DVMTraceInf("CPL_file_listNextEntry - INFO: file:%s,fnameSize (%d)\n", asciiname,fnameSize);
+    return fnameSize;
+#endif    
+	return -1;
 }
 
 int32_t file_listclose(int32_t* session)
 {
+#ifdef ARCH_X86
     HANDLE handle = (HANDLE)*session;
 
     DVMTraceInf("CPL_file_listClose: handle 0x%08x\n", handle);
@@ -292,6 +367,14 @@ int32_t file_listclose(int32_t* session)
         FindClose(handle);
 
     return FILE_RES_SUCCESS;
+#elif defined(ARCH_ARM_SPD)
+	SFS_HANDLE sfsHandle = * session;
+	
+	DVMTraceInf("CPL_file_listClose: handle 0x%08x\n", sfsHandle);
+	if (sfsHandle != INVALID_HANDLE_VALUE)
+		SFS_FindClose(sfsHandle);
+	return FILE_RES_FAILURE;
+#endif    
 }
 
 int32_t file_rename(const uint16_t* oldName, int32_t oldNameLen, const uint16_t* newName, int32_t newNameLen)
@@ -479,7 +562,7 @@ int32_t file_open(const uint16_t* name, int32_t nameLen, int32_t mode, int32_t *
 
 int32_t file_delete(const uint16_t* name, int32_t nameLen)
 {
-    uint16_t fname[MAX_PATH];
+    uint16_t fname[MAX_FILE_NAME_LEN];
 #ifdef ARCH_X86
     DWORD attribs;
     if (convertFileName(name, nameLen, fname) <= 0)
@@ -505,11 +588,12 @@ int32_t file_delete(const uint16_t* name, int32_t nameLen)
    
 #elif defined(ARCH_ARM_SPD)
     int32_t res;
-    if (convertFileName(name, nameLen, fname) <= 0)
+    uint16_t * hostName = hostNameConvert(name, nameLen, 0);
+    if (hostName==NULL)
     {
         DVMTraceErr("file_delete: bad filename\n");
     }
-    res = CPL_file_exists(name, nameChars, appId, notifier);
+    res = file_exists(name, nameLen);
 
     if (res == FILE_RES_ISDIR && SFS_DeleteDirectory(hostName) != SFS_NO_ERROR)
     {
@@ -657,8 +741,11 @@ int32_t file_seekex(int32_t handle, int32_t value, int32_t whence)
             setEnd = TRUE;
         }
         break;
+        
+    default:
+    	DVMTraceErr("unsupport seek type!\n");
+    	break;
     }
-
 
     if (SetFilePointer((HANDLE)handle, value, NULL, winWhence) < 0)
     {
@@ -673,36 +760,75 @@ int32_t file_seekex(int32_t handle, int32_t value, int32_t whence)
     return FILE_RES_SUCCESS;
 
 #elif defined(ARCH_ARM_SPD)
-    int32 fileSize;
+    int32_t prevSize=0,delta=0;
+    bool_t  setEnd = FALSE;
+    int64_t winWhence = 0;
 
-    if (SFS_GetFileSize((SFS_HANDLE)handle, (uint32*)&fileSize) != SFS_NO_ERROR)
+    if (SFS_GetFileSize((SFS_HANDLE)handle, (uint32*)&prevSize) != SFS_NO_ERROR)
     {
         DVMTraceErr("CPL_file_setPosition - ERROR: get file size error!!");
         return FILE_RES_FAILURE;
     }
-
-    if (fileSize <= value)
+    
+    switch (whence)
     {
-        if (SFS_SetFileSize((SFS_HANDLE)handle, value) != SFS_NO_ERROR)
+    case SFS_SEEK_BEGIN:
+        winWhence = SFS_SEEK_BEGIN;
+        if (value < 0)
         {
-            DVMTraceErr("CPL_file_setPosition - ERROR: set file size error!!");
+            DVMTraceDbg("file_seekex(FILE_SEEK_BEGIN): handle=0x%x negative value (%d)", handle, value);
             return FILE_RES_FAILURE;
         }
+        if (value - prevSize > 0)
+        {
+            setEnd = TRUE;
+        }
+        break;
 
-        if (SFS_SetFilePointer((SFS_HANDLE)handle, (int64)0, SFS_SEEK_END) != SFS_NO_ERROR)
+    case SFS_SEEK_CUR:
+        winWhence = SFS_SEEK_CUR;
+        delta = SFS_SetFilePointer((SFS_HANDLE)handle, 0, winWhence);
+        if (delta + value < 0)
         {
-            DVMTraceErr("CPL_file_setPosition - ERROR: set file pointer to end error!!");
+            DVMTraceDbg("file_seekex(FILE_SEEK_CURRENT): handle=0x%x negative value (%d)", handle, value);
             return FILE_RES_FAILURE;
         }
-        DVMTraceErr("CPL_file_setPosition - INFO: handle=%d success to %d", handle, value);
-        return FILE_RES_SUCCESS;
+        if (delta + value > prevSize)
+        {
+            setEnd = TRUE;
+        }
+        break;
+
+    case SFS_SEEK_END:
+        winWhence = SFS_SEEK_END;
+        if (prevSize + value < 0)
+        {
+            DVMTraceDbg("file_seekex(FILE_SEEK_END): handle=0x%x negative value (%d)", handle, value);
+            return FILE_RES_FAILURE;
+        }
+        if (value > 0)
+        {
+            setEnd = TRUE;
+        }
+        break;
+        
+    default:
+    	DVMTraceErr("unsupport seek type!\n");
+    	break;
     }
-    else if (SFS_SetFilePointer((SFS_HANDLE)handle, (int64)value, SFS_SEEK_BEGIN) != SFS_NO_ERROR)
+    
+    if (SFS_SetFilePointer((SFS_HANDLE)handle,value, winWhence) != SFS_NO_ERROR)
     {
-        DVMTraceErr("CPL_file_setPosition - ERROR: set file pointer to value error!!");
+        DVMTraceErr("CPL_file_setPosition - ERROR: set file pointer to end error!!");
         return FILE_RES_FAILURE;
     }
-
+    else if (setEnd)
+    {
+        /* Increase file length */
+        SFS_SetFilePointer((SFS_HANDLE)handle, (int64_t)0, SFS_SEEK_END) ;
+    }
+    
+    DVMTraceInf("Seek over,success!\n");
     return FILE_RES_SUCCESS;
 #endif
 }
@@ -725,6 +851,7 @@ int32_t file_getLengthByFd(int32_t handle)
 #elif defined(ARCH_ARM_SPD)
     int32_t len =0;
     SFS_ERROR_E ret = SFS_GetFileSize(handle,&len);
+    DVMTraceInf("file_getLengthByFd - Length = %d\n", len);
     if(ret == SFS_NO_ERROR)
         return len;
     return 0;
@@ -767,6 +894,121 @@ int32_t file_close(int32_t handle)
 int32_t file_mkdir(const uint16_t* name, int32_t nameLen)
 {
     //TODO: to implement
+#if defined(ARCH_X86)
+
+#elif defined(ARCH_ARM_SPD)
+	uint16_t fname[MAX_FILENAME_LEN] = {0};
+	uint8_t  asciiname[MAX_FILENAME_LEN] = {0};
+	 if(NULL == name)
+    {
+        DVMTraceInf("CPL_file_mkdir - ERROR: get host name error!!!");
+        return FILE_RES_FAILURE;
+    }
+
+	CRTL_memcpy(fname,name,nameLen*2);
+    if (fname[nameLen-1] == '/' || fname[nameLen-1] == '\\') 
+    	fname[nameLen-1] = '\0';
+    	
+    CRTL_wstrtoutf8(asciiname,nameLen,fname,nameLen);
+    DVMTraceInf("To make dir:%s \n",asciiname);
+    if (SFS_CreateDirectory(fname) != SFS_NO_ERROR)
+    {
+        DVMTraceErr("CPL_file_mkdir - ERROR: create directory file!!");
+         return FILE_RES_FAILURE;
+    }
+
+    return FILE_RES_SUCCESS;
+#endif    
     return 0;
 }
 
+#if defined(ARCH_ARM_SPD)
+
+#define DEV_NAME			L"D"
+#define DTHING_PATH 		L"D:\\dthing"        
+#define DTHING_PATH_FIX 	L"D:\\dthing\\"
+
+bool_t file_registerDeviceIfNeed()
+{
+	uint16_t    dev_name[] = {'D', 0x00};
+    SFS_DEVICE_FORMAT_E  format = SFS_FAT32_FORMAT;
+    SFS_ERROR_E sfsError = SFS_ERROR_NONE;
+	bool_t ret = TRUE;
+	
+	DVMTraceInf("file device register\n");
+	sfsError = SFS_GetDeviceStatus(dev_name);
+	
+	switch(sfsError)
+	{
+		case SFS_ERROR_NONE:
+			DVMTraceInf("device is ok!\n");
+			break;
+			
+		case SFS_ERROR_DEVICE:
+		case SFS_ERROR_SYSTEM:	
+			DVMTraceInf("device is error,register it\n");
+			sfsError = SFS_RegisterDevice(dev_name, &format);
+			if(SFS_ERROR_NONE == sfsError)
+		    {
+		        DVMTraceInf("==RMT== SFS_RegisterDevice SUCCESS");
+		    }
+		    else
+		    {		
+		        sfsError = SFS_Format(L"D", SFS_AUTO_FORMAT, NULL);
+		        if(SFS_ERROR_NONE == sfsError) {
+		            DVMTraceInf("==RMT== SFS_Format SUCCESS");
+		            DVMTraceInf("==RMT== SFS_RegisterDevice SUCCESS");
+		        }
+		        else {
+		            DVMTraceInf("==RMT== SFS_RegisterDevice error: %d", sfsError);
+		            DVMTraceInf("==RMT== SFS_Format error: %d", sfsError);
+		            ret =FALSE;
+		        }
+		    }
+			break;
+			
+		default:
+			DVMTraceInf("unhandle device error:%d\n",sfsError);
+			ret =FALSE;
+			break;
+	}
+	return ret;
+}
+
+#endif
+
+uint16_t * file_getDthingDir()
+{
+#if defined (ARCH_X86)	
+
+#elif defined(ARCH_ARM_SPD)	
+	return 	DTHING_PATH_FIX;
+#endif
+	return NULL;	
+}
+
+void file_startup()
+{	
+#if defined (ARCH_X86)
+
+#elif defined(ARCH_ARM_SPD)
+	bool_t ret;
+	int32_t dir_len = CRTL_wcslen(DTHING_PATH);
+	if(file_registerDeviceIfNeed())
+	{
+		if(file_exists(DTHING_PATH,dir_len) != FILE_RES_ISDIR)
+		{
+			DVMTraceInf("file device register:to make dir\n");
+			file_mkdir(DTHING_PATH,dir_len);
+		}
+	}
+	else
+	{
+		DVMTraceInf("file device register fail!\n");
+	}
+#endif	
+}
+
+void file_shutdown() 
+{
+}

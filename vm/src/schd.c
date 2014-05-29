@@ -530,13 +530,7 @@ void Schd_SCHEDULER(void)
             vmtime_startTimer();
             do{
                 DVM_LOG("No ready thread,waiting...\n");
-#if defined(ARCH_X86)
-                Sleep(10);
-#elif defined(ARCH_ARM_SPD)
-			SCI_Sleep(10);
-#else
-	#error "Remember me,pls!"
-#endif
+                vmtime_sleep(10);
             }while(!CAN_SCHEDULE());
         }
 

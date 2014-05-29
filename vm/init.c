@@ -15,7 +15,9 @@
 #include <dthing.h>
 #include <opl_mm.h>
 #include <opl_file.h>
-//#include <vmTime.h>
+#include <init.h>
+#include <vmTime.h>
+#include <vm_common.h>
 
 #include <class.h>
 #include <gc.h>
@@ -31,7 +33,7 @@ GLOBAL DVMGlobal gDvm;
  */
 LOCAL void DVM_native_init()
 {
-    file_startup();
+    //file_startup();
 }
 
 
@@ -56,7 +58,7 @@ LOCAL void DVM_native_final()
  */
 LOCAL void DVM_lifecycle_init()
 {
-    file_startup();
+    //file_startup();
     
     props_startup();
 
@@ -111,7 +113,7 @@ static uint8_t** processOptions(int32_t argc, const uint8_t* const argv[], int32
 
     DVMTraceDbg("VM options (%d):\n", argc);
     for (i = 0; i < argc; i++) {
-        DVMTraceDbg("  %d: '%s'", i, argv[i]);
+        DVMTraceDbg("  %d: %s\n", i, argv[i]);
     }
 
     newArgv = (uint8_t**)CRTL_malloc(argc * sizeof(uint8_t*));
@@ -175,10 +177,10 @@ static uint8_t** processOptions(int32_t argc, const uint8_t* const argv[], int32
  * Main method of VM entry. 
  * The API will not exit until VM is goging to shutdown status.
  */
-int32_t DVM_main(int32_t argc, int8_t * argv[])
+int32_t DVM_main(int32_t argc, char * argv[])
 {
-    uint8_t** newArgv;
-    int32_t   newArgc;
+    uint8_t** newArgv = NULL;
+    int32_t   newArgc = 0;
 	/* Find main class */
 	ClassObject* mainClass = NULL;
 	Method*      startMeth = NULL;
@@ -187,6 +189,8 @@ int32_t DVM_main(int32_t argc, int8_t * argv[])
     ClassObject* dummyThreadCls = NULL;
     Object*      dummyThreadObj = NULL;
 
+	DVMTraceInf("Call DVM_Main,argc:%d\n",argc);
+	DVMTraceInf("argv-1:%s,argv-2:%s,argv-3:%s\n",argv[0],argv[1],argv[2]);
     DVM_native_init();
 
 	//ret = sizeof(ArrayObject);
@@ -210,15 +214,20 @@ int32_t DVM_main(int32_t argc, int8_t * argv[])
     /* =================================== */
 #endif
 
+	DVMTraceInf("Try to find class\n");
 	/* Find main class */
 	//mainClass = dvmFindClass("Ljava/net/SocketUdpTest;");
     mainClass = dvmFindClass("Lcom/yarlungsoft/ams/Main;");
+    DVMTraceInf("Try to find class,mainclass:0x%x\n",mainClass);
     //mainClass = dvmFindClass("Lcom/yarlungsoft/print/printTest;");
 	/* Find Entry function method */
 	//startMeth = dvmGetStaticMethodID(mainClass, "main", "()V");
 	startMeth = dvmGetStaticMethodID(mainClass, "main", "([Ljava/lang/String;)V");
+	DVMTraceInf("Try to find class,startMeth:0x%x\n",startMeth);
     dummyThreadCls = dvmFindClass("Ljava/lang/Thread;");
+    DVMTraceInf("Try to find class,dummyThreadCls:0x%x\n",dummyThreadCls);
     dummyThreadObj = dvmAllocObject(dummyThreadCls, 0);
+    DVMTraceInf("Try to find class,dummyThreadObj:0x%x\n",dummyThreadObj);
     
     if (newArgc == 0)
     {
@@ -240,7 +249,9 @@ int32_t DVM_main(int32_t argc, int8_t * argv[])
 
         dthread_create_params(startMeth, dummyThreadObj, params);
     }
-
+    
+    
+	DVMTraceInf("Enter scheduler\n");
     //entry interpret;
     Schd_SCHEDULER();
 

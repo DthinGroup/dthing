@@ -16,12 +16,12 @@
 
 #include <std_types.h>
 
-#ifdef WIN32
+//#ifdef WIN32
 #include <stdlib.h>
 #include <string.h>
 #include <stddef.h>
 #include <ctype.h>
-#endif 
+//#endif 
 
 
 #ifdef __cplusplus
@@ -519,6 +519,17 @@ extern int32_t CRTL_wcscpy(uint16_t* s1, const uint16_t* s2);
 #ifndef CRTL_wcscat
 extern int32_t CRTL_wcscat(uint16_t* s1, const uint16_t* s2);
 #endif
+
+
+#ifndef CRTL_wstrtoutf8
+extern uint32_t CRTL_wstrtoutf8(//utf8 len
+                             uint8_t *utf8_ptr,//out
+                             uint32_t utf8_buf_len,//in
+                             const uint16_t *wstr_ptr,//in
+                             uint32_t wstr_len//in
+                             );
+#endif
+
 
 #ifdef __cplusplus
 } /* extern "C" */
