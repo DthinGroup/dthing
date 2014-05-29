@@ -8,7 +8,7 @@ typedef enum
     ARCH_X86,
     ARCH_ARM_SPD
 }ARCH_E;
-#define ARCH_ARM_SPD
+#define ARCH_X86
 #define INLINE
 
 #define _TEST_ED_    //test edward code of classloader
