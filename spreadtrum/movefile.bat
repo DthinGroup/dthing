@@ -20,6 +20,8 @@ copy %SRCDIR%\vm\src\*  %DESDIR%\dthing\vm\src\
 copy %SRCDIR%\vm\common.h  %DESDIR%\dthing\vm\
 copy %SRCDIR%\vm\dthing.h  %DESDIR%\dthing\vm\
 copy %SRCDIR%\vm\init.c  %DESDIR%\dthing\vm\
+copy %SRCDIR%\www\inc\*  %DESDIR%\dthing\www\inc\
+copy %SRCDIR%\www\src\*  %DESDIR%\dthing\www\src\
 copy %SRCDIR%\zlib\*  %DESDIR%\dthing\zlib\
 
 copy %SRCDIR%\spreadtrum\export\1308\dthing.mk  %DESDIR%\make\dthing\

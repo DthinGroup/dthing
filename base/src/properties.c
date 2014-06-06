@@ -40,8 +40,8 @@ static const char * const builtinProperties[] =
 {
     #define DEF_PROPERTY(k, v)  (k "\0" v)
 #ifdef ARCH_X86	
-    DEF_PROPERTY("appdb.dir", "D:/dvm/appdb/"),
-    //DEF_PROPERTY("appdb.dir", "D:/nix.long/ReDvmAll/dvm/appdb/"),
+    //DEF_PROPERTY("appdb.dir", "D:/dvm/appdb/"),
+    DEF_PROPERTY("appdb.dir", "D:/nix.long/ReDvmAll/dvm/appdb/"),
 #elif defined(ARCH_ARM_SPD)
     DEF_PROPERTY("appdb.dir", "D:/dthing/appdb/"),
 #endif
@@ -253,6 +253,7 @@ const char* props_getValue(const char* key)
 {
     const char* const* bin;
     Property* p = NULL;
+	int i=0;
 
     /* loop defined properties to find. */
     for (p = sysProps; p != NULL; p = p->next)
@@ -264,7 +265,7 @@ const char* props_getValue(const char* key)
     }
     
     /* loop builtin properties. */
-    for (bin = builtinProperties; *bin != NULL; bin++)
+    for (bin = builtinProperties; *bin != NULL && i++ < sizeof(builtinProperties)/sizeof(const char *); bin++)
     {
         if (CRTL_strcmp(key, *bin) == 0)
         {

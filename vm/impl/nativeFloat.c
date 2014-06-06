@@ -60,7 +60,7 @@ void Java_java_lang_Double_doubleToLongBits(const u4* args, JValue* pResult)
     Convert64 convert;
     convert.arg[0] = args[1];
     convert.arg[1] = args[2];
-    pResult->j = isnan(convert.dd) ? 0x7ff8000000000000LL : convert.ll;
+    pResult->j = isnan(convert.dd) ? 0x7ff8000000000000 LL : convert.ll;
 }
 
 /* see nativeFloat.h */

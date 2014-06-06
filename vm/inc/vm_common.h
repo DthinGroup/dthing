@@ -9,9 +9,13 @@ typedef enum
     ARCH_ARM_SPD
 }ARCH_E;
 #define ARCH_X86
+
+//#define NOT_LAUNCH_NET_TASK
+
 #define INLINE
 
 #define _TEST_ED_    //test edward code of classloader
+
 
 
 

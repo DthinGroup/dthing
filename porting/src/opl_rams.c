@@ -483,8 +483,10 @@ void cleanVmThread()
 	DVMTraceInf("clean up dthing vm thread\n");
 	if(SCI_INVALID_BLOCK_ID != g_dthing_threadid)
     {
-        SCI_TerminateThread(g_dthing_threadid);
-        SCI_DeleteThread(g_dthing_threadid);
+		if(SCI_IsThreadExist(g_dthing_threadid)){
+			SCI_TerminateThread(g_dthing_threadid);
+			SCI_DeleteThread(g_dthing_threadid);
+		}
         g_dthing_threadid = SCI_INVALID_BLOCK_ID;
     }
 
@@ -534,7 +536,7 @@ int32_t ramsCreateVMThread(DVMThreadFunc pDvmThreadProc, int argc, void* argv[])
                     (void*)argv,
                     g_dthing_mem_space_ptr,
                     DTHING_VM_THREAD_STACK_SIZE,
-                    PRI_DTHING_TASK,
+                    PRI_JBED_TASK,
                     SCI_PREEMPT,
                     "DthingVmQueue",
                     (g_dthing_mem_space_ptr+DTHING_VM_THREAD_STACK_SIZE),

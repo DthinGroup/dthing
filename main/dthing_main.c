@@ -10,8 +10,13 @@
 int main(int argc, char *argv[])
 {
 	//DVM_main(argc, argv);
+#ifdef    NOT_LAUNCH_NET_TASK	
+    runApplet(0);
+    while(true);
+#else	
     launchRemoteAMSClient(FALSE, argc, argv);
-	return 1;
+#endif
+    return 1;
 }
 
 #elif defined(ARCH_ARM_SPD)
@@ -50,8 +55,10 @@ static void Dthing_IThreadProc(int argc, void * argv)
 bool_t Dthing_startVM(void)
 {
     DvmLog("[Dthing log]:g_dvm_mem_space_ptr try to alloc");
-    
 
+#ifdef    NOT_LAUNCH_NET_TASK
+    return runApplet(0);
+#endif    
     DvmLog("[Dthing log]:g_dvm_mem_space_ptr try to alloc");
     //try to alloc java heap
     g_dvm_mem_space_ptr = (uint8*)SCI_ALLOCA(/*1024*2048*/ DTHING_THREAD_STACK_SIZE +DTHING_THREAD_QUEUE_SIZE);

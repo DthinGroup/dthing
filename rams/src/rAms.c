@@ -30,8 +30,8 @@ static AppletProps* curActiveApp;
 static uint16_t* getDefaultInstalledPath()
 {
 #if defined(ARCH_X86)
-    //return L"D:\\nix.long\\ReDvmAll\\dvm\\appdb\\";
-    return L"D:\\dvm\\appdb\\";
+    return L"D:\\nix.long\\ReDvmAll\\dvm\\appdb\\";
+    //return L"D:\\dvm\\appdb\\";
 #elif defined(ARCH_ARM_SPD)
 	return file_getDthingDir();
 #endif
@@ -336,6 +336,8 @@ static EventCmd* getAvailable()
 {
     int32_t i;
     EventCmd* pec = eventCmdQueue;
+	if(pec ==NULL)
+		return NULL;
     for (i = 0; i < EVT_QUEUE_SIZE; i++)
     {
         if (pec[i].length == 0)
@@ -754,7 +756,10 @@ bool_t runApplet(int32_t id)
     int32_t* pint;
     bool_t   res = TRUE;
     static char* argv[3];
-
+#ifdef NOT_LAUNCH_NET_TASK
+    file_startup();
+    appletsList = listInstalledApplets(NULL);
+#endif
     do
     {
         if ((pap = getAppletPropById(id)) == NULL)
@@ -778,6 +783,9 @@ bool_t runApplet(int32_t id)
         curActiveApp = pap;
     }
     while(FALSE);
+#ifdef NOT_LAUNCH_NET_TASK
+    return FALSE;
+#endif
 
     pint = (int32_t*)ackBuf;
     pint[0] = CMD_RUN;
