@@ -39,13 +39,10 @@ extern "C" {
  * abrupt changes in the time returned may cause problems like too long or too
  * short delays.
  *
- * @see CPL_os_getMillisElapsed
- *
  * @return Time in <b>milliseconds</b> (1.0e-3 seconds) since
  *         00:00 January 1, 1970 UTC.
  */
 int64_t OPL_core_getCurrentTimeMillis();
-
 
 /**
  * Print a character to the debugging log.
