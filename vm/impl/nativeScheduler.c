@@ -12,7 +12,7 @@
 
 #include <dthing.h>
 #include <nativeScheduler.h>
-#include <rams.h>
+#include <ramsclient.h>
 #include <upcall.h>
 
 /* refer to com/yarlungsoft/ams/Scheduler.java */
@@ -38,12 +38,12 @@ void Java_com_yarlungsoft_ams_Scheduler_reportState(const u4* args, JValue* pRes
     DVMTraceInf("Scheduler_reportState state(%d)\n", state);
     if (state == APPLET_STATE_STARTED)
     {
-        sendBackExecResult(CMD_RUN, TRUE);
+        ramsClient_sendBackExecResult(EVT_CMD_RUN, TRUE);
     }
     else if (state == APPLET_STATE_UNINITIALIZED)
     {
         /* UNINITIALIZED is not reported automatically except from destroying state*/
-        sendBackExecResult(CMD_DESTROY, TRUE);
+        ramsClient_sendBackExecResult(EVT_CMD_DESTROY, TRUE);
     }
 }
 

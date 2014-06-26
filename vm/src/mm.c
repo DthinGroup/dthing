@@ -490,6 +490,7 @@ LOCAL void * top_malloc(mpglobal * m, uint32_t nbytes)
 	p = (mchunkptr)m->mem_end;
 	set_size_and_pinuse_of_inuse_chunk(p, nbytes);
 	m->mem_end = (void *)chunk_plus_offset((mchunkptr)p, nbytes);
+    m->free_size -= nbytes;
 	
 	return chunk2mem(p);
 }
@@ -765,6 +766,156 @@ void * dcalloc(uint32_t num, uint32_t size)
 	return mem;
 }
 
+/* Consolidate and bin a chunk. Differs from exported versions
+   of free mainly in that the chunk need not be marked as inuse.
+*/
+static void dispose_chunk(mpglobal* m, mchunkptr p, size_t psize)
+{
+    mchunkptr next = chunk_plus_offset(p, psize);
+    if (!pinuse(p))
+    {
+        mchunkptr prev;
+        size_t prevsize = p->prev_foot;
+        prev = chunk_minus_offset(p, prevsize);
+        psize += prevsize;
+        p = prev;
+        unlink_chunk(m, p, prevsize);
+    }
+
+    if (!cinuse(next))
+    {
+        /* consolidate forward */
+        if (next == m->mem_end)
+        {
+            m->free_size += chunksize(p);
+            m->mem_end = p;
+            return;
+        }
+        else
+        {
+            size_t nsize = chunksize(next);
+            psize += nsize;
+            unlink_chunk(m, next, nsize);
+            set_size_and_pinuse_of_free_chunk(p, psize);
+        }
+    }
+    else
+    {
+        set_free_with_pinuse(p, psize, next);
+    }
+    insert_chunk(m, p, psize);
+}
+
+static mchunkptr try_realloc_chunk(mpglobal* m, mchunkptr p, size_t nb)
+{
+    mchunkptr newp = 0;
+    size_t oldsize = chunksize(p);
+    mchunkptr next = chunk_plus_offset(p, oldsize);
+    
+    if (oldsize >= nb)
+    {             
+        /* already big enough */
+        size_t rsize = oldsize - nb;
+        if (rsize >= MIN_CHUNK_SIZE)
+        {      
+            /* split off remainder */
+            mchunkptr r = chunk_plus_offset(p, nb);
+            set_inuse(p, nb);
+            set_inuse(r, rsize);
+            dispose_chunk(m, r, rsize);
+        }
+        newp = p;
+    }
+    else if (next == m->mem_end)
+    {  
+        /* extend into top */
+        if (oldsize + m->free_size > nb)
+        {
+            size_t rsize = nb - oldsize;
+            set_size_and_pinuse_of_inuse_chunk(p, nb);
+        	m->mem_end = (void *)chunk_plus_offset((mchunkptr)p, nb);
+            m->free_size -= rsize;
+
+            newp = p;
+        }
+    }
+    else if (!cinuse(next))
+    { 
+        /* extend into next free chunk */
+        size_t nextsize = chunksize(next);
+        if (oldsize + nextsize >= nb)
+        {
+            size_t rsize = oldsize + nextsize - nb;
+            unlink_chunk(m, next, nextsize);
+            if (rsize < MIN_CHUNK_SIZE) {
+                size_t newsize = oldsize + nextsize;
+                set_inuse(p, newsize);
+            }
+            else
+            {
+                mchunkptr r = chunk_plus_offset(p, nb);
+                set_inuse(p, nb);
+                set_inuse(r, rsize);
+                dispose_chunk(m, r, rsize);
+            }
+            newp = p;
+        }
+    }
+    return newp;
+}
+
+static mpglobal* getCurrentMemoryPool(void* mem)
+{
+	mpglobal* _mg = NULL;
+
+    for (_mg = mg; _mg != NULL; _mg = _mg->next)
+    {
+        if (mem >= _mg->mem_start && mem < _mg->perm_end)
+        {
+            return _mg;
+        }
+    }
+
+    return NULL;
+}
+
+void* drealloc(void* oldmem, size_t bytes)
+{
+    void* mem = NULL;
+
+	mpglobal* _mg = getCurrentMemoryPool(oldmem);
+
+    if (oldmem == NULL)
+    {
+        mem = dmalloc(bytes);
+    }
+    else if (bytes == 0)
+    {
+        dfree(oldmem);
+    }
+    else
+    {
+        size_t nb = pad_request2size(bytes);
+        mchunkptr oldp = mem2chunk(oldmem);
+        mchunkptr newp = try_realloc_chunk(_mg, oldp, nb);
+        if (newp != NULL)
+        {
+            mem = chunk2mem(newp);
+        }
+        else
+        {
+            mem = dmalloc(bytes);
+            if (mem != NULL)
+            {
+                CRTL_memcpy(mem, oldmem, chunksize(oldp));
+                dfree(oldmem);
+            }
+        }
+    }
+
+    return mem;
+}
+
 
 void dfree(void * mem)
 {
@@ -875,13 +1026,25 @@ void * endmalloc(uint32_t size)
 	return mem;
 }
 
+static bool_t isDynamicMem(void* mem)
+{
+	mpglobal* _mg = getCurrentMemoryPool(mem);
+
+    if (_mg != NULL && mem >= _mg->mem_start && mem < _mg->mem_end)
+    {
+        return TRUE;
+    }
+
+    return FALSE;    
+}
+
 /* refer to mm.h */
 void dmark(void* mem)
 {
 	mchunkptr p;
 	p = mem2chunk(mem);
 
-    if (!is_gcbitmarked(p))
+    if (isDynamicMem(mem) && !is_gcbitmarked(p))
     {
         set_gcmarkbit(p);
     }
@@ -901,8 +1064,7 @@ bool_t dismarked(void* mem)
 /* refer to mm.h */
 void dsweep()
 {
-	mchunkptr p;
-	mpglobal * _mg;
+	mpglobal*  _mg;
 
     for (_mg = mg; _mg != NULL; _mg = _mg->next)
     {

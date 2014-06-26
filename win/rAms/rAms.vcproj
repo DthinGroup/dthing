@@ -158,6 +158,18 @@
 	</References>
 	<Files>
 		<File
+			RelativePath="..\..\rams\inc\eventbase.h"
+			>
+		</File>
+		<File
+			RelativePath="..\..\rams\src\eventsystem.c"
+			>
+		</File>
+		<File
+			RelativePath="..\..\rams\inc\eventsystem.h"
+			>
+		</File>
+		<File
 			RelativePath="..\..\rams\src\jarparser.c"
 			>
 		</File>
@@ -166,11 +178,11 @@
 			>
 		</File>
 		<File
-			RelativePath="..\..\rams\src\rAms.c"
+			RelativePath="..\..\rams\src\ramsclient.c"
 			>
 		</File>
 		<File
-			RelativePath="..\..\rams\inc\rAms.h"
+			RelativePath="..\..\rams\inc\ramsclient.h"
 			>
 		</File>
 	</Files>

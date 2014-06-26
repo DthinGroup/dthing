@@ -9,6 +9,7 @@
  */
 
 #include <nativeRuntime.h>
+#include <gc.h>
 
 /**
  * Class:     java_lang_Runtime
@@ -36,6 +37,7 @@ void Java_java_lang_Runtime_totalMemory(const u4* args, JValue* pResult) {
  * Signature: ()V
  */
 void Java_java_lang_Runtime_gc(const u4* args, JValue* pResult) {
-    // TODO : implement
-    DVMTraceInf("Java_java_lang_Runtime_gc is not implemented..\n");
+    DVMTraceInf("Java_java_lang_Runtime_gc\n");
+    dvmRunGC();
+    RETURN_VOID();
 }

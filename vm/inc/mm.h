@@ -32,15 +32,15 @@ typedef struct malloc_chunk*  sbinptr;  /* The type of bins of chunks */
 typedef uint32_t              binmap_t;
 
 struct malloc_tree_chunk {
-  /* The first four fields must be compatible with malloc_chunk */
-  uint32_t                   prev_foot;
-  uint32_t                   head;
-  struct malloc_tree_chunk*  fd;
-  struct malloc_tree_chunk*  bk;
+    /* The first four fields must be compatible with malloc_chunk */
+    uint32_t                   prev_foot;
+    uint32_t                   head;
+    struct malloc_tree_chunk*  fd;
+    struct malloc_tree_chunk*  bk;
 
-  struct malloc_tree_chunk*  child[2];
-  struct malloc_tree_chunk*  parent;
-  uint32_t                   index;
+    struct malloc_tree_chunk*  child[2];
+    struct malloc_tree_chunk*  parent;
+    uint32_t                   index;
 };
 
 typedef struct malloc_tree_chunk   tchunk;

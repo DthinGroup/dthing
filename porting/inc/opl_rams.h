@@ -1,12 +1,16 @@
-
 #ifndef __OPL_RAMS_H__
 #define __OPL_RAMS_H__
 
 #include <std_global.h>
+#include <eventbase.h>
 
 #if defined(__cplusplus)
 extern "C" {
 #endif
+
+#define RAMS_RES_SUCCESS     EVT_RES_SUCCESS
+#define RAMS_RES_FAILURE     EVT_RES_FAILURE
+#define RAMS_RES_WOULDBLOCK  EVT_RES_WOULDBLOCK
 
 /**
  * Thread process function defintion.
@@ -18,53 +22,22 @@ extern "C" {
  *      these 2 parameters is for funtion extension in future. But
  *      we can ignore them at 1st phaze
  */
-typedef int32_t (*RAMSThreadFunc)(int argc, void* argv[]);
+typedef int32_t (*DVMThreadFunc)(int argc, char* argv[]);
 
 /**
- * See above.
+ * Startup and initialize network.
+ * @return RAMS_RES_SUCCESS means success, otherwise failure.
  */
-typedef int32_t (*DVMThreadFunc)(int argc, void* argv[]);
+int32_t rams_startupNetwork();
 
 /**
- * create Remote AMS thread to handle event. After this API is called, the new 
- * thread will start automatically without extra work.
- * @ramsThreadFunc, the new thread process funtion. refer to above definition of
-                    RAMSThreadFunc.
- * @argc, the arguments number which passes to new thread.
- * @argv, the arguments list which passes to new thread.
- * @return, the identifier of this created thread.
+ * connect to rams server, setup TCP connection.
+ * @param address, server ip address.
+ * @param port, the service port on server side.
+ * @instance, saved current connection instance.
+ * @return RAMS_RES_SUCCESS means success, otherwise failure.
  */
-int32_t ramsCreateClientThread(RAMSThreadFunc ramsThreadFunc, int argc, void* argv[]);
-
-/**
- * See above.
- */
-int32_t ramsCreateVMThread(DVMThreadFunc pDvmThreadProc, int argc, void* argv[]);
-
-/**
- * Abastract remote server APIs for easily communication.
- * This API returns an instance of network with specified ip 
- * address and port number. Actually, server only support socket connection
- * at present, so the instance returns from this API is an instance of
- * socket. Anyway, it can be expanded for future if needs.
- * @addres, ip address of server.
- * @port,   port number of server listened.
- * @return  return the instance of this server for next operations.
- */
-int32_t getRemoteServerInstance(uint32_t address, uint16_t port);
-
-
-/**
- * Send packaged data from client to remote server. This API is working
- * on block mode.
- * @instance, the instance of server for communication. returns
- *            from API getRemoteServerInstance().
- * @buf, the packaged data to be sent.
- * @bufSize, the data size in bytes.
- * @return, the real data bytes that has been sent on success, or
- *          a negative number means send failure.
- */
-int32_t sendData(int32_t instance, uint8_t* buf, int32_t bufSize);
+int32_t rams_connectServer(int32_t address, uint16_t port, int32_t *instance);
 
 /**
  * Recive remote AMS server data or message. The data is packaged
@@ -77,73 +50,44 @@ int32_t sendData(int32_t instance, uint8_t* buf, int32_t bufSize);
  * @return, number of bytes recived on success, or 0 means EOF has
  *          been reached, or negative number means error.
  */
-int32_t recvData(int32_t instance, uint8_t* buf, int32_t bufSize);
+int32_t rams_recvData(int32_t instance, uint8_t* buf, int32_t bufSize);
 
 /**
- * The same as recvData(). Only difference is this API is working on blocking mode with
- * give timeout value.
- * @params, see recvData() description.
- */
-int32_t recvDataWithTimeout(int32_t instance, uint8_t* buf, int32_t bufSize, int32_t timeout);
-
-/**
- * destroy the instance.
+ * Send packaged data from client to remote server. This API is working
+ * on block mode.
  * @instance, the instance of server for communication. returns
  *            from API getRemoteServerInstance().
- * @return, 0 means success, or a negative value for failure.
- */ 
-int32_t destroyRemoteServerInstance(int32_t instance);
+ * @buf, the packaged data to be sent.
+ * @bufSize, the data size in bytes.
+ * @return, the real data bytes that has been sent on success, or
+ *          a negative number means send failure.
+ */
+int32_t rams_sendData(int32_t instance, uint8_t* buf, int32_t bufSize);
+
+/**
+ * close the connection of rams server.
+ * @param instance, instance of the connection.
+ */
+int32_t rams_closeConnection(int32_t instance);
 
 
 /**
- * LockObject defintions.
+ * shutdown and finalize network.
+ * @return RAMS_RES_SUCCESS means success, otherwise failure.
  */
-#define LOCKOBJECT_TIMEOUT_NOWAIT (0)
-#define LOCKOBJECT_TIMEOUT_INFINITE (-1)
-
-/**
- * Create LockObject for rams.
- * The lock object depends on platform supportable, it can be semaphore,
- * mutex or event.
- * @return the instance of lock object.
- */
-int32_t createLockObject();
-
-/**
- * Destroy or end a lock object instance.
- * @instance, the lock object isntance which is returned by createLockObject
- * @return, TRUE means success, otherwise failure.
- */
-bool_t  destroyLockObject(int32_t instance);
+int32_t rams_shutdownNetwork();
 
 
 /**
- * Wait on a Lock object.
- * This API waits until the lock object condition is trigger, or the timeout 
- * value is reached.
- * @instance, the lock object isntance which is returned by createLockObject
- * @timeout, the time-out interval. 
- *           If the timeout value is greater than 0, then the function waits
- *           until the lockobject unblocked or timeout elapses. If the timeout
- *           value is LOCKOBJECT_TIMEOUT_NOWAIT, then the function returns
- *           immediately even if the semaphore value is zero. If the timeout value
- *           is LOCKOBJECT_TIMEOUT_INFINITE, the function waits forever until 
- *           the semaphore is unblocked by releaseLockObject().
- * @return, TRUE means success, otherwise failure.
+ * create dalvik VM thread to handle event. After this API is called, the new 
+ * thread will start automatically without extra work.
+ * @ramsThreadFunc, the new thread process funtion. refer to above definition of
+                    RAMSThreadFunc.
+ * @argc, the arguments number which passes to new thread.
+ * @argv, the arguments list which passes to new thread.
+ * @return, the identifier of this created thread.
  */
-bool_t waitObjectSignalOrTimeout(int32_t instance, int32_t timeout);
-
-/**
- * release the lockobject.
- * for different type lockojbect, it can have different implementations
- * 1) for semaphore, it can add a sema to ensure blocked tasks can get one lockobject.
- * 2) for mutext, it can release the mutex for lock object.
- *
- * @instance, the lock object isntance which is returned by createLockObject.
- * @return, TRUE means success, otherwise failure.
- */
-bool_t releaseLockObject(int32_t instance);
-
+int32_t rams_createVMThread(DVMThreadFunc pDvmThreadProc, int argc, void* argv[]);
 
 #ifdef __cplusplus
 }

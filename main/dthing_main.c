@@ -1,4 +1,6 @@
 #include <std_global.h>
+#include <eventsystem.h>
+#include <opl_es.h>
 #include "vm_common.h"
 
 #if defined(ARCH_ARM_SPD)
@@ -14,7 +16,27 @@ int main(int argc, char *argv[])
     runApplet(0);
     while(true);
 #else	
-    launchRemoteAMSClient(FALSE, argc, argv);
+    //launchRemoteAMSClient(FALSE, argc, argv);
+    ES_Semaphore *esSem;
+    ES_initial();
+    esSem = semaphore_create(0);
+
+    do
+    {
+        int32_t res;
+        
+        res = ES_Schedule(200);
+        
+        if (res > 0)
+        {
+            semaphore_waitOrTimeout(esSem, res);
+        }
+
+    } while(TRUE);
+
+    semaphore_destroy(esSem);
+    esSem = NULL;
+    ES_final();
 #endif
     return 1;
 }
