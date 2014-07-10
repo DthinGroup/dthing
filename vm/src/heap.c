@@ -94,6 +94,10 @@ bool_t heapIsMarked(void* ptr)
     return dismarked(ptr);
 }
 
+bool_t heapIsValid(void* ptr)
+{
+    return dvalidMem(ptr);
+}
 
 /**
  * Sweep the marked object and return the memory to MM.

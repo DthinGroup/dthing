@@ -29,13 +29,13 @@ extern "C" {
  * 4 - error
  */
 #ifndef TRACE_LEV 
-#define TRACE_LEV 4
+#define TRACE_LEV 1
 #endif
 
-#define DVMTraceDbg (TRACE_LEV < 1) ? (void) 0 : (void)DthingTraceD
-#define DVMTraceInf (TRACE_LEV < 2) ? (void) 0 : (void)DthingTraceI
-#define DVMTraceWar (TRACE_LEV < 3) ? (void) 0 : (void)DthingTraceW
-#define DVMTraceErr (TRACE_LEV < 4) ? (void) 0 : (void)DthingTraceE
+#define DVMTraceErr (TRACE_LEV < 1) ? (void) 0 : (void)DthingTraceE
+#define DVMTraceWar (TRACE_LEV < 2) ? (void) 0 : (void)DthingTraceW
+#define DVMTraceDbg (TRACE_LEV < 3) ? (void) 0 : (void)DthingTraceD
+#define DVMTraceInf (TRACE_LEV < 4) ? (void) 0 : (void)DthingTraceI
 
 void DthingTraceD(const char * fmt,...);
 void DthingTraceI(const char * fmt,...);

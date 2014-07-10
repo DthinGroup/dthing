@@ -501,12 +501,21 @@ bool_t dvmCreateStockExceptions()
      */
     gDvm.outOfMemoryObj = createStockException("Ljava/lang/OutOfMemoryError;",
         "[memory exhausted]");
+    if (gDvm.outOfMemoryObj != NULL) {
+        dvmGCAddToGlobalRef(gDvm.outOfMemoryObj);
+    }
 
     gDvm.internalErrorObj = createStockException("Ljava/lang/InternalError;",
         "[pre-allocated]");
-
+    if (gDvm.internalErrorObj != NULL) {
+        dvmGCAddToGlobalRef(gDvm.internalErrorObj);
+    }
+    
     gDvm.noClassDefFoundErrorObj =
         createStockException("Ljava/lang/NoClassDefFoundError;", "[generic]");
+    if (gDvm.noClassDefFoundErrorObj != NULL) {
+        dvmGCAddToGlobalRef(gDvm.noClassDefFoundErrorObj);
+    }
 
     if (gDvm.outOfMemoryObj == NULL || gDvm.internalErrorObj == NULL ||
         gDvm.noClassDefFoundErrorObj == NULL)
@@ -527,7 +536,7 @@ void dvmThrowException(const char* exceptionDescriptor, const char* msg)
     if (exception == NULL)
     {
         DVMTraceErr("dvmThrowException - Error: load exception(%s) failure\n", exceptionDescriptor);
-        //toto fatal Error?
+        //goto fatal Error?
     }
 
     dvmThrowChainedException(exceptionDescriptor, msg, NULL);

@@ -14,7 +14,7 @@
 #include <std_global.h>
 #include <dthing.h>
 #include <class.h>
-#include <rams.h>
+#include <ramsclient.h>
 #include <upcall.h>
 
 static Object* curActiveApplet;

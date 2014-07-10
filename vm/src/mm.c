@@ -584,7 +584,7 @@ LOCAL mpglobal * getPoolGlobalByMemory(void * mem)
 	mpglobal * _mg = mg;
 	do 
 	{
-		if (mem > _mg->mem_start && mem < _mg->perm_end)
+		if (mem >= _mg->mem_start && mem < _mg->perm_end)
 		{
 			//find one, break;
 			break;
@@ -666,7 +666,7 @@ PUBLIC void * dmalloc(uint32_t size)
 			binmap_t smbits = _mg->sbinsmap >> index;
 			
 			//best fit small bins
-			if (smbits & 3U != 0)
+			if ((smbits & 0x03) != 0)
 			{
 				mchunkptr b, p;
 
@@ -942,6 +942,7 @@ void dfree(void * mem)
 		uint32_t csize;
 		
 		csize = chunksize(p);
+		b = next_chunk(p);
 
 		if (!pinuse(p))
 		{	
@@ -953,7 +954,6 @@ void dfree(void * mem)
 			csize += fsize;
 			p = f;
 		}
-		b = next_chunk(p);
 
 		if (!cinuse(b)) 
 		{
@@ -1026,6 +1026,11 @@ void * endmalloc(uint32_t size)
 	return mem;
 }
 
+bool_t dvalidMem(void* mem)
+{
+    return isDynamicMem(mem);
+}
+
 static bool_t isDynamicMem(void* mem)
 {
 	mpglobal* _mg = getCurrentMemoryPool(mem);
@@ -1073,14 +1078,17 @@ void dsweep()
         do
         {
             nextObj = next_chunk(objAddr);
-            if (is_gcbitmarked(objAddr))
+            if (cinuse(objAddr))
             {
-                DVMTraceInf("dsweep - objAddr(%p) is freed\n", objAddr);
-                dfree(objAddr);
-            }
-            else
-            {
-                clear_gcmarkbit(objAddr);
+                if (!is_gcbitmarked(objAddr))
+                {
+                    DVMTraceInf("dsweep - objAddr(%p) is freed\n", objAddr);
+                    dfree(chunk2mem(objAddr));
+                }
+                else
+                {
+                    clear_gcmarkbit(objAddr);
+                }
             }
             objAddr = nextObj;
 

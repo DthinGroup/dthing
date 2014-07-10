@@ -119,6 +119,11 @@ bool_t dismarked(void* mem);
  */
 void dsweep();
 
+/**
+ * Check the address whether is valid object address.
+ */
+bool_t dvalidMem(void* mem);
+
 
 #ifdef __cplusplus
 } /* extern "C" */

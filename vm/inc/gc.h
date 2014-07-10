@@ -25,6 +25,7 @@ typedef enum GC_STATUS_e {
     GC_UNUSED
 } GC_STATUS;
 
+bool_t dvmGCAddToGlobalRef(Object* ref);
 
 /*
  * Create an instance of the specified class.

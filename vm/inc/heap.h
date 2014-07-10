@@ -59,6 +59,8 @@ void heapMarkObject(void* ptr);
  */
 bool_t heapIsMarked(void* ptr);
 
+bool_t heapIsValid(void* ptr);
+
 /**
  * Sweep the marked object and return the memory to MM.
  */
