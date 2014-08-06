@@ -224,7 +224,7 @@ public class PrintStream extends FilterOutputStream {
      * stream. If an I/O error occurs, this stream's error state is set to
      * {@code true}.
      */
-    @Override
+    //@Override
     public synchronized void close() {
         flush();
         if (out != null) {
@@ -242,7 +242,7 @@ public class PrintStream extends FilterOutputStream {
      * flushes the target stream. If an I/O error occurs, this stream's error
      * state is set to {@code true}.
      */
-    @Override
+    //@Override
     public synchronized void flush() {
         if (out != null) {
             try {
@@ -458,7 +458,7 @@ public class PrintStream extends FilterOutputStream {
      *             offset + count} is bigger than the length of {@code buffer}.
      * @see #flush()
      */
-    @Override
+    //@Override
     public void write(byte[] buffer, int offset, int length) {
         // Ensure the given off and length are valid for buffer[]
         if ((offset | length) < 0 || offset > buffer.length - length) {
@@ -492,7 +492,7 @@ public class PrintStream extends FilterOutputStream {
      * @param oneByte
      *            the byte to be written
      */
-    @Override
+    //@Override
     public synchronized void write(int oneByte) {
         if (out == null) {
             setError();

@@ -17,6 +17,8 @@
 
 package java.io;
 
+//Refer to: http://opengrok-cn.myriad.int:8180/masterpack/xref/dev/cfg/cldc/cdc/11/java/sun/java/io/FileOutputStream.java#openAppend
+
 /**
  * An output stream that writes bytes to a file. If the output file exists, it
  * can be replaced or appended to. If it does not exist, a new file will be
@@ -45,8 +47,14 @@ package java.io;
 public class FileOutputStream extends OutputStream {
 
     private FileDescriptor fd;
-
-
+    
+    private boolean append =false;    
+    
+    private native int writeFile(int handle,byte[] b,int off,int count);
+    
+    private native int openFile(String name,boolean append);
+    
+    private native boolean closeFile(int handle);
     /**
      * Constructs a new {@code FileOutputStream} that writes to {@code file}. The file will be
      * truncated if it exists, and created if it doesn't exist.
@@ -68,7 +76,16 @@ public class FileOutputStream extends OutputStream {
         if (file == null) {
             throw new NullPointerException("file == null");
         }
-        // TODO: to be implemented
+        String name = file.getPath();
+        if(name ==null){
+        	throw new NullPointerException();
+        }
+        this.fd = new FileDescriptor();
+        this.append = append;
+        fd.handle = openFile(name,append); 
+        if(fd.handle <=0){
+        	throw new FileNotFoundException("FileOutputStream:open " + name + " fail,file not found!");
+        }
     }
 
     /**
@@ -104,14 +121,21 @@ public class FileOutputStream extends OutputStream {
         this(new File(path), append);
     }
 
-    @Override
+    //@Override
     public void close() throws IOException {
-        // TODO: to be implemented
+    	closeFile(fd.handle);
     }
 
-    @Override 
+    //@Override
+	public void flush() throws IOException {
+		super.flush();
+	}
+
+	//@Override 
     protected void finalize() throws IOException {
-        // TODO: to be implemented
+        if(fd !=null){
+        	close();        	
+        }
     }
 
     /**
@@ -121,13 +145,29 @@ public class FileOutputStream extends OutputStream {
         return fd;
     }
 
-    @Override
+    //@Override
     public void write(byte[] buffer, int byteOffset, int byteCount) throws IOException {
-        // TODO: to be implemented
+    	if(byteCount<0){
+    		return;
+    	}
+    	if(byteOffset<0 || byteCount<0
+    	   || buffer.length < byteOffset+byteCount){
+    		throw new IOException("FileOutput write: out of bounds");
+    	}
+    	
+    	int ret = writeFile(fd.handle,buffer,byteOffset,byteCount);
+    	if(ret < 0){
+    		throw new IOException("FileOutput: write IO Exception");
+    	}
+    }
+    
+    public void write(byte[] buffer) throws IOException {
+    	write(buffer,0,buffer.length);
     }
 
-    @Override
+    //@Override
     public void write(int oneByte) throws IOException {
-        // TODO: to be implemented
+        byte[] b = {(byte) oneByte};
+        write(b,0,1);
     }
 }

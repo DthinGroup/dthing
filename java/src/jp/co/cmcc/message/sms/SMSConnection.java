@@ -1,11 +1,12 @@
 
 package jp.co.cmcc.message.sms;
 
+
 import java.io.IOException;
-import java.io.InterruptedIOException;
 import java.util.Date;
 
 import com.yarlungsoft.util.Log;
+
 
 public class SMSConnection {
 

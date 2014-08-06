@@ -32,6 +32,7 @@ public final class FileDescriptor {
     final static int STDOUT = 1;
     final static int STDERR = 2;
 
+    protected int handle = -1;
     /**
      * Corresponds to {@code stdin}.
      */
@@ -97,7 +98,8 @@ public final class FileDescriptor {
         this.fd = fd;
     }
 
-    @Override public String toString() {
+    //@Override 
+    public String toString() {
         return "FileDescriptor[" + fd + "]";
     }
 }

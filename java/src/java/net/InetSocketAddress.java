@@ -76,13 +76,14 @@ public class InetSocketAddress extends SocketAddress {
     private static byte[] getIP(String addr) throws IllegalArgumentException {
 		byte[] ip = new byte[4];
 	    int i = addr.indexOf('.');
-	    ip[0] = Byte.parseByte(addr.substring(0, i++));
+	    ip[0] = (byte) Integer.parseInt(addr.substring(0, i++));
 	    int j = addr.indexOf('.',i);
-	    ip[1] = Byte.parseByte(addr.substring(i, j++));
+	    ip[1] = (byte) Integer.parseInt(addr.substring(i, j++));
 	    i = addr.indexOf('.',j);
-	    ip[2] = Byte.parseByte(addr.substring(j, i++));
-
-	    ip[3] = Byte.parseByte(addr.substring(i));
+	    ip[2] = (byte) Integer.parseInt(addr.substring(j, i++));
+	    ip[3] = (byte) Integer.parseInt(addr.substring(i));
+	    
+	    System.out.println("ip:"+ip[0]+":"+ip[1]+":"+ip[2]+":"+ip[3]);
 
 	    return ip;
 	}
@@ -100,6 +101,7 @@ public class InetSocketAddress extends SocketAddress {
      */
     public InetSocketAddress(String host, int port)
     {
+    	System.out.println("host:"+host+":"+port);
     	//host format is ip "xx.x.x.x"
         if (host == null || port < 0 || port > 65535) {
             throw new IllegalArgumentException("host=" + host + ", port=" + port);
@@ -111,6 +113,7 @@ public class InetSocketAddress extends SocketAddress {
         this.addr = addr;
         this.hostip = host;
         this.port = port;
+        System.out.println("InetSocketAddress over");
     }
 
     /**

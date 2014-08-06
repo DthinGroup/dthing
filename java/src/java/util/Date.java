@@ -83,7 +83,7 @@ public class Date {
      *
      * @see java.lang.Cloneable
      */
-    @Override
+    //@Override
     public Object clone() {
         try {
             return super.clone();
@@ -123,7 +123,7 @@ public class Date {
      *
      * @see #hashCode
      */
-    @Override
+    //@Override
     public boolean equals(Object object) {
         return (object == this) || (object instanceof Date)
                 && (milliseconds == ((Date) object).milliseconds);
@@ -147,7 +147,7 @@ public class Date {
      *
      * @see #equals
      */
-    @Override
+    //@Override
     public int hashCode() {
         return (int) (milliseconds >>> 32) ^ (int) milliseconds;
     }
@@ -171,7 +171,7 @@ public class Date {
      * locale are used. If you need control over the time zone or locale,
      * use {@code SimpleDateFormat} instead.
      */
-    @Override
+    //@Override
     public String toString() {
     	// TODO: to be implemented
     	return null;

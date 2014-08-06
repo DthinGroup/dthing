@@ -150,7 +150,7 @@ public final class Long {
      * @return {@code true} if the specified object is equal to this
      *         {@code Long}; {@code false} otherwise.
      */
-    @Override
+    //@Override
     public boolean equals(Object o) {
         return (o instanceof Long) && (((Long) o).value == value);
     }
@@ -175,7 +175,7 @@ public final class Long {
      *
      * @return  a hash code value for this object.
      */
-    @Override
+    //@Override
     public int hashCode() {
         return (int) (value ^ (value >>> 32));
     }
@@ -345,7 +345,7 @@ public final class Long {
     	return toUnsignedString(v, 3);
     }
 
-    @Override
+    //@Override
     public String toString() {
         return Long.toString(value);
     }

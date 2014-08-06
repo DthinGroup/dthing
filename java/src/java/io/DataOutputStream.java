@@ -68,7 +68,7 @@ public class DataOutputStream extends FilterOutputStream implements DataOutput {
      * @throws IOException
      *             if an error occurs attempting to flush this stream.
      */
-    @Override
+    //@Override
     public void flush() throws IOException {
         super.flush();
     }
@@ -100,7 +100,7 @@ public class DataOutputStream extends FilterOutputStream implements DataOutput {
      * @throws NullPointerException
      *             if {@code buffer} is {@code null}.
      */
-    @Override
+    //@Override
     public void write(byte[] buffer, int offset, int count) throws IOException {
         if (buffer == null) {
             throw new NullPointerException("buffer == null");
@@ -119,7 +119,7 @@ public class DataOutputStream extends FilterOutputStream implements DataOutput {
      *             if an error occurs while writing to the target stream.
      * @see DataInputStream#readByte()
      */
-    @Override
+    //@Override
     public void write(int oneByte) throws IOException {
         out.write(oneByte);
         written++;

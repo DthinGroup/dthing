@@ -17,6 +17,7 @@
 
 package java.util;
 
+
 /**
  * An AbstractSet is an abstract implementation of the Set interface. This
  * implementation does not support adding. A subclass must implement the
@@ -44,7 +45,7 @@ public abstract class AbstractSet<E> extends AbstractCollection<E> implements
      *         {@code false} otherwise
      * @see #hashCode
      */
-    @Override
+    //@Override
     public boolean equals(Object object) {
         if (this == object) {
             return true;
@@ -71,7 +72,7 @@ public abstract class AbstractSet<E> extends AbstractCollection<E> implements
      * @return the hash code of this set.
      * @see #equals
      */
-    @Override
+    //@Override
     public int hashCode() {
         int result = 0;
         Iterator<?> it = iterator();
@@ -93,7 +94,7 @@ public abstract class AbstractSet<E> extends AbstractCollection<E> implements
      * @throws UnsupportedOperationException
      *                if removing from this collection is not supported.
      */
-    @Override
+    //@Override
     public boolean removeAll(Collection<?> collection) {
         boolean result = false;
         if (size() <= collection.size()) {
@@ -112,4 +113,5 @@ public abstract class AbstractSet<E> extends AbstractCollection<E> implements
         }
         return result;
     }
+     
 }

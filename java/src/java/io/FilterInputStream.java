@@ -48,7 +48,7 @@ public class FilterInputStream extends InputStream {
         this.in = in;
     }
 
-    @Override
+    //@Override
     public int available() throws IOException {
         return in.available();
     }
@@ -59,7 +59,7 @@ public class FilterInputStream extends InputStream {
      * @throws IOException
      *             if an error occurs while closing this stream.
      */
-    @Override
+    //@Override
     public void close() throws IOException {
         in.close();
     }
@@ -78,7 +78,7 @@ public class FilterInputStream extends InputStream {
      * @see #markSupported()
      * @see #reset()
      */
-    @Override
+    //@Override
     public synchronized void mark(int readlimit) {
         in.mark(readlimit);
     }
@@ -94,7 +94,7 @@ public class FilterInputStream extends InputStream {
      * @see #reset()
      * @see #skip(long)
      */
-    @Override
+    //@Override
     public boolean markSupported() {
         return in.markSupported();
     }
@@ -109,7 +109,7 @@ public class FilterInputStream extends InputStream {
      * @throws IOException
      *             if the stream is closed or another IOException occurs.
      */
-    @Override
+    //@Override
     public int read() throws IOException {
         return in.read();
     }
@@ -133,7 +133,7 @@ public class FilterInputStream extends InputStream {
      * @throws IOException
      *             if this stream is closed or another I/O error occurs.
      */
-    @Override
+    //@Override
     public int read(byte[] buffer, int offset, int count) throws IOException {
         return in.read(buffer, offset, count);
     }
@@ -149,7 +149,7 @@ public class FilterInputStream extends InputStream {
      * @see #mark(int)
      * @see #markSupported()
      */
-    @Override
+    //@Override
     public synchronized void reset() throws IOException {
         in.reset();
     }
@@ -166,7 +166,7 @@ public class FilterInputStream extends InputStream {
      * @see #mark(int)
      * @see #reset()
      */
-    @Override
+    //@Override
     public long skip(long byteCount) throws IOException {
         return in.skip(byteCount);
     }

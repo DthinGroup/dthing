@@ -14,7 +14,7 @@ class UTF_8_Reader extends StreamReader {
 	byte[] localBuf;
 
 	/** Size of the buffer used for reading bytes to convert */
-	static final int BUFSIZE = 128;
+	static final int BUFSIZE = 1;//128;
 
 	/** Constructs a UTF-8 reader */
 	public UTF_8_Reader() {

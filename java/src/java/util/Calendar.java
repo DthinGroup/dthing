@@ -802,7 +802,7 @@ public abstract class Calendar implements Serializable, Cloneable {
      *
      * @see java.lang.Cloneable
      */
-    @Override
+    //@Override
     public Object clone() {
         try {
             Calendar clone = (Calendar) super.clone();
@@ -858,7 +858,7 @@ public abstract class Calendar implements Serializable, Cloneable {
      * @return {@code true} if the specified object is equal to this {@code Calendar}, {@code false}
      *         otherwise.
      */
-    @Override
+    //@Override
     public boolean equals(Object object) {
         if (this == object) {
             return true;
@@ -1112,7 +1112,7 @@ public abstract class Calendar implements Serializable, Cloneable {
      *
      * @see #equals
      */
-    @Override
+    //@Override
     public int hashCode() {
         return (isLenient() ? 1237 : 1231) + getFirstDayOfWeek()
                 + getMinimalDaysInFirstWeek() + getTimeZone().hashCode();
@@ -1346,7 +1346,7 @@ public abstract class Calendar implements Serializable, Cloneable {
     /**
      * Returns the string representation of this {@code Calendar}.
      */
-    @Override
+    //@Override
     public String toString() {
         StringBuilder result = new StringBuilder(getClass().getName() +
                 "[time=" + (isTimeSet ? String.valueOf(time) : "?") +

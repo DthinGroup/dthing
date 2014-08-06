@@ -17,6 +17,8 @@
 
 package java.util;
 
+import java.io.Serializable;
+
 import com.yarlungsoft.util.EmptyArray;
 
 
@@ -36,7 +38,7 @@ import com.yarlungsoft.util.EmptyArray;
  * @param <E> The element type of this list.
  * @since 1.2
  */
-public class ArrayList<E> {
+public class ArrayList<E> extends AbstractList<E> implements List<E>,Cloneable, Serializable, RandomAccess{
     /**
      * The minimum amount by which the capacity of an ArrayList will increase.
      * This tuning parameter controls a time-space tradeoff. This value (12)
@@ -273,7 +275,8 @@ public class ArrayList<E> {
      * @return a shallow copy of this {@code ArrayList}
      * @see java.lang.Cloneable
      */
-    @Override public Object clone() {
+    //@Override 
+    public Object clone() {
         try {
             ArrayList<?> result = (ArrayList<?>) super.clone();
             result.array = array.clone();
@@ -300,7 +303,7 @@ public class ArrayList<E> {
         }
     }
 
-    @SuppressWarnings("unchecked")
+    //@SuppressWarnings("unchecked")
     public E get(int index) {
         if (index >= size) {
             throwIndexOutOfBoundsException(index, size);
@@ -400,7 +403,8 @@ public class ArrayList<E> {
         if (index >= s) {
             throwIndexOutOfBoundsException(index, s);
         }
-        @SuppressWarnings("unchecked") E result = (E) a[index];
+        //@SuppressWarnings("unchecked") 
+        E result = (E) a[index];
         System.arraycopy(a, index + 1, a, index, --s - index);
         a[s] = null;  // Prevent memory leak
         size = s;
@@ -478,7 +482,8 @@ public class ArrayList<E> {
         if (index >= size) {
             throwIndexOutOfBoundsException(index, size);
         }
-        @SuppressWarnings("unchecked") E result = (E) a[index];
+        //@SuppressWarnings("unchecked") 
+        E result = (E) a[index];
         a[index] = object;
         return result;
     }
@@ -535,7 +540,8 @@ public class ArrayList<E> {
             return remaining != 0;
         }
 
-        @SuppressWarnings("unchecked") public E next() {
+        //@SuppressWarnings("unchecked") 
+        public E next() {
             ArrayList<E> ourList = ArrayList.this;
             int rem = remaining;
             if (ourList.modCount != expectedModCount) {
@@ -609,5 +615,4 @@ public class ArrayList<E> {
     }
 
     private static final long serialVersionUID = 8683452581122892189L;
-
  }

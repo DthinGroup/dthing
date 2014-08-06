@@ -17,7 +17,7 @@
 
 package java.util;
 
-import java.lang.reflect.Array;
+//import java.lang.reflect.Array;
 
 /**
  * Class {@code AbstractCollection} is an abstract implementation of the {@code
@@ -352,7 +352,7 @@ public abstract class AbstractCollection<E> implements Collection<E> {
      *
      * @return the string representation of this {@code Collection}.
      */
-    @Override
+    //@Override
     public String toString() {
         if (isEmpty()) {
             return "[]";

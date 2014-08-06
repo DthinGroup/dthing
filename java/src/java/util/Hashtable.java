@@ -17,7 +17,6 @@
 
 package java.util;
 
-import java.io.IOException;
 import java.io.Serializable;
 
 /**
@@ -33,6 +32,11 @@ import java.io.Serializable;
 public class Hashtable<K, V> extends Dictionary<K, V>
         implements Map<K, V>, Cloneable, Serializable {
     /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1421746759512286392L;
+
+	/**
      * Min capacity (other than zero) for a Hashtable. Must be a power of two
      * greater than 1 (and less than 1 << 30).
      */
@@ -49,7 +53,7 @@ public class Hashtable<K, V> extends Dictionary<K, V>
      * is set to half the minimum, so that the first resize will create a
      * minimum-sized table.
      */
-    @SuppressWarnings("unchecked")
+    //@SuppressWarnings("unchecked")
 	private static final Entry[] EMPTY_TABLE
             = new HashtableEntry[MINIMUM_CAPACITY >>> 1];
 
@@ -98,7 +102,7 @@ public class Hashtable<K, V> extends Dictionary<K, V>
      * Constructs a new {@code Hashtable} using the default capacity and load
      * factor.
      */
-    @SuppressWarnings("unchecked")
+    //@SuppressWarnings("unchecked")
     public Hashtable() {
         table = (HashtableEntry<K, V>[]) EMPTY_TABLE;
         threshold = -1; // Forces first put invocation to replace EMPTY_TABLE
@@ -117,7 +121,7 @@ public class Hashtable<K, V> extends Dictionary<K, V>
         }
 
         if (capacity == 0) {
-            @SuppressWarnings("unchecked")
+            //@SuppressWarnings("unchecked")
             HashtableEntry<K, V>[] tab = (HashtableEntry<K, V>[]) EMPTY_TABLE;
             table = tab;
             threshold = -1; // Forces first put() to replace EMPTY_TABLE
@@ -199,8 +203,9 @@ public class Hashtable<K, V> extends Dictionary<K, V>
      * @return a shallow copy of this {@code Hashtable}.
      * @see java.lang.Cloneable
      */
-    @SuppressWarnings("unchecked")
-    @Override public synchronized Object clone() {
+    //@SuppressWarnings("unchecked")
+    //@Override 
+    public synchronized Object clone() {
         /*
          * This could be made more efficient. It unnecessarily hashes all of
          * the elements in the map.
@@ -482,7 +487,8 @@ public class Hashtable<K, V> extends Dictionary<K, V>
      * @param newCapacity must be a power of two
      */
     private HashtableEntry<K, V>[] makeTable(int newCapacity) {
-        @SuppressWarnings("unchecked") HashtableEntry<K, V>[] newTable
+        //@SuppressWarnings("unchecked") 
+        HashtableEntry<K, V>[] newTable
                 = (HashtableEntry<K, V>[]) new HashtableEntry[newCapacity];
         table = newTable;
         threshold = (newCapacity >> 1) + (newCapacity >> 2); // 3/4 capacity
@@ -684,7 +690,8 @@ public class Hashtable<K, V> extends Dictionary<K, V>
             return oldValue;
         }
 
-        @Override public final boolean equals(Object o) {
+        //@Override 
+        public final boolean equals(Object o) {
             if (!(o instanceof Entry<?, ?>)) {
                 return false;
             }
@@ -692,11 +699,13 @@ public class Hashtable<K, V> extends Dictionary<K, V>
             return key.equals(e.getKey()) && value.equals(e.getValue());
         }
 
-        @Override public final int hashCode() {
+        //@Override 
+        public final int hashCode() {
             return key.hashCode() ^ value.hashCode();
         }
 
-        @Override public final String toString() {
+        //@Override 
+        public final String toString() {
             return key + "=" + value;
         }
     }
@@ -841,12 +850,14 @@ public class Hashtable<K, V> extends Dictionary<K, V>
      *         {@code false} otherwise.
      * @see #hashCode
      */
-    @Override public synchronized boolean equals(Object object) {
+    //@Override 
+    public synchronized boolean equals(Object object) {
         return (object instanceof Map<?, ?>) &&
                 entrySet().equals(((Map<?, ?>)object).entrySet());
     }
 
-    @Override public synchronized int hashCode() {
+    //@Override 
+    public synchronized int hashCode() {
         int result = 0;
         for (Entry<K, V> e : entrySet()) {
             K key = e.getKey();
@@ -871,7 +882,9 @@ public class Hashtable<K, V> extends Dictionary<K, V>
      *
      * @return the string representation of this {@code Hashtable}.
      */
-    @Override public synchronized String toString() {
+    //@Override 
+    public synchronized String toString() 
+    {
         StringBuilder result = new StringBuilder(CHARS_PER_ENTRY * size);
         result.append('{');
         Iterator<Entry<K, V>> i = entrySet().iterator();
@@ -896,7 +909,8 @@ public class Hashtable<K, V> extends Dictionary<K, V>
         return result.toString();
     }
 
-    private final class KeySet extends AbstractSet<K> {
+    private final class KeySet extends AbstractSet<K> 
+    {
         public Iterator<K> iterator() {
             return new KeyIterator();
         }
@@ -953,7 +967,8 @@ public class Hashtable<K, V> extends Dictionary<K, V>
         }
     }
 
-    private final class Values extends AbstractCollection<V> {
+    private final class Values extends AbstractCollection<V> 
+    {
         public Iterator<V> iterator() {
             return new ValueIterator();
         }
@@ -983,7 +998,8 @@ public class Hashtable<K, V> extends Dictionary<K, V>
         }
     }
 
-    private final class EntrySet extends AbstractSet<Entry<K, V>> {
+    private final class EntrySet extends AbstractSet<Entry<K, V>> 
+    {
         public Iterator<Entry<K, V>> iterator() {
             return new EntryIterator();
         }
@@ -1071,6 +1087,4 @@ public class Hashtable<K, V> extends Dictionary<K, V>
 
         return i + 1;
     }
-
-    private static final long serialVersionUID = 1421746759512286392L;
 }

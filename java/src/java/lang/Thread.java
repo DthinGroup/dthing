@@ -546,7 +546,7 @@ public class Thread implements Runnable {
      *
      * @return a printable representation for the receiver.
      */
-    @Override
+    //@Override
     public String toString() {
         return "Thread[" + name + "," + priority + "]";
     }

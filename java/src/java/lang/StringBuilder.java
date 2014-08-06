@@ -525,8 +525,18 @@ public final class StringBuilder {
      *
      * @return the string representation of the data in this builder.
      */
-    @Override
+    //@Override
     public String toString() {
     	return sb.toString();
     }
+    
+    public int length()
+    {
+    	return sb.length();
+    }
+    
+    public CharSequence subSequence(int start, int end) {
+    	return sb.toString().subSequence(start, end);
+	}
+    
 }

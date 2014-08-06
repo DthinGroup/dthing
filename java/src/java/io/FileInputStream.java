@@ -45,6 +45,15 @@ public class FileInputStream extends InputStream {
 
     private FileDescriptor fd;
 
+    private native int openFile(String name);
+    
+    private native boolean closeFile(int handle);
+    
+    private native int readFile(int handle,byte[] buff,int off,int count);
+    
+    private native int available0(int handle);
+    
+    private native long skip0(int handle,long byteCount);
     /**
      * Constructs a new {@code FileInputStream} that reads from {@code file}.
      *
@@ -57,7 +66,16 @@ public class FileInputStream extends InputStream {
         if (file == null) {
             throw new NullPointerException("file == null");
         }
-        // TODO: to be implemented
+        String name = file.getPath();
+        if(name ==null){
+        	throw new FileNotFoundException("FileInputStream:not found:"+ name);
+        }
+        
+        int ret = openFile(name);
+        if(ret <=0){
+        	throw new FileNotFoundException("FileInputStream II:not found:"+ name);
+        }
+        fd.handle = ret;
     }
 
     /**
@@ -73,6 +91,7 @@ public class FileInputStream extends InputStream {
             throw new NullPointerException("fd == null");
         }
         // TODO: to be implemented
+        this.fd = fd;
     }
 
     /**
@@ -82,15 +101,20 @@ public class FileInputStream extends InputStream {
         this(new File(path));
     }
 
-    @Override
+    //@Override
     public int available() throws IOException {
-        // TODO: to be implemented
-    	return 0;
+    	int size = available0(fd.handle);
+    	if(size <0)
+    		throw new IOException("file available fail!");
+    	return size;
     }
 
-    @Override
+    //@Override
     public void close() throws IOException {
-        // TODO: to be implemented
+    	boolean ret = closeFile(fd.handle);
+    	if(!ret){
+    		throw new IOException();
+    	}
     }
 
     /**
@@ -100,9 +124,11 @@ public class FileInputStream extends InputStream {
      * @throws IOException
      *             if an error occurs attempting to finalize this stream.
      */
-    @Override 
+    //@Override 
     protected void finalize() throws IOException {
-        // TODO: to be implemented
+        if(fd !=null){
+        	close();
+        }
     }
 
     /**
@@ -112,21 +138,31 @@ public class FileInputStream extends InputStream {
         return fd;
     }
 
-    @Override 
+    //@Override 
     public int read() throws IOException {
-        // TODO: to be implemented
-    	return 0;
+    	byte[] buffer = new byte[1];
+    	int ret = read(buffer,0,1);
+    	if(ret <= 0)
+    		return -1;
+    	return buffer[0];
     }
 
-    @Override 
+    
+    //@Override
+	public int read(byte[] buffer) throws IOException {
+		return read(buffer,0,buffer.length);
+	}
+
+	//@Override 
     public int read(byte[] buffer, int byteOffset, int byteCount) throws IOException {
-        // TODO: to be implemented
-    	return 0;
+    	int ret = readFile(fd.handle,buffer,byteOffset,byteCount);
+    	return ret;
     }
 
-    @Override
+    //@Override
     public long skip(long byteCount) throws IOException {
-        // TODO: to be implemented
-    	return 0;
+        if(byteCount <=0)
+        	return 0;
+    	return skip0(fd.handle,byteCount);
     }
 }

@@ -110,7 +110,7 @@ class ComparableTimSort {
 
         // Allocate temp storage (which may be increased later if necessary)
         int len = a.length;
-        @SuppressWarnings({"unchecked", "UnnecessaryLocalVariable"})
+        //@SuppressWarnings({"unchecked", "UnnecessaryLocalVariable"})
         Object[] newArray = new Object[len < 2 * INITIAL_TMP_STORAGE_LENGTH ?
                                        len >>> 1 : INITIAL_TMP_STORAGE_LENGTH];
         tmp = newArray;
@@ -205,13 +205,13 @@ class ComparableTimSort {
      * @param start the index of the first element in the range that is
      *        not already known to be sorted (@code lo <= start <= hi}
      */
-    @SuppressWarnings("fallthrough")
+    //@SuppressWarnings("fallthrough")
     private static void binarySort(Object[] a, int lo, int hi, int start) {
         if (DEBUG) assert lo <= start && start <= hi;
         if (start == lo)
             start++;
         for ( ; start < hi; start++) {
-            @SuppressWarnings("unchecked")
+            //@SuppressWarnings("unchecked")
             Comparable<Object> pivot = (Comparable) a[start];
 
             // Set left (and right) to the index where a[start] (pivot) belongs
@@ -275,7 +275,7 @@ class ComparableTimSort {
      * @return  the length of the run beginning at the specified position in
      *          the specified array
      */
-    @SuppressWarnings("unchecked")
+    //@SuppressWarnings("unchecked")
     private static int countRunAndMakeAscending(Object[] a, int lo, int hi) {
         if (DEBUG) assert lo < hi;
         int runHi = lo + 1;
@@ -396,7 +396,7 @@ class ComparableTimSort {
      *
      * @param i stack index of the first of the two runs to merge
      */
-    @SuppressWarnings("unchecked")
+    //@SuppressWarnings("unchecked")
     private void mergeAt(int i) {
         if (DEBUG) assert stackSize >= 2;
         if (DEBUG) assert i >= 0;
@@ -610,7 +610,7 @@ class ComparableTimSort {
      *        (must be aBase + aLen)
      * @param len2  length of second run to be merged (must be > 0)
      */
-    @SuppressWarnings("unchecked")
+    //@SuppressWarnings("unchecked")
     private void mergeLo(int base1, int len1, int base2, int len2) {
         if (DEBUG) assert len1 > 0 && len2 > 0 && base1 + len1 == base2;
 
@@ -727,7 +727,7 @@ class ComparableTimSort {
      *        (must be aBase + aLen)
      * @param len2  length of second run to be merged (must be > 0)
      */
-    @SuppressWarnings("unchecked")
+    //@SuppressWarnings("unchecked")
     private void mergeHi(int base1, int len1, int base2, int len2) {
         if (DEBUG) assert len1 > 0 && len2 > 0 && base1 + len1 == base2;
 
@@ -861,7 +861,7 @@ class ComparableTimSort {
             else
                 newSize = Math.min(newSize, a.length >>> 1);
 
-            @SuppressWarnings({"unchecked", "UnnecessaryLocalVariable"})
+            //@SuppressWarnings({"unchecked", "UnnecessaryLocalVariable"})
             Object[] newArray = new Object[newSize];
             tmp = newArray;
         }

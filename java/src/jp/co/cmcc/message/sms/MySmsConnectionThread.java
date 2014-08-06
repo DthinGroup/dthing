@@ -1,10 +1,12 @@
 
 package jp.co.cmcc.message.sms;
 
-import java.util.Date;
+
 import java.io.IOException;
+import java.util.Date;
 
 import com.yarlungsoft.util.Log;
+
 
 /**
  * Singleton class implementing the code for a reader thread.

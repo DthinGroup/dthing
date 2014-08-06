@@ -152,7 +152,7 @@ public final class Integer {
      * @return {@code true} if the specified object is equal to this
      *         {@code Integer}; {@code false} otherwise.
      */
-    @Override
+    //@Override
     public boolean equals(Object o) {
         return (o instanceof Integer) && (((Integer) o).value == value);
     }
@@ -173,7 +173,7 @@ public final class Integer {
      *          primitive <tt>int</tt> value represented by this
      *          <tt>Integer</tt> object.
      */
-    @Override
+    //@Override
     public int hashCode() {
         return value;
     }
@@ -350,7 +350,7 @@ public final class Integer {
      * @return  a string representation of the value of this object in
      *          base&nbsp;10.
      */
-    @Override
+    //@Override
     public String toString() {
         return Integer.toString(value);
     }

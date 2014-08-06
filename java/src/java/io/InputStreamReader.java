@@ -82,7 +82,7 @@ public class InputStreamReader extends Reader {
      * @throws IOException
      *             if an error occurs attempting to close this reader.
      */
-    @Override
+    //@Override
     public void close() throws IOException {
     	if (in != null) {
     		in.close();
@@ -124,7 +124,7 @@ public class InputStreamReader extends Reader {
      * @throws IOException
      *             if this reader is closed or some other I/O error occurs.
      */
-    @Override
+    //@Override
     public int read() throws IOException {
 
     	if (in != null)
@@ -158,17 +158,15 @@ public class InputStreamReader extends Reader {
      * @throws IOException
      *             if this reader is closed or some other I/O error occurs.
      */
-    @Override
+    //@Override
     public int read(char[] buffer, int offset, int length) throws IOException {
     	ensureOpen();
 
     	// Ensure the given off and length are valid for buffer[]
-    	if ((offset | length | (offset + length) | (buffer.length - (offset + length))) < 0)
-    	    throw new IndexOutOfBoundsException();
-
+    	if (offset < 0 || offset > buffer.length - length || length < 0)
+    	    throw new IndexOutOfBoundsException("Fuck out of bounds");
     	if (length == 0)
     	    return 0;
-
     	return in.read(buffer, offset, length);
     }
 
@@ -185,7 +183,7 @@ public class InputStreamReader extends Reader {
      * @throws IOException
      *             if this reader is closed or some other I/O error occurs.
      */
-    @Override
+    //@Override
     public boolean ready() throws IOException {
     	ensureOpen();
     	return in.ready();

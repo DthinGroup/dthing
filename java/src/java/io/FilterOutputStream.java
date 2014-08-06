@@ -51,7 +51,7 @@ public class FilterOutputStream extends OutputStream {
      * @throws IOException
      *             if an error occurs attempting to close this stream.
      */
-    @Override
+    //@Override
     public void close() throws IOException {
         Throwable thrown = null;
         try {
@@ -80,7 +80,7 @@ public class FilterOutputStream extends OutputStream {
      * @throws IOException
      *             if an error occurs attempting to flush this stream.
      */
-    @Override
+    //@Override
     public void flush() throws IOException {
         out.flush();
     }
@@ -102,7 +102,7 @@ public class FilterOutputStream extends OutputStream {
      * @throws IOException
      *             if an I/O error occurs while writing to this stream.
      */
-    @Override
+    //@Override
     public void write(byte[] buffer, int offset, int length) throws IOException {
     	if ((offset | length | (buffer.length - (offset + offset)) | 
     		(offset + offset)) < 0) {
@@ -124,7 +124,7 @@ public class FilterOutputStream extends OutputStream {
      * @throws IOException
      *             if an I/O error occurs while writing to this stream.
      */
-    @Override
+    //@Override
     public void write(int oneByte) throws IOException {
         out.write(oneByte);
     }

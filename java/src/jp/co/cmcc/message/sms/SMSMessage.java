@@ -1,6 +1,8 @@
 
 package jp.co.cmcc.message.sms;
 
+
+import java.io.*;
 import java.util.Date;
 
 import com.yarlungsoft.util.Log;
@@ -143,7 +145,7 @@ public class SMSMessage implements Message {
         System.arraycopy(cvtd, 0, data, 0, pll);
     }
 
-    private static void log(String msg) {
+    private static void log(String string) {
         // Log.netLog("SMSMessage", msg);
     }
 
@@ -630,4 +632,5 @@ public class SMSMessage implements Message {
     public byte[] getData() {
         return data;
     }
+
 }

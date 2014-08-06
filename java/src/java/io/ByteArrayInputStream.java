@@ -83,7 +83,7 @@ public class ByteArrayInputStream extends InputStream {
      *
      * @return {@code count - pos}
      */
-    @Override
+    //@Override
     public synchronized int available() {
         return count - pos;
     }
@@ -94,7 +94,7 @@ public class ByteArrayInputStream extends InputStream {
      * @throws IOException
      *             if an I/O error occurs while closing this stream.
      */
-    @Override
+    //@Override
     public void close() throws IOException {
         // Do nothing on close, this matches JDK behavior.
     }
@@ -109,7 +109,7 @@ public class ByteArrayInputStream extends InputStream {
      * @see #markSupported()
      * @see #reset()
      */
-    @Override
+    //@Override
     public synchronized void mark(int readlimit) {
         mark = pos;
     }
@@ -123,7 +123,7 @@ public class ByteArrayInputStream extends InputStream {
      * @see #mark(int)
      * @see #reset()
      */
-    @Override
+    //@Override
     public boolean markSupported() {
         return true;
     }
@@ -135,7 +135,7 @@ public class ByteArrayInputStream extends InputStream {
      *
      * @return the byte read or -1 if the end of this stream has been reached.
      */
-    @Override
+    //@Override
     public synchronized int read() {
         return pos < count ? buf[pos++] & 0xFF : -1;
     }
@@ -161,7 +161,7 @@ public class ByteArrayInputStream extends InputStream {
      * @throws NullPointerException
      *             if {@code b} is {@code null}.
      */
-    @Override
+    //@Override
     public synchronized int read(byte[] buffer, int offset, int length) {
         // Ensure the given off and length are valid for buffer[]
         if ((offset | length | (offset + length) | 
@@ -190,7 +190,7 @@ public class ByteArrayInputStream extends InputStream {
      *
      * @see #mark(int)
      */
-    @Override
+    //@Override
     public synchronized void reset() {
         pos = mark;
     }
@@ -203,7 +203,7 @@ public class ByteArrayInputStream extends InputStream {
      *
      * @return the number of bytes actually skipped.
      */
-    @Override
+    //@Override
     public synchronized long skip(long byteCount) {
         if (byteCount <= 0) {
             return 0;

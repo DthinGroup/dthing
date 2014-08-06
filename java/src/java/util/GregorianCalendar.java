@@ -352,7 +352,7 @@ public class GregorianCalendar extends Calendar {
      * @throws IllegalArgumentException
      *                if the specified field is DST_OFFSET or ZONE_OFFSET.
      */
-    @Override
+    //@Override
     public void add(int field, int value) {
         if (value == 0) {
             return;
@@ -469,7 +469,7 @@ public class GregorianCalendar extends Calendar {
      *
      * @return a shallow copy of this {@code GregorianCalendar}.
      */
-    @Override
+    //@Override
     public Object clone() {
         GregorianCalendar thisClone = (GregorianCalendar) super.clone();
         thisClone.cachedFields = cachedFields.clone();
@@ -604,7 +604,7 @@ public class GregorianCalendar extends Calendar {
         }
     }
 
-    @Override
+    //@Override
     protected void computeFields() {
         TimeZone timeZone = getTimeZone();
         int dstOffset = timeZone.inDaylightTime(new Date(time)) ? timeZone.getDSTSavings() : 0;
@@ -707,7 +707,7 @@ public class GregorianCalendar extends Calendar {
         }
     }
 
-    @Override
+    //@Override
     protected void computeTime() {
         if (!isLenient()) {
             if (isSet[HOUR_OF_DAY]) {
@@ -1004,7 +1004,7 @@ public class GregorianCalendar extends Calendar {
      *                from the current field values.
      * @see #hashCode
      */
-    @Override
+    //@Override
     public boolean equals(Object object) {
         if (!(object instanceof GregorianCalendar)) {
             return false;
@@ -1024,7 +1024,7 @@ public class GregorianCalendar extends Calendar {
      *            the field.
      * @return the maximum value of the specified field.
      */
-    @Override
+    //@Override
     public int getActualMaximum(int field) {
         int value;
         if ((value = maximums[field]) == leastMaximums[field]) {
@@ -1095,7 +1095,7 @@ public class GregorianCalendar extends Calendar {
      *            the field.
      * @return the minimum value of the specified field.
      */
-    @Override
+    //@Override
     public int getActualMinimum(int field) {
         return getMinimum(field);
     }
@@ -1108,7 +1108,7 @@ public class GregorianCalendar extends Calendar {
      *            the field.
      * @return the greatest minimum value of the specified field.
      */
-    @Override
+    //@Override
     public int getGreatestMinimum(int field) {
         return minimums[field];
     }
@@ -1131,7 +1131,7 @@ public class GregorianCalendar extends Calendar {
      *            the field.
      * @return the smallest maximum value of the specified field.
      */
-    @Override
+    //@Override
     public int getLeastMaximum(int field) {
         // return value for WEEK_OF_YEAR should make corresponding changes when
         // the gregorian change date have been reset.
@@ -1154,7 +1154,7 @@ public class GregorianCalendar extends Calendar {
      *            the field.
      * @return the greatest maximum value of the specified field.
      */
-    @Override
+    //@Override
     public int getMaximum(int field) {
         return maximums[field];
     }
@@ -1166,7 +1166,7 @@ public class GregorianCalendar extends Calendar {
      *            the field.
      * @return the smallest minimum value of the specified field.
      */
-    @Override
+    //@Override
     public int getMinimum(int field) {
         return minimums[field];
     }
@@ -1225,7 +1225,7 @@ public class GregorianCalendar extends Calendar {
      *
      * @see #equals
      */
-    @Override
+    //@Override
     public int hashCode() {
         return super.hashCode()
                 + ((int) (gregorianCutover >>> 32) ^ (int) gregorianCutover);
@@ -1281,7 +1281,7 @@ public class GregorianCalendar extends Calendar {
      * @throws IllegalArgumentException
      *                if an invalid field is specified.
      */
-    @Override
+    //@Override
     public void roll(int field, int value) {
         if (value == 0) {
             return;
@@ -1399,7 +1399,7 @@ public class GregorianCalendar extends Calendar {
      * @throws IllegalArgumentException
      *                if an invalid field is specified.
      */
-    @Override
+    //@Override
     public void roll(int field, boolean increment) {
         roll(field, increment ? 1 : -1);
     }
@@ -1432,13 +1432,13 @@ public class GregorianCalendar extends Calendar {
         isCached = false;
     }
 
-    @Override
+    //@Override
     public void setFirstDayOfWeek(int value) {
         super.setFirstDayOfWeek(value);
         isCached = false;
     }
 
-    @Override
+    //@Override
     public void setMinimalDaysInFirstWeek(int value) {
         super.setMinimalDaysInFirstWeek(value);
         isCached = false;

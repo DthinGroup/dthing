@@ -93,7 +93,7 @@ public final class StackTraceElement implements Serializable {
      *         {@code StackTraceElement}; {@code false} otherwise.
      * @see #hashCode
      */
-    @Override
+    //@Override
     public boolean equals(Object obj) {
         if (!(obj instanceof StackTraceElement)) {
             return false;
@@ -174,7 +174,7 @@ public final class StackTraceElement implements Serializable {
         return (methodName == null) ? "<unknown method>" : methodName;
     }
 
-    @Override
+    //@Override
     public int hashCode() {
         /*
          * Either both methodName and declaringClass are null, or neither are
@@ -199,7 +199,7 @@ public final class StackTraceElement implements Serializable {
         return lineNumber == NATIVE_LINE_NUMBER;
     }
 
-    @Override
+    //@Override
     public String toString() {
         StringBuilder buf = new StringBuilder(80);
 

@@ -1,6 +1,7 @@
 
 package jp.co.cmcc.http;
 
+
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -12,6 +13,7 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 
 import com.yarlungsoft.util.Log;
+
 
 public class HttpConnectionImpl {
 

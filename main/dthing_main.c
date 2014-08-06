@@ -13,7 +13,7 @@ int main(int argc, char *argv[])
 {
 	//DVM_main(argc, argv);
 #ifdef    NOT_LAUNCH_NET_TASK	
-    runApplet(0);
+    ramsClient_runApplet(0);
     while(true);
 #else	
     //launchRemoteAMSClient(FALSE, argc, argv);
@@ -79,7 +79,7 @@ bool_t Dthing_startVM(void)
     DvmLog("[Dthing log]:g_dvm_mem_space_ptr try to alloc");
 
 #ifdef    NOT_LAUNCH_NET_TASK
-    return runApplet(0);
+    return ramsClient_runApplet(0);
 #endif    
     DvmLog("[Dthing log]:g_dvm_mem_space_ptr try to alloc");
     //try to alloc java heap
