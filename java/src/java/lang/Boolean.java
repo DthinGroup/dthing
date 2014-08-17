@@ -74,7 +74,7 @@ public final class Boolean {
      * @return {@code true} if the specified object is equal to this
      *         {@code Boolean}; {@code false} otherwise.
      */
-    @Override
+    //@Override
     public boolean equals(Object o) {
         return (o == this) || ((o instanceof Boolean) && (((Boolean) o).value == value));
     }
@@ -85,7 +85,7 @@ public final class Boolean {
      * @return this boolean's hash code, which is {@code 1231} for {@code true}
      *         values and {@code 1237} for {@code false} values.
      */
-    @Override
+    //@Override
     public int hashCode() {
         return value ? 1231 : 1237;
     }
@@ -97,7 +97,7 @@ public final class Boolean {
      * @return "true" if the value of this boolean is {@code true}, "false"
      *         otherwise.
      */
-    @Override
+    //@Override
     public String toString() {
         return String.valueOf(value);
     }

@@ -8,7 +8,7 @@
 #pragma comment(lib, "ws2_32.lib")
 #endif
 
-#define DVM_PDP_ACTIVE_TIMEOUT_MS         (1 * 6 * 1000)
+#define DVM_PDP_ACTIVE_TIMEOUT_MS         (1 * 1 * 1000)
 
 
 #define NetLog	printf

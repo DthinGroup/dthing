@@ -38,7 +38,7 @@ class MapEntry<K, V> implements Map.Entry<K, V>, Cloneable {
         value = theValue;
     }
 
-    @Override
+    //@Override
     public Object clone() {
         try {
             return super.clone();
@@ -47,7 +47,7 @@ class MapEntry<K, V> implements Map.Entry<K, V>, Cloneable {
         }
     }
 
-	@Override
+	//@Override
     public boolean equals(Object object) {
         if (this == object) {
             return true;
@@ -70,7 +70,7 @@ class MapEntry<K, V> implements Map.Entry<K, V>, Cloneable {
         return value;
     }
 
-    @Override
+    //@Override
     public int hashCode() {
         return (key == null ? 0 : key.hashCode())
                 ^ (value == null ? 0 : value.hashCode());
@@ -82,7 +82,7 @@ class MapEntry<K, V> implements Map.Entry<K, V>, Cloneable {
         return result;
     }
 
-    @Override
+    //@Override
     public String toString() {
         return key + "=" + value;
     }

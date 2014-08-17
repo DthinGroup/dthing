@@ -496,6 +496,22 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\vm\impl\nativeFileInputStream.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\vm\impl\nativeFileInputStream.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\vm\impl\nativeFileOutputStream.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\vm\impl\nativeFileOutputStream.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\vm\impl\nativeFloat.c"
 				>
 			</File>

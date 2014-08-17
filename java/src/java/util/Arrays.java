@@ -28,6 +28,7 @@ public class Arrays {
         /* empty */
     }
 
+    
     /**
      * Performs a binary search for {@code value} in the ascending sorted array {@code array}.
      * Searching in an unsorted array has an undefined result. It's also undefined which element
@@ -393,7 +394,7 @@ public class Arrays {
 
         while (lo <= hi) {
             int mid = (lo + hi) >>> 1;
-            @SuppressWarnings("unchecked")
+            //@SuppressWarnings("unchecked")
             int midValCmp = ((Comparable) array[mid]).compareTo(value);
 
             if (midValCmp < 0) {

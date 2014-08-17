@@ -93,7 +93,7 @@ public class OutputStreamWriter extends Writer {
      * @throws IOException
      *             if an error occurs while closing this writer.
      */
-    @Override
+    //@Override
     public void close() throws IOException {
     	if (out != null) {
     	    out.close();
@@ -109,7 +109,7 @@ public class OutputStreamWriter extends Writer {
      * @throws IOException
      *             if an error occurs while flushing this writer.
      */
-    @Override
+    //@Override
     public void flush() throws IOException {
     	ensureOpen();
     	out.flush();
@@ -148,7 +148,7 @@ public class OutputStreamWriter extends Writer {
      *             if this writer has already been closed or another I/O error
      *             occurs.
      */
-    @Override
+    //@Override
     public void write(char[] buffer, int offset, int count) throws IOException {
     	ensureOpen();
 
@@ -171,7 +171,7 @@ public class OutputStreamWriter extends Writer {
      * @throws IOException
      *             if this writer is closed or another I/O error occurs.
      */
-    @Override
+    //@Override
     public void write(int oneChar) throws IOException {
     	ensureOpen();
     	out.write(oneChar);
@@ -197,7 +197,7 @@ public class OutputStreamWriter extends Writer {
      *             {@code offset + count} is bigger than the length of
      *             {@code str}.
      */
-    @Override
+    //@Override
     public void write(String str, int offset, int count) throws IOException {
     	ensureOpen();
 

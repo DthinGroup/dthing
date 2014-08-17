@@ -183,9 +183,11 @@ public abstract class InputStream extends Object {
      */
     public int read(byte[] buffer, int offset, int length) throws IOException {
         // Ensure the given off and len are valid for b[]
-        if ((offset | length | (offset + length) | 
-        	(buffer.length - (offset + length))) < 0) {
-            throw new IndexOutOfBoundsException();
+    	if ((offset > buffer.length) || 
+    			(offset < 0) ||
+    			(length < 0) || 
+    			(length + offset> buffer.length)){
+            throw new IndexOutOfBoundsException("read: Index out of Bounds Exceptions");
         }
 
         for (int i = 0; i < length; i++) {

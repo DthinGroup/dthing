@@ -8,6 +8,8 @@
 #include <nativeClass.h>
 #include <nativeEarManager.h>
 #include <nativeFile.h>
+#include <nativeFileInputStream.h>
+#include <nativeFileOutputStream.h>
 #include <nativeFloat.h>
 #include <nativeGpio.h>
 #include <nativeI2CManager.h>
@@ -32,6 +34,7 @@
 #include <nativeTimeZone.h>
 #include <nativeUSBConnection.h>
 #include <nativeMethods.h>
+
 
 KniFunc Kni_findFuncPtr(const Method * mthd) {
     ClassObject * clazz = NULL;

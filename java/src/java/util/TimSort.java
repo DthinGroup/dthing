@@ -137,7 +137,7 @@ class TimSort<T> {
 
         // Allocate temp storage (which may be increased later if necessary)
         int len = a.length;
-        @SuppressWarnings({"unchecked", "UnnecessaryLocalVariable"})
+        //@SuppressWarnings({"unchecked", "UnnecessaryLocalVariable"})
         T[] newArray = (T[]) new Object[len < 2 * INITIAL_TMP_STORAGE_LENGTH ?
                                         len >>> 1 : INITIAL_TMP_STORAGE_LENGTH];
         tmp = newArray;
@@ -238,7 +238,7 @@ class TimSort<T> {
      *        not already known to be sorted (@code lo <= start <= hi}
      * @param c comparator to used for the sort
      */
-    @SuppressWarnings("fallthrough")
+    //@SuppressWarnings("fallthrough")
     private static <T> void binarySort(T[] a, int lo, int hi, int start,
                                        Comparator<? super T> c) {
         if (DEBUG) assert lo <= start && start <= hi;
@@ -894,7 +894,7 @@ class TimSort<T> {
             else
                 newSize = Math.min(newSize, a.length >>> 1);
 
-            @SuppressWarnings({"unchecked", "UnnecessaryLocalVariable"})
+            //@SuppressWarnings({"unchecked", "UnnecessaryLocalVariable"})
             T[] newArray = (T[]) new Object[newSize];
             tmp = newArray;
         }

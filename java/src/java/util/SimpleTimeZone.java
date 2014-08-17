@@ -284,7 +284,7 @@ public class SimpleTimeZone extends TimeZone {
      * @return a shallow copy of this {@code SimpleTimeZone}.
      * @see java.lang.Cloneable
      */
-    @Override
+    //@Override
     public Object clone() {
         SimpleTimeZone zone = (SimpleTimeZone) super.clone();
         return zone;
@@ -301,7 +301,7 @@ public class SimpleTimeZone extends TimeZone {
      *         {@code SimpleTimeZone}, {@code false} otherwise.
      * @see #hashCode
      */
-    @Override
+    //@Override
     public boolean equals(Object object) {
         if (!(object instanceof SimpleTimeZone)) {
             return false;
@@ -320,7 +320,7 @@ public class SimpleTimeZone extends TimeZone {
                         && endTime == tz.endTime && endMode == tz.endMode && dstSavings == tz.dstSavings));
     }
 
-    @Override
+    //@Override
     public int getDSTSavings() {
         if (!useDaylight) {
             return 0;
@@ -328,7 +328,7 @@ public class SimpleTimeZone extends TimeZone {
         return dstSavings;
     }
 
-    @Override
+    //@Override
     public int getOffset(int era, int year, int month, int day, int dayOfWeek, int time) {
         if (era != GregorianCalendar.BC && era != GregorianCalendar.AD) {
             throw new IllegalArgumentException("Invalid era: " + era);
@@ -458,7 +458,7 @@ public class SimpleTimeZone extends TimeZone {
         return rawOffset + dstSavings;
     }
 
-    @Override
+    //@Override
     public int getOffset(long time) {
         // Simplified variant of the ICU4J code.
         if (!useDaylightTime()) {
@@ -469,7 +469,7 @@ public class SimpleTimeZone extends TimeZone {
                 fields[3], fields[5]);
     }
 
-    @Override
+    //@Override
     public int getRawOffset() {
         return rawOffset;
     }
@@ -481,7 +481,7 @@ public class SimpleTimeZone extends TimeZone {
      * @return the receiver's hash.
      * @see #equals
      */
-    @Override
+    //@Override
     public synchronized int hashCode() {
         int hashCode = getID().hashCode() + rawOffset;
         if (useDaylight) {
@@ -492,7 +492,7 @@ public class SimpleTimeZone extends TimeZone {
         return hashCode;
     }
 
-    @Override
+    //@Override
     public boolean hasSameRules(TimeZone zone) {
         if (!(zone instanceof SimpleTimeZone)) {
             return false;
@@ -513,7 +513,8 @@ public class SimpleTimeZone extends TimeZone {
                 && endTime == tz.endTime && endMode == tz.endMode;
     }
 
-    @Override public boolean inDaylightTime(Date time) {
+    //@Override 
+    public boolean inDaylightTime(Date time) {
         return useDaylightTime() && getOffset(time.getTime()) != getRawOffset();
     }
 
@@ -665,7 +666,7 @@ public class SimpleTimeZone extends TimeZone {
      * @param offset
      *            the offset from GMT of standard time in milliseconds.
      */
-    @Override
+    //@Override
     public void setRawOffset(int offset) {
         rawOffset = offset;
     }
@@ -785,7 +786,7 @@ public class SimpleTimeZone extends TimeZone {
      *
      * @return the string representation of this {@code SimpleTimeZone}.
      */
-    @Override
+    //@Override
     public String toString() {
         return getClass().getName()
                 + "[id="
@@ -813,7 +814,7 @@ public class SimpleTimeZone extends TimeZone {
                 + ",endTime=" + endTime + "]";
     }
 
-    @Override
+    //@Override
     public boolean useDaylightTime() {
         return useDaylight;
     }

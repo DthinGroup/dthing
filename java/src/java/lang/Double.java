@@ -129,7 +129,7 @@ public final class Double {
      * @return {@code true} if the specified object is equal to this
      *         {@code Double}; {@code false} otherwise.
      */
-    @Override
+    //@Override
     public boolean equals(Object object) {
         return (object instanceof Double) &&
                 (doubleToLongBits(this.value) == doubleToLongBits(((Double) object).value));
@@ -273,7 +273,7 @@ public final class Double {
 	 * @return	a <code>String</code> representation of this object.
 	 * @see		java.lang.Double#toString(double)
 	 */    
-    @Override
+    //@Override
     public String toString() {
         return Double.toString(value);
     }

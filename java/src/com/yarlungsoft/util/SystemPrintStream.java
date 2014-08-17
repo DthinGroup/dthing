@@ -40,7 +40,7 @@ public class SystemPrintStream extends OutputStream {
      *
      * @exception  IOException  if an I/O error occurs.
      */
-	@Override
+	//@Override
     public native void flush() throws IOException;
 
 
@@ -48,7 +48,7 @@ public class SystemPrintStream extends OutputStream {
      * Output a single byte.
      * @param b byte to write
      */
-	@Override
+	//@Override
     public native void write(int oneByte) throws IOException;
 
 }

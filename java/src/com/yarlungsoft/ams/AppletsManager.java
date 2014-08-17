@@ -21,15 +21,15 @@ public class AppletsManager extends Applet {
         }
     }
 
-    @Override
+    //@Override
     public void cleanup() {
     }
 
-    @Override
+    //@Override
     public void processEvent(Event event) {
     }
 
-    @Override
+    //@Override
     public void startup() {
     }
 

@@ -21,7 +21,7 @@ typedef struct {
     int methodCount;
 } KniClassNativeMethodInfo;
 
-#define NATIVE_CLASSES_COUNT 34
+#define NATIVE_CLASSES_COUNT 36
 
 /* com.yarlungsoft.ams.Scheduler native APIs */
 KniNativeMethodInfo gJava_com_yarlungsoft_ams_Scheduler[2] = {
@@ -166,6 +166,22 @@ KniNativeMethodInfo gJava_java_io_File[8] = {
     {"lastModified0", "(Ljava/lang/String;)J",                   (KniFunc)Java_java_io_File_lastModified0},
     {"length0",       "(Ljava/lang/String;)J",                   (KniFunc)Java_java_io_File_length0},
     {"list0",         "(Ljava/lang/String;)[Ljava/lang/String;", (KniFunc)Java_java_io_File_list0},
+};
+
+/* java.io.FileInputStream native APIs */
+KniNativeMethodInfo gJava_java_io_FileInputStream[5] = {
+    {"openFile",   "(Ljava/lang/String;)I", (KniFunc)Java_java_io_FileInputStream_openFile},
+    {"closeFile",  "(I)Z",                  (KniFunc)Java_java_io_FileInputStream_closeFile},
+    {"readFile",   "(I[BII)I",              (KniFunc)Java_java_io_FileInputStream_readFile},
+    {"available0", "(I)I",                  (KniFunc)Java_java_io_FileInputStream_available0},
+    {"skip0",      "(IJ)J",                 (KniFunc)Java_java_io_FileInputStream_skip0},
+};
+
+/* java.io.FileOutputStream native APIs */
+KniNativeMethodInfo gJava_java_io_FileOutputStream[3] = {
+    {"writeFile", "(I[BII)I",               (KniFunc)Java_java_io_FileOutputStream_writeFile},
+    {"openFile",  "(Ljava/lang/String;Z)I", (KniFunc)Java_java_io_FileOutputStream_openFile},
+    {"closeFile", "(I)Z",                   (KniFunc)Java_java_io_FileOutputStream_closeFile},
 };
 
 /* java.lang.AsyncIO native APIs */
@@ -325,6 +341,8 @@ KniClassNativeMethodInfo gNativeMthTab[NATIVE_CLASSES_COUNT] = {
     {"Liot/oem/spk/SpeakerManager;",                   gJava_iot_oem_spk_SpeakerManager,                   4},
     {"Liot/oem/usb/USBConnection;",                    gJava_iot_oem_usb_USBConnection,                    2},
     {"Ljava/io/File;",                                 gJava_java_io_File,                                 8},
+    {"Ljava/io/FileInputStream;",                      gJava_java_io_FileInputStream,                      5},
+    {"Ljava/io/FileOutputStream;",                     gJava_java_io_FileOutputStream,                     3},
     {"Ljava/lang/AsyncIO;",                            gJava_java_lang_AsyncIO,                            3},
     {"Ljava/lang/Class;",                              gJava_java_lang_Class,                              7},
     {"Ljava/lang/DThread;",                            gJava_java_lang_DThread,                            5},

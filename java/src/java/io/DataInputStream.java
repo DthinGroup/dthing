@@ -134,7 +134,7 @@ public class DataInputStream extends FilterInputStream implements DataInput {
 
     
     // overridden to add 'final'
-    @Override 
+    //@Override 
     public final int read(byte[] buffer) throws IOException {
         return super.read(buffer);
     }
@@ -159,7 +159,7 @@ public class DataInputStream extends FilterInputStream implements DataInput {
      * @see DataOutput#write(byte[])
      * @see DataOutput#write(byte[], int, int)
      */
-    @Override
+    //@Override
     public final int read(byte[] buffer, int offset, int length) throws IOException {
         return in.read(buffer, offset, length);
     }

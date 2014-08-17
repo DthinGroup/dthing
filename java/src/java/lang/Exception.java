@@ -44,7 +44,8 @@ public class Exception extends Throwable {
      * @param detailMessage
      *            the detail message for this exception.
      */
-    public Exception(String detailMessage) {
+    public Exception(String detailMessage) {    	
         super(detailMessage);
+        System.out.println("Exception:"+detailMessage);
     }
 }

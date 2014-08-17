@@ -78,12 +78,12 @@ public final class Byte {
      * @return {@code true} if the specified object is equal to this
      *         {@code Byte}; {@code false} otherwise.
      */
-    @Override
+    //@Override
     public boolean equals(Object object) {
         return (object == this) || ((object instanceof Byte) && (((Byte) object).value == value));
     }
 
-    @Override
+    //@Override
     public int hashCode() {
         return value;
     }
@@ -126,7 +126,7 @@ public final class Byte {
         throw new NumberFormatException("Value out of range for byte: \"" + string + "\"");
     }
 
-    @Override
+    //@Override
     public String toString() {
         return Integer.toString(value);
     }

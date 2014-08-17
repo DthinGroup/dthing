@@ -17,9 +17,12 @@
 
 package java.net;
 
+//import libcore.io.ErrnoException;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.ArrayIndexOutOfBoundsException;
 import java.net.ConnectException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -27,8 +30,7 @@ import java.net.SocketAddress;
 import java.net.SocketException;
 import java.net.SocketImpl;
 import java.net.SocketTimeoutException;
-import java.lang.ArrayIndexOutOfBoundsException;
-//import libcore.io.ErrnoException;
+
 
 
 /**

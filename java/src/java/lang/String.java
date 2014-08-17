@@ -17,9 +17,11 @@
 
 package java.lang;
 
+import java.io.UnsupportedEncodingException;
+
 import com.yarlungsoft.charset.Helper;
 import com.yarlungsoft.util.*;
-import java.io.UnsupportedEncodingException;
+
 
 /**
  * An immutable sequence of characters/code units ({@code char}s). A
@@ -49,7 +51,7 @@ import java.io.UnsupportedEncodingException;
  * @see Charset
  * @since 1.0
  */
-public final class String  {
+public final class String implements CharSequence {
 
     private static final long serialVersionUID = -6849794470754667710L;
 
@@ -425,7 +427,7 @@ public final class String  {
      *         {@code false} otherwise.
      * @see #hashCode
      */
-    @Override 
+    //@Override 
     public boolean equals(Object object) {
     	if (this == object) {
     	    return true;
@@ -548,7 +550,7 @@ public final class String  {
      *
      * @return  a hash code value for this object.
      */
-    @Override 
+    //@Override 
     public int hashCode() {
         int hash = hashCode;
         if (hash == 0) {
@@ -1245,7 +1247,7 @@ public final class String  {
     /**
      * Returns this string.
      */
-    @Override
+    //@Override
     public String toString() {
         return this;
     }
@@ -1483,4 +1485,14 @@ public final class String  {
 
         return regionMatches(0, cs.toString(), 0, len);
     }
+
+
+	//@Override
+	public CharSequence subSequence(int start, int end) {
+		return this.substring(start, end);
+	}
+	
+	public boolean isEmpty() {
+		return 0 == count;
+	}
 }

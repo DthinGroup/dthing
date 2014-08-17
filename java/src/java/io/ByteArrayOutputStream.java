@@ -70,7 +70,7 @@ public class ByteArrayOutputStream extends OutputStream {
      * @throws IOException
      *             if an error occurs while attempting to close this stream.
      */
-    @Override
+    //@Override
     public void close() throws IOException {
         /**
          * Although the spec claims "A closed stream cannot perform output
@@ -130,7 +130,7 @@ public class ByteArrayOutputStream extends OutputStream {
      * @return this stream's current contents as a string.
      */
 
-    @Override
+    //@Override
     public String toString() {
         return new String(buf, 0, count);
     }
@@ -167,7 +167,7 @@ public class ByteArrayOutputStream extends OutputStream {
      *             {@code offset + len} is greater than the length of
      *             {@code buffer}.
      */
-    @Override
+    //@Override
     public synchronized void write(byte[] buffer, int offset, int len) {
 
     	// Ensure the given off and len are valid for buffer[]
@@ -191,7 +191,7 @@ public class ByteArrayOutputStream extends OutputStream {
      * @param oneByte
      *            the byte to be written.
      */
-    @Override
+    //@Override
     public synchronized void write(int oneByte) {
         if (count == buf.length) {
             expand(1);

@@ -684,12 +684,40 @@ int32_t file_write(int32_t handle, char * writeBuf, int32_t bufSize)
 
 int32_t file_truncate(int32_t handle, int32_t value)
 {
-    //TODO: to implement
+#ifdef ARCH_X86
+
+#elif defined(ARCH_ARM_SPD)
+	if (SFS_SetFileSize((SFS_HANDLE)handle, value) != SFS_NO_ERROR)
+	{
+		return FILE_RES_FAILURE;
+	}
+	return FILE_RES_SUCCESS;
+#endif
     return 0;
 }
 
+int32_t file_getsize(int32_t handle,int32_t * size)
+{
+#ifdef ARCH_X86
+	*size = (int32_t) GetFileSize((HANDLE)handle, NULL);
+	if(*size == INVALID_FILE_SIZE)
+	{
+		return FILE_RES_FAILURE;
+	}
+	return FILE_RES_SUCCESS;
+#elif defined(ARCH_ARM_SPD)
+	if(SFS_GetFileSize(handle, size)!= SFS_NO_ERROR)
+	{
+		return FILE_RES_FAILURE;
+	}
+	return FILE_RES_SUCCESS;
+#endif
+}
+
+//return :actual value of seek/skip
 int32_t file_seekex(int32_t handle, int32_t value, int32_t whence)
 {
+	int32_t skip=0;
 #ifdef ARCH_X86
     int32_t prevSize, delta;
     bool_t  setEnd = FALSE;
@@ -707,10 +735,12 @@ int32_t file_seekex(int32_t handle, int32_t value, int32_t whence)
         if (value < 0)
         {
             DVMTraceDbg("file_seekex(FILE_SEEK_BEGIN): handle=0x%x negative value (%d)", handle, value);
-            return FILE_RES_FAILURE;
+            //return FILE_RES_FAILURE;
+			return skip;
         }
         if (value - prevSize > 0)
         {
+			skip = prevSize;
             setEnd = TRUE;
         }
         break;
@@ -721,10 +751,12 @@ int32_t file_seekex(int32_t handle, int32_t value, int32_t whence)
         if (delta + value < 0)
         {
             DVMTraceDbg("file_seekex(FILE_SEEK_CURRENT): handle=0x%x negative value (%d)", handle, value);
-            return FILE_RES_FAILURE;
+            //return FILE_RES_FAILURE;
+			return skip;
         }
         if (delta + value > prevSize)
         {
+			skip = prevSize - delta;
             setEnd = TRUE;
         }
         break;
@@ -734,9 +766,10 @@ int32_t file_seekex(int32_t handle, int32_t value, int32_t whence)
         if (prevSize + value < 0)
         {
             DVMTraceDbg("file_seekex(FILE_SEEK_END): handle=0x%x negative value (%d)", handle, value);
-            return FILE_RES_FAILURE;
+            //return FILE_RES_FAILURE;
+			return skip;
         }
-        if (value > 0)
+        if (value >= 0)
         {
             setEnd = TRUE;
         }
@@ -750,14 +783,15 @@ int32_t file_seekex(int32_t handle, int32_t value, int32_t whence)
     if (SetFilePointer((HANDLE)handle, value, NULL, winWhence) < 0)
     {
         DVMTraceErr("file_seekex: handle=0x%x failed - error=%d", handle, GetLastError());
-        return FILE_RES_FAILURE;
+        //return FILE_RES_FAILURE;
+		return 0;
     }
     else if (setEnd)
     {
         /* Increase file length */
         SetEndOfFile((HANDLE)handle);
     }
-    return FILE_RES_SUCCESS;
+    return skip;//FILE_RES_SUCCESS;
 
 #elif defined(ARCH_ARM_SPD)
     int32_t prevSize=0,delta=0;
@@ -806,7 +840,7 @@ int32_t file_seekex(int32_t handle, int32_t value, int32_t whence)
             DVMTraceDbg("file_seekex(FILE_SEEK_END): handle=0x%x negative value (%d)", handle, value);
             return FILE_RES_FAILURE;
         }
-        if (value > 0)
+        if (value >= 0)
         {
             setEnd = TRUE;
         }

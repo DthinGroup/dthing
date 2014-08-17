@@ -990,7 +990,7 @@ public final class StringBuffer {
      *
      * @return  a string representation of the string buffer.
      */
-    @Override
+    //@Override
     public synchronized String toString() {
         if ((sharedStr != null) && (sharedStr.count == count)) {
             return sharedStr;

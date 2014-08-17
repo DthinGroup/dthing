@@ -120,7 +120,7 @@ public final class Float  {
      * @return {@code true} if the specified object is equal to this
      *         {@code Float}; {@code false} otherwise.
      */
-    @Override
+    //@Override
     public boolean equals(Object object) {
         return (object instanceof Float) &&
                 (floatToIntBits(this.value) == floatToIntBits(((Float) object).value));
@@ -159,7 +159,7 @@ public final class Float  {
 	 *
 	 * @return	a hash code value for this object.
 	 */
-    @Override
+    //@Override
     public int hashCode() {
         return floatToIntBits(value);
     }
@@ -272,7 +272,7 @@ public final class Float  {
 	 * @return	a <code>String</code> representation of this object.
 	 * @see		java.lang.Float#toString(float)
 	 */
-    @Override
+    //@Override
     public String toString() {
         return Float.toString(value);
     }

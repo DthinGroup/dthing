@@ -119,7 +119,7 @@ public final class Short  {
      * @return {@code true} if the specified object is equal to this
      *         {@code Short}; {@code false} otherwise.
      */
-    @Override
+    //@Override
     public boolean equals(Object object) {
         return (object instanceof Short) && (((Short) object).value == value);
     }
@@ -199,7 +199,7 @@ public final class Short  {
         return value;
     }
 
-    @Override
+    //@Override
     public String toString() {
         return Integer.toString(value);
     }

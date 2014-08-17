@@ -17,10 +17,12 @@
 
 package java.util;
 
+
 import java.io.IOException;
 import java.io.Serializable;
 
 import com.yarlungsoft.util.TextUtils;
+
 
 /**
  * {@code Locale} represents a language/country/variant combination. Locales are used to
@@ -309,7 +311,7 @@ public final class Locale implements Cloneable, Serializable {
         variantCode = variant;
     }
 
-    @Override
+    //@Override
     public Object clone() {
         try {
             return super.clone();
@@ -322,7 +324,7 @@ public final class Locale implements Cloneable, Serializable {
      * Returns true if {@code object} is a locale with the same language,
      * country and variant.
      */
-    @Override
+    //@Override
     public boolean equals(Object object) {
         if (object == this) {
             return true;
@@ -591,7 +593,7 @@ public final class Locale implements Cloneable, Serializable {
         return variantCode;
     }
 
-    @Override
+    //@Override
     public synchronized int hashCode() {
         return countryCode.hashCode() + languageCode.hashCode()
                 + variantCode.hashCode();
@@ -623,7 +625,7 @@ public final class Locale implements Cloneable, Serializable {
      *
      * <p>Examples: "en", "en_US", "_US", "en__POSIX", "en_US_POSIX"
      */
-    @Override
+    //@Override
     public final String toString() {
         String result = cachedToStringResult;
         return (result == null) ? (cachedToStringResult = toNewString()) : result;
