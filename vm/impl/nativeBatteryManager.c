@@ -24,9 +24,9 @@
 void Java_iot_oem_battery_BatteryManager_getStatus0(const u4* args, JValue* pResult) {
     ClassObject* thisObj = (ClassObject*) args[0];
     jint ret = STATIC_iot_oem_battery_BatteryManager_BATTERY_STATUS_UNKNOW;
-    uint32 vol = 0;
 
 #if defined(ARCH_ARM_SPD)
+	uint32 vol = 0;
     //TODO: check if need to call CHGMNG_Init()
     if (CHGMNG_IsChargeConnect())
     {
