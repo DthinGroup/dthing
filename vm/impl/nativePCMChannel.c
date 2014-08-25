@@ -1,6 +1,13 @@
 #include <vm_common.h>
 #include "nativePCMChannel.h"
 
+#define STATIC_iot_oem_pcmchannel_PCMChannel_PCM_CLK_128k 0
+#define STATIC_iot_oem_pcmchannel_PCMChannel_PCM_CLK_256k 1
+#define STATIC_iot_oem_pcmchannel_PCMChannel_PCM_CLK_512k 2
+
+#define STATIC_iot_oem_pcmchannel_PCMChannel_PCM_DATA_MSB 0
+#define STATIC_iot_oem_pcmchannel_PCMChannel_PCM_DATA_LSB 1
+
 /**
  * Class:     iot_oem_pcmchannel_PCMChannel
  * Method:    open0
@@ -22,7 +29,7 @@ void Java_iot_oem_pcmchannel_PCMChannel_open0(const u4* args, JValue* pResult) {
  */
 void Java_iot_oem_pcmchannel_PCMChannel_getStatus0(const u4* args, JValue* pResult) {
     ClassObject* thisObj = (ClassObject*) args[0];
-    jint ret = 0;
+    jint ret = 1;
 
     // TODO: implementation
 
@@ -51,7 +58,7 @@ void Java_iot_oem_pcmchannel_PCMChannel_setStatus0(const u4* args, JValue* pResu
  */
 void Java_iot_oem_pcmchannel_PCMChannel_getFrequency0(const u4* args, JValue* pResult) {
     ClassObject* thisObj = (ClassObject*) args[0];
-    jint ret = 0;
+    jint ret = STATIC_iot_oem_pcmchannel_PCMChannel_PCM_CLK_128k;
 
     // TODO: implementation
 
@@ -80,7 +87,7 @@ void Java_iot_oem_pcmchannel_PCMChannel_setFrequency0(const u4* args, JValue* pR
  */
 void Java_iot_oem_pcmchannel_PCMChannel_getMode0(const u4* args, JValue* pResult) {
     ClassObject* thisObj = (ClassObject*) args[0];
-    jint ret = 0;
+    jint ret = STATIC_iot_oem_pcmchannel_PCMChannel_PCM_DATA_MSB;
 
     // TODO: implementation
 

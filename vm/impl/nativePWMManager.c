@@ -1,6 +1,12 @@
 #include <vm_common.h>
 #include "nativePWMManager.h"
 
+#if defined(ARCH_ARM_SPD)
+#include "sci_types.h"
+#include "os_api.h"
+#include "pwm_drvapi.h"
+#endif
+
 /**
  * Class:     iot_oem_pwm_PWMManager
  * Method:    config0
@@ -13,7 +19,11 @@ void Java_iot_oem_pwm_PWMManager_config0(const u4* args, JValue* pResult) {
     jint dutyCycle = (jint) args[3];
     jint ret = 0;
 
-    // TODO: implementation
+#if defined(ARCH_ARM_SPD)
+    PWM_Config (id,  (uint)freq,  (uint16)dutyCycle);
+    SCI_Sleep(1000);
+    DthingTraceD("[INFO][PWMManager] config with id[%d] freq[%d] dutyCycle[%d]\n", id, freq, dutyCycle);
+#endif
 
     RETURN_INT(ret);
 }
@@ -30,7 +40,13 @@ void Java_iot_oem_pwm_PWMManager_command0(const u4* args, JValue* pResult) {
     jint arg = (jint) args[3];
     jint ret = 0;
 
-    // TODO: implementation
+#if defined(ARCH_ARM_SPD)
+    uint32 myArg = (uint32)arg;
+
+    PWM_Ioctl ((uint32)id, (uint32)cmd, &myArg);
+    DthingTraceD("[INFO][PWMManager] ioctl with id[%d] cmd[%d] arg[%d]\n", id, cmd, arg);
+	ret = myArg;
+#endif
 
     RETURN_INT(ret);
 }
