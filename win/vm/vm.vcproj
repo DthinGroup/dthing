@@ -332,6 +332,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\vm\src\dexcatch.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\vm\inc\dexcatch.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\vm\src\dexclass.c"
 				>
 			</File>

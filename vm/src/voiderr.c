@@ -60,13 +60,13 @@ void dvmCleanupStackOverflow(Thread* self, const Object* exception)
 {
 	DVM_LOG(">>>call dvmCleanupStackOverflow!\n");
 }
-
+/*
 int dvmFindCatchBlock(Thread* self, int relPc, Object* exception,
     vbool scanOnly, void** newFrame)
 {
 	DVM_LOG(">>>call dvmFindCatchBlock!\n");
     return 0;
-}
+}*/
     
 void dvmReportExceptionThrow(Thread* self, Object* exception)
 {
@@ -449,6 +449,8 @@ vbool dvmCheckSuspendQuick(struct dthread * self)
 void dvmSetException(struct dthread* self, struct Object* exception)
 {
 	DVM_LOG(">>>call dvmSetException!\n");
+	assert(exception != NULL);
+    self->exception = exception;
 }
 
 void dvmThrowInternalError(const char* msg) 

@@ -639,6 +639,11 @@ const DexAnnotationsDirectoryItem* dexGetAnnotationsDirectoryItem(
  */
 u2 dexGetUtf16FromUtf8(const char** pUtf8Ptr);
 
+
+const u1* dexGetCatchHandlerData(const DexCode* pCode);
+
+const DexTry* dexGetTries(const DexCode* pCode);
+
 #ifdef __cplusplus
 }
 #endif

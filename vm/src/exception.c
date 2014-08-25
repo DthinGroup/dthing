@@ -23,6 +23,8 @@
 #include <gc.h>
 #include <utfstring.h>
 #include <interpApi.h>
+#include <dexcatch.h>
+#include <dvmdex.h>
 
 /*
 Notes on Exception Handling
@@ -602,5 +604,214 @@ void dvmThrowInstantiationException(ClassObject* clazz, const char* extraDetail)
 void dvmThrowIllegalAccessException(const char* msg)
 {
     dvmThrowException("Ljava/lang/IllegalAccessException;", msg);
+}
+
+/*
+ * Search the method's list of exceptions for a match.
+ *
+ * Returns the offset of the catch block on success, or -1 on failure.
+ */
+static int findCatchInMethod(Thread* self, const Method* method, int relPc,
+    ClassObject* excepClass)
+{
+	DvmDex* pDvmDex = NULL;
+	const DexCode* pCode = NULL;
+	DexCatchIterator iterator;
+    /*
+     * Need to clear the exception before entry.  Otherwise, dvmResolveClass
+     * might think somebody threw an exception while it was loading a class.
+     */
+    assert(!dvmCheckException(self));
+    assert(!dvmIsNativeMethod(method));
+
+	pDvmDex = method->clazz->pDvmDex;
+	pCode = dvmGetMethodCode(method);
+    
+
+    if (dexFindCatchHandler(&iterator, pCode, relPc)) {
+        for (;;) {
+            DexCatchHandler* handler = dexCatchIteratorNext(&iterator);
+			ClassObject* throwable = NULL;
+            if (handler == NULL) {
+                break;
+            }
+
+            if (handler->typeIdx == kDexNoIndex) {
+                /* catch-all */
+                DVMTraceInf("Match on catch-all block at 0x%02x in %s.%s for %s",
+                        relPc, method->clazz->descriptor,
+                        method->name, excepClass->descriptor);
+                return handler->address;
+            }
+
+            throwable = dvmDexGetResolvedClass(pDvmDex, handler->typeIdx);
+            if (throwable == NULL) {
+                /*
+                 * TODO: this behaves badly if we run off the stack
+                 * while trying to throw an exception.  The problem is
+                 * that, if we're in a class loaded by a class loader,
+                 * the call to dvmResolveClass has to ask the class
+                 * loader for help resolving any previously-unresolved
+                 * classes.  If this particular class loader hasn't
+                 * resolved StackOverflowError, it will call into
+                 * interpreted code, and blow up.
+                 *
+                 * We currently replace the previous exception with
+                 * the StackOverflowError, which means they won't be
+                 * catching it *unless* they explicitly catch
+                 * StackOverflowError, in which case we'll be unable
+                 * to resolve the class referred to by the "catch"
+                 * block.
+                 *
+                 * We end up getting a huge pile of warnings if we do
+                 * a simple synthetic test, because this method gets
+                 * called on every stack frame up the tree, and it
+                 * fails every time.
+                 *
+                 * This eventually bails out, effectively becoming an
+                 * uncatchable exception, so other than the flurry of
+                 * warnings it's not really a problem.  Still, we could
+                 * probably handle this better.
+                 */
+                throwable = dvmResolveClass(method->clazz, handler->typeIdx,
+                    true);
+                if (throwable == NULL) {
+                    /*
+                     * We couldn't find the exception they wanted in
+                     * our class files (or, perhaps, the stack blew up
+                     * while we were querying a class loader). Cough
+                     * up a warning, then move on to the next entry.
+                     * Keep the exception status clear.
+                     */
+                    DVMTraceWar("Could not resolve class ref'ed in exception "
+                            "catch list (class index %d, exception %s)",
+                            handler->typeIdx,
+                            (self->exception != NULL) ?
+                            self->exception->clazz->descriptor : "(none)");
+                    dvmClearException(self);
+                    continue;
+                }
+            }
+
+            //LOGD("ADDR MATCH, check %s instanceof %s",
+            //    excepClass->descriptor, pEntry->excepClass->descriptor);
+
+            if (dvmInstanceof(excepClass, throwable)) {
+                DVMTraceInf("Match on catch block at 0x%02x in %s.%s for %s",
+                        relPc, method->clazz->descriptor,
+                        method->name, excepClass->descriptor);
+                return handler->address;
+            }
+        }
+    }
+
+    DVMTraceInf("No matching catch block at 0x%02x in %s for %s",
+        relPc, method->name, excepClass->descriptor);
+    return -1;
+}
+
+
+
+/*
+ * Find a matching "catch" block.  "pc" is the relative PC within the
+ * current method, indicating the offset from the start in 16-bit units.
+ *
+ * Returns the offset to the catch block, or -1 if we run up against a
+ * break frame without finding anything.
+ *
+ * The class resolution stuff we have to do while evaluating the "catch"
+ * blocks could cause an exception.  The caller should clear the exception
+ * before calling here and restore it after.
+ *
+ * Sets *newFrame to the frame pointer of the frame with the catch block.
+ * If "scanOnly" is false, self->interpSave.curFrame is also set to this value.
+ */
+int dvmFindCatchBlock(Thread* self, int relPc, Object* exception,
+    vbool scanOnly, void** newFrame)
+{
+    u4* fp = self->interpSave.curFrame;
+    int catchAddr = -1;
+
+    assert(!dvmCheckException(self));
+
+    while (true) {
+        StackSaveArea* saveArea = SAVEAREA_FROM_FP(fp);
+        catchAddr = findCatchInMethod(self, saveArea->method, relPc,
+                        exception->clazz);
+        if (catchAddr >= 0)
+            break;
+
+        /*
+         * Normally we'd check for ACC_SYNCHRONIZED methods and unlock
+         * them as we unroll.  Dalvik uses what amount to generated
+         * "finally" blocks to take care of this for us.
+         */
+
+        /* output method profiling info */
+        if (!scanOnly) {
+            //TRACE_METHOD_UNROLL(self, saveArea->method);
+        }
+
+        /*
+         * Move up one frame.  If the next thing up is a break frame,
+         * break out now so we're left unrolled to the last method frame.
+         * We need to point there so we can roll up the JNI local refs
+         * if this was a native method.
+         */
+        assert(saveArea->prevFrame != NULL);
+        if (dvmIsBreakFrame((u4*)saveArea->prevFrame)) {
+            if (!scanOnly)
+                break;      // bail with catchAddr == -1
+
+            /*
+             * We're scanning for the debugger.  It needs to know if this
+             * exception is going to be caught or not, and we need to figure
+             * out if it will be caught *ever* not just between the current
+             * position and the next break frame.  We can't tell what native
+             * code is going to do, so we assume it never catches exceptions.
+             *
+             * Start by finding an interpreted code frame.
+             */
+            fp = saveArea->prevFrame;           // this is the break frame
+            saveArea = SAVEAREA_FROM_FP(fp);
+            fp = saveArea->prevFrame;           // this may be a good one
+            while (fp != NULL) {
+                if (!dvmIsBreakFrame((u4*)fp)) {
+                    saveArea = SAVEAREA_FROM_FP(fp);
+                    if (!dvmIsNativeMethod(saveArea->method))
+                        break;
+                }
+
+                fp = SAVEAREA_FROM_FP(fp)->prevFrame;
+            }
+            if (fp == NULL)
+                break;      // bail with catchAddr == -1
+
+            /*
+             * Now fp points to the "good" frame.  When the interp code
+             * invoked the native code, it saved a copy of its current PC
+             * into xtra.currentPc.  Pull it out of there.
+             */
+            relPc =
+                saveArea->xtra.currentPc - SAVEAREA_FROM_FP(fp)->method->insns;
+        } else {
+            fp = saveArea->prevFrame;
+
+            /* savedPc in was-current frame goes with method in now-current */
+            relPc = saveArea->savedPc - SAVEAREA_FROM_FP(fp)->method->insns;
+        }
+    }
+
+    if (!scanOnly)
+        self->interpSave.curFrame = fp;
+
+    /*
+     * The class resolution in findCatchInMethod() could cause an exception.
+     * Clear it to be safe.
+     */
+    self->exception = NULL;
+
+    *newFrame = fp;
+    return catchAddr;
 }
 

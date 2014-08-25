@@ -20,6 +20,8 @@
 #ifndef DALVIK_EXCEPTION_H_
 #define DALVIK_EXCEPTION_H_
 
+#include <dthread.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -94,6 +96,8 @@ void dvmThrowNullPointerException(const char* msg);
  * detail message.
  */
 void dvmThrowArrayStoreExceptionNotArray(ClassObject* actual, const char* label);
+
+int dvmFindCatchBlock(Thread * self, int relPc, Object* exception, vbool scanOnly, void** newFrame);
 #ifdef __cplusplus
 }
 #endif

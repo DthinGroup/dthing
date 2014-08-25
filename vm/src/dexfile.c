@@ -622,5 +622,18 @@ u4 dexRoundUpPower2(u4 val)
 }
 
 
+const u1* dexGetCatchHandlerData(const DexCode* pCode) {
+    const DexTry* pTries = dexGetTries(pCode);
+    return (const u1*) &pTries[pCode->triesSize];
+}
 
+const DexTry* dexGetTries(const DexCode* pCode) {
+    const u2* insnsEnd = &pCode->insns[pCode->insnsSize];
 
+    // Round to four bytes.
+    if ((((u4) insnsEnd) & 3) != 0) {
+        insnsEnd++;
+    }
+
+    return (const DexTry*) insnsEnd;
+}
