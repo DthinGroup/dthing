@@ -301,6 +301,6 @@ public final class Float  {
      * @see #parseFloat(String)
      */
     public static Float valueOf(String string) throws NumberFormatException {
-        return parseFloat(string);
+        return new Float(parseFloat(string));
     }
 }

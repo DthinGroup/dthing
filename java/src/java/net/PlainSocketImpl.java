@@ -178,7 +178,7 @@ public class PlainSocketImpl extends SocketImpl {
     }
 
     public Object getOption(int option) throws SocketException {
-        return NetNativeBridge.getSocketOption(sockHandle, option);
+        return new Integer(NetNativeBridge.getSocketOption(sockHandle, option));
     }
 
     protected synchronized OutputStream getOutputStream() throws IOException {

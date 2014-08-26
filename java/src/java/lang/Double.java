@@ -303,7 +303,7 @@ public final class Double {
      * @see #parseDouble(String)
      */
     public static Double valueOf(String string) throws NumberFormatException {
-    	return parseDouble(string);
+    	return new Double(parseDouble(string));
     }
 
 }
