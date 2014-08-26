@@ -27,7 +27,9 @@
 
     <target name="buildJava">
         <mkdir dir="${output.dir}" />
-        <javac includeantruntime="no" includeJavaRuntime="yes" srcdir="${java.src}" destdir="${output.dir}" source="1.6" target="1.6" />
+        <javac includeantruntime="no" includeJavaRuntime="yes" srcdir="${java.src}" destdir="${output.dir}" source="1.6" target="1.6">
+            <compilerarg line="-encoding UTF-8"/>
+        </javac>
         <jar jarfile="${output.dir}/../df.jar" basedir="${output.dir}" excludes="*.h,*.dex"/>
     </target>
 

@@ -4,7 +4,7 @@
 
 package iot.oem.kpd;
 
-import com.jbed.runtime.AsyncIO;
+import java.lang.AsyncIO;
 
 public class RawKeyPdDriver extends Thread {
     private static boolean isEnabled = false;
