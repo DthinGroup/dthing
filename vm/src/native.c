@@ -20,6 +20,7 @@
 #include <nativeMySmsConnectionThread.h>
 #include <nativeNet.h>
 #include <nativeObject.h>
+#include <nativeOTADownload.h>
 #include <nativePCMChannel.h>
 #include <nativePWMManager.h>
 #include <nativeRuntime.h>

@@ -23,6 +23,7 @@ public class CommandProcessor {
     public static final int CMD_LIST    = 1;
     public static final int CMD_INSTALL = 2;
     public static final int CMD_EXIT    = 3;
+    public static final int CMD_OTA     = 4;
 
     private static final String TAG = "CommandProcessor";
 
@@ -72,8 +73,11 @@ public class CommandProcessor {
                 } else if ("-install".equals(arg)) {
                     mCurCmd = CMD_INSTALL;
                     mInstallURL = args[++i];
+                } else if ("-ota".equals(arg)) {
+                	mCurCmd = CMD_OTA;
+                	mInstallURL = args[++i];
                 } else {
-                    Log.amsLog(TAG, "argument:args[" + i + "]=" + args[i] + "is not exists!");
+                    Log.amsLog(TAG, "argument:args[" + i + "]=" + args[i] + " is not exists!");
                     mCurCmd = CMD_EXIT;
                 }
             } catch (IndexOutOfBoundsException ioobe) {

@@ -1026,10 +1026,7 @@ void * endmalloc(uint32_t size)
 	return mem;
 }
 
-bool_t dvalidMem(void* mem)
-{
-    return isDynamicMem(mem);
-}
+
 
 static bool_t isDynamicMem(void* mem)
 {
@@ -1043,6 +1040,11 @@ static bool_t isDynamicMem(void* mem)
     return FALSE;    
 }
 
+
+bool_t dvalidMem(void* mem)
+{
+    return isDynamicMem(mem);
+}
 /* refer to mm.h */
 void dmark(void* mem)
 {

@@ -1,26 +1,5 @@
-﻿/*
- * Copyright (C) 2008 The Android Open Source Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 
-/*
- * Functions for dealing with try-catch info.
- */
-
-#include "DexCatch.h"
-
-
+#include <dexcatch.h>
 
 /* Initialize a DexCatchIterator to emptiness. This mostly exists to
  * squelch innocuous warnings. */
@@ -88,10 +67,11 @@ bool_t dexFindCatchHandler(DexCatchIterator *pIterator,const DexCode* pCode, u4 
         case 0: {
             break;
         }
-        case 1: {
+        case 1:
+        {
             const DexTry* tries = dexGetTries(pCode);
             u4 start = tries[0].startAddr;
-			u4 end =0;
+            u4 end =0;
 
             if (address < start) {
                 break;
@@ -104,12 +84,15 @@ bool_t dexFindCatchHandler(DexCatchIterator *pIterator,const DexCode* pCode, u4 
             }
 
             offset = tries[0].handlerOff;
-            break;
         }
-        default: {
+        break;
+
+        default:
+        {
             offset = dexFindCatchHandlerOffset0(triesSize, dexGetTries(pCode),
                     address);
         }
+        break;
     }
 
     if (offset < 0) {
@@ -126,14 +109,14 @@ bool_t dexFindCatchHandler(DexCatchIterator *pIterator,const DexCode* pCode, u4 
  * It's not 0 because the handlers list is prefixed with its size
  * (in entries) as a uleb128. */
 u4 dexGetFirstHandlerOffset(const DexCode* pCode) {
-	const u1* baseData;
-	const u1* data;
+    const u1* baseData;
+    const u1* data;
     if (pCode->triesSize == 0) {
         return 0;
     }
 
-	baseData = dexGetCatchHandlerData(pCode);
-	data = baseData;
+    baseData = dexGetCatchHandlerData(pCode);
+    data = baseData;
 
     readUnsignedLeb128(&data);
 
@@ -142,7 +125,7 @@ u4 dexGetFirstHandlerOffset(const DexCode* pCode) {
 
 /* Get count of handler lists for the given DexCode. */
 u4 dexGetHandlersSize(const DexCode* pCode) {
-	const u1* data;
+    const u1* data;
     if (pCode->triesSize == 0) {
         return 0;
     }
@@ -164,7 +147,7 @@ int dexFindCatchHandlerOffset0(u2 triesSize, const DexTry* pTries,
         int guess = (min + max) >> 1;
         const DexTry* pTry = &pTries[guess];
         u4 start = pTry->startAddr;
-		u4 end =0;
+        u4 end =0;
 
         if (address < start) {
             max = guess - 1;

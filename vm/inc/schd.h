@@ -57,4 +57,6 @@ Thread * Schd_FindThreadByJavaObj(Object * javaObj);
 
 void Schd_SCHEDULER(void);
 
+int IsDvmRunning();
+
 #endif

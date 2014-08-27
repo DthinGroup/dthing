@@ -16,9 +16,31 @@ import java.util.Date;
 
 public class Test {
 	
-	public static void main(String args[])
+	private static void test() throws IOException 
 	{
-		URL url =null;
+		String str =null;
+		
+		if(str ==null){
+			throw new IOException("haha .. io exception");
+		}
+		return;
+	}
+	
+	public static void main(String args[]) throws IOException
+	{
+		URL url = null;
+		
+		
+		
+		try {
+			test();
+		} catch (IOException e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
+			System.out.println("catch test's io exception!");
+		}
+		
+		/*
 		try {
 			//http://203.195.192.97/wechat/xDiary.apk
 			url = new URL("http://203.195.192.97/wechat/test.html");
@@ -27,12 +49,33 @@ public class Test {
 			e.printStackTrace();
 			System.out.print("fuck exception!");
 			return;
-		} 
+		} */
 		
-		HttpURLConnection uConn;
+		HttpURLConnection uConn =null;
 		try {
 			uConn = (HttpURLConnection) url.openConnection();
-		} catch (IOException e) {
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			System.out.println("fuck exception null!");
+			//return;
+		}
+		
+		System.out.println("i am -----------------------------------------------");
+		
+		try {
+			//http://203.195.192.97/wechat/xDiary.apk
+			url = new URL("http://203.195.192.97/wechat/test.html");
+		} catch (MalformedURLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			System.out.print("fuck exception!");
+			return;
+		}
+		
+		try {
+			uConn = (HttpURLConnection) url.openConnection();
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			System.out.print("fuck exception II!");

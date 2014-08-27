@@ -1,6 +1,9 @@
 
 package com.yarlungsoft.ams;
 
+import java.io.IOException;
+import java.net.ota.OTADownload;
+
 import com.yarlungsoft.util.Log;
 
 /**
@@ -27,28 +30,37 @@ public class Main {
     private static CommandProcessor sCmdState;
 
     public static void main(String[] args) {
-        for (int i = 0; i < args.length; i++) {
-            Log.amsLog(TAG, "args[" + i + "] = " + args[i]);
-        }
-
-        sCmdState = new CommandProcessor();
-        sCmdState.setCurCmd(CommandProcessor.CMD_EXIT);
-        sCmdState.parseCommandArgs(args);
-
-        switch (sCmdState.getCurCmd()) {
-        case CommandProcessor.CMD_RUN:
-            launchApp(sCmdState.getMainClsName());
-            break;
-
-        case CommandProcessor.CMD_LIST:
-        case CommandProcessor.CMD_INSTALL:
-            launchAms();
-            break;
-
-        default:
-        case CommandProcessor.CMD_EXIT:
-            break;
-        }
+    	try{
+	        for (int i = 0; i < args.length; i++) {
+	            Log.amsLog(TAG, "args[" + i + "] = " + args[i]);
+	        }
+	
+	        sCmdState = new CommandProcessor();
+	        sCmdState.setCurCmd(CommandProcessor.CMD_EXIT);
+	        sCmdState.parseCommandArgs(args);
+	
+	        switch (sCmdState.getCurCmd()) {
+	        case CommandProcessor.CMD_RUN:
+	            launchApp(sCmdState.getMainClsName());
+	            break;
+	
+	        case CommandProcessor.CMD_LIST:
+	        case CommandProcessor.CMD_INSTALL:
+	            launchAms();
+	            break;
+	            
+	        case CommandProcessor.CMD_OTA:
+	        	OTADownload ota = new OTADownload(sCmdState.getInstallURL());
+	        	ota.OTAStart();
+	        	break;
+	
+	        default:
+	        case CommandProcessor.CMD_EXIT:
+	            break;
+	        }
+    	}catch(Exception e){
+    		
+    	}
     }
 
     protected static CommandProcessor getCmdState() {

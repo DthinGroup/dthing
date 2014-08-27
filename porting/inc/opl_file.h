@@ -80,7 +80,7 @@ int32_t file_write(int32_t handle, char * writeBuf, int32_t bufSize);
 
 int32_t file_truncate(int32_t handle, int32_t value);
 
-int32_t file_getsize(int32_t handle);
+int32_t file_getsize(int32_t handle,int32_t * size);
 
 int32_t file_seekex(int32_t handle, int32_t value, int32_t whence);
 
@@ -94,7 +94,7 @@ int32_t file_close(int32_t handle);
 
 int32_t file_mkdir(const uint16_t* name, int32_t nameLen);
 
-uint16_t * file_getDthingDir();
+uint16_t * file_getDthingWDir();
 
 
 

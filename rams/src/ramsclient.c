@@ -66,7 +66,7 @@ static void SafeBufferFree(void *p)
 /**
  * Create a new safe buffer according to a given safe buffer.
  * The src safe buffer data will copy into the new safe buffer.
- */ 
+ */
 static SafeBuffer* CreateSafeBuffer(SafeBuffer* src)
 {
     SafeBuffer *newSafe;
@@ -99,7 +99,7 @@ static SafeBuffer* CreateSafeBufferByBin(uint8_t *buf, int32_t buf_size)
     {
         return NULL;
     }
-    newSafe->pBuf = (uint8_t*)(((uint8_t*)newSafe) + sizeof(SafeBuffer));     
+    newSafe->pBuf = (uint8_t*)(((uint8_t*)newSafe) + sizeof(SafeBuffer));
 
     CRTL_memcpy(newSafe->pBuf, buf, buf_size);
     newSafe->bytes = buf_size;
@@ -159,7 +159,7 @@ static int32_t readbeIU32(const uint8_t* p)
         (((int32_t)p[3]));
 }
 
-/** 
+/**
  * Write an unsigned short into a bytes memory.
  * @p, the memory pointer saves bytes.
  * @num, IU16 number will write to p.
@@ -170,7 +170,7 @@ static void writebeIU16(uint8_t* p, uint16_t num)
     p[1] = (uint8_t)(num&0xff);
 }
 
-/** 
+/**
  * Write an unsigned int into a bytes memory.
  * @p, the memory pointer saves bytes.
  * @num, IU32 number will write to p.
@@ -188,15 +188,9 @@ static void writebeIU32(uint8_t* p, uint32_t num)
  * it should be configurable in different project.
  * TODO: change this api to configurable.
  */
-static uint16_t* getDefaultInstalledPath()
+uint16_t* getDefaultInstalledPath()
 {
-#if defined(WIN32)
-    //return L"D:\\nix.long\\ReDvmAll\\dvm\\appdb\\";
-    return L"D:\\dvm\\appdb\\";
-#elif defined(ARCH_ARM_SPD)
-	return file_getDthingDir();
-#endif
-	return NULL;      
+    return file_getDthingWDir();
 }
 
 static uint8_t* trim(uint8_t* value)
@@ -283,7 +277,7 @@ static bool_t parseAppletProps(uint8_t* data, int32_t dataBytes, AppletProps* ap
         DVMTraceErr("parseAppletProps, Wrong arguments\n");
         return FALSE;
     }
-    
+
     for (i = 0; i < dataBytes; i++)
     {
         if (data[i] != '\r')
@@ -300,7 +294,7 @@ static bool_t parseAppletProps(uint8_t* data, int32_t dataBytes, AppletProps* ap
 
         ps = &data[i+1];
     }
-    
+
     if (ps < data + dataBytes)
     {
         //To handle the case there is no line ending in last line.
@@ -377,7 +371,7 @@ static AppletProps* listInstalledApplets(const uint16_t* path)
         {
             CRTL_memset(foundJarPath, 0x0, MAX_FILE_NAME_LEN);
             result = file_listNextEntry(ins_path, pathLen, foundJarPath, MAX_FILE_NAME_LEN<<1, &handle);
-            
+
             if (!(result > 0))
             {
                 if (result < 0) res = FALSE;
@@ -433,6 +427,11 @@ static AppletProps* listInstalledApplets(const uint16_t* path)
     return appList;
 }
 
+void refreshInstalledApp(void)
+{
+    //attention: not be protected by mutext,it's thread-unsafe
+    appletsList = listInstalledApplets(NULL);
+}
 /**
  * Parse server commands.
  * @param data, raw data from server side.
@@ -448,7 +447,7 @@ static int32_t parseServerCommands(uint8_t* data, int32_t dataBytes)
     int32_t res = cmd;
     Event   newEvt;
 
-	DVMTraceErr("parseServerCommands:cmd - %d\n",cmd);
+    DVMTraceErr("parseServerCommands:cmd - %d\n",cmd);
     switch (cmd)
     {
     case EVT_CMD_INSTALL:
@@ -502,13 +501,42 @@ static int32_t parseServerCommands(uint8_t* data, int32_t dataBytes)
         break;
 
     case EVT_CMD_OTA:
+        {
+            int32_t length = readbeIU32(p+=4);
+            SafeBuffer *safeBuf;
+            int32_t safeBufSize;
+            if (len != 16 + 4 + length)
+            {
+                DVMTraceErr("parseServerCommands EVT_CMD_OTA: Error, wrong data length.\n");
+                res = EVT_RES_FAILURE;
+                break;
+            }
+            safeBufSize = sizeof(SafeBuffer) + length + 1;
+            safeBuf = (SafeBuffer *)CRTL_malloc(safeBufSize);
+            if (safeBuf == NULL)
+            {
+                res = EVT_RES_FAILURE;
+                DVMTraceErr("parseServerCommands EVT_CMD_OTA: alloc fail\n");
+                break;
+            }
+            CRTL_memset(safeBuf, 0x0, safeBufSize);
+
+            safeBuf->pBuf = ((uint8_t*)(safeBuf)+sizeof(SafeBuffer));
+            safeBuf->bytes = length;
+            safeBuf->buffer_free = SafeBufferFree;
+            CRTL_memcpy(safeBuf->pBuf,p+4,length);
+            DVMTraceDbg("ota:%s\n",safeBuf->pBuf);
+
+            newNormalEvent(cmd, FSM_STATE_UNSET, (void *)safeBuf, ramsClient_cmdAction, &newEvt);
+            ES_pushEvent(&newEvt);
+        }
         break;
 
     case EVT_CMD_NONE:
     default:
         break;
     }
-    
+
     return res;
 }
 
@@ -522,7 +550,7 @@ static uint8_t* combineAppPath(uint16_t* appName)
     CRTL_wcscat(fUcsPath, appName);
 
     fpath = CRTL_malloc((len+1)*3);//utf8 encoding.
-    if (fpath != NULL) 
+    if (fpath != NULL)
     {
         CRTL_memset(fpath, 0x0, (len+1)*3);
         convertUcs2ToUtf8(fUcsPath, len, fpath, len*3);
@@ -533,9 +561,9 @@ static uint8_t* combineAppPath(uint16_t* appName)
 
 static int32_t VMThreadProc(int argc, char* argv[])
 {
-	DVMTraceInf("Enter dvm thread,argc=%d,argv=0x%x\n",argc,(void*)argv);
-	DVMTraceInf("argv-0:%s,argv-1:%s,argv-2:%s\n",argv[0],argv[1],argv[2]);
-    DVMTraceInf("Enter dvm thread,sleep over,sizeof(int)=%d,sizeof(int32_t)=%d\n",sizeof(int),sizeof(int32_t));    
+    DVMTraceInf("Enter dvm thread,argc=%d,argv=0x%x\n",argc,(void*)argv);
+    DVMTraceInf("argv-0:%s,argv-1:%s,argv-2:%s\n",argv[0],argv[1],argv[2]);
+    DVMTraceInf("Enter dvm thread,sleep over,sizeof(int)=%d,sizeof(int32_t)=%d\n",sizeof(int),sizeof(int32_t));
     DVM_main(argc, argv);
     return 0;
 }
@@ -559,7 +587,7 @@ static int32_t ramsClient_cmdAction(Event *evt, void *userData)
 
             if (p == NULL) return 0;
 
-            do 
+            do
             {
                 dataSize = 16;
                 for (i = 0, appNum = 0; i < MAX_APPS_NUM; i++)
@@ -585,7 +613,7 @@ static int32_t ramsClient_cmdAction(Event *evt, void *userData)
                     writebeIU32(&pb[4], ACK_CMD_LIST);
                     writebeIU32(&pb[8], appNum);
                     writebeIU32(&pb[12], 0); //reserved bytes
-                    
+
                     newNormalEvent(EVT_CMD_DECLARE, DECLARE_FSM_WRITE, (void *)safeBuf, ramsClient_buildConnection, &newEvt);
                     ES_pushEvent(&newEvt);
                     break;
@@ -661,7 +689,22 @@ static int32_t ramsClient_cmdAction(Event *evt, void *userData)
             data->buffer_free(data);
         }
         break;
-        
+    case EVT_CMD_OTA:
+        {
+            SafeBuffer *data;
+            if (userData != NULL)
+            {
+                data = (SafeBuffer *)userData;
+            }
+            else
+            {
+                data = (SafeBuffer *)evt->userData;
+            }
+
+            ramsClient_ota(data->pBuf);
+            data->buffer_free(data);
+        }
+        break;
     default:
         break;
     }
@@ -681,7 +724,7 @@ static int32_t ramsClient_buildConnection(Event *evt, void *userData)
     if (evtId == EVT_CMD_DECLARE)
     {
         int32_t fsm_state = FSM_UNMARK(evt->fsm_state);
-        
+
         if (fsm_state)
 
         switch (fsm_state)
@@ -727,7 +770,7 @@ static int32_t ramsClient_buildConnection(Event *evt, void *userData)
                 if (recvBuf->bytes > 0)
                 {
                     Event newEvt;
-                    newNormalEvent(EVT_CMD_PARSER, FSM_STATE_UNSET, (void *)CreateSafeBuffer(recvBuf), 
+                    newNormalEvent(EVT_CMD_PARSER, FSM_STATE_UNSET, (void *)CreateSafeBuffer(recvBuf),
                                    ramsClient_buildConnection, &newEvt);
                     ES_pushEvent(&newEvt);
                 }
@@ -784,7 +827,7 @@ static int32_t ramsClient_buildConnection(Event *evt, void *userData)
             /* no data */
             return EVT_RES_FAILURE;
         }
-         
+
         parseServerCommands(data->pBuf, data->bytes);
 
         data->buffer_free(data);
@@ -911,7 +954,7 @@ bool_t ramsClient_runApplet(int32_t id)
         argv[0] = "-run";
         argv[1] = pap->fpath;
         argv[2] = pap->mainCls;
-	    DVMTraceInf("argv=0x%x,argv-1:%s,argv-2:%s,argv-3:%s\n",(void*)argv,argv[0],argv[1],argv[2]);
+        DVMTraceInf("argv=0x%x,argv-1:%s,argv-2:%s,argv-3:%s\n",(void*)argv,argv[0],argv[1],argv[2]);
 
         if (rams_createVMThread(VMThreadProc, 3, argv) < 0)
         {
@@ -942,7 +985,7 @@ bool_t ramsClient_runApplet(int32_t id)
         writebeIU32(&pByte[8], EVT_CMD_RUN);
         writebeIU32(&pByte[12], 0x0);
     }
-    
+
     safeBuf = CreateSafeBufferByBin(ackBuf, sizeof(ackBuf));
     newNormalEvent(EVT_CMD_DECLARE, DECLARE_FSM_WRITE, (void *)safeBuf, ramsClient_buildConnection, &newEvt);
     ES_pushEvent(&newEvt);
@@ -981,6 +1024,79 @@ bool_t ramsClient_destroyApplet(int32_t id)
     return TRUE;
 }
 
+bool_t ramsClient_ota(char * url)
+{
+    bool_t res = TRUE;
+    uint8_t      ackBuf[16] = {0x0};
+    uint8_t     *pByte;
+    SafeBuffer  *safeBuf;
+    Event        newEvt;
+    static char* argv[3];
+    char * otaUrl = CRTL_malloc(CRTL_strlen(url)+1);  //memery leak
+    if(otaUrl ==NULL)
+    {}
+
+    if(!IsDvmRunning())
+    {
+        CRTL_memset(otaUrl,0,CRTL_strlen(url)+1);
+        CRTL_memcpy(otaUrl,url,CRTL_strlen(url));
+
+        argv[0] = "-ota";
+        argv[1] = otaUrl;
+        argv[2] = NULL;
+        DVMTraceInf("argv=0x%x,argv-1:%s,argv-2:%s,argv-3:%s\n",(void*)argv,argv[0],argv[1],argv[2]);
+
+        if (rams_createVMThread(VMThreadProc, 2, argv) < 0)
+        {
+            DVMTraceErr("lauch VM thread failure\n");
+            res = FALSE;
+        }
+
+        pByte = (uint8_t*)ackBuf;
+
+        writebeIU32(&pByte[0], sizeof(ackBuf));
+        writebeIU32(&pByte[4], ACK_RECV_WITHOUT_EXEC);
+        writebeIU32(&pByte[8], 0x1);
+        writebeIU32(&pByte[12], 0x0);
+    }else{
+        pByte = (uint8_t*)ackBuf;
+
+        writebeIU32(&pByte[0], sizeof(ackBuf));
+        writebeIU32(&pByte[4], ACK_RECV_AND_EXEC);
+        writebeIU32(&pByte[8], 0x0);
+        writebeIU32(&pByte[12], 0x0);
+    }
+
+    safeBuf = CreateSafeBufferByBin(ackBuf, sizeof(ackBuf));
+    newNormalEvent(EVT_CMD_DECLARE, DECLARE_FSM_WRITE, (void *)safeBuf, ramsClient_buildConnection, &newEvt);
+    ES_pushEvent(&newEvt);
+
+    return res;
+}
+
+void sendOTAExeResult(int res)
+{
+	SafeBuffer  *safeBuf;
+    Event        newEvt;
+	uint8_t      ackBuf[16] = {0x0};
+    uint8_t     *pByte;
+    uint8_t  val = 0;
+	if(res==0){
+		val = 1;
+	}
+		
+	pByte = (uint8_t*)ackBuf;
+
+    writebeIU32(&pByte[0], sizeof(ackBuf));
+    writebeIU32(&pByte[4], ACK_RECV_AND_EXEC);
+    writebeIU32(&pByte[8], EVT_CMD_OTA);
+    writebeIU32(&pByte[12], val);
+    
+    safeBuf = CreateSafeBufferByBin(ackBuf, sizeof(ackBuf));
+    newNormalEvent(EVT_CMD_DECLARE, DECLARE_FSM_WRITE, (void *)safeBuf, ramsClient_buildConnection, &newEvt);
+    ES_pushEvent(&newEvt);
+}
+
 /* see ramsclient.h */
 bool_t ramsClient_sendBackExecResult(int32_t cmd, bool_t res)
 {
@@ -1010,7 +1126,7 @@ bool_t ramsClient_sendBackExecResult(int32_t cmd, bool_t res)
         curActiveApp->isRunning = res ? FALSE : TRUE;
         curActiveApp = NULL; //destroyed success;
     }
-    
+
     safeBuf = CreateSafeBufferByBin(ackBuf, sizeof(ackBuf));
     newNormalEvent(EVT_CMD_DECLARE, DECLARE_FSM_WRITE, (void *)safeBuf, ramsClient_buildConnection, &newEvt);
     ES_pushEvent(&newEvt);

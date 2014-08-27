@@ -962,6 +962,8 @@ int32_t file_mkdir(const uint16_t* name, int32_t nameLen)
 #define DTHING_PATH 		L"D:\\dthing"        
 #define DTHING_PATH_FIX 	L"D:\\dthing\\"
 
+#define DTHING_PATH_FIX_C 	"D:\\dthing\\"
+
 bool_t file_registerDeviceIfNeed()
 {
 	uint16_t    dev_name[] = {'D', 0x00};
@@ -1011,12 +1013,23 @@ bool_t file_registerDeviceIfNeed()
 
 #endif
 
-uint16_t * file_getDthingDir()
+
+uint16_t * file_getDthingWDir()
 {
 #if defined (ARCH_X86)	
-
+	return L"D:\\nix.long\\ReDvmAll\\dvm\\appdb\\";
 #elif defined(ARCH_ARM_SPD)	
-	return 	DTHING_PATH_FIX;
+	return DTHING_PATH_FIX;
+#endif
+	return NULL;	
+}
+
+uint8_t * file_getDthingDir()
+{
+#if defined (ARCH_X86)	
+	return "D:\\nix.long\\ReDvmAll\\dvm\\appdb\\";
+#elif defined(ARCH_ARM_SPD)	
+	return DTHING_PATH_FIX_C;
 #endif
 	return NULL;	
 }

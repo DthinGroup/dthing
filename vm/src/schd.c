@@ -14,6 +14,8 @@
 
 volatile u1 schedulerFlag  = 0;
 volatile u8 g_last_tick_record = 0;
+volatile bool_t isDvmRunning = FALSE;
+
 
 void Schd_InitThreadLists(void)
 {
@@ -482,6 +484,7 @@ void Schd_SCHEDULER(void)
     while(1)
     {
     SCHD_RESTART:
+		isDvmRunning = TRUE;
         if(currentThread != NULL)
         {
             if(currentThread->threadState == THREAD_ACTIVE)
@@ -525,6 +528,7 @@ void Schd_SCHEDULER(void)
 
             if(Schd_ThreadAccountInTotal() ==0)
             {
+				isDvmRunning = FALSE;
                 goto SCHD_END;
             }
             vmtime_startTimer();
@@ -539,9 +543,15 @@ void Schd_SCHEDULER(void)
         goto SCHD_RESTART;
 
     SCHD_END:
+		isDvmRunning = FALSE;
         DVM_LOG("Schd over!\n");
         break;
     }
+}
+
+int IsDvmRunning()
+{
+	return (int)isDvmRunning;
 }
 
 /*API to interpret*/

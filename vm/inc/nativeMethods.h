@@ -21,7 +21,7 @@ typedef struct {
     int methodCount;
 } KniClassNativeMethodInfo;
 
-#define NATIVE_CLASSES_COUNT 36
+#define NATIVE_CLASSES_COUNT 37
 
 /* com.yarlungsoft.ams.Scheduler native APIs */
 KniNativeMethodInfo gJava_com_yarlungsoft_ams_Scheduler[2] = {
@@ -296,6 +296,12 @@ KniNativeMethodInfo gJava_java_net_NetNativeBridge[9] = {
     {"closeSocket0",    "(I)I",         (KniFunc)Java_java_net_NetNativeBridge_closeSocket0},
 };
 
+/* java.net.ota.OTADownload native APIs */
+KniNativeMethodInfo gJava_java_net_ota_OTADownload[2] = {
+    {"getAppInstalledDir", "()Ljava/lang/String;", (KniFunc)Java_java_net_ota_OTADownload_getAppInstalledDir},
+    {"notifyOTAResult0",   "(I)V",                 (KniFunc)Java_java_net_ota_OTADownload_notifyOTAResult0},
+};
+
 /* java.util.TimeZone native APIs */
 KniNativeMethodInfo gJava_java_util_TimeZone[1] = {
     {"getDefaultId", "()Ljava/lang/String;", (KniFunc)Java_java_util_TimeZone_getDefaultId},
@@ -356,6 +362,7 @@ KniClassNativeMethodInfo gNativeMthTab[NATIVE_CLASSES_COUNT] = {
     {"Ljava/lang/Thread;",                             gJava_java_lang_Thread,                             11},
     {"Ljava/lang/Throwable;",                          gJava_java_lang_Throwable,                          1},
     {"Ljava/net/NetNativeBridge;",                     gJava_java_net_NetNativeBridge,                     9},
+    {"Ljava/net/ota/OTADownload;",                     gJava_java_net_ota_OTADownload,                     2},
     {"Ljava/util/TimeZone;",                           gJava_java_util_TimeZone,                           1},
     {"Ljp/co/cmcc/atcommand/ATCommandConnection;",     gJava_jp_co_cmcc_atcommand_ATCommandConnection,     5},
     {"Ljp/co/cmcc/message/sms/MyMessageSender;",       gJava_jp_co_cmcc_message_sms_MyMessageSender,       1},

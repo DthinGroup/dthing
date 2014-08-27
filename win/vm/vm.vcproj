@@ -600,6 +600,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\vm\impl\nativeOTADownload.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\vm\impl\nativeOTADownload.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\vm\impl\nativePCMChannel.c"
 				>
 			</File>

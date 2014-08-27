@@ -143,6 +143,13 @@ bool_t ramsClient_runApplet(int32_t id);
  */
 bool_t ramsClient_destroyApplet(int32_t id);
 
+bool_t ramsClient_ota(char * url);
+
+void sendOTAExeResult(int res);
+
+//attention: not be protected by mutext,it's thread-unsafe
+void refreshInstalledApp(void);
+
 /**
  * Send back execution result for some async commands.
  * main 2 comands: EVT_CMD_RUN and EVT_CMD_DESTROY

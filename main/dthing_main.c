@@ -7,16 +7,9 @@
 #include <priority_app.h>
 #endif
 
-#if defined(ARCH_X86)
 
-int main(int argc, char *argv[])
+static void launchESSchdule()
 {
-	//DVM_main(argc, argv);
-#ifdef    NOT_LAUNCH_NET_TASK	
-    ramsClient_runApplet(0);
-    while(true);
-#else	
-    //launchRemoteAMSClient(FALSE, argc, argv);
     ES_Semaphore *esSem;
     ES_initial();
     esSem = semaphore_create(0);
@@ -37,6 +30,19 @@ int main(int argc, char *argv[])
     semaphore_destroy(esSem);
     esSem = NULL;
     ES_final();
+}
+
+#if defined(ARCH_X86)
+
+int main(int argc, char *argv[])
+{
+	//DVM_main(argc, argv);
+#ifdef    NOT_LAUNCH_NET_TASK	
+    ramsClient_runApplet(0);
+    while(true);
+#else	
+    //launchRemoteAMSClient(FALSE, argc, argv);
+   launchESSchdule();
 #endif
     return 1;
 }
@@ -58,7 +64,8 @@ static void Dthing_IThreadProc(int argc, void * argv)
     char * arga[2] = {"-cp","D:\\helloword.dex"};
 
     //DVM_main(arg,arga);
-    launchRemoteAMSClient(FALSE, arg, arga);
+//    launchRemoteAMSClient(FALSE, arg, arga);
+   launchESSchdule();
     
     if(SCI_INVALID_BLOCK_ID != dvm_threadId)
     {
