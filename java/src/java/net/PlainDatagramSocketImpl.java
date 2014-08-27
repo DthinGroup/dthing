@@ -79,7 +79,7 @@ public class PlainDatagramSocketImpl extends DatagramSocketImpl {
     }
 
     public Object getOption(int option) throws SocketException {
-        return NetNativeBridge.getSocketOption(sockHandle, option);
+        return new Integer(NetNativeBridge.getSocketOption(sockHandle, option));
     }
 
     protected int peek(InetAddress sender) throws IOException {
