@@ -1,16 +1,21 @@
 #include <opl_rams.h>
 #include <opl_es.h>
+#include <opl_net.h>
 #include <eventbase.h>
+#include <vm_common.h>
 
-#ifdef WIN32
+#ifdef ARCH_X86
 #include <windows.h>
 #elif defined(ARCH_ARM_SPD)
+#include <os_api.h>
+#include <priority_app.h>
+#include <socket_api.h>
 #endif
 
 static bool_t  networkStarted = FALSE;
 
 /* X86 definitions. */
-#ifdef WIN32
+#ifdef ARCH_X86
 #define SET_NON_BLOCKING(sock) \
     do { \
         unsigned long val = 1; \
@@ -18,7 +23,12 @@ static bool_t  networkStarted = FALSE;
     } while(0)
 #elif defined(ARCH_ARM_SPD)
 #define SET_NON_BLOCKING(sock) \
-    sci_sock_setsockopt(sock, SO_NBIO, NULL)
+	do { \
+		int ret =0; \
+		ret = sci_sock_setsockopt(sock, SO_NBIO, NULL); \
+		SCI_TRACE_LOW("===RMT==set opt ret:%d",ret); \
+	} while(0)
+
 #endif
 
 
@@ -26,7 +36,7 @@ static bool_t  networkStarted = FALSE;
 int32_t rams_startupNetwork()
 {
     int32_t res = RAMS_RES_FAILURE;
-#ifdef WIN32
+#ifdef ARCH_X86
 	WSADATA wsaData;
     if (!networkStarted && (WSAStartup(MAKEWORD(2,2), &wsaData) != NO_ERROR))
     {
@@ -36,7 +46,11 @@ int32_t rams_startupNetwork()
     networkStarted = TRUE;
     res = RAMS_RES_SUCCESS;
 #elif defined(ARCH_ARM_SPD)	
-	res = rmtc_activeNetwowrk();
+	if(Opl_net_isActivated() ==TRUE)
+	{
+		networkStarted = TRUE;
+		res = RAMS_RES_SUCCESS;
+	}
 #endif
     return res;
 }
@@ -45,9 +59,10 @@ int32_t rams_startupNetwork()
 int32_t rams_connectServer(int32_t address, uint16_t port, int32_t *instance)
 {
     int32_t fInst = -1 ;
-#ifdef WIN32
+#ifdef ARCH_X86
     struct sockaddr_in sa;
 
+	DVMTraceDbg("rams_connectServer to 0x%x:%d\n",address,port);
     if (ES_firstScheduled())
     {
         if (!networkStarted)
@@ -98,7 +113,10 @@ int32_t rams_connectServer(int32_t address, uint16_t port, int32_t *instance)
     }
 
 #elif defined(ARCH_ARM_SPD)
+
 	struct sci_sockaddr ssa;
+
+    DVMTraceDbg("rams_connectServer to 0x%x:%d\n",address,port);
 
     if (ES_firstScheduled())
     {
@@ -108,7 +126,7 @@ int32_t rams_connectServer(int32_t address, uint16_t port, int32_t *instance)
             return RAMS_RES_FAILURE;
         }
 
-        fInst = sci_sock_socket(AF_INET, SOCK_STREAM, 0, netId);
+        fInst = sci_sock_socket(AF_INET, SOCK_STREAM, 0,  Opl_net_getNetId());
 
         if(fInst <= 0)
         {
@@ -120,7 +138,7 @@ int32_t rams_connectServer(int32_t address, uint16_t port, int32_t *instance)
         *instance = fInst;
     }
 
-    if (fInst < 0)
+    if (fInst < 0 || ES_firstScheduled())
     {
         ssa.family = AF_INET;
         ssa.port = (uint16_t)htons(port);
@@ -151,7 +169,7 @@ int32_t rams_connectServer(int32_t address, uint16_t port, int32_t *instance)
 	}
 
 	//connect success;
-    DVMTraceErr("socket connect success~ sock=%d,netId=%d\n",fInst,netId);
+    DVMTraceErr("socket connect success~ sock=%d,netId=%d\n",fInst, Opl_net_getNetId());
 #endif
     return RAMS_RES_SUCCESS;
 }
@@ -161,7 +179,7 @@ int32_t rams_recvData(int32_t instance, uint8_t* buf, int32_t bufSize)
 {
     int32_t ret;
 
-#ifdef WIN32
+#ifdef ARCH_X86
     ret = recv(instance, buf, bufSize, 0);
 
     if (ret == SOCKET_ERROR)
@@ -178,6 +196,7 @@ int32_t rams_recvData(int32_t instance, uint8_t* buf, int32_t bufSize)
         }
     }
 #elif defined(ARCH_ARM_SPD)
+#if 1
     ret = sci_sock_recv(instance, (char*)buf, bufSize, 0);
 
     if (ret == TCPIP_SOCKET_ERROR)
@@ -193,7 +212,9 @@ int32_t rams_recvData(int32_t instance, uint8_t* buf, int32_t bufSize)
             ret = RAMS_RES_FAILURE;
         }
     }
+	#endif
 #endif
+	DVMTraceDbg("===rams_recvData,handle:0x%x,ret:%d\n",instance,ret);
 
     return ret;
 }
@@ -203,7 +224,7 @@ int32_t rams_sendData(int32_t instance, uint8_t* buf, int32_t bufSize)
 {
     int32_t ret;
 
-#ifdef WIN32
+#ifdef ARCH_X86
     ret = send(instance, buf, bufSize, 0);
 
     if (ret == SOCKET_ERROR)
@@ -220,6 +241,7 @@ int32_t rams_sendData(int32_t instance, uint8_t* buf, int32_t bufSize)
         }
     }
 #elif defined(ARCH_ARM_SPD)
+#if 1
     ret = sci_sock_send(instance, (char*)buf, bufSize, 0);
 
     if (ret == TCPIP_SOCKET_ERROR)
@@ -235,14 +257,17 @@ int32_t rams_sendData(int32_t instance, uint8_t* buf, int32_t bufSize)
             ret = RAMS_RES_FAILURE;
         }
     }
+#endif	
 #endif
+	DVMTraceDbg("===rams_sendData,handle:0x%x,ret:%d\n",instance,ret);
     return ret;
 }
 
 /* refer to opl_rams.h */
 int32_t rams_closeConnection(int32_t instance)
 {
-#ifdef WIN32
+	DVMTraceDbg("===rams_closeConnection,handle:0x%x\n",instance);
+#ifdef ARCH_X86
     closesocket(instance);
 #elif defined(ARCH_ARM_SPD)
     sci_sock_socketclose(instance);
@@ -253,17 +278,17 @@ int32_t rams_closeConnection(int32_t instance)
 /* refer to opl_rams.h */
 int32_t rams_shutdownNetwork()
 {
-#ifdef WIN32
+#ifdef ARCH_X86
     WSACleanup();
 #elif defined(ARCH_ARM_SPD)
-    rmtc_deactiveNetwowrk();
+    Opl_net_deactivate();
 #endif
     networkStarted = FALSE;
 
     return RAMS_RES_SUCCESS;
 }
 
-#ifdef WIN32
+#ifdef ARCH_X86
 static DWORD WINAPI VMThreadFunc(PVOID pvParam)
 {
     uint32_t* params = (uint32_t*)pvParam;
@@ -277,11 +302,19 @@ static DWORD WINAPI VMThreadFunc(PVOID pvParam)
 #elif defined(ARCH_ARM_SPD)
 uint32_t g_dthing_threadid = SCI_INVALID_BLOCK_ID;
 uint8*   g_dthing_mem_space_ptr = NULL;
+
+static void VMThreadFunc(uint32_t argc,void * argv)
+{
+    DVMTraceInf("===Enter dvm thread,argc=%d,argv=0x%x\n",argc,(void*)argv);
+    DVMTraceInf("===argv-0:%s,argv-1:%s,argv-2:%s\n",((char*) argv)[0],((char*) argv)[1],((char*) argv)[2]);
+    DVMTraceInf("===Enter dvm thread,sleep over,sizeof(int)=%d,sizeof(int32_t)=%d\n",sizeof(int),sizeof(int32_t));
+    DVM_main(argc, argv);
+}
 #endif
 
 int32_t rams_createVMThread(DVMThreadFunc pDvmThreadProc, int argc, void* argv[])
 {
-#ifdef WIN32	
+#ifdef ARCH_X86	
     HANDLE handle;
     static uint32_t params[3] = {0x0,};//static variable is better, any side effect?
     params[0] = (uint32_t)pDvmThreadProc;
@@ -298,7 +331,7 @@ int32_t rams_createVMThread(DVMThreadFunc pDvmThreadProc, int argc, void* argv[]
 	#define DTHING_VM_THREAD_QUEUE_SIZE 	(20*sizeof(uint32)*SCI_QUEUE_ITEM_SIZE)
 	DVMTraceInf("Ready to launch dthing vm thread!\n");    
     //try to alloc java heap
-    cleanVmThread();
+//    cleanVmThread();
     g_dthing_mem_space_ptr = (uint8*)SCI_ALLOCA(DTHING_VM_THREAD_STACK_SIZE +DTHING_VM_THREAD_QUEUE_SIZE);
 
     DVMTraceInf("Alloc g_dthing_mem_space_ptr = 0x%x\n",g_dthing_mem_space_ptr);    
@@ -307,23 +340,37 @@ int32_t rams_createVMThread(DVMThreadFunc pDvmThreadProc, int argc, void* argv[]
         DVMTraceErr("Error:alloc dthing vm memory fail!\n");
         return -1;
     }
-
+#if 0
+	g_dthing_threadid = SCI_CreateAppThread(
+					"DthingVmTask",
+					"DthingVmQueue",
+					VMThreadFunc,
+					argc,
+					(void *)argv,
+					DTHING_VM_THREAD_STACK_SIZE,
+					20,
+					30,//PRI_DTHING_TASK,
+					SCI_PREEMPT,
+					SCI_AUTO_START
+					);
+#endif
+#if 1
     g_dthing_threadid = SCI_CreateAppThreadEx
                 (
                     "DthingVmTask",
-                    (void (*)(uint32_t, void*))pDvmThreadProc,
+                    VMThreadFunc,
                     argc,
                     (void*)argv,
                     g_dthing_mem_space_ptr,
                     DTHING_VM_THREAD_STACK_SIZE,
-                    PRI_JBED_TASK,
+                    30,//PRI_DTHING_TASK,
                     SCI_PREEMPT,
                     "DthingVmQueue",
                     (g_dthing_mem_space_ptr+DTHING_VM_THREAD_STACK_SIZE),
                     DTHING_VM_THREAD_QUEUE_SIZE,
                     SCI_AUTO_START
                 );
-                
+#endif                
     DVMTraceInf("Create dthing vm thread success! thread id = %d \n",g_dthing_threadid);                
 	return g_dthing_threadid;
 #endif

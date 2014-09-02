@@ -67,7 +67,7 @@ void Java_java_lang_Thread_start(const u4* args, JValue* pResult) {
 
     DVM_ASSERT(thisObj != NULL);
     /* super hard code 21, need to use gDvm.voffJavaLangThread_run to replace. */
-    runMeth = thisObj->clazz->vtable[14];  //21
+    runMeth = thisObj->clazz->vtable[21];  //21
 
     DVMTraceInf("Java_java_lang_Thread_start..\n");
 

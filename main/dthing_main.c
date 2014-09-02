@@ -2,6 +2,7 @@
 #include <eventsystem.h>
 #include <opl_es.h>
 #include "vm_common.h"
+#include <opl_net.h>
 
 #if defined(ARCH_ARM_SPD)
 #include <priority_app.h>
@@ -84,6 +85,8 @@ static void Dthing_IThreadProc(int argc, void * argv)
 bool_t Dthing_startVM(void)
 {
     DvmLog("[Dthing log]:g_dvm_mem_space_ptr try to alloc");
+
+    Opl_net_activate();
 
 #ifdef    NOT_LAUNCH_NET_TASK
     return ramsClient_runApplet(0);

@@ -10,6 +10,12 @@
 /** Operation will be handled asynchronously */
 #define OPL_NET_WOULDBLOCK        (-100)
 
+int Opl_net_activate(void);
+
+int Opl_net_deactivate(void);
+
+int Opl_net_isActivated(void);
+
 int Opl_net_startup(void);
 
 int Opl_net_streamSocket();
@@ -27,5 +33,7 @@ int Opl_net_recvfrom(int sock,char * recvbuf,int count,int ip,int port);
 int Opl_net_sendto(int sock,char * sendbuf,int count,int ip,int port);
 
 int Opl_net_closeSocket(int socket);
+
+int Opl_net_getNetId();
 
 #endif

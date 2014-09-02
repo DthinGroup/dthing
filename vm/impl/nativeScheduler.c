@@ -14,6 +14,7 @@
 #include <nativeScheduler.h>
 #include <ramsclient.h>
 #include <upcall.h>
+#include <vm_common.h>
 
 /* refer to com/yarlungsoft/ams/Scheduler.java */
 #define APPLET_STATE_ERROR          -1
@@ -34,7 +35,7 @@
 void Java_com_yarlungsoft_ams_Scheduler_reportState(const u4* args, JValue* pResult)
 {
     int state = (int) args[1];
-
+#ifndef NOT_LAUNCH_NET_TASK
     DVMTraceInf("Scheduler_reportState state(%d)\n", state);
     if (state == APPLET_STATE_STARTED)
     {
@@ -45,6 +46,7 @@ void Java_com_yarlungsoft_ams_Scheduler_reportState(const u4* args, JValue* pRes
         /* UNINITIALIZED is not reported automatically except from destroying state*/
         ramsClient_sendBackExecResult(EVT_CMD_DESTROY, TRUE);
     }
+#endif
 }
 
 /* see nativeScheduler.h */

@@ -7,7 +7,7 @@
 #include <encoding.h>
 #include <upcall.h>
 #include <init.h>
-
+#include <vm_common.h>
 
 /* FSM state definitions of EVT_CMD_DECLARE */
 #define DECLARE_FSM_STARTUP  0x01
@@ -427,9 +427,10 @@ static AppletProps* listInstalledApplets(const uint16_t* path)
     return appList;
 }
 
+//attention: not be protected by mutext,it's thread-unsafe
 void refreshInstalledApp(void)
 {
-    //attention: not be protected by mutext,it's thread-unsafe
+    
     appletsList = listInstalledApplets(NULL);
 }
 /**

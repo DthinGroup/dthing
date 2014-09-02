@@ -358,6 +358,7 @@ static /*inline*/ void putDoubleToArray(u4* ptr, int idx, double dval)
  */
 static /*inline*/ vbool checkForNull(Object* obj)
 {
+    LOGE("checkForNull:0x%x\n",obj);
     if (obj == NULL) {
         dvmThrowNullPointerException(NULL);
         return false;
@@ -2571,7 +2572,7 @@ HANDLE_OPCODE(OP_RETURN_VOID /**/)
     ILOGV("|return-void");
 #endif
 #ifndef NDEBUG
-    retval.j = 0xabababab ULL;    // placate valgrind
+    retval.j = 0x0;//0xaeaeabab ULL;    // placate valgrind
 #endif
     GOTO_returnFromMethod();
 OP_END
@@ -4296,7 +4297,7 @@ HANDLE_OPCODE(OP_RETURN_VOID_BARRIER /**/)
     ILOGV("|return-void");
 #endif
 #ifndef NDEBUG
-    retval.j = 0xabababab ULL;   /* placate valgrind */
+    retval.j = 0x0;//0xafafabab ULL;   /* placate valgrind */
 #endif
     //ANDROID_MEMBAR_STORE();
     GOTO_returnFromMethod();

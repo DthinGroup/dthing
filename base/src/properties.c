@@ -43,7 +43,7 @@ static const char * const builtinProperties[] =
     //DEF_PROPERTY("appdb.dir", "D:/dvm/appdb/"),
     DEF_PROPERTY("appdb.dir", "D:/nix.long/ReDvmAll/dvm/appdb/"),
 #elif defined(ARCH_ARM_SPD)
-    DEF_PROPERTY("appdb.dir", "D:/dthing/appdb/"),
+    DEF_PROPERTY("appdb.dir", "D:/dthing/"),
 #endif
     DEF_PROPERTY("manufacture", "helio")
 };
