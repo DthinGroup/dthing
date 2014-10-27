@@ -63,7 +63,8 @@ static void Dthing_IThreadProc(int argc, void * argv)
     int status =0;
     int    arg = 2;
     char * arga[2] = {"-cp","D:\\helloword.dex"};
-
+	
+	Opl_net_activate();
     //DVM_main(arg,arga);
 //    launchRemoteAMSClient(FALSE, arg, arga);
    launchESSchdule();
@@ -84,10 +85,18 @@ static void Dthing_IThreadProc(int argc, void * argv)
 
 bool_t Dthing_startVM(void)
 {
+	SCI_TRACE_LOW("===========================================");
+	SCI_TRACE_LOW("===========================================");
+	SCI_TRACE_LOW("===========================================");
+	SCI_TRACE_LOW("===========================================");
+	SCI_TRACE_LOW("==================Dthing start======================");
     DvmLog("[Dthing log]:g_dvm_mem_space_ptr try to alloc");
 
-    Opl_net_activate();
-
+	SCI_Sleep(1000);
+    //Opl_net_activate();
+	SCI_TRACE_LOW("=========================================2==");
+	SCI_TRACE_LOW("=========================================2==");
+	SCI_Sleep(1000);
 #ifdef    NOT_LAUNCH_NET_TASK
     return ramsClient_runApplet(0);
 #endif    

@@ -194,7 +194,11 @@ int32_t DVM_main(int32_t argc, char * argv[])
     DVM_native_init();
 
 	//ret = sizeof(ArrayObject);
-
+	/*
+	argc =2;
+	argv[0] = "-ota";
+	argv[1] = "http://42.121.18.62/ttt/update.xml";
+	*/
     newArgv = processOptions(argc, argv, &newArgc);
     if (newArgv == NULL)
     {
@@ -214,6 +218,7 @@ int32_t DVM_main(int32_t argc, char * argv[])
     /* =================================== */
 #endif
 
+#if 1
 	DVMTraceInf("Try to find class\n");
 	/* Find main class */
 	//mainClass = dvmFindClass("Ljava/net/SocketUdpTest;");
@@ -228,10 +233,17 @@ int32_t DVM_main(int32_t argc, char * argv[])
     DVMTraceInf("Try to find class,dummyThreadCls:0x%x\n",dummyThreadCls);
     dummyThreadObj = dvmAllocObject(dummyThreadCls, 0);
     DVMTraceInf("Try to find class,dummyThreadObj:0x%x\n",dummyThreadObj);
-    
+#else
+	mainClass = dvmFindClass("Ljava/net/http/Test;");
+	startMeth = dvmGetStaticMethodID(mainClass, "main", "([Ljava/lang/String;)V");
+	dummyThreadCls = dvmFindClass("Ljava/lang/Thread;");
+    DVMTraceInf("Try to find class,dummyThreadCls:0x%x\n",dummyThreadCls);
+    dummyThreadObj = dvmAllocObject(dummyThreadCls, 0);
+	newArgc = 0;
+#endif
     if (newArgc == 0)
     {
-	    dthread_create(startMeth, dummyThreadObj);
+	    dthread_create(startMeth, /*dummyThreadObj*/NULL);
     }
     else if (newArgc > 0)
     {
@@ -249,7 +261,7 @@ int32_t DVM_main(int32_t argc, char * argv[])
 
         dthread_create_params(startMeth, dummyThreadObj, params);
     }
-    
+
     
 	DVMTraceInf("Enter scheduler\n");
     //entry interpret;

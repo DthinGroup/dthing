@@ -470,7 +470,8 @@ int32_t file_open(const uint16_t* name, int32_t nameLen, int32_t mode, int32_t *
     DWORD dwDesiredAccess = 0;
     DWORD dwCreationDispostion = 0;
     uint16_t fname[MAX_FILE_NAME_LEN];
-
+	
+	DVMTraceDbg("file_open mode:%d ,name:%s \n",mode,getAsciiName(name,nameLen));
     if (convertFileName(name, nameLen, fname) < 0)
     {
         DVMTraceErr("file_open failed, convertFileName error!\n");
@@ -526,6 +527,7 @@ int32_t file_open(const uint16_t* name, int32_t nameLen, int32_t mode, int32_t *
         return FILE_RES_FAILURE;
     }
     
+	DVMTraceDbg("file_open mode:%d ,name:%s \n",mode,getAsciiName(name,nameLen));
     if (hostName[nameLen] == '/' || hostName[nameLen] == '\\')
     {
         //ensure no file separator at end of the file path to make
@@ -549,7 +551,7 @@ int32_t file_open(const uint16_t* name, int32_t nameLen, int32_t mode, int32_t *
 
     if (sfsHandle == 0)
     {
-        DVMTraceErr("CPL_file_open - ERROR: open file failure");
+        DVMTraceErr("====file_open - ERROR: open file failure");
         return FILE_RES_FAILURE;
     }
 
@@ -971,40 +973,41 @@ bool_t file_registerDeviceIfNeed()
     SFS_ERROR_E sfsError = SFS_ERROR_NONE;
 	bool_t ret = TRUE;
 	
-	DVMTraceInf("file device register\n");
+	DVMTraceDbg("====file device register\n");
 	sfsError = SFS_GetDeviceStatus(dev_name);
 	
 	switch(sfsError)
 	{
 		case SFS_ERROR_NONE:
-			DVMTraceInf("device is ok!\n");
+			DVMTraceInf("====device is ok!\n");
 			break;
 			
 		case SFS_ERROR_DEVICE:
 		case SFS_ERROR_SYSTEM:	
-			DVMTraceInf("device is error,register it\n");
+		case SFS_ERROR_NOT_EXIST:
+			DVMTraceDbg("====device is error,register it\n");
 			sfsError = SFS_RegisterDevice(dev_name, &format);
 			if(SFS_ERROR_NONE == sfsError)
 		    {
-		        DVMTraceInf("==RMT== SFS_RegisterDevice SUCCESS");
+		        DVMTraceDbg("==== SFS_RegisterDevice SUCCESS");
 		    }
 		    else
 		    {		
 		        sfsError = SFS_Format(L"D", SFS_AUTO_FORMAT, NULL);
 		        if(SFS_ERROR_NONE == sfsError) {
-		            DVMTraceInf("==RMT== SFS_Format SUCCESS");
-		            DVMTraceInf("==RMT== SFS_RegisterDevice SUCCESS");
+		            DVMTraceDbg("==== SFS_Format SUCCESS");
+		            DVMTraceDbg("==== SFS_RegisterDevice SUCCESS");
 		        }
 		        else {
-		            DVMTraceInf("==RMT== SFS_RegisterDevice error: %d", sfsError);
-		            DVMTraceInf("==RMT== SFS_Format error: %d", sfsError);
+		            DVMTraceErr("====== SFS_RegisterDevice error: %d", sfsError);
+		            DVMTraceErr("====== SFS_Format error: %d", sfsError);
 		            ret =FALSE;
 		        }
 		    }
 			break;
 			
 		default:
-			DVMTraceInf("unhandle device error:%d\n",sfsError);
+			DVMTraceErr("====unhandle device error:%d\n",sfsError);
 			ret =FALSE;
 			break;
 	}

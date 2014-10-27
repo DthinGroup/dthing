@@ -13,7 +13,9 @@
 #ifndef __DVM_TRACE_H__
 #define __DVM_TRACE_H__
 
-#ifdef WIN32
+#include <vm_common.h>
+
+#ifdef ARCH_X86
 #include <stdio.h>
 #endif
 
@@ -29,7 +31,7 @@ extern "C" {
  * 4 - error
  */
 #ifndef TRACE_LEV 
-#define TRACE_LEV 1
+#define TRACE_LEV 3
 #endif
 
 #define DVMTraceErr (TRACE_LEV < 1) ? (void) 0 : (void)DthingTraceE

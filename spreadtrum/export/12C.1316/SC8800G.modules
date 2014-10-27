@@ -1,0 +1,338 @@
+#****************************************************************************************#
+#  Segment: Spreadtrum Libraries
+#  Description: Libraries Released From Spreadtrum  
+#****************************************************************************************#
+
+EXPORTLIBS       = 	audioservice	 aud_algorithm  bsd   agc_exp	custom_tone     char_lib \
+	digitalgain    	dsp_codec	dtmf_tone  generic_tone          \
+	main       daps parser voice   uplink_codec downlink_codec chip_base aud_common dthing
+
+ifneq ($(strip $(MODEM_PLATFORM)), TRUE)
+EXPORTLIBS          +=  isp_service  rotation dv    	ratecontrol	eq_exp	img_proc  img_proc_core\
+			mpeg4_codec  record  sfs !scaling         transsamplerate vsp  display  display_core
+endif
+ifneq ($(strip $(VECTOR_FONT_SUPPORT)), ETRUMP)
+EXPORTLIBS +=spml
+endif
+
+######## if VIDEO_SECURITY_SUPPORT
+EXPORTLIBS  +=	video_security
+ifeq ($(strip $(KING_MOVIE_SUPPORT)),EXTEND)
+EXPORTLIBS  +=  video_security_kmv
+endif
+######## endif
+
+ifeq ($(strip $(MMI_3DUI_SUPPORT)),TRUE)
+EXPORTLIBS +=s3d
+endif
+
+ifeq ($(strip $(LIVE_WALLPAPER_FRAMEWORK_SUPPORT)),TRUE)
+EXPORTLIBS +=s3d
+endif
+
+ifeq ($(strip $(QBTHEME_SUPPORT)),TRUE)
+EXPORTLIBS += theme_unzip
+endif
+
+ifeq ($(strip $(PRODUCT_DM)), TRUE)
+EXPORTLIBS += dm_2g_layer1 dm_2g_layer1_dsp dm_2g_ps rtos_kal tdd_l4_hsdpa \
+	      tdd_sim tdd_nas	tdd_bcfe tdd_dcfe tdd_common_hsdpa tdd_lib \
+	      tdd_l2_hsdpa  l1c_dm  infra_target sme kal_threadx commlib asn1  asn1ber asn1uper
+	      
+ifdef MULTI_SIM_SYS
+EXPORTLIBS += tdd_rrc_adapter
+endif
+
+	      
+else
+EXPORTLIBS += rtos l4 layer1 layer1_dsp ps sim
+endif
+
+ifeq ($(strip $(JAVA_SUPPORT)), SUN)
+EXPORTLIBS += sun_java
+endif
+
+ifeq ($(strip $(IM_ENGINE)),S9)
+EXPORTLIBS +=spim
+endif
+	
+ifeq ($(strip $(PIM_SUPPORT)), TRUE)
+EXPORTLIBS +=pim
+endif
+ifneq ($(strip $(BLUETOOTH_SUPPORT)),NONE)
+ifeq ($(strip $(BLUETOOTH_SUPPORT)),CSR_BC6)
+EXPORTLIBS += bt_pal_csr16
+else
+EXPORTLIBS += bt_pal_csr
+endif
+endif
+ifeq ($(strip $(MP3_SUPPORT)),TRUE)
+EXPORTLIBS += mp3_new
+endif
+
+ifeq ($(strip $(AAC_SUPPORT)),TRUE)
+EXPORTLIBS += aac
+endif
+
+ifeq ($(strip $(WMA_SUPPORT)),TRUE)
+EXPORTLIBS += 	wma
+endif
+
+ifeq ($(strip $(AMR_SUPPORT)),TRUE)
+EXPORTLIBS += amr_arm
+endif
+
+ifeq ($(strip $(WAV_SUPPORT)),TRUE)
+EXPORTLIBS += wav
+endif
+
+ifeq ($(strip $(DRA_SUPPORT)),TRUE)
+EXPORTLIBS += dra
+endif
+
+ifeq ($(strip $(H264_DEC_SUPPORT)),TRUE)
+EXPORTLIBS += h264_codec
+endif
+
+ifeq ($(strip $(VT_SUPPORT)),TRUE)
+EXPORTLIBS += vt_adp
+endif
+
+#ifeq ($(strip $(VT_SUPPORT)),TRUE) || ($(strip $(MODEM_VT_SUPPORT)),TRUE)
+EXPORTLIBS += h324_adp
+#endif
+
+
+ifeq ($(strip $(MIDI_SUPPORT)),TRUE)
+ifeq ($(strip $(MIDI_DECODER_OPTIMIZED)),TRUE)
+	SOUNDBANK_LIBS  = midi_opt  
+else
+	SOUNDBANK_LIBS  = midi  
+endif
+SPRDLIBS  = 
+endif
+
+ifeq ($(strip $(EQ_EXE_ON_CHIP)),TRUE)
+EXPORTLIBS += audproc_exp
+endif
+
+
+ifeq ($(strip $(NULL_CODEC_SUPPORT)),TRUE)
+EXPORTLIBS += null_codec
+endif
+
+EXPORTLIBS += clone_codec
+
+ifeq ($(strip $(ARM_AD_ADP_SUPPORT)),TRUE)
+EXPORTLIBS += arm_ad_adp
+endif
+
+ifeq ($(strip $(AD_OUTPUT_ADP_SUPPORT)),TRUE)
+EXPORTLIBS += ad_output_adp
+endif
+
+ifeq ($(strip $(VT_SUPPORT)), TRUE)
+ifeq ($(strip $(SPRD_CUSTOMER)), FALSE)  
+EXPORTLIBS += !mplapi_intg_8801h !mplapi_threadx_8801h
+endif
+endif
+
+ifeq ($(strip $(DIGITAL_GAIN_SUPPORT)),TRUE)
+EXPORTLIBS += digitalgain
+endif
+
+ifeq ($(strip $(WIFI_SUPPORT)),AR6302)
+EXPORTLIBS += athr_wifi athr_supp athr_iperf
+else
+EXPORTLIBS += !athr_wifi !athr_supp !athr_iperf
+endif
+
+ifeq ($(strip $(MMI_AZAN_SUPPORT)),TRUE)
+EXPORTLIBS += azan
+else 
+EXPORTLIBS += !azan                            
+endif
+
+ifeq ($(strip $(CMMB_SUPPORT)), TRUE)
+EXPORTLIBS     +=	mtv_adapter os_al gzip mtv_api
+ifeq ($(strip $(MTV_MIDDLEWARE_ON_BB)), TRUE)
+
+#customize demod lib export
+ifeq ($(strip $(DEMOD_HW)), SIANO)
+	EXPORTLIBS     +=	siano
+	EXPORTLIBS     +=	!innofidei
+endif
+ifeq ($(strip $(DEMOD_HW)), INNOFIDEI)
+	EXPORTLIBS     +=	!siano
+	EXPORTLIBS     +=	innofidei
+endif
+
+#	ifeq ($(strip $(DEMOD_HW)), SIANO)
+#		EXPORTLIBS     +=	siano
+#	endif
+#	ifeq ($(strip $(DEMOD_HW)), INNOFIDEI)
+#		EXPORTLIBS     +=	innofidei
+#	endif
+
+EXPORTLIBS     +=	mtv_mw mtv_service
+else
+EXPORTLIBS     +=	!varm_fw
+export LCD_CONNECTED_TO_V  = TRUE
+endif
+export SCREEN_TEST_SUPPORT = FALSE
+export MTV_ERR_EXIT        = TRUE
+export USING_STATIC_THREAD = TRUE
+export HOST_IS_LITTLEEND   = FALSE
+export SUPPORT_DRA         = TRUE
+endif
+ifeq ($(strip $(MUX_SUPPORT)), TRUE)
+EXPORTLIBS          +=	mux
+endif
+
+ifeq ($(strip $(NANDBOOT_SUPPORT)), TRUE)
+FDL_BOOT_LIBS       = fdl1_nf    fdl2_nf    xsr_layer_os_none  ftl_os_none  sci_ftl_layer_os_none
+else
+FDL_BOOT_LIBS       =
+endif	
+
+NAND_LIBS           = nvm_debug    nvm_release    xsr_layer   ftl sci_ftl_layer
+NOR_LIBS            = efs
+
+# independent compile for Spreadtrum only
+INDEPENDENT=	tf_fdl fdl1 fdl2 bootloader nor_fdl nv_parameter preload_app logel   mtv_api_mxx fota varm_fw  release_level_d0  resource simulator simulator_td   resource_win
+ifeq ($(strip $(PRODUCT_DM)), TRUE)
+INDEPENDENT+= dmdsp
+else
+INDEPENDENT+= dsp
+endif
+
+
+ifneq ($(strip $(MODEM_PLATFORM)), TRUE)
+NEW_INDEP_ADD = resource
+endif
+
+#****************************************************************************************#
+#  Segment: 3RD_LIBS
+#  Description: Libraries Released From Third-Party 
+#****************************************************************************************#
+
+include Makefile.third-party
+				 
+
+#****************************************************************************************#
+#  Segment: COMPLIBS
+#  Description: The Following Libs Will Be Compiled By Default (Using Make PROJECT update or New)
+#****************************************************************************************#
+
+COMPLIBS_DBG       = 	custom_drv chip_drv  ucom   usbservice	version   aud_dev aud_config refbase   !nv_parameter
+
+ifeq ($(strip $(USB_VCOM_AUTORUN_SUPPORT)),TRUE)
+COMPLIBS_DBG	+=cdrom
+endif
+ifneq ($(strip $(MODEM_PLATFORM)), TRUE)
+COMPLIBS_DBG	+= app mmk gui  ubot scp  scm mmk_sys  lcd  dc  caf_templete  utility utility_performance !resource  
+
+ifeq ($(strip $(JUNIVERSALCHARDET_SUPPORT)), TRUE)
+COMPLIBS_DBG	+= juniversalchardet
+endif
+
+ifeq ($(strip $(SQLITE_SUPPORT)), TRUE)
+COMPLIBS_DBG	+= libc
+COMPLIBS_DBG	+= sqlite
+endif 
+endif
+
+ifeq ($(strip $(PRODUCT_DM)), TRUE)
+COMPLIBS_DBG  +=  tdd_atc_hsdpa  !dmdsp
+else
+COMPLIBS_DBG  +=  atc !dsp
+endif
+
+ifeq ($(strip $(DYNAMIC_MODULE_SUPPORT)), TRUE)
+COMPLIBS_DBG	+= caf_interface
+endif
+
+ifeq ($(strip $(NANDBOOT_SUPPORT)), TRUE)
+COMPLIBS_DBG	+= !fdl1    !fdl2     !bootloader   
+else
+COMPLIBS_DBG	+= !nor_fdl
+endif
+
+ifeq ($(strip $(DEV_MANAGE_SUPPORT)), TRUE)
+COMPLIBS_DBG       += !fota
+ifeq ($(strip $(CMMB_SUPPORT)), TRUE)
+FOTA_LIBS =cmmb_fota
+endif
+endif
+
+ifeq ($(strip $(PRELOAD_SUPPORT)), TRUE)
+COMPLIBS_DBG       += !preload_app
+endif
+
+ifeq ($(strip $(USB_VCOM_AUTORUN_SUPPORT)), TRUE)
+COMPLIBS_DBG       += !ucom_romdisk
+endif
+ifeq ($(strip $(USB_WEBCAMERA_SUPPORT)), TRUE)
+COMPLIBS_DBG       += upcc
+endif
+ifeq ($(strip $(USB_MTP_SUPPORT)), TRUE)
+COMPLIBS_DBG       += mtp
+endif
+ifeq ($(strip $(TF_LOAD_SUPPORT)),  TRUE)
+COMPLIBS_DBG  += !tf_fdl
+endif
+COMPLIBS    = $(COMPLIBS_DBG)
+
+ifneq ($(strip $(SPRD_CUSTOMER)), TRUE)
+COMPLIBS    = $(call sort,$(EXPORTLIBS)) $(NAND_LIBS) $(NOR_LIBS) $(SOUNDBANK_LIBS) $(FDL_BOOT_LIBS) $(COMPLIBS_DBG)
+#COMPLIBS    = $(call sort,$(EXPORTLIBS)) $(NAND_LIBS) $(NOR_LIBS) $(SOUNDBANK_LIBS) $(COMPLIBS_DBG)
+
+endif
+
+
+
+#****************************************************************************************#
+#  Segment: LINKLIBLIST
+#  Description: Libs Need By The Final Target
+#               Custom Can Add Lib or Obj files
+#****************************************************************************************#
+
+MY_BASELIB_DIR  := lib/$(strip $(PRODUCT_BASELIB_DIR))
+
+LINKLIBLIST	= $(addprefix $(BUILD_DIR)/lib/, $(subst chip_drv.a,chip_drv.a\(tx_illdb.o\),$(addsuffix .a, $(filter-out !%,$(COMPLIBS_DBG))))) \
+			$(addprefix $(BUILD_DIR)/lib/, chip_drv.a) \
+		  $(addprefix $(MY_BASELIB_DIR)/, $(addsuffix .a, $(filter-out !%, $(EXPORTLIBS)))) \
+		  $(addprefix $(SPRDLIB_DIR)/,$(SPRDLIBS)) \
+		  $(3RD_LIBS)
+
+ifeq ($(strip $(SPRD_CUSTOMER)), TRUE)
+
+ifeq ($(strip $(NANDBOOT_SUPPORT)), TRUE)
+LINKLIBLIST        += $(addprefix $(MY_BASELIB_DIR)/,$(addsuffix .a, $(filter-out !% %_debug, $(NAND_LIBS))))
+else
+LINKLIBLIST        += $(addprefix $(MY_BASELIB_DIR)/,$(addsuffix .a, $(filter-out !% %_debug, $(NOR_LIBS))))
+endif
+
+else
+
+ifeq ($(strip $(RELEASE_INFO)), TRUE)
+
+ifeq ($(strip $(NANDBOOT_SUPPORT)), TRUE)
+LINKLIBLIST        += $(addprefix $(MY_BASELIB_DIR)/,$(addsuffix .a, $(filter-out !% %_debug, $(NAND_LIBS))))
+else
+LINKLIBLIST        += $(addprefix $(MY_BASELIB_DIR)/,$(addsuffix .a, $(filter-out !% %_debug, $(NOR_LIBS))))
+endif
+
+else
+
+ifeq ($(strip $(NANDBOOT_SUPPORT)), TRUE)
+LINKLIBLIST        += $(addprefix $(MY_BASELIB_DIR)/,$(addsuffix .a, $(filter-out !% %_release, $(NAND_LIBS))))
+else
+LINKLIBLIST        += $(addprefix $(MY_BASELIB_DIR)/,$(addsuffix .a, $(filter-out !% %_release, $(NOR_LIBS))))
+endif
+
+endif  
+
+endif
+
+LINKLIBLIST        += $(addprefix $(MY_BASELIB_DIR)/,$(addsuffix .a, $(SOUNDBANK_LIBS)))                                     
