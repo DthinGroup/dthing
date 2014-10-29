@@ -24,9 +24,11 @@ if not exist env_init.bat (
     echo Set your shell environment in env_init.bat
     echo ##############################################
 )
-call env_init.bat>nul 2>nul
+REM call env_init.bat>nul 2>nul
+call env_init.bat
 
 set PATH=./tools;%PATH%
+
 set CLEANBUILD=
 set BINSBUILD=
 set BUILDARCH=msvc
@@ -61,6 +63,11 @@ if "%BINSBUILD%" EQU "TRUE" (
     @echo "No parameters are input, refer to help"
     goto HELP;
 )
+
+if "%BUILDARCH%" EQU "rvct" (
+	call rvct_release.bat
+)
+
 goto EXIT;
 
 :HELP

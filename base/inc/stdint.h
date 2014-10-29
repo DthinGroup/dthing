@@ -17,7 +17,10 @@ extern "C" {
 
 typedef signed char int8_t;
 typedef short       int16_t;
+#ifndef _INT32_T_DEFINED
+#define _INT32_T_DEFINED
 typedef long        int32_t;
+#endif
 typedef __int64     int64_t;
 
 #define INT8_C(x)  (x)
@@ -40,7 +43,10 @@ typedef __int64     int64_t;
 
 typedef unsigned char    uint8_t;
 typedef unsigned short   uint16_t;
+#ifndef _UINT32_T_DEFINED
+#define _UINT32_T_DEFINED
 typedef unsigned long    uint32_t;
+#endif
 typedef unsigned __int64 uint64_t;
 
 #define UINT8_C(x)  (x ## U)

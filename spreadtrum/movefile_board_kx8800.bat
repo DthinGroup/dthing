@@ -28,6 +28,7 @@ copy %SRCDIR%\spreadtrum\export\KX8800\SC6530.modules  %DESDIR%\..\
 copy %SRCDIR%\spreadtrum\export\KX8800\SC6800H.modules  %DESDIR%\..\
 copy %SRCDIR%\spreadtrum\export\KX8800\SC8800G.modules  %DESDIR%\..\
 copy %SRCDIR%\spreadtrum\export\KX8800\Makefile.rules  %DESDIR%\..\
+copy %SRCDIR%\spreadtrum\export\KX8800\Makefile.third-party  %DESDIR%\..\
 
 copy %SRCDIR%\spreadtrum\export\KX8800\dthing.mk  %DESDIR%\make\dthing\
 copy %SRCDIR%\spreadtrum\export\KX8800\priority_app.h  %DESDIR%\..\common\export\inc\

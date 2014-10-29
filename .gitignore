@@ -1,0 +1,11 @@
+*.bak
+*.copy
+*.user
+vm/inc/dalvik_core.h
+*.jar
+*.apk
+*.zip
+java_demo/
+java/bin/
+win/*
+gen/*

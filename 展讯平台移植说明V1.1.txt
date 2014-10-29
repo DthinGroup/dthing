@@ -1,0 +1,78 @@
+1.重要的宏编译选项
+
+1.1 芯片平台切换宏  
+
+目前Dthing支持 X86/ARM 两个平台编译，编译控制开关定义在 vm_common.h
+
+typedef enum
+{
+    ARCH_X86,
+    ARCH_ARM_SPD
+}ARCH_E;
+
+其中 ARCH_X86 为 X86平台编译, ARCH_ARM_SPD 为 ARM/展讯平台编译
+
+
+1.2 调试Log控制开关 
+
+在Trace.h 文件，定义了 TRACE_LEV 的 调试信息输出登记宏开关
+
+#define TRACE_LEV 3
+
+支持1,2,3,4一共4个级别,分别 代表输出 错误/警告/调试/普通 四个信息等级
+
+1.3 Remote Server的 Ip/Port 配置
+
+在 rasmclient.h 文件，定义的宏:
+
+// remote ip
+#define RS_ADDRESS  0x2a79123e
+
+/* remote server port */
+#define RS_PORT     7899
+
+
+分别表示Remote的Ip 和端口号
+
+1.4 需要自定义Dthing应用运行目录
+
+在 properties.c 文件的指针数组变量 builtinProperties 定义:
+
+static const char * const builtinProperties[] =
+{
+    #define DEF_PROPERTY(k, v)  (k "\0" v)
+#ifdef ARCH_X86 
+    //DEF_PROPERTY("appdb.dir", "D:/dvm/appdb/"),
+    DEF_PROPERTY("appdb.dir", "D:/nix.long/ReDvmAll/dvm/appdb/"),
+#elif defined (ARCH_ARM_SPD)
+    DEF_PROPERTY( "appdb.dir", "D:/dthing/" ),
+#endif
+    DEF_PROPERTY( "manufacture", "helio" )
+};
+
+请根据自己需要更改目录(现在这样)
+
+
+
+2.向展讯平台的移植
+
+
+2.1  设置IDH包路径
+[注意:env_init.bat 需要设置成自己电脑环境的变量]
+
+在rvct_release.bat脚本中,修改变量
+set IDHDIR=D:\WORK\Spreadtrum\KX8800B_CODE_UPDATE_1112\MS_Code\
+为你的展讯IDH包实际路径
+
+2.2 编译并export
+使用脚本build.bat编译,编译命令:
+
+build [clean] lib arm
+
+如果无编译错误，生成的Release和Lib及临时文件都在 gen\目录下，
+并且脚本自动调用 rvct_release.bat,将release文件和DthingVm.a库拷贝到 展讯IDH
+
+2.3 展讯IDH编译
+
+make p=xxx  m=dthing
+make p=xxx

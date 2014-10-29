@@ -1,17 +1,17 @@
 ######################################################
 #
-# Copyright [2013] - [2014] Yarlungsoft 
-# 
-# Licensed under the Apache License, Version 2.0 (the "License"); 
-# you may not use this file except in compliance with the License. 
-# You may obtain a copy of the License at 
-# 
-# http://www.apache.org/licenses/LICENSE-2.0 
-# 
-# Unless required by applicable law or agreed to in writing, software 
-# distributed under the License is distributed on an "AS IS" BASIS, 
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
-# See the License for the specific language governing permissions and 
+# Copyright [2013] - [2014] Yarlungsoft
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
 # limitations under the License.
 #
 ######################################################
@@ -20,6 +20,8 @@
 ######################################################
 # Global dfeinitions
 ######################################################
+
+CDEFINES+=-D_UINTPTR_T_DEFINED -D_INT32_T_DEFINED -D_UINT32_T_DEFINED
 
 GENPATH=$(CURDIR)/gen
 OBJPATH=$(GENPATH)/$(TOOLCHAIN)/objects
@@ -37,7 +39,7 @@ RMDIR=$(subst /,\,$(SHELL)) /c RD /Q /S
 # Compiler info
 ######################################################
 #
-# rvct compiler settings 
+# rvct compiler settings
 #
 ifeq ($(TOOLCHAIN), rvct)
 CC=tcc.exe
@@ -48,7 +50,7 @@ LIBEXT=a
 DLLEXT=so
 EXEEXT=elf
 CDEFINES+=-DDEBUG -DANSI -DNO_POSIX_INCLUDES
-CFLAGS=--LI --cpu ARM926EJ-S -O3 --debug --apcs /interwork/noswst --enum_is_int -D_RTOS --loose_implicit_cast
+CFLAGS=--LI --cpu ARM926EJ-S -O3 --debug --apcs /interwork/noswst --enum_is_int -D_RTOS --loose_implicit_cast -W
 
 COMPILE=$(CC) $(CDEFINES) $(CFLAGS) $(subst /I,-I,$(INCLUDES)) -o $(subst /,\,$@) -c $(subst /,\,$<)
 
@@ -69,7 +71,7 @@ $(AR) --create -c $(strip $(subst /,\,$(RAMSLIB))) $(RAMS_OBJECTS)
 endef
 
 define BUILDLIBLIB
-$(AR) --create -c $(LIBPATH)/DthingVM.lib $(LIBS)
+$(AR) --create -c $(LIBPATH)/DthingVM.a $(LIBS)
 endef
 
 #
@@ -82,7 +84,7 @@ CC=cl.exe
 AR=link.exe -lib
 LINK=link.exe
 
-# generated file suffix # 
+# generated file suffix #
 OBJEXT=obj
 LIBEXT=lib
 DLLEXT=dll
@@ -92,7 +94,7 @@ EXEEXT=exe
 CDEFINES+=-DWIN32 -DDEBUG -D_UNICODE
 CFLAGS=/Zi /nologo /Zp1 /MTd /W3 /RTC1 /EHsc /Od /Fd"$(BINPATH)/vc80.pdb" $(CDEFINES) $(INCLUDES)
 WIN32LIBS=kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib
-       
+
 COMPILE=$(CC) $(CFLAGS) /Fo$@ /c $<
 
 LINKFLAGS=/INCREMENTAL /NOLOGO /MANIFEST /MANIFESTFILE:"$(BINPATH)/DthingVM.exe.intermediate.manifest" /DEBUG /PDB:$(BINPATH)/DthingVM.pdb /SUBSYSTEM:CONSOLE /MACHINE:X86 /ERRORREPORT:PROMPT $(WIN32LIBS)
@@ -132,7 +134,6 @@ endif
 ######################################################
 # Source files
 ######################################################
-
 #
 # includes files
 #
@@ -146,9 +147,11 @@ INCLUDES = \
     /Izlib
 
 
+
+
 #
 # base files
-# 
+#
 VM_SOURCES = \
     base/src/ansicextend.c \
     base/src/encoding.c \
@@ -156,7 +159,7 @@ VM_SOURCES = \
     base/src/properties.c \
     base/src/trace.c
 
-  
+
 #
 # main files
 #
@@ -166,7 +169,7 @@ BIN_SOURCES = \
 
 #
 # es & rams files
-#    
+#
 RAMS_SOURCES = \
     rams/src/eventsystem.c \
     rams/src/jarparser.c \
@@ -175,38 +178,25 @@ RAMS_SOURCES = \
 
 #
 # core vm files
-#    
+#
 VM_SOURCES += \
-    vm/impl/nativeADCManager.c \
     vm/impl/nativeAsyncIO.c \
-    vm/impl/nativeATCommandConnection.c \
-    vm/impl/nativeBatteryManager.c \
     vm/impl/nativeClass.c \
-    vm/impl/nativeEarManager.c \
     vm/impl/nativeFile.c \
+    vm/impl/nativeFileInputStream.c \
+    vm/impl/nativeFileOutputStream.c \
     vm/impl/nativeFloat.c \
-    vm/impl/nativeGpio.c \
-    vm/impl/nativeI2CManager.c \
-    vm/impl/nativeLCD.c \
     vm/impl/nativeMath.c \
-    vm/impl/nativeMicophone.c \
-    vm/impl/nativeMyMessageSender.c \
-    vm/impl/nativeMySmsConnectionThread.c \
     vm/impl/nativeNet.c \
     vm/impl/nativeObject.c \
-    vm/impl/nativePCMChannel.c \
-    vm/impl/nativePWMManager.c \
+    vm/impl/nativeOTADownload.c \
     vm/impl/nativeRuntime.c \
     vm/impl/nativeScheduler.c \
-    vm/impl/nativeSimManager.c \
-    vm/impl/nativeSpeakerManager.c \
-    vm/impl/nativeSPIManager.c \
     vm/impl/nativeString.c \
     vm/impl/nativeSystem.c \
     vm/impl/nativeThread.c \
     vm/impl/nativeThrowable.c \
     vm/impl/nativeTimeZone.c \
-    vm/impl/nativeUSBConnection.c \
     vm/init.c \
     vm/src/accesscheck.c \
     vm/src/annotation.c \
@@ -215,6 +205,7 @@ VM_SOURCES += \
     vm/src/class.c \
     vm/src/classmisc.c \
     vm/src/compact.c \
+    vm/src/dexcatch.c \
     vm/src/dexclass.c \
     vm/src/dexfile.c \
     vm/src/dexproto.c \
@@ -239,13 +230,12 @@ VM_SOURCES += \
     vm/src/typecheck.c \
     vm/src/upcall.c \
     vm/src/utfstring.c \
-    vm/src/vmTime.c \
     vm/src/voiderr.c
 
 
 #
 # zlib files
-#    
+#
 ZLIB_SOURCES = \
     zlib/adler32.c \
     zlib/compress.c \
@@ -262,14 +252,31 @@ ZLIB_SOURCES = \
 
 #
 # porting files
-#    
+#
 PORTING_SOURCES = \
+    vm/src/voiderr.c \
     porting/src/opl_core.c \
     porting/src/opl_es.c \
     porting/src/opl_file.c \
     porting/src/opl_mm.c \
     porting/src/opl_net.c \
-    porting/src/opl_rams.c
+    porting/src/opl_rams.c \
+    vm/impl/nativeADCManager.c \
+    vm/impl/nativeATCommandConnection.c \
+    vm/impl/nativeBatteryManager.c \
+    vm/impl/nativeEarManager.c \
+    vm/impl/nativeGpio.c \
+    vm/impl/nativeI2CManager.c \
+    vm/impl/nativeLCD.c \
+    vm/impl/nativeMicophone.c \
+    vm/impl/nativeMyMessageSender.c \
+    vm/impl/nativeMySmsConnectionThread.c \
+    vm/impl/nativePCMChannel.c \
+    vm/impl/nativePWMManager.c \
+    vm/impl/nativeSimManager.c \
+    vm/impl/nativeSpeakerManager.c \
+    vm/impl/nativeSPIManager.c \
+    vm/impl/nativeUSBConnection.c
 
 
 #
@@ -303,7 +310,7 @@ bin: lib $(PLLIB) $(BIN_OBJECTS)
 
 lib: dirs $(LIBS)
 	$(BUILDLIBLIB)
-	
+
 $(BIN_OBJECTS): $(OBJPATH)/%.$(OBJEXT) : %.c
 	-$(MAKEOBJDIRS)
 	$(COMPILE)
