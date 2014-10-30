@@ -156,7 +156,7 @@ endif
 #
 # Common Build Directories Definition
 #
-COMMON_INCPATH = MS_Ref/export/inc common/export/inc common/export/inc/trace_id RTOS/export/inc MS_Customize/export/inc chip_drv/export/inc DAPS/export/inc char_lib/export/inc
+COMMON_INCPATH = MS_Ref/export/inc common/export/inc common/export/inc/trace_id RTOS/export/inc MS_Customize/export/inc chip_drv/export/inc DAPS/export/inc char_lib/export/inc BASE/atc/export/inc BASE/atc/modem/source/h
 
 
 

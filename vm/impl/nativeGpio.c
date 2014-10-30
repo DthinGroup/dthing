@@ -448,5 +448,6 @@ void vibra_gpio_callback(uint32 gpio_id, uint32 gpio_state)
     GPIO_SetInterruptSense(GPIO_VIBRA_ID, GPIO_INT_EDGES_RISING);
     GPIO_ClearIntStatus(GPIO_VIBRA_ID);
     GPIO_EnableIntCtl(GPIO_VIBRA_ID);
+  }
 }
 #endif
