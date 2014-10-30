@@ -13,7 +13,7 @@
 #define FORMAT_RESPONSE
 #define ASYNCIO_SUPPORT
 #define MAX_CMD_LENGTH 255
-static ASYNC_Notifier g_sendNotifier = NULL;
+static ASYNC_Notifier *g_sendNotifier = NULL;
 static int g_async_linkId = 0;
 
 unsigned char generateLinkId(void);
@@ -56,20 +56,21 @@ void Java_jp_co_cmcc_atcommand_ATCommandConnection_send0(const u4* args, JValue*
     uint responseLen = 0;
     unsigned char linkId = 0;
     char atCommand[MAX_CMD_LENGTH] = {0};
+    char * utf8Str = NULL;
 
     if (AsyncIO_firstCall())
     {
         atCommandLength = atcmdLen;
         memset(&atCommand[0], 0x0, MAX_CMD_LENGTH);
 
-        char * utf8Str = dvmCreateCstrFromString(atcmdObj);
-	    atCommandLength = (atcmdLen >= MAX_CMD_LENGTH)? MAX_CMD_LENGTH : atcmdLen;
-	    memcpy(&atCommand[0], utf8Str, atCommandLength);
+        utf8Str = dvmCreateCstrFromString(atcmdObj);
+        atCommandLength = (atcmdLen >= MAX_CMD_LENGTH)? MAX_CMD_LENGTH : atcmdLen;
+        memcpy(&atCommand[0], utf8Str, atCommandLength);
 
-	    if (utf8Str != NULL)
-	    {
-	        free(utf8Str);
-	    }
+        if (utf8Str != NULL)
+        {
+            free(utf8Str);
+        }
 
 #ifdef FORCE_ATC_END
         //force convert the <CR> flag
@@ -133,16 +134,17 @@ void Java_jp_co_cmcc_atcommand_ATCommandConnection_sendAsyn0(const u4* args, JVa
     int atCommandLength = 0;
     unsigned char linkId = 0;
     char atCommand[MAX_CMD_LENGTH] = {0};
+    char * utf8Str = NULL;
 
     memset(&atCommand[0], 0x0, MAX_CMD_LENGTH);
-    char * utf8Str = dvmCreateCstrFromString(atcmdObj);
-	atCommandLength = (atcmdLen >= MAX_CMD_LENGTH)? MAX_CMD_LENGTH : atcmdLen;
-	memcpy(&atCommand[0], utf8Str, atCommandLength);
+    utf8Str = dvmCreateCstrFromString(atcmdObj);
+    atCommandLength = (atcmdLen >= MAX_CMD_LENGTH)? MAX_CMD_LENGTH : atcmdLen;
+    memcpy(&atCommand[0], utf8Str, atCommandLength);
 
-	if (utf8Str != NULL)
+    if (utf8Str != NULL)
     {
-	    free(utf8Str);
-	}
+      free(utf8Str);
+    }
 
 #ifdef FORCE_ATC_END
     //force convert the <CR> flag
@@ -246,8 +248,8 @@ void Java_jp_co_cmcc_atcommand_ATCommandConnection_get0(const u4* args, JValue* 
 void Java_jp_co_cmcc_atcommand_ATCommandConnection_close0(const u4* args, JValue* pResult) {
     ClassObject* thisObj = (ClassObject*) args[0];
     jint ret = 0;
-    
-	//TODO:
+
+  //TODO:
 
     RETURN_INT(ret);
 }
