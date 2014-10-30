@@ -21,7 +21,7 @@ typedef struct {
     int methodCount;
 } KniClassNativeMethodInfo;
 
-#define NATIVE_CLASSES_COUNT 37
+#define NATIVE_CLASSES_COUNT 39
 
 /* com.yarlungsoft.ams.Scheduler native APIs */
 KniNativeMethodInfo gJava_com_yarlungsoft_ams_Scheduler[2] = {
@@ -53,6 +53,16 @@ KniNativeMethodInfo gJava_iot_oem_battery_BatteryManager[2] = {
     {"getTemperature0", "()I", (KniFunc)Java_iot_oem_battery_BatteryManager_getTemperature0},
 };
 
+/* iot.oem.comm.CommConnectionImpl native APIs */
+KniNativeMethodInfo gJava_iot_oem_comm_CommConnectionImpl[6] = {
+    {"open0",        "(II)I",    (KniFunc)Java_iot_oem_comm_CommConnectionImpl_open0},
+    {"getBaudRate0", "(I)I",     (KniFunc)Java_iot_oem_comm_CommConnectionImpl_getBaudRate0},
+    {"setBaudRate0", "(II)I",    (KniFunc)Java_iot_oem_comm_CommConnectionImpl_setBaudRate0},
+    {"close0",       "(I)I",     (KniFunc)Java_iot_oem_comm_CommConnectionImpl_close0},
+    {"readBytes0",   "(I[BII)I", (KniFunc)Java_iot_oem_comm_CommConnectionImpl_readBytes0},
+    {"writeBytes0",  "(I[BII)I", (KniFunc)Java_iot_oem_comm_CommConnectionImpl_writeBytes0},
+};
+
 /* iot.oem.ear.EarManager native APIs */
 KniNativeMethodInfo gJava_iot_oem_ear_EarManager[4] = {
     {"init0",      "()I",  (KniFunc)Java_iot_oem_ear_EarManager_init0},
@@ -81,6 +91,13 @@ KniNativeMethodInfo gJava_iot_oem_i2c_I2CManager[6] = {
     {"close0",   "(I)I",      (KniFunc)Java_iot_oem_i2c_I2CManager_close0},
     {"read0",    "(III[BI)I", (KniFunc)Java_iot_oem_i2c_I2CManager_read0},
     {"write0",   "(III[BI)I", (KniFunc)Java_iot_oem_i2c_I2CManager_write0},
+};
+
+/* iot.oem.kpd.RawKeyPdDriver native APIs */
+KniNativeMethodInfo gJava_iot_oem_kpd_RawKeyPdDriver[3] = {
+    {"init0",   "()I", (KniFunc)Java_iot_oem_kpd_RawKeyPdDriver_init0},
+    {"getKey0", "()J", (KniFunc)Java_iot_oem_kpd_RawKeyPdDriver_getKey0},
+    {"close0",  "()I", (KniFunc)Java_iot_oem_kpd_RawKeyPdDriver_close0},
 };
 
 /* iot.oem.lcd.LCD native APIs */
@@ -335,9 +352,11 @@ KniClassNativeMethodInfo gNativeMthTab[NATIVE_CLASSES_COUNT] = {
     {"Lcom/yarlungsoft/util/SystemPrintStream;",       gJava_com_yarlungsoft_util_SystemPrintStream,       2},
     {"Liot/oem/adc/ADCManager;",                       gJava_iot_oem_adc_ADCManager,                       3},
     {"Liot/oem/battery/BatteryManager;",               gJava_iot_oem_battery_BatteryManager,               2},
+    {"Liot/oem/comm/CommConnectionImpl;",              gJava_iot_oem_comm_CommConnectionImpl,              6},
     {"Liot/oem/ear/EarManager;",                       gJava_iot_oem_ear_EarManager,                       4},
     {"Liot/oem/gpio/Gpio;",                            gJava_iot_oem_gpio_Gpio,                            8},
     {"Liot/oem/i2c/I2CManager;",                       gJava_iot_oem_i2c_I2CManager,                       6},
+    {"Liot/oem/kpd/RawKeyPdDriver;",                   gJava_iot_oem_kpd_RawKeyPdDriver,                   3},
     {"Liot/oem/lcd/LCD;",                              gJava_iot_oem_lcd_LCD,                              6},
     {"Liot/oem/micophone/Micophone;",                  gJava_iot_oem_micophone_Micophone,                  8},
     {"Liot/oem/pcmchannel/PCMChannel;",                gJava_iot_oem_pcmchannel_PCMChannel,                8},
