@@ -9,10 +9,6 @@
 #include <init.h>
 #include <vm_common.h>
 
-#if defined(ARCH_ARM_SPD)
-#include <sfs.h>
-#endif
-
 /* FSM state definitions of EVT_CMD_DECLARE */
 #define DECLARE_FSM_STARTUP  0x01
 #define DECLARE_FSM_CONNECT  0x02
