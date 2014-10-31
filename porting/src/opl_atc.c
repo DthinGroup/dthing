@@ -18,6 +18,34 @@ typedef struct ATCommandData
   int hasParam;
 } ATCommandData;
 
+typedef enum _RemoteCommandType
+{
+    RCMD_ACK  = 1,
+    RCMD_LOGIN,
+    RCMD_CFGURL,
+    RCMD_CFGACCOUNT,
+    RCMD_INIT,
+    RCMD_LIST,
+    RCMD_INSTALL,
+    RCMD_OTA,
+    RCMD_DELETE,
+    RCMD_DELETEALL,
+    RCMD_RUN,
+    RCMD_DESTROY,
+    RCMD_STATUS,
+    RCMD_RESET,
+    RCMD_VIEW,
+    RCMD_ACTIVATE,
+    RCMD_REMOVE,
+    RCMD_OSGI,
+    RCMD_CANCEL,
+    RCMD_CANCELALL,
+    RCMD_MAX
+} RemoteCommandType;
+
+#define RCMD_OK (0)
+#define RCMD_FAILURE (-1)
+
 static ATCommandData atcommands[] =
 {
   {"OTA", RCMD_OTA, 1},              /* ATAMS="OTA","[url]" */
