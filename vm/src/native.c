@@ -34,6 +34,8 @@
 #include <nativeThrowable.h>
 #include <nativeTimeZone.h>
 #include <nativeUSBConnection.h>
+#include <nativeCommConnectionImpl.h>
+#include <nativeRawKeyPdDriver.h>
 #include <nativeMethods.h>
 
 
