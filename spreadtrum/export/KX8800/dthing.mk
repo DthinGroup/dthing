@@ -29,9 +29,17 @@ MSRCPATH += BASE/dthing/vm
 MSRCPATH += BASE/dthing/zlib
 
 SOURCES	 = dthing_main.c \
-           vmTime.c \
-           opl_core.c opl_es.c opl_file.c opl_mm.c opl_net.c opl_rams.c \
-           nativeADCManager.c nativeATCommandConnection.c nativeBatteryManager.c nativeEarManager.c nativeGpio.c nativeI2CManager.c nativeLCD.c nativeMicophone.c nativeMyMessageSender.c nativeMySmsConnectionThread.c \
-           nativePCMChannel.c nativePWMManager.c nativeSimManager.c nativeSpeakerManager.c nativeSPIManager.c nativeUSBConnection.c
-
-#nativeADCManager.c nativeAsyncIO.c nativeATCommandConnection.c nativeBatteryManager.c nativeClass.c nativeEarManager.c nativeFile.c nativeFileInputStream.c nativeFileOutputStream.c nativeFloat.c nativeGpio.c nativeI2CManager.c nativeLCD.c nativeMath.c nativeMicophone.c nativeMyMessageSender.c nativeMySmsConnectionThread.c nativeNet.c nativeObject.c nativeOTADownload.c nativePCMChannel.c nativePWMManager.c nativeRuntime.c nativeScheduler.c nativeSimManager.c nativeSpeakerManager.c nativeSPIManager.c nativeString.c nativeSystem.c nativeThread.c nativeThrowable.c nativeTimeZone.c nativeUSBConnection.c \
+           ansicextend.c encoding.c leb128.c properties.c trace.c \
+           Eventsystem.c jarparser.c ramsclient.c \
+           nativeAsyncIO.c nativeClass.c nativeFile.c nativeFileInputStream.c nativeFileOutputStream.c \
+           nativeFloat.c nativeMath.c nativeNet.c nativeObject.c nativeOTADownload.c nativeRuntime.c \
+           nativeScheduler.c nativeString.c nativeSystem.c nativeThread.c nativeThrowable.c \
+           nativeTimeZone.c init.c accesscheck.c annotation.c array.c AsyncIO.c class.c classmisc.c \
+           compact.c dexcatch.c dexclass.c dexfile.c dexproto.c dthread.c dvmdex.c exception.c gc.c hash.c \
+           heap.c interpApi.c interpCore.c interpOpcode.c interpStack.c kni.c mm.c native.c object.c \
+           rawdexfile.c resolve.c schd.c sync.c typecheck.c upcall.c utfstring.c voiderr.c \
+           adler32.c compress.c crc32.c deflate.c infback.c inffast.c inflate.c inftrees.c trees.c uncompr.c zutil.c \
+           voiderr.c opl_core.c opl_es.c opl_file.c opl_mm.c opl_net.c opl_rams.c nativeADCManager.c nativeATCommandConnection.c \
+           nativeBatteryManager.c nativeEarManager.c nativeGpio.c nativeI2CManager.c nativeLCD.c nativeMicophone.c \
+           nativeMyMessageSender.c nativeMySmsConnectionThread.c nativePCMChannel.c nativePWMManager.c nativeSimManager.c \
+           nativeSpeakerManager.c nativeSPIManager.c nativeUSBConnection.c nativeCommConnectionImpl.c opl_atc.c

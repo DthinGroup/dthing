@@ -175,7 +175,7 @@ ifeq ($(strip $(JAVA_SUPPORT)), MYRIAD)
 endif
 
 #dthing lib
-3RD_LIBS   += Third-party/dthing/DthingVM.a
+#3RD_LIBS   += Third-party/dthing/DthingVM.a
 
 #SUN JAVA lib config
 ifeq ($(strip $(JAVA_SUPPORT)), SUN)
