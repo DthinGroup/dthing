@@ -1555,7 +1555,7 @@ unsigned char ramsClient_receiveRemoteCmdEx(int cmd, int suiteId, char *pData, c
 
 bool_t ramsClient_isVMActive(void)
 {
-    return IsDvmRunning();
+    return TRUE;
 }
 
 bool_t ramsClient_isGPRSActive(void)
