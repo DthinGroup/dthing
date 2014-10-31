@@ -89,6 +89,8 @@ int32_t rams_shutdownNetwork();
  */
 int32_t rams_createVMThread(DVMThreadFunc pDvmThreadProc, int argc, void* argv[]);
 
+bool_t rams_isNetworkActive(void);
+
 #ifdef __cplusplus
 }
 #endif

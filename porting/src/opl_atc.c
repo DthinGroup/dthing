@@ -4,6 +4,8 @@
 #include "opl_atc.h"
 
 #ifdef ARCH_ARM_SPD
+#include "ramsclient.h"
+
 typedef struct TPALRequestObject
 {
   int cmdId;
@@ -83,8 +85,7 @@ int cpl_handleATRequest(char* atcommand, char* instr, char** outstr)
   TPALRequestObject *request = NULL;
   int retryCount = 3;
 
-  //while(RmtMain_isVMActive() == 0)
-  while(1)
+  while(!ramsClient_isVMActive())
   {
     if (retryCount == 0)
     {
@@ -219,16 +220,15 @@ static int executeTPALCommand(TPALRequestObject *request, char **outstr)
   case RCMD_DESTROY:
   case RCMD_CANCEL:
     suiteId = request->param;
-    //TODO:result = ReceiveRemoteCmdEx(request->cmdId, suiteId, NULL, NULL);
+    result = ramsClient_receiveRemoteCmdEx(request->cmdId, suiteId, NULL, NULL);
     break;
   case RCMD_LIST:
   case RCMD_STATUS:
-    //TODO:result = ReceiveRemoteCmdEx(request->cmdId, suiteId, dataPtr, outstr);
+    result = ramsClient_receiveRemoteCmdEx(request->cmdId, suiteId, dataPtr, outstr);
     break;
   case RCMD_OTA:
   case RCMD_OSGI:
-    //while(RmtMain_isGPRSActive() == 0)
-    while(1)
+    while(!ramsClient_isGPRSActive())
     {
       if (retryCount == 0)
       {
@@ -242,7 +242,7 @@ static int executeTPALCommand(TPALRequestObject *request, char **outstr)
       retryCount--;
     };
   default:
-    //TODO: result = ReceiveRemoteCmdEx(request->cmdId, suiteId, dataPtr, NULL);
+    result = ramsClient_receiveRemoteCmdEx(request->cmdId, suiteId, dataPtr, NULL);
     break;
   }
 

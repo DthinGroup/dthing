@@ -159,6 +159,14 @@ void refreshInstalledApp(void);
  */
 bool_t ramsClient_sendBackExecResult(int32_t cmd, bool_t res);
 
+unsigned char ramsClient_receiveRemoteCmd(int cmd, int suiteId, char *pData);
+
+unsigned char ramsClient_receiveRemoteCmdEx(int cmd, int suiteId, char *pData, char **ppOutStr);
+
+bool_t ramsClient_isVMActive(void);
+
+bool_t ramsClient_isGPRSActive(void);
+
 #ifdef __cplusplus
 }
 #endif

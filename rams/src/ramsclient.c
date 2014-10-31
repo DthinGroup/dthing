@@ -51,6 +51,33 @@ typedef struct SafeBuffer_e
     uint8_t   *pBuf;
 } SafeBuffer;
 
+/* Definitions for other remote controllers */
+typedef struct RMTConfig
+{
+  char* addr;
+  char* port;
+  char* initData;
+  char* user;
+  char* pwd;
+} RMTConfig;
+
+#define MAX_PATH_LENGTH   255
+#define MAX_FILE_BUFF_LEN 128
+#define DEFAULT_RMT_CONFIG_FILE  L"D:/RemoteConfig.cfg"
+#define DEFAULT_SERVER "42.121.18.62"
+#define DEFAULT_PORT "8888"
+//#define DEFAULT_SERVER "218.206.176.236"
+//#define DEFAULT_PORT "7777"
+#define DEFAULT_USER_NAME "test_username"
+#define DEFAULT_PASSWORD "test_password"
+
+static char* ramsClient_strdup(const char *src);
+static jboolean ramsClient_initConfigFile(char *pInitData);
+static jboolean ramsClient_writeConfigFile(char *cfg);
+static jboolean ramsClient_readConfigFile(RMTConfig **pp_cfg);
+static void ramsClient_releaseConfigData(RMTConfig **pp_cfg);
+static void ramsClient_updateLocalOptions(void);
+
 /**
  * RAMS command actions.
  */
@@ -430,7 +457,7 @@ static AppletProps* listInstalledApplets(const uint16_t* path)
 //attention: not be protected by mutext,it's thread-unsafe
 void refreshInstalledApp(void)
 {
-    
+
     appletsList = listInstalledApplets(NULL);
 }
 /**
@@ -1077,22 +1104,22 @@ bool_t ramsClient_ota(char * url)
 
 void sendOTAExeResult(int res)
 {
-	SafeBuffer  *safeBuf;
+  SafeBuffer  *safeBuf;
     Event        newEvt;
-	uint8_t      ackBuf[16] = {0x0};
+  uint8_t      ackBuf[16] = {0x0};
     uint8_t     *pByte;
     uint8_t  val = 0;
-	if(res==0){
-		val = 1;
-	}
-		
-	pByte = (uint8_t*)ackBuf;
+  if(res==0){
+    val = 1;
+  }
+
+  pByte = (uint8_t*)ackBuf;
 
     writebeIU32(&pByte[0], sizeof(ackBuf));
     writebeIU32(&pByte[4], ACK_RECV_AND_EXEC);
     writebeIU32(&pByte[8], EVT_CMD_OTA);
     writebeIU32(&pByte[12], val);
-    
+
     safeBuf = CreateSafeBufferByBin(ackBuf, sizeof(ackBuf));
     newNormalEvent(EVT_CMD_DECLARE, DECLARE_FSM_WRITE, (void *)safeBuf, ramsClient_buildConnection, &newEvt);
     ES_pushEvent(&newEvt);
@@ -1133,4 +1160,404 @@ bool_t ramsClient_sendBackExecResult(int32_t cmd, bool_t res)
     ES_pushEvent(&newEvt);
 
     return TRUE;
+}
+
+/**
+ * API Wrappers for other remote controllers
+ */
+static void ramsClient_releaseConfigData(RMTConfig **pp_cfg)
+{
+    RMTConfig *cfg = NULL;
+
+    if (pp_cfg)
+    {
+        if (*pp_cfg)
+        {
+            cfg = *pp_cfg;
+            if (cfg->addr)
+            {
+                free(cfg->addr);
+            }
+            if (cfg->port)
+            {
+                free(cfg->port);
+            }
+            if (cfg->initData)
+            {
+                free(cfg->initData);
+            }
+            if (cfg->user)
+            {
+                free(cfg->user);
+            }
+            if (cfg->pwd)
+            {
+                free(cfg->pwd);
+            }
+            free(*pp_cfg);
+            *pp_cfg = NULL;
+        }
+    }
+}
+
+static char* ramsClient_strdup(const char *src)
+{
+    char *result = NULL;
+    int len = 0;
+
+    if (src == NULL)
+    {
+        goto end;
+    }
+    len = strlen(src);
+    result = malloc(len + 1);
+    memset(result, 0x0, len + 1);
+    memcpy(result, src, len);
+
+end:
+    return result;
+}
+
+static jboolean ramsClient_initConfigFile(char *pInitData)
+{
+  char content[MAX_PATH_LENGTH] = {0};
+  jboolean needCleanInitData = FALSE;
+  RMTConfig *cfgData = NULL;
+  jboolean ret = FALSE;
+
+  memset(content, 0x0, MAX_PATH_LENGTH);
+
+  if ((pInitData == NULL) || strlen(pInitData) == 0)
+  {
+      needCleanInitData = TRUE;
+  }
+
+  ret = ramsClient_readConfigFile(&cfgData);
+
+  if (ret)
+  {
+      sprintf(content, "%s|%s|%s%s|%s|%s", cfgData->addr, cfgData->port, needCleanInitData? "" : "s:",
+      needCleanInitData? "0" : pInitData, cfgData->user, cfgData->pwd);
+      ret = ramsClient_writeConfigFile(content);
+      ramsClient_releaseConfigData(&cfgData);
+  }
+  else
+  {
+      sprintf(content, "%s|%s|%s%s|%s|%s", DEFAULT_SERVER, DEFAULT_PORT, needCleanInitData? "" : "s:",
+      needCleanInitData? "0" : pInitData, DEFAULT_USER_NAME, DEFAULT_PASSWORD);
+      ret = ramsClient_writeConfigFile(content);
+  }
+
+  if (pInitData != NULL)
+  {
+    SCI_FREE(pInitData);
+  }
+  ramsClient_updateLocalOptions();
+  return ret;
+}
+
+static jboolean ramsClient_readConfigFile(RMTConfig **pp_cfg)
+{
+    int file_read = 0;
+    SFS_ERROR_E result = SFS_NO_ERROR;
+    SFS_HANDLE sfsHandle = 0;
+    char file_buff[MAX_FILE_BUFF_LEN] = {0};
+    char *content = NULL;
+    RMTConfig *config = NULL;
+    jboolean ret = FALSE;
+    int i = 0;
+
+    //to parse remoteconfig.txt
+    sfsHandle = SFS_CreateFile(DEFAULT_RMT_CONFIG_FILE, SFS_MODE_SHARE_READ | SFS_MODE_OPEN_EXISTING, 0, 0);
+    if(sfsHandle != 0)
+    {
+        DthingTraceD("==RMT== ramsClient_readConfigFile() get config file");
+        content = malloc(MAX_FILE_BUFF_LEN);
+        memset(content, 0x0, MAX_FILE_BUFF_LEN);
+        result = SFS_ReadFile(sfsHandle, content, MAX_FILE_BUFF_LEN, &file_read, NULL);
+        if((result == SFS_NO_ERROR) && (file_read > 0))
+        {
+            char addr[128] = {0};
+            char port[128] = {0};
+            char initData[128] = {0};
+            char user[128] = {0};
+            char pwd[128] = {0};
+
+            //TODO: Check if initData is NULL, how much params would be returned by sscanf, 4 or 5
+            if (sscanf(content, "%[^|]|%[^|]|%[^|]|%[^|]|%s", addr, port, initData, user, pwd) < 4)
+            {
+                DthingTraceD("==RMT== ramsClient_readConfigFile() error data format %s in file", content));
+                goto end;
+            }
+
+            config = malloc(sizeof(RMTConfig));
+            memset(config, 0x0, sizeof(RMTConfig));
+
+            config->addr = ramsClient_strdup(addr);
+            config->port = ramsClient_strdup(port);
+            config->initData = ramsClient_strdup(initData);
+            config->user = ramsClient_strdup(user);
+            config->pwd = ramsClient_strdup(pwd);
+            DthingTraceD("==RMT== ramsClient_readConfigFile() read data: %s", content));
+            ret = TRUE;
+        }
+        free(content);
+        SFS_CloseFile(sfsHandle);
+    }
+
+end:
+    *pp_cfg = config;
+    return ret;
+}
+
+static jboolean ramsClient_writeConfigFile(char *cfg)
+{
+    int file_write = 0;
+    SFS_ERROR_E result = SFS_NO_ERROR;
+    SFS_HANDLE sfsHandle = 0;
+    jboolean ret = FALSE;
+
+    if (!cfg)
+    {
+        DthingTraceD("==RMT== ramsClient_writeConfigFile() write config file failed");
+        return ret;
+    }
+
+    //DeleteFile first then we can create new one
+    result = SFS_DeleteFile(DEFAULT_RMT_CONFIG_FILE, 0);
+    //to parse remoteconfig.cfg
+    sfsHandle = SFS_CreateFile(DEFAULT_RMT_CONFIG_FILE, SFS_MODE_SHARE_WRITE | SFS_MODE_OPEN_ALWAYS, 0, 0);
+    if(sfsHandle != 0)
+    {
+        DthingTraceD("==RMT== ramsClient_writeConfigFile() write data: %s", cfg));
+        result = SFS_WriteFile(sfsHandle, cfg, strlen(cfg), &file_write, NULL);
+        if((result == SFS_NO_ERROR) && (file_write > 0))
+        {
+            DthingTraceD("==RMT== ramsClient_writeConfigFile() write config file success");
+            ret = TRUE;
+        }
+        else
+        {
+            DthingTraceD("==RMT== ramsClient_writeConfigFile() write config file failed");
+        }
+        SFS_CloseFile(sfsHandle);
+    }
+    else
+    {
+        DthingTraceD("==RMT== ramsClient_writeConfigFile() create config file failed");
+    }
+    return ret;
+}
+
+static void ramsClient_updateLocalOptions(void)
+{
+  RMTConfig *cfg = NULL;
+  if(ramsClient_readConfigFile(&cfg))
+  {
+    //FIXME: Implement me if we need to maintain any local variables
+    //rmtc_updateLocalURL(cfg->addr, cfg->port);
+    //rmtc_updateLocalAccount(cfg->user, cfg->pwd);
+    //rmtc_updateLocalInitOptions(cfg->initData);
+  }
+  ramsClient_releaseConfigData(&cfg);
+}
+
+unsigned char ramsClient_receiveRemoteCmd(int cmd, int suiteId, char *pData)
+{
+  BOOLEAN ret = TRUE;
+  ret = ramsClient_receiveRemoteCmdEx(cmd, suiteId, pData, NULL);
+  return ret;
+}
+
+unsigned char ramsClient_receiveRemoteCmdEx(int cmd, int suiteId, char *pData, char **ppOutStr)
+{
+  BOOLEAN ret = TRUE;
+  DthingTraceD("===ReceiveRemoteCmd cmd = %d, suiteId = %d, pData = %s ==", cmd, suiteId, pData));
+
+  switch(cmd)
+  {
+    case RCMD_INSTALL:
+    case RCMD_OTA:
+      {
+        uint16_t pathname[MAX_PATH_LENGTH];
+        convertAsciiToUcs2(pData, -1, pathname, MAX_PATH_LENGTH);
+        DthingTraceD("=== ReceiveRemoteCmd CMD_INSTALL/CMD_OTA - url = %s", pData));
+        ret = ramsClient_ota(pathname);
+        SCI_FREE(pData);
+        break;
+      }
+    case RCMD_OSGI:
+    {
+        //TODO:
+        break;
+    }
+    case RCMD_INIT:
+    {
+        DthingTraceD("=== ReceiveRemoteCmd CMD_INIT - data = %s", pData));
+        ret = ramsClient_initConfigFile(pData);
+        break;
+    }
+    case RCMD_CANCEL:
+    {
+        char init1[16] = {0};
+        char init2[16] = {0};
+        RMTConfig *cfgData = NULL;
+        char content[MAX_PATH_LENGTH] = {0};
+        ret = FALSE;
+        DthingTraceD("=== ReceiveRemoteCmd CMD_CANCEL - data = %s", pData));
+
+        if ((pData != NULL) && (strlen(pData) != 0))
+        {
+          ret = ramsClient_readConfigFile(&cfgData);
+
+          if (ret)
+          {
+            sscanf(cfgData->initData, "%[^,],%s", init1, init2);
+
+            if (init1 && (strcmp(init1, pData) != 0))
+            {
+              sprintf(content, "%s", init1);
+            }
+
+            if (init2 && (strcmp(init2, pData) != 0))
+            {
+              if (strlen(content) > 0)
+              {
+                sprintf(content, "%s,%s", content, init2);
+              }
+              else
+              {
+                sprintf(content, "%s", init2);
+              }
+            }
+            ret = ramsClient_initConfigFile(content);
+          }
+        }
+        break;
+    }
+    case RCMD_CANCELALL:
+    {
+        DthingTraceD("=== ReceiveRemoteCmd CMD_CANCELALL");
+        ret = ramsClient_initConfigFile(NULL);
+        break;
+    }
+    case RCMD_CFGURL:
+    {
+        char content[MAX_PATH_LENGTH] = {0};
+        RMTConfig *cfgData = NULL;
+        memset(content, 0x0, MAX_PATH_LENGTH);
+        DthingTraceD("=== ReceiveRemoteCmd CMD_CFGURL - url = %s", pData));
+        ret = ramsClient_readConfigFile(&cfgData);
+
+        if (ret)
+        {
+          sprintf(content, "%s|%s|%s|%s", pData, cfgData->initData, cfgData->user, cfgData->pwd);
+          ret = ramsClient_writeConfigFile(content);
+          ramsClient_releaseConfigData(&cfgData);
+        }
+        else
+        {
+          sprintf(content, "%s|%s|%s|%s", pData, "s:0", DEFAULT_USER_NAME, DEFAULT_PASSWORD);
+          ret = ramsClient_writeConfigFile(content);
+        }
+        SCI_FREE(pData);
+        ramsClient_updateLocalOptions();
+        break;
+    }
+    case RCMD_CFGACCOUNT:
+    {
+        char content[MAX_PATH_LENGTH] = {0};
+        RMTConfig *cfgData = NULL;
+        DthingTraceD("=== ReceiveRemoteCmd CMD_CFGACCOUNT - account = %s", pData));
+        ret = ramsClient_readConfigFile(&cfgData);
+
+        if (ret)
+        {
+          sprintf(content, "%s|%s|%s|%s", cfgData->addr, cfgData->port, cfgData->initData, pData);
+          ret = ramsClient_writeConfigFile(content);
+          ramsClient_releaseConfigData(&cfgData);
+        }
+        else
+        {
+          sprintf(content, "%s|%s|%s|%s", DEFAULT_SERVER, DEFAULT_PORT, "s:0", pData);
+          ret = ramsClient_writeConfigFile(content);
+        }
+
+        SCI_FREE(pData);
+        ramsClient_updateLocalOptions();
+        break;
+    }
+    case RCMD_DELETE:
+    {
+        if(pData == NULL)
+        {
+            ret = ramsClient_deleteAppletById(suiteId);
+        }
+        else
+        {
+            //TODO: Parse suite id from pData
+        }
+        break;
+    }
+    case RCMD_DELETEALL:
+      //TODO:
+      break;
+
+    case RCMD_RUN:
+    {
+        if(pData == NULL)
+        {
+            ret = ramsClient_runApplet(suiteId);
+        }
+        else
+        {
+            //TODO: Parse suite id from pData
+        }
+        break;
+    }
+    case RCMD_LIST:
+    {
+        //PerformListInfo(ppOutStr);
+        //TODO:
+        break;
+    }
+    case RCMD_DESTROY:
+    {
+        if(pData == NULL)
+        {
+            ret = ramsClient_destroyApplet(suiteId);
+        }
+        else
+        {
+            //TODO: Parse suite id from pData
+        }
+        break;
+    }
+    case RCMD_STATUS:
+      {
+        //PerformStatusInfo(ppOutStr);
+        //TODO:
+        break;
+      }
+    case RCMD_RESET:
+      {
+        //TODO:
+        break;
+      }
+    default:
+      DthingTraceD("=== unknown remote command cmd = %d ", cmd));
+      ret = FALSE;
+      break;
+  }
+  return (unsigned char)ret;
+}
+
+bool_t ramsClient_isVMActive(void)
+{
+    return IsDvmRunning();
+}
+
+bool_t ramsClient_isGPRSActive(void)
+{
+    return rams_isNetworkActive();
 }
