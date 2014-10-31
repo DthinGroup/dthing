@@ -42,4 +42,4 @@ SOURCES	 = dthing_main.c \
            voiderr.c opl_core.c opl_es.c opl_file.c opl_mm.c opl_net.c opl_rams.c nativeADCManager.c nativeATCommandConnection.c \
            nativeBatteryManager.c nativeEarManager.c nativeGpio.c nativeI2CManager.c nativeLCD.c nativeMicophone.c \
            nativeMyMessageSender.c nativeMySmsConnectionThread.c nativePCMChannel.c nativePWMManager.c nativeSimManager.c \
-           nativeSpeakerManager.c nativeSPIManager.c nativeUSBConnection.c nativeCommConnectionImpl.c opl_atc.c
+           nativeSpeakerManager.c nativeSPIManager.c nativeUSBConnection.c nativeCommConnectionImpl.c nativeRawKeyPdDriver.c opl_atc.c
