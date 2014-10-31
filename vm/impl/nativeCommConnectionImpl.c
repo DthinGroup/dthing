@@ -204,8 +204,8 @@ CycleQueue COM_Output_Q =
   0,
 };
 
-static ASYNC_Notifier dataReadyNotifier = NULL;
-static ASYNC_Notifier writeDoneNotifier = NULL;
+static ASYNC_Notifier *dataReadyNotifier = NULL;
+static ASYNC_Notifier *writeDoneNotifier = NULL;
 
 static void QueueClean(CycleQueue *Q_ptr);
 static int QueueInsert(CycleQueue *Q_ptr, uint8 *data, uint32 len, QueueOverwriteStatus status);

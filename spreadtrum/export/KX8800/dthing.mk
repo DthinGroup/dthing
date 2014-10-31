@@ -30,7 +30,7 @@ MSRCPATH += BASE/dthing/zlib
 
 SOURCES	 = dthing_main.c \
            ansicextend.c encoding.c leb128.c properties.c trace.c \
-           Eventsystem.c jarparser.c ramsclient.c \
+           Eventsystem.c jarparser.c ramsclient.c vmTime.c \
            nativeAsyncIO.c nativeClass.c nativeFile.c nativeFileInputStream.c nativeFileOutputStream.c \
            nativeFloat.c nativeMath.c nativeNet.c nativeObject.c nativeOTADownload.c nativeRuntime.c \
            nativeScheduler.c nativeString.c nativeSystem.c nativeThread.c nativeThrowable.c \
