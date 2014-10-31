@@ -377,7 +377,7 @@ int32_t rams_createVMThread(DVMThreadFunc pDvmThreadProc, int argc, void* argv[]
 	return RAMS_RES_FAILURE;
 }
 
-bool_t rams_isNetworkActive(void);
+bool_t rams_isNetworkActive(void)
 {
    return networkStarted;
 }

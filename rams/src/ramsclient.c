@@ -9,6 +9,10 @@
 #include <init.h>
 #include <vm_common.h>
 
+#if defined(ARCH_ARM_SPD)
+#include <sfs.h>
+#endif
+
 /* FSM state definitions of EVT_CMD_DECLARE */
 #define DECLARE_FSM_STARTUP  0x01
 #define DECLARE_FSM_CONNECT  0x02
@@ -1250,7 +1254,7 @@ static jboolean ramsClient_initConfigFile(char *pInitData)
 
   if (pInitData != NULL)
   {
-    SCI_FREE(pInitData);
+    free(pInitData);
   }
   ramsClient_updateLocalOptions();
   return ret;
@@ -1258,9 +1262,9 @@ static jboolean ramsClient_initConfigFile(char *pInitData)
 
 static jboolean ramsClient_readConfigFile(RMTConfig **pp_cfg)
 {
-    int file_read = 0;
-    SFS_ERROR_E result = SFS_NO_ERROR;
-    SFS_HANDLE sfsHandle = 0;
+    int file_readLen = 0;
+    int result = FILE_RES_SUCCESS;
+    int32_t sfsHandle = 0;
     char file_buff[MAX_FILE_BUFF_LEN] = {0};
     char *content = NULL;
     RMTConfig *config = NULL;
@@ -1268,14 +1272,15 @@ static jboolean ramsClient_readConfigFile(RMTConfig **pp_cfg)
     int i = 0;
 
     //to parse remoteconfig.txt
-    sfsHandle = SFS_CreateFile(DEFAULT_RMT_CONFIG_FILE, SFS_MODE_SHARE_READ | SFS_MODE_OPEN_EXISTING, 0, 0);
-    if(sfsHandle != 0)
+    result = file_open(DEFAULT_RMT_CONFIG_FILE, strlen(DEFAULT_RMT_CONFIG_FILE), FILE_MODE_RD, &sfsHandle);
+
+    if(sfsHandle != INVALID_HANDLE_VALUE)
     {
         DthingTraceD("==RMT== ramsClient_readConfigFile() get config file");
         content = malloc(MAX_FILE_BUFF_LEN);
         memset(content, 0x0, MAX_FILE_BUFF_LEN);
-        result = SFS_ReadFile(sfsHandle, content, MAX_FILE_BUFF_LEN, &file_read, NULL);
-        if((result == SFS_NO_ERROR) && (file_read > 0))
+        file_readLen = file_read(sfsHandle, content, MAX_FILE_BUFF_LEN);
+        if(file_readLen > 0)
         {
             char addr[128] = {0};
             char port[128] = {0};
@@ -1286,7 +1291,7 @@ static jboolean ramsClient_readConfigFile(RMTConfig **pp_cfg)
             //TODO: Check if initData is NULL, how much params would be returned by sscanf, 4 or 5
             if (sscanf(content, "%[^|]|%[^|]|%[^|]|%[^|]|%s", addr, port, initData, user, pwd) < 4)
             {
-                DthingTraceD("==RMT== ramsClient_readConfigFile() error data format %s in file", content));
+                DthingTraceD("==RMT== ramsClient_readConfigFile() error data format %s in file", content);
                 goto end;
             }
 
@@ -1298,11 +1303,11 @@ static jboolean ramsClient_readConfigFile(RMTConfig **pp_cfg)
             config->initData = ramsClient_strdup(initData);
             config->user = ramsClient_strdup(user);
             config->pwd = ramsClient_strdup(pwd);
-            DthingTraceD("==RMT== ramsClient_readConfigFile() read data: %s", content));
+            DthingTraceD("==RMT== ramsClient_readConfigFile() read data: %s", content);
             ret = TRUE;
         }
         free(content);
-        SFS_CloseFile(sfsHandle);
+        file_close(sfsHandle);
     }
 
 end:
@@ -1312,9 +1317,9 @@ end:
 
 static jboolean ramsClient_writeConfigFile(char *cfg)
 {
-    int file_write = 0;
-    SFS_ERROR_E result = SFS_NO_ERROR;
-    SFS_HANDLE sfsHandle = 0;
+    int file_writeLen = 0;
+    int result = FILE_RES_SUCCESS;
+    int32_t sfsHandle = 0;
     jboolean ret = FALSE;
 
     if (!cfg)
@@ -1324,14 +1329,14 @@ static jboolean ramsClient_writeConfigFile(char *cfg)
     }
 
     //DeleteFile first then we can create new one
-    result = SFS_DeleteFile(DEFAULT_RMT_CONFIG_FILE, 0);
+    result = file_delete(DEFAULT_RMT_CONFIG_FILE, strlen(DEFAULT_RMT_CONFIG_FILE));
     //to parse remoteconfig.cfg
-    sfsHandle = SFS_CreateFile(DEFAULT_RMT_CONFIG_FILE, SFS_MODE_SHARE_WRITE | SFS_MODE_OPEN_ALWAYS, 0, 0);
-    if(sfsHandle != 0)
+    result = file_open(DEFAULT_RMT_CONFIG_FILE, strlen(DEFAULT_RMT_CONFIG_FILE), FILE_MODE_RDWR, &sfsHandle);
+    if(sfsHandle != INVALID_HANDLE_VALUE)
     {
-        DthingTraceD("==RMT== ramsClient_writeConfigFile() write data: %s", cfg));
-        result = SFS_WriteFile(sfsHandle, cfg, strlen(cfg), &file_write, NULL);
-        if((result == SFS_NO_ERROR) && (file_write > 0))
+        DthingTraceD("==RMT== ramsClient_writeConfigFile() write data: %s", cfg);
+        file_writeLen = file_write(sfsHandle, cfg, strlen(cfg));
+        if(file_writeLen > 0)
         {
             DthingTraceD("==RMT== ramsClient_writeConfigFile() write config file success");
             ret = TRUE;
@@ -1340,7 +1345,7 @@ static jboolean ramsClient_writeConfigFile(char *cfg)
         {
             DthingTraceD("==RMT== ramsClient_writeConfigFile() write config file failed");
         }
-        SFS_CloseFile(sfsHandle);
+        file_close(sfsHandle);
     }
     else
     {
@@ -1372,7 +1377,7 @@ unsigned char ramsClient_receiveRemoteCmd(int cmd, int suiteId, char *pData)
 unsigned char ramsClient_receiveRemoteCmdEx(int cmd, int suiteId, char *pData, char **ppOutStr)
 {
   BOOLEAN ret = TRUE;
-  DthingTraceD("===ReceiveRemoteCmd cmd = %d, suiteId = %d, pData = %s ==", cmd, suiteId, pData));
+  DthingTraceD("===ReceiveRemoteCmd cmd = %d, suiteId = %d, pData = %s ==", cmd, suiteId, pData);
 
   switch(cmd)
   {
@@ -1381,9 +1386,9 @@ unsigned char ramsClient_receiveRemoteCmdEx(int cmd, int suiteId, char *pData, c
       {
         uint16_t pathname[MAX_PATH_LENGTH];
         convertAsciiToUcs2(pData, -1, pathname, MAX_PATH_LENGTH);
-        DthingTraceD("=== ReceiveRemoteCmd CMD_INSTALL/CMD_OTA - url = %s", pData));
+        DthingTraceD("=== ReceiveRemoteCmd CMD_INSTALL/CMD_OTA - url = %s", pData);
         ret = ramsClient_ota(pathname);
-        SCI_FREE(pData);
+        free(pData);
         break;
       }
     case RCMD_OSGI:
@@ -1393,7 +1398,7 @@ unsigned char ramsClient_receiveRemoteCmdEx(int cmd, int suiteId, char *pData, c
     }
     case RCMD_INIT:
     {
-        DthingTraceD("=== ReceiveRemoteCmd CMD_INIT - data = %s", pData));
+        DthingTraceD("=== ReceiveRemoteCmd CMD_INIT - data = %s", pData);
         ret = ramsClient_initConfigFile(pData);
         break;
     }
@@ -1404,7 +1409,7 @@ unsigned char ramsClient_receiveRemoteCmdEx(int cmd, int suiteId, char *pData, c
         RMTConfig *cfgData = NULL;
         char content[MAX_PATH_LENGTH] = {0};
         ret = FALSE;
-        DthingTraceD("=== ReceiveRemoteCmd CMD_CANCEL - data = %s", pData));
+        DthingTraceD("=== ReceiveRemoteCmd CMD_CANCEL - data = %s", pData);
 
         if ((pData != NULL) && (strlen(pData) != 0))
         {
@@ -1446,7 +1451,7 @@ unsigned char ramsClient_receiveRemoteCmdEx(int cmd, int suiteId, char *pData, c
         char content[MAX_PATH_LENGTH] = {0};
         RMTConfig *cfgData = NULL;
         memset(content, 0x0, MAX_PATH_LENGTH);
-        DthingTraceD("=== ReceiveRemoteCmd CMD_CFGURL - url = %s", pData));
+        DthingTraceD("=== ReceiveRemoteCmd CMD_CFGURL - url = %s", pData);
         ret = ramsClient_readConfigFile(&cfgData);
 
         if (ret)
@@ -1460,7 +1465,7 @@ unsigned char ramsClient_receiveRemoteCmdEx(int cmd, int suiteId, char *pData, c
           sprintf(content, "%s|%s|%s|%s", pData, "s:0", DEFAULT_USER_NAME, DEFAULT_PASSWORD);
           ret = ramsClient_writeConfigFile(content);
         }
-        SCI_FREE(pData);
+        free(pData);
         ramsClient_updateLocalOptions();
         break;
     }
@@ -1468,7 +1473,7 @@ unsigned char ramsClient_receiveRemoteCmdEx(int cmd, int suiteId, char *pData, c
     {
         char content[MAX_PATH_LENGTH] = {0};
         RMTConfig *cfgData = NULL;
-        DthingTraceD("=== ReceiveRemoteCmd CMD_CFGACCOUNT - account = %s", pData));
+        DthingTraceD("=== ReceiveRemoteCmd CMD_CFGACCOUNT - account = %s", pData);
         ret = ramsClient_readConfigFile(&cfgData);
 
         if (ret)
@@ -1483,7 +1488,7 @@ unsigned char ramsClient_receiveRemoteCmdEx(int cmd, int suiteId, char *pData, c
           ret = ramsClient_writeConfigFile(content);
         }
 
-        SCI_FREE(pData);
+        free(pData);
         ramsClient_updateLocalOptions();
         break;
     }
@@ -1545,7 +1550,7 @@ unsigned char ramsClient_receiveRemoteCmdEx(int cmd, int suiteId, char *pData, c
         break;
       }
     default:
-      DthingTraceD("=== unknown remote command cmd = %d ", cmd));
+      DthingTraceD("=== unknown remote command cmd = %d ", cmd);
       ret = FALSE;
       break;
   }
