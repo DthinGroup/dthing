@@ -83,7 +83,8 @@ int cpl_handleATRequest(char* atcommand, char* instr, char** outstr)
   TPALRequestObject *request = NULL;
   int retryCount = 3;
 
-  while(RmtMain_isVMActive() == 0)
+  //while(RmtMain_isVMActive() == 0)
+  while(1)
   {
     if (retryCount == 0)
     {
@@ -226,7 +227,8 @@ static int executeTPALCommand(TPALRequestObject *request, char **outstr)
     break;
   case RCMD_OTA:
   case RCMD_OSGI:
-    while(RmtMain_isGPRSActive() == 0)
+    //while(RmtMain_isGPRSActive() == 0)
+    while(1)
     {
       if (retryCount == 0)
       {
