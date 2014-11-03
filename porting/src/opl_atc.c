@@ -4,6 +4,7 @@
 #include "opl_atc.h"
 
 #ifdef ARCH_ARM_SPD
+#include "opl_net.h"
 #include "ramsclient.h"
 
 typedef struct TPALRequestObject
@@ -200,7 +201,7 @@ static int executeTPALCommand(TPALRequestObject *request, char **outstr)
     break;
   case RCMD_OTA:
   case RCMD_OSGI:
-    while(!ramsClient_isGPRSActive())
+    while(!Opl_net_isActivated())
     {
       if (retryCount == 0)
       {

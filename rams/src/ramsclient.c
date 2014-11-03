@@ -1557,8 +1557,3 @@ bool_t ramsClient_isVMActive(void)
 {
     return TRUE;
 }
-
-bool_t ramsClient_isGPRSActive(void)
-{
-    return rams_isNetworkActive();
-}
