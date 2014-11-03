@@ -42,6 +42,8 @@
 
 #define OPEN_ERROR 0
 
+static bool_t isRegistered = FALSE;
+
 
 /**
  * Convert a Java string into a nul terminated unicode string to pass
@@ -989,6 +991,7 @@ bool_t file_registerDeviceIfNeed()
 			sfsError = SFS_RegisterDevice(dev_name, &format);
 			if(SFS_ERROR_NONE == sfsError)
 		    {
+		        isRegistered = TRUE;
 		        DVMTraceDbg("==== SFS_RegisterDevice SUCCESS");
 		    }
 		    else
@@ -1061,4 +1064,14 @@ void file_startup()
 
 void file_shutdown() 
 {
+}
+
+bool_t file_isFSRegistered(void)
+{
+#ifdef ARCH_X86
+    return TRUE;
+#elif defined(ARCH_ARM_SPD)
+    SCI_TRACE_LOW("file_isFSRegistered:%d", isRegistered);
+    return isRegistered;
+#endif
 }

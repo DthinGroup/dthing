@@ -64,6 +64,7 @@ typedef struct RMTConfig
 #define MAX_PATH_LENGTH   255
 #define MAX_FILE_BUFF_LEN 128
 #define DEFAULT_RMT_CONFIG_FILE  L"D:/RemoteConfig.cfg"
+#define DEFAULT_RMT_CONFIG_FILE_PATH_LEN 19
 #define DEFAULT_SERVER "42.121.18.62"
 #define DEFAULT_PORT "8888"
 //#define DEFAULT_SERVER "218.206.176.236"
@@ -72,11 +73,14 @@ typedef struct RMTConfig
 #define DEFAULT_PASSWORD "test_password"
 
 static char* ramsClient_strdup(const char *src);
+static char* ramsClient_strappend(char **str, char *append);
+static char* ramsClient_strconcat(char **str, char*fmt, ...);
 static jboolean ramsClient_initConfigFile(char *pInitData);
 static jboolean ramsClient_writeConfigFile(char *cfg);
 static jboolean ramsClient_readConfigFile(RMTConfig **pp_cfg);
 static void ramsClient_releaseConfigData(RMTConfig **pp_cfg);
 static void ramsClient_updateLocalOptions(void);
+static char* ramsClient_getAppletList(bool_t isRunning);
 
 /**
  * RAMS command actions.
@@ -1268,7 +1272,7 @@ static jboolean ramsClient_readConfigFile(RMTConfig **pp_cfg)
     int i = 0;
 
     //to parse remoteconfig.txt
-    result = file_open(DEFAULT_RMT_CONFIG_FILE, strlen(DEFAULT_RMT_CONFIG_FILE), FILE_MODE_RD, &sfsHandle);
+    result = file_open(DEFAULT_RMT_CONFIG_FILE, DEFAULT_RMT_CONFIG_FILE_PATH_LEN, FILE_MODE_RD, &sfsHandle);
 
     if(sfsHandle != INVALID_HANDLE_VALUE)
     {
@@ -1325,9 +1329,9 @@ static jboolean ramsClient_writeConfigFile(char *cfg)
     }
 
     //DeleteFile first then we can create new one
-    result = file_delete(DEFAULT_RMT_CONFIG_FILE, strlen(DEFAULT_RMT_CONFIG_FILE));
+    result = file_delete(DEFAULT_RMT_CONFIG_FILE, DEFAULT_RMT_CONFIG_FILE_PATH_LEN);
     //to parse remoteconfig.cfg
-    result = file_open(DEFAULT_RMT_CONFIG_FILE, strlen(DEFAULT_RMT_CONFIG_FILE), FILE_MODE_RDWR, &sfsHandle);
+    result = file_open(DEFAULT_RMT_CONFIG_FILE, DEFAULT_RMT_CONFIG_FILE_PATH_LEN, FILE_MODE_RDWR, &sfsHandle);
     if(sfsHandle != INVALID_HANDLE_VALUE)
     {
         DthingTraceD("==RMT== ramsClient_writeConfigFile() write data: %s", cfg);
@@ -1372,6 +1376,7 @@ unsigned char ramsClient_receiveRemoteCmd(int cmd, int suiteId, char *pData)
 
 unsigned char ramsClient_receiveRemoteCmdEx(int cmd, int suiteId, char *pData, char **ppOutStr)
 {
+  int i = 0;
   BOOLEAN ret = TRUE;
   DthingTraceD("===ReceiveRemoteCmd cmd = %d, suiteId = %d, pData = %s ==", cmd, suiteId, pData);
 
@@ -1518,10 +1523,10 @@ unsigned char ramsClient_receiveRemoteCmdEx(int cmd, int suiteId, char *pData, c
     }
     case RCMD_LIST:
     {
-        //PerformListInfo(ppOutStr);
-        //TODO:
+        *ppOutStr = ramsClient_getAppletList(FALSE);
         break;
     }
+
     case RCMD_DESTROY:
     {
         if(pData == NULL)
@@ -1536,8 +1541,7 @@ unsigned char ramsClient_receiveRemoteCmdEx(int cmd, int suiteId, char *pData, c
     }
     case RCMD_STATUS:
       {
-        //PerformStatusInfo(ppOutStr);
-        //TODO:
+        *ppOutStr = ramsClient_getAppletList(TRUE);
         break;
       }
     case RCMD_RESET:
@@ -1555,5 +1559,69 @@ unsigned char ramsClient_receiveRemoteCmdEx(int cmd, int suiteId, char *pData, c
 
 bool_t ramsClient_isVMActive(void)
 {
-    return TRUE;
+    return file_isFSRegistered();
+}
+
+static char* ramsClient_strappend(char **str, char *append)
+{
+    char *newStr = NULL;
+    int sLen = 0;
+    int aLen = 0;
+
+    if ((str == NULL) || (append == NULL))
+    {
+        return NULL;
+    }
+
+    sLen = (*str != NULL)? strlen((char *)*str) : 0;
+    aLen = strlen(append);
+    newStr = malloc(sLen + aLen + 1);
+    memset(newStr, 0x0, sLen + aLen + 1);
+
+    if ((*str != NULL) || (strlen(*str) != 0))
+    {
+      memcpy(newStr, (char *)*str, sLen);
+    }
+
+    memcpy(newStr + sLen, append, aLen);
+    free((char *)*str);
+    *str = newStr;
+    return newStr;
+}
+
+static char* ramsClient_strconcat(char **str, char*fmt, ...)
+{
+    char *newStr = NULL;
+    char buf[255] = {0};
+    va_list lst;
+
+    va_start(lst, fmt);
+    sprintf(buf, fmt, lst);
+    va_end(lst);
+    newStr = ramsClient_strappend(str, buf);
+    return newStr;
+}
+
+static char* ramsClient_getAppletList(bool_t isRunning)
+{
+    char* list = NULL;
+    AppletProps *curApp = NULL;
+
+    refreshInstalledApp();
+    curApp = appletsList;
+
+    while(curApp != NULL)
+    {
+        if(curApp->isRunning == isRunning)
+        {
+            ramsClient_strconcat(&list, "%d %s\r\n", curApp->id, curApp->fname);
+        }
+        curApp = curApp->nextRunning;
+    }
+
+    if (NULL == list)
+    {
+        list = ramsClient_strdup(isRunning? "No Active Applet" : "No Applet");
+    }
+    return list;
 }

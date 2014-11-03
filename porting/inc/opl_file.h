@@ -96,6 +96,7 @@ int32_t file_mkdir(const uint16_t* name, int32_t nameLen);
 
 uint16_t * file_getDthingWDir();
 
+bool_t file_isFSRegistered(void);
 
 
 #if defined(__cplusplus)
