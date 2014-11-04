@@ -328,16 +328,16 @@ int32_t rams_createVMThread(DVMThreadFunc pDvmThreadProc, int argc, void* argv[]
 #elif defined (ARCH_ARM_SPD)    
 	
 	#define DTHING_VM_THREAD_STACK_SIZE 	(16*1024)
-	#define DTHING_VM_THREAD_QUEUE_SIZE 	(20*sizeof(uint32)*SCI_QUEUE_ITEM_SIZE)
-	DVMTraceInf("Ready to launch dthing vm thread!\n");    
+	#define DTHING_VM_THREAD_QUEUE_SIZE 	(40*sizeof(uint32)*SCI_QUEUE_ITEM_SIZE)
+	DVMTraceInf("===Ready to launch dthing vm thread!\n");    
     //try to alloc java heap
 //    cleanVmThread();
     g_dthing_mem_space_ptr = (uint8*)SCI_ALLOCA(DTHING_VM_THREAD_STACK_SIZE +DTHING_VM_THREAD_QUEUE_SIZE);
 
-    DVMTraceInf("Alloc g_dthing_mem_space_ptr = 0x%x\n",g_dthing_mem_space_ptr);    
+    DVMTraceInf("===Alloc g_dthing_mem_space_ptr = 0x%x\n",g_dthing_mem_space_ptr);    
     if(PNULL == g_dthing_mem_space_ptr)
     {
-        DVMTraceErr("Error:alloc dthing vm memory fail!\n");
+        DVMTraceErr("===Error:alloc dthing vm memory fail!\n");
         return -1;
     }
 #if 0
@@ -363,7 +363,7 @@ int32_t rams_createVMThread(DVMThreadFunc pDvmThreadProc, int argc, void* argv[]
                     (void*)argv,
                     g_dthing_mem_space_ptr,
                     DTHING_VM_THREAD_STACK_SIZE,
-                    30,//PRI_DTHING_TASK,
+                    PRI_DTHING_TASK,//30,//PRI_DTHING_TASK,
                     SCI_PREEMPT,
                     "DthingVmQueue",
                     (g_dthing_mem_space_ptr+DTHING_VM_THREAD_STACK_SIZE),
@@ -371,7 +371,7 @@ int32_t rams_createVMThread(DVMThreadFunc pDvmThreadProc, int argc, void* argv[]
                     SCI_AUTO_START
                 );
 #endif                
-    DVMTraceInf("Create dthing vm thread success! thread id = %d \n",g_dthing_threadid);                
+    DVMTraceInf("===Create dthing vm thread success! thread id = %d \n",g_dthing_threadid);                
 	return g_dthing_threadid;
 #endif
 	return RAMS_RES_FAILURE;
