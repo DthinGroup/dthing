@@ -488,6 +488,30 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\vm\impl\nativeCommConnectionImpl.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\vm\impl\nativeCommConnectionImpl.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\vm\impl\nativeDouble.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\vm\impl\nativeDouble.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\vm\impl\nativeDThread.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\vm\impl\nativeDThread.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\vm\impl\nativeEarManager.c"
 				>
 			</File>
@@ -584,11 +608,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\vm\impl\nativeNet.c"
+				RelativePath="..\..\vm\impl\nativeNetNativeBridge.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\vm\impl\nativeNet.h"
+				RelativePath="..\..\vm\impl\nativeNetNativeBridge.h"
 				>
 			</File>
 			<File
@@ -621,6 +645,14 @@
 			</File>
 			<File
 				RelativePath="..\..\vm\impl\nativePWMManager.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\vm\impl\nativeRawKeyPdDriver.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\vm\impl\nativeRawKeyPdDriver.h"
 				>
 			</File>
 			<File
@@ -677,6 +709,22 @@
 			</File>
 			<File
 				RelativePath="..\..\vm\impl\nativeSystem.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\vm\impl\nativeSystemInputStream.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\vm\impl\nativeSystemInputStream.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\vm\impl\nativeSystemPrintStream.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\vm\impl\nativeSystemPrintStream.h"
 				>
 			</File>
 			<File

@@ -18,7 +18,7 @@
 #include <nativeMicophone.h>
 #include <nativeMyMessageSender.h>
 #include <nativeMySmsConnectionThread.h>
-#include <nativeNet.h>
+#include <nativeNetNativeBridge.h>
 #include <nativeObject.h>
 #include <nativeOTADownload.h>
 #include <nativePCMChannel.h>

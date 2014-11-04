@@ -1369,7 +1369,7 @@ static void ramsClient_updateLocalOptions(void)
 
 unsigned char ramsClient_receiveRemoteCmd(int cmd, int suiteId, char *pData)
 {
-  BOOLEAN ret = TRUE;
+  bool_t ret = TRUE;
   ret = ramsClient_receiveRemoteCmdEx(cmd, suiteId, pData, NULL);
   return ret;
 }
@@ -1377,7 +1377,7 @@ unsigned char ramsClient_receiveRemoteCmd(int cmd, int suiteId, char *pData)
 unsigned char ramsClient_receiveRemoteCmdEx(int cmd, int suiteId, char *pData, char **ppOutStr)
 {
   int i = 0;
-  BOOLEAN ret = TRUE;
+  bool_t ret = TRUE;
   DthingTraceD("===ReceiveRemoteCmd cmd = %d, suiteId = %d, pData = %s ==", cmd, suiteId, pData);
 
   switch(cmd)

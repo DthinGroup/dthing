@@ -41,17 +41,17 @@ void Java_iot_oem_comm_CommConnectionImpl_close0(const u4* args, JValue* pResult
 
 /**
  * Class:     iot_oem_comm_CommConnectionImpl
- * Method:    writeBytes0
+ * Method:    readBytes0
  * Signature: (I[BII)I
  */
-void Java_iot_oem_comm_CommConnectionImpl_writeBytes0(const u4*args, JValue* pResult);
+void Java_iot_oem_comm_CommConnectionImpl_readBytes0(const u4* args, JValue* pResult);
 
 /**
  * Class:     iot_oem_comm_CommConnectionImpl
- * Method:    readBytes0
- * Signature:  (I[BII)I
+ * Method:    writeBytes0
+ * Signature: (I[BII)I
  */
-void Java_iot_oem_comm_CommConnectionImpl_readBytes0(const u4*args, JValue* pResult);
+void Java_iot_oem_comm_CommConnectionImpl_writeBytes0(const u4* args, JValue* pResult);
 
 #ifdef __cplusplus
 }
