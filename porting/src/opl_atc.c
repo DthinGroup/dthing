@@ -5,7 +5,7 @@
 
 #ifdef ARCH_ARM_SPD
 #include "opl_net.h"
-#include "ramsclient.h"
+//#include "ramsclient.h"
 
 typedef struct TPALRequestObject
 {

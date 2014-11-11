@@ -988,7 +988,7 @@ bool_t ramsClient_runApplet(int32_t id)
         argv[2] = pap->mainCls;
         DVMTraceInf("argv=0x%x,argv-1:%s,argv-2:%s,argv-3:%s\n",(void*)argv,argv[0],argv[1],argv[2]);
 
-        if (rams_createVMThread(VMThreadProc, 3, argv) < 0)
+        if (Ams_createVMThread(VMThreadProc, 3, argv) < 0)
         {
             DVMTraceErr("lauch VM thread failure\n");
             res = FALSE;
@@ -1078,7 +1078,7 @@ bool_t ramsClient_ota(char * url)
         argv[2] = NULL;
         DVMTraceInf("argv=0x%x,argv-1:%s,argv-2:%s,argv-3:%s\n",(void*)argv,argv[0],argv[1],argv[2]);
 
-        if (rams_createVMThread(VMThreadProc, 2, argv) < 0)
+        if (Ams_createVMThread(VMThreadProc, 2, argv) < 0)
         {
             DVMTraceErr("lauch VM thread failure\n");
             res = FALSE;

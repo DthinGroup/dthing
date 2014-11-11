@@ -51,6 +51,18 @@ struct Event_t
     EventCallback evtcb;
 };
 
+#define newNormalEvent(eid, fsmState, uData, cb, evt) \
+    do \
+    { \
+        (evt)->evtId = MARK_EVT_ID(RAMSCLIENT_MODULE_ID, (eid)); \
+        (evt)->fsm_state = fsmState; \
+        (evt)->priority = EP_LOW; \
+        (evt)->userData = uData; \
+        (evt)->triggerPoint = 0; \
+        (evt)->evtcb = cb; \
+    } \
+    while(FALSE)
+
 #define MODULE_ID_SHIFT (24)
 #define MODULE_ID_SHIFT_MASK (~((1<<MODULE_ID_SHIFT)|(-(1<<MODULE_ID_SHIFT))))
 
@@ -133,7 +145,7 @@ enum EvtSysResult_e
 /* predefined slave modules ID */
 #define EVT_SYS_MODULE_ID    (1) /* self ID */
 #define RAMSCLIENT_MODULE_ID (2)
-
+#define AMS_MODULE_ID (3)
 
 /* predefined system events */
 #define EVT_SYS_INIT      (0xFF01)

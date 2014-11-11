@@ -158,6 +158,22 @@
 	</References>
 	<Files>
 		<File
+			RelativePath="..\..\rams\src\ams.c"
+			>
+		</File>
+		<File
+			RelativePath="..\..\rams\inc\ams.h"
+			>
+		</File>
+		<File
+			RelativePath="..\..\rams\src\ams_remote.c"
+			>
+		</File>
+		<File
+			RelativePath="..\..\rams\inc\ams_remote.h"
+			>
+		</File>
+		<File
 			RelativePath="..\..\rams\inc\eventbase.h"
 			>
 		</File>
@@ -178,11 +194,11 @@
 			>
 		</File>
 		<File
-			RelativePath="..\..\rams\src\ramsclient.c"
+			RelativePath="..\..\rams\src\vm_app.c"
 			>
 		</File>
 		<File
-			RelativePath="..\..\rams\inc\ramsclient.h"
+			RelativePath="..\..\rams\inc\vm_app.h"
 			>
 		</File>
 	</Files>

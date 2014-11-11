@@ -12,17 +12,7 @@ extern "C" {
 #define RAMS_RES_FAILURE     EVT_RES_FAILURE
 #define RAMS_RES_WOULDBLOCK  EVT_RES_WOULDBLOCK
 
-/**
- * Thread process function defintion.
- * @argc arguments count.
- * @argv arguments content.
- * @return value to indicate the process function execution result.
- * NOTE:
- *      argc and argv are not mandatory to use. This delaration adds
- *      these 2 parameters is for funtion extension in future. But
- *      we can ignore them at 1st phaze
- */
-typedef int32_t (*DVMThreadFunc)(int argc, char* argv[]);
+
 
 /**
  * Startup and initialize network.
@@ -76,18 +66,6 @@ int32_t rams_closeConnection(int32_t instance);
  * @return RAMS_RES_SUCCESS means success, otherwise failure.
  */
 int32_t rams_shutdownNetwork();
-
-
-/**
- * create dalvik VM thread to handle event. After this API is called, the new 
- * thread will start automatically without extra work.
- * @ramsThreadFunc, the new thread process funtion. refer to above definition of
-                    RAMSThreadFunc.
- * @argc, the arguments number which passes to new thread.
- * @argv, the arguments list which passes to new thread.
- * @return, the identifier of this created thread.
- */
-int32_t rams_createVMThread(DVMThreadFunc pDvmThreadProc, int argc, void* argv[]);
 
 #ifdef __cplusplus
 }

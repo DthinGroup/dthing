@@ -173,7 +173,7 @@ BIN_SOURCES = \
 RAMS_SOURCES = \
     rams/src/eventsystem.c \
     rams/src/jarparser.c \
-    rams/src/ramsclient.c
+    rams/src/vm_app.c
 
 
 #
@@ -187,7 +187,7 @@ VM_SOURCES += \
     vm/impl/nativeFileOutputStream.c \
     vm/impl/nativeFloat.c \
     vm/impl/nativeMath.c \
-    vm/impl/nativeNet.c \
+    vm/impl/nativeNetNativeBridge.c \
     vm/impl/nativeObject.c \
     vm/impl/nativeOTADownload.c \
     vm/impl/nativeRuntime.c \

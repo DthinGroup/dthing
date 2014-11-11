@@ -5,6 +5,7 @@
 #include <std_global.h>
 #include <dthing.h>
 #include <class.h>
+#include <ams.h>
 
 #ifdef __cplusplus
 extern "C" {

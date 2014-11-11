@@ -1,7 +1,8 @@
 #include <std_global.h>
 #include <eventbase.h>
 #include <eventsystem.h>
-#include <ramsclient.h>
+#include <ams.h>
+#include <ams_remote.h>
 #include <opl_es.h>
 
 
@@ -34,7 +35,8 @@ static int32_t eventSystem_mainLoop(Event *evt, void *userData);
 static ModuleLifeCycle slaveModulesLifeCycle[] =
 {
     {EVT_SYS_MODULE_ID, "eventSystem", eventSystem_lifecycleProcess, &slaveModulesLifeCycle[1]},
-    {RAMSCLIENT_MODULE_ID, "ramsClient", ramsClient_lifecycleProcess, NULL},
+    {RAMSCLIENT_MODULE_ID, "ramsClient", ams_remote_lifecycleProcess, &slaveModulesLifeCycle[2]},
+    {AMS_MODULE_ID, "amsHandler", Ams_lifecycleProcess, NULL},
 };
 
 static Event internalEvent[] =

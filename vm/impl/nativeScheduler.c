@@ -12,9 +12,11 @@
 
 #include <dthing.h>
 #include <nativeScheduler.h>
-#include <ramsclient.h>
+#include <ams_remote.h>
 #include <upcall.h>
 #include <vm_common.h>
+#include <ams.h>
+#include <vm_app.h>
 
 /* refer to com/yarlungsoft/ams/Scheduler.java */
 #define APPLET_STATE_ERROR          -1
@@ -34,17 +36,29 @@
 /* see nativeScheduler.h */
 void Java_com_yarlungsoft_ams_Scheduler_reportState(const u4* args, JValue* pResult)
 {
+	int istrue  =1;
     int state = (int) args[1];
 #ifndef NOT_LAUNCH_NET_TASK
+    uint8_t	idBuf[4] = {0x0,};
+    uint8_t	*pByte;
+    SafeBuffer	*safeBuf;
     DVMTraceInf("Scheduler_reportState state(%d)\n", state);
     if (state == APPLET_STATE_STARTED)
     {
-        ramsClient_sendBackExecResult(EVT_CMD_RUN, TRUE);
+    		pByte = (uint8_t*)idBuf;
+		writebeIU32(&pByte[0], istrue);
+		safeBuf = CreateSafeBufferByBin(idBuf, sizeof(idBuf));
+		Ams_handleAck(Ams_getCurCrtlModule(),AMS_FASM_STATE_ACK_RUN,(void*)safeBuf);
+        //ramsClient_sendBackExecResult(EVT_CMD_RUN, TRUE);
     }
     else if (state == APPLET_STATE_UNINITIALIZED)
     {
         /* UNINITIALIZED is not reported automatically except from destroying state*/
-        ramsClient_sendBackExecResult(EVT_CMD_DESTROY, TRUE);
+        // ramsClient_sendBackExecResult(EVT_CMD_DESTROY, TRUE);
+              pByte = (uint8_t*)idBuf;
+		writebeIU32(&pByte[0], istrue);
+		safeBuf = CreateSafeBufferByBin(idBuf, sizeof(idBuf));
+		Ams_handleAck(Ams_getCurCrtlModule(),AMS_FASM_STATE_ACK_DESTROY,(void*)safeBuf);
     }
 #endif
 }
