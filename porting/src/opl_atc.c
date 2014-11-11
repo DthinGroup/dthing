@@ -5,7 +5,7 @@
 
 #ifdef ARCH_ARM_SPD
 #include "opl_net.h"
-//#include "ramsclient.h"
+#include "ams.h"
 
 typedef struct TPALRequestObject
 {
@@ -54,7 +54,6 @@ int cpl_handleATRequest(char* atcommand, char* instr, char** outstr)
   int result = 0;
 #ifdef ARCH_ARM_SPD
   static int s_hasInitJava = 0;
-  char *arg[] = {"-native-ams"};
   TPALRequestObject *request = NULL;
   int retryCount = 3;
 
@@ -193,11 +192,11 @@ static int executeTPALCommand(TPALRequestObject *request, char **outstr)
   case RCMD_DESTROY:
   case RCMD_CANCEL:
     suiteId = request->param;
-    result = ramsClient_receiveRemoteCmdEx(request->cmdId, suiteId, NULL, NULL);
+    result = Ams_handleRemoteCmdSync(request->cmdId, ATYPE_AAMS, suiteId, NULL, NULL);
     break;
   case RCMD_LIST:
   case RCMD_STATUS:
-    result = ramsClient_receiveRemoteCmdEx(request->cmdId, suiteId, dataPtr, outstr);
+    result = Ams_handleRemoteCmdSync(request->cmdId, ATYPE_AAMS, suiteId, dataPtr, outstr);
     break;
   case RCMD_OTA:
   case RCMD_OSGI:
@@ -215,7 +214,7 @@ static int executeTPALCommand(TPALRequestObject *request, char **outstr)
       retryCount--;
     };
   default:
-    result = ramsClient_receiveRemoteCmdEx(request->cmdId, suiteId, dataPtr, NULL);
+    result = Ams_handleRemoteCmdSync(request->cmdId, ATYPE_AAMS, suiteId, dataPtr, NULL);
     break;
   }
 

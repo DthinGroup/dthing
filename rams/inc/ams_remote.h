@@ -63,47 +63,6 @@ extern "C" {
  */
 #define EVT_QUEUE_LEN (8)
 
-
-typedef enum _RemoteCommandType
-{
-    RCMD_ACK  = 1,
-    RCMD_LOGIN,
-    RCMD_CFGURL,
-    RCMD_CFGACCOUNT,
-    RCMD_INIT,
-    RCMD_LIST,
-    RCMD_INSTALL,
-    RCMD_OTA,
-    RCMD_DELETE,
-    RCMD_DELETEALL,
-    RCMD_RUN,
-    RCMD_DESTROY,
-    RCMD_STATUS,
-    RCMD_RESET,
-    RCMD_VIEW,
-    RCMD_ACTIVATE,
-    RCMD_REMOVE,
-    RCMD_OSGI,
-    RCMD_CANCEL,
-    RCMD_CANCELALL,
-    RCMD_MAX
-} RemoteCommandType;
-
-
-/* Definitions for other remote controllers */
-typedef struct RMTConfig
-{
-  char* addr;
-  char* port;
-  char* initData;
-  char* user;
-  char* pwd;
-} RMTConfig;
-
-#define RCMD_OK (0)
-#define RCMD_FAILURE (-1)
-
-
 AppletProps* getAppletPropById(int32_t id);
 void writebeIU32(uint8_t* p, uint32_t num);
 int32_t readbeIU32(const uint8_t* p);

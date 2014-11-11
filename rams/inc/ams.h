@@ -106,6 +106,41 @@ enum {
 	AMS_FASM_STATE_ACK_OTA,
 };
 
+/* Remote Control Command for AMS Access */
+typedef enum _RemoteCommandType
+{
+    RCMD_ACK  = 1,
+    RCMD_LOGIN,
+    RCMD_CFGURL,
+    RCMD_CFGACCOUNT,
+    RCMD_INIT,
+    RCMD_LIST,
+    RCMD_INSTALL,
+    RCMD_OTA,
+    RCMD_DELETE,
+    RCMD_DELETEALL,
+    RCMD_RUN,
+    RCMD_DESTROY,
+    RCMD_STATUS,
+    RCMD_RESET,
+    RCMD_VIEW,
+    RCMD_ACTIVATE,
+    RCMD_REMOVE,
+    RCMD_OSGI,
+    RCMD_CANCEL,
+    RCMD_CANCELALL,
+    RCMD_MAX
+} RemoteCommandType;
+
+/* Definitions for other remote controllers */
+typedef struct RMTConfig
+{
+  char* addr;
+  char* port;
+  char* initData;
+  char* user;
+  char* pwd;
+} RMTConfig;
 
 /**
  * Thread process function defintion.
@@ -142,10 +177,15 @@ int Ams_getCurCrtlModule();
 void Ams_handleAck(int module,int cmd,void * data);
 
 void Ams_listApp(AMS_TYPE_E type,AmsCrtlCBFunc func);
-void Ams_runApp(int id,AMS_TYPE_E type,AmsCrtlCBFunc func);
-void Ams_deleteApp(int id,AMS_TYPE_E type,AmsCrtlCBFunc func);
-void Ams_otaApp(uint8_t* url,AMS_TYPE_E type,AmsCrtlCBFunc func);
-void Ams_destoryApp(int id,AMS_TYPE_E type,AmsCrtlCBFunc func);
+int Ams_runApp(int id,AMS_TYPE_E type,AmsCrtlCBFunc func);
+int Ams_deleteApp(int id,AMS_TYPE_E type,AmsCrtlCBFunc func);
+int Ams_otaApp(uint8_t* url,AMS_TYPE_E type,AmsCrtlCBFunc func);
+int Ams_destoryApp(int id,AMS_TYPE_E type,AmsCrtlCBFunc func);
+
+/**
+ * AMS Remote Control API
+ */
+int Ams_handleRemoteCmdSync(int cmdId, AMS_TYPE_E cmdType, int suiteId, char *data, char** ppout);
 
 #ifdef __cplusplus
 }

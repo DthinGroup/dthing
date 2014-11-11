@@ -80,7 +80,7 @@ void Ams_listApp(AMS_TYPE_E type,AmsCrtlCBFunc func)
     Ams_setCurCrtlModule(type);
 }
 
-void Ams_runApp(int id,AMS_TYPE_E type,AmsCrtlCBFunc func)
+int Ams_runApp(int id,AMS_TYPE_E type,AmsCrtlCBFunc func)
 {
     uint8_t idBuf[4] = {0x0,};
     uint8_t *pByte;
@@ -108,9 +108,10 @@ void Ams_runApp(int id,AMS_TYPE_E type,AmsCrtlCBFunc func)
         default:break;
     }
     Ams_setCurCrtlModule(type);
+    return 0;
 }
 
-void Ams_deleteApp(int id,AMS_TYPE_E type,AmsCrtlCBFunc func)
+int Ams_deleteApp(int id,AMS_TYPE_E type,AmsCrtlCBFunc func)
 {
     uint8_t idBuf[4] = {0x0,};
     uint8_t *pByte;
@@ -138,9 +139,10 @@ void Ams_deleteApp(int id,AMS_TYPE_E type,AmsCrtlCBFunc func)
         default:break;
     }
     Ams_setCurCrtlModule(type);
+    return 0;
 }
 
-void Ams_otaApp(uint8_t* url,AMS_TYPE_E type,AmsCrtlCBFunc func)
+int Ams_otaApp(uint8_t* url,AMS_TYPE_E type,AmsCrtlCBFunc func)
 {
     uint8_t idBuf[4] = {0x0,};
     uint8_t *pByte;
@@ -181,9 +183,10 @@ void Ams_otaApp(uint8_t* url,AMS_TYPE_E type,AmsCrtlCBFunc func)
         default:break;
     }
     Ams_setCurCrtlModule(type);
+    return 0;
 }
 
-void Ams_destoryApp(int id,AMS_TYPE_E type,AmsCrtlCBFunc func)
+int Ams_destoryApp(int id,AMS_TYPE_E type,AmsCrtlCBFunc func)
 {
     uint8_t idBuf[4] = {0x0,};
     uint8_t *pByte;
@@ -211,6 +214,7 @@ void Ams_destoryApp(int id,AMS_TYPE_E type,AmsCrtlCBFunc func)
         default:break;
     }
     Ams_setCurCrtlModule(type);
+    return 0;
 }
 
 //handle event process
@@ -525,4 +529,53 @@ int32_t Ams_createVMThread(DVMThreadFunc pDvmThreadProc, int argc, void* argv[])
     return g_dthing_threadid;
 #endif
     return -1;
+}
+
+/**
+ * AMS Remote Control API
+ */
+int Ams_handleRemoteCmdSync(int cmdId, AMS_TYPE_E cmdType, int suiteId, char *data, char** ppout)
+{
+    int result = -1;
+
+    *ppout = NULL;
+
+    switch(cmdId)
+    {
+    case RCMD_CFGURL:
+        //TODO:
+        break;
+    case RCMD_CFGACCOUNT:
+        //TODO:
+        break;
+    case RCMD_INIT:
+        break;
+    case RCMD_LIST:
+        //TODO:
+        break;
+    case RCMD_OTA:
+        if (NULL != data)
+        {
+            result = Ams_otaApp(data, cmdType, NULL);
+        }
+        break;
+    case RCMD_DELETE:
+        result = Ams_deleteApp(suiteId, cmdType, NULL);
+        break;
+    case RCMD_DELETEALL:
+        //TODO:
+        break;
+    case RCMD_RUN:
+        result = Ams_runApp(suiteId, cmdType, NULL);
+        break;
+    case RCMD_DESTROY:
+        result = Ams_destoryApp(suiteId, cmdType, NULL);
+        break;
+    case RCMD_STATUS:
+        //TODO:
+        break;
+    default:
+        break;
+    }
+    return result;
 }
