@@ -132,16 +132,6 @@ typedef enum _RemoteCommandType
     RCMD_MAX
 } RemoteCommandType;
 
-/* Definitions for other remote controllers */
-typedef struct RMTConfig
-{
-  char* addr;
-  char* port;
-  char* initData;
-  char* user;
-  char* pwd;
-} RMTConfig;
-
 /**
  * Thread process function defintion.
  * @argc arguments count.

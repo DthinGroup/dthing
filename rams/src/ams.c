@@ -7,6 +7,7 @@
 #include "ams_remote.h"
 #include "ams_sms.h"
 #include "ams_at.h"
+#include "ams_utils.h"
 
 #ifdef ARCH_X86
     #pragma comment(lib, "Winmm.lib")
@@ -549,6 +550,10 @@ int Ams_handleRemoteCmdSync(int cmdId, AMS_TYPE_E cmdType, int suiteId, char *da
         //TODO:
         break;
     case RCMD_INIT:
+        break;
+    case RCMD_CANCEL:
+        break;
+    case RCMD_CANCELALL:
         break;
     case RCMD_LIST:
         //TODO:
