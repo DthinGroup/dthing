@@ -13,6 +13,10 @@
     #pragma comment(lib, "Winmm.lib")
     #include <Windows.h>
     #include <Mmsystem.h>
+#else
+#include "sci_types.h"
+#include "os_api.h"
+#include "priority_app.h"
 #endif
 
 #ifdef DVM_LOG
@@ -32,7 +36,7 @@ static int32_t Ams_handleAmsEvent(Event *evt, void *userData);
 
 void Ams_setCurCrtlModule(AMS_TYPE_E type)
 {
-    DVM_LOG("===Ams_setCurCrtlPlatform:%d\d",type);
+    DVM_LOG("===Ams_setCurCrtlPlatform:%d\n",type);
     switch(type)
     {
         case ATYPE_NAMS: s_cur_ams_crtl_platform = AMS_MODULE_NAMS ; break;
@@ -456,7 +460,7 @@ static DWORD WINAPI VMThreadFunc(PVOID pvParam)
 }
 #elif defined(ARCH_ARM_SPD)
 uint32_t g_dthing_threadid = SCI_INVALID_BLOCK_ID;
-uint8*   g_dthing_mem_space_ptr = NULL;
+uint8_t*   g_dthing_mem_space_ptr = NULL;
 
 static void VMThreadFunc(uint32_t argc,void * argv)
 {
@@ -483,14 +487,14 @@ int32_t Ams_createVMThread(DVMThreadFunc pDvmThreadProc, int argc, void* argv[])
 #elif defined (ARCH_ARM_SPD)
 
     #define DTHING_VM_THREAD_STACK_SIZE     (16*1024)
-    #define DTHING_VM_THREAD_QUEUE_SIZE     (40*sizeof(uint32)*SCI_QUEUE_ITEM_SIZE)
+    #define DTHING_VM_THREAD_QUEUE_SIZE     (40*sizeof(uint32_t)*SCI_QUEUE_ITEM_SIZE)
     DVMTraceInf("===Ready to launch dthing vm thread!\n");
     //try to alloc java heap
 //    cleanVmThread();
-    g_dthing_mem_space_ptr = (uint8*)SCI_ALLOCA(DTHING_VM_THREAD_STACK_SIZE +DTHING_VM_THREAD_QUEUE_SIZE);
+    g_dthing_mem_space_ptr = (uint8_t*)SCI_ALLOCA(DTHING_VM_THREAD_STACK_SIZE +DTHING_VM_THREAD_QUEUE_SIZE);
 
     DVMTraceInf("===Alloc g_dthing_mem_space_ptr = 0x%x\n",g_dthing_mem_space_ptr);
-    if(PNULL == g_dthing_mem_space_ptr)
+    if(NULL == g_dthing_mem_space_ptr)
     {
         DVMTraceErr("===Error:alloc dthing vm memory fail!\n");
         return -1;
