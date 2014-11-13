@@ -37,6 +37,8 @@ static void launchESSchdule()
 
 int main(int argc, char *argv[])
 {
+	file_startup();
+	Ams_init();
 	//DVM_main(argc, argv);
 #ifdef    NOT_LAUNCH_NET_TASK	
     ramsClient_runApplet(0);

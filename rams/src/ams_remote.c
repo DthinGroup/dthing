@@ -21,21 +21,15 @@
 
 #define DATA_BUF_SIZE (256)
 
-
-
 static int32_t servInstance;
 static int16_t currentFsmState;
-
-
-
-
 
 /**
  * RAMS command actions.
  */
 static int32_t ams_remote_buildConnection(Event *evt, void *userData);
 
-
+static void ams_remote_callbackHandler(AmsCBData * cbdata);
 /**
  * Parse server commands.
  * @param data, raw data from server side.
@@ -288,6 +282,7 @@ int32_t ams_remote_lifecycleProcess(Event *evt, void *userData)
     switch (evtId)
     {
     case EVT_SYS_INIT:
+		Ams_regModuleCallBackHandler(ATYPE_RAMS,ams_remote_callbackHandler);
         //file_startup();
         //appletsList = listInstalledApplets(NULL);
         /* push connection event to queue */
@@ -371,282 +366,102 @@ bool_t ams_remote_list()
     return EVT_RES_SUCCESS;
 }
 
-/* see ramsclient.h */
-bool_t ams_remote_deleteAppletById(int32_t id)
-{
-    bool_t res = TRUE;
-    AppletProps *pAppProp;
-    uint16_t     fpath[MAX_FILE_NAME_LEN] = {0x0,};
-    uint8_t      ackBuf[16] = {0x0,};
-    uint8_t     *pByte;
-    SafeBuffer  *safeBuf;
-    Event        newEvt;
-
-    do
-    {
-        if (id < 0)
-        {
-            DVMTraceWar("deleteAppletById: Invalid id (%d)", id);
-            res = FALSE;
-            break;
-        }
-
-        if ((pAppProp = getAppletPropById(id)) == NULL)
-        {
-            DVMTraceWar("deleteAppletById: Unknown id (%d)", id);
-            res = FALSE;
-            break;
-        }
-
-        if (pAppProp->isRunning)
-        {
-            //TODO: stop the running appliction.
-            //remove this node from running linked list.
-        }
-
-        CRTL_wcscpy(fpath, getDefaultInstalledPath());
-        CRTL_wcscat(fpath, pAppProp->fname);
-
-        if (file_delete(fpath, CRTL_wcslen(fpath)) != FILE_RES_SUCCESS)
-        {
-            DVMTraceWar("deleteAppletById: remove application content failure");
-            res = FALSE;
-            break;
-        }
-        CRTL_memset(pAppProp, 0x0, sizeof(AppletProps)); //clear
-        pAppProp->id = PROPS_UNUSED;
-
-    } while(FALSE);
-
-    pByte = (uint8_t*)ackBuf;
-
-    writebeIU32(&pByte[0], sizeof(ackBuf));
-    writebeIU32(&pByte[4], ACK_RECV_AND_EXEC);
-    writebeIU32(&pByte[8], EVT_CMD_DELETE);
-    writebeIU32(&pByte[12], (res ? 1 : 0));
-
-    safeBuf = CreateSafeBufferByBin(ackBuf, sizeof(ackBuf));
-    newNormalEvent(EVT_CMD_DECLARE, DECLARE_FSM_WRITE, (void *)safeBuf, ams_remote_buildConnection, &newEvt);
-    ES_pushEvent(&newEvt);
-
-    return res;
-}
-
-/* see ramsclient.h */
-bool_t ams_remote_runApplet(int32_t id)
-{
-    AppletProps *pap;
-    uint8_t      ackBuf[16] = {0x0};
-    uint8_t     *pByte;
-    bool_t       res = TRUE;
-    static char *argv[3];
-    SafeBuffer  *safeBuf;
-    Event        newEvt;
-
-    refreshInstalledApp();
-    do
-    {
-        if ((pap = getAppletPropById(id)) == NULL)
-        {
-            DVMTraceErr("runApplet failure, no such id(%d)\n", id);
-            res = FALSE;
-            break;
-        }
-        pap->fpath = combineAppPath(pap->fname);
-
-        argv[0] = "-run";
-        argv[1] = pap->fpath;
-        argv[2] = pap->mainCls;
-        DVMTraceInf("argv=0x%x,argv-1:%s,argv-2:%s,argv-3:%s\n",(void*)argv,argv[0],argv[1],argv[2]);
-
-        if (Ams_createVMThread(VMThreadProc, 3, argv) < 0)
-        {
-            DVMTraceErr("lauch VM thread failure\n");
-            res = FALSE;
-            break;
-        }
-        vm_setCurActiveApp(pap);
-    }
-    while(FALSE);
-#ifdef NOT_LAUNCH_NET_TASK
-    return FALSE;
-#endif
-
-    pByte = (uint8_t*)ackBuf;
-
-    writebeIU32(&pByte[0], sizeof(ackBuf));
-
-    if (res)
-    {
-        writebeIU32(&pByte[4], ACK_RECV_WITHOUT_EXEC);
-        writebeIU32(&pByte[8], 0x1);
-        writebeIU32(&pByte[12], 0x0);
-    }
-    else
-    {
-        writebeIU32(&pByte[4], ACK_RECV_AND_EXEC);
-        writebeIU32(&pByte[8], EVT_CMD_RUN);
-        writebeIU32(&pByte[12], 0x0);
-    }
-
-    safeBuf = CreateSafeBufferByBin(ackBuf, sizeof(ackBuf));
-    newNormalEvent(EVT_CMD_DECLARE, DECLARE_FSM_WRITE, (void *)safeBuf, ams_remote_buildConnection, &newEvt);
-    ES_pushEvent(&newEvt);
-
-    return res;
-}
-
-/* see ramsclient.h */
-bool_t ams_remote_destroyApplet(int32_t id)
-{
-    AppletProps *pap;
-    uint8_t      ackBuf[16] = {0x0,};
-    uint8_t     *pByte;
-    SafeBuffer  *safeBuf;
-    Event        newEvt;
-
-    if ((pap = getAppletPropById(id)) == NULL || !pap->isRunning)
-    {
-        DVMTraceErr("destroyApplet, wrong app id(%d) or this app is not running\n");
-        return FALSE;
-    }
-    CRTL_freeif(pap->fpath);
-    upcallDestroyApplet(pap);
-
-    pByte = (uint8_t*)ackBuf;
-
-    writebeIU32(&pByte[0], sizeof(ackBuf));
-    writebeIU32(&pByte[4], ACK_RECV_WITHOUT_EXEC);
-    writebeIU32(&pByte[8], 0x1);
-    writebeIU32(&pByte[12], 0x0);
-
-    safeBuf = CreateSafeBufferByBin(ackBuf, sizeof(ackBuf));
-    newNormalEvent(EVT_CMD_DECLARE, DECLARE_FSM_WRITE, (void *)safeBuf, ams_remote_buildConnection, &newEvt);
-    ES_pushEvent(&newEvt);
-
-    return TRUE;
-}
-
-bool_t ams_remote_ota(char * url)
-{
-    bool_t res = TRUE;
-    uint8_t      ackBuf[16] = {0x0};
-    uint8_t     *pByte;
-    SafeBuffer  *safeBuf;
-    Event        newEvt;
-    static char* argv[3];
-    char * otaUrl = CRTL_malloc(CRTL_strlen(url)+1);  //memery leak
-    if(otaUrl ==NULL)
-    {}
-
-    if(!IsDvmRunning())
-    {
-        CRTL_memset(otaUrl,0,CRTL_strlen(url)+1);
-        CRTL_memcpy(otaUrl,url,CRTL_strlen(url));
-
-        argv[0] = "-ota";
-        argv[1] = otaUrl;
-        argv[2] = NULL;
-        DVMTraceInf("argv=0x%x,argv-1:%s,argv-2:%s,argv-3:%s\n",(void*)argv,argv[0],argv[1],argv[2]);
-
-        if (Ams_createVMThread(VMThreadProc, 2, argv) < 0)
-        {
-            DVMTraceErr("lauch VM thread failure\n");
-            res = FALSE;
-        }
-
-        pByte = (uint8_t*)ackBuf;
-
-        writebeIU32(&pByte[0], sizeof(ackBuf));
-        writebeIU32(&pByte[4], ACK_RECV_WITHOUT_EXEC);
-        writebeIU32(&pByte[8], 0x1);
-        writebeIU32(&pByte[12], 0x0);
-    }else{
-        pByte = (uint8_t*)ackBuf;
-
-        writebeIU32(&pByte[0], sizeof(ackBuf));
-        writebeIU32(&pByte[4], ACK_RECV_AND_EXEC);
-        writebeIU32(&pByte[8], 0x0);
-        writebeIU32(&pByte[12], 0x0);
-    }
-
-    safeBuf = CreateSafeBufferByBin(ackBuf, sizeof(ackBuf));
-    newNormalEvent(EVT_CMD_DECLARE, DECLARE_FSM_WRITE, (void *)safeBuf, ams_remote_buildConnection, &newEvt);
-    ES_pushEvent(&newEvt);
-
-    return res;
-}
-
-void ams_remote_sendOTAExeResult(int res)
-{
-    SafeBuffer  *safeBuf;
-    Event        newEvt;
-    uint8_t      ackBuf[16] = {0x0};
-    uint8_t     *pByte;
-    uint8_t  val = 0;
-    if(res==0){
-        val = 1;
-    }
-
-    pByte = (uint8_t*)ackBuf;
-
-    writebeIU32(&pByte[0], sizeof(ackBuf));
-    writebeIU32(&pByte[4], ACK_RECV_AND_EXEC);
-    writebeIU32(&pByte[8], EVT_CMD_OTA);
-    writebeIU32(&pByte[12], val);
-
-    safeBuf = CreateSafeBufferByBin(ackBuf, sizeof(ackBuf));
-    newNormalEvent(EVT_CMD_DECLARE, DECLARE_FSM_WRITE, (void *)safeBuf, ams_remote_buildConnection, &newEvt);
-    ES_pushEvent(&newEvt);
-}
-
-/* see ramsclient.h */
-bool_t ams_remote_sendBackExecResult(int32_t cmd, bool_t res)
-{
-    uint8_t     ackBuf[16] = {0x0,};
-    uint8_t    *pByte;
-    SafeBuffer *safeBuf;
-    Event       newEvt;
-
-    switch(cmd)
-    {
-        case EVT_CMD_RUN:
-            if (vm_getCurActiveApp() == NULL)
-            {
-                DVMTraceWar("No Applet in launching state\n");
-                return FALSE;
-            }
-            vm_setCurActiveAppState(res ? TRUE : FALSE);
-            break;
-
-        case EVT_CMD_DESTROY:
-            if (vm_getCurActiveApp() == NULL)
-            {
-                DVMTraceWar("No Applet in launching state\n");
-                return FALSE;
-            }
-            vm_setCurActiveAppState(res ? TRUE : FALSE);
-            vm_setCurActiveApp(NULL);//destroyed success;
-            break;
-
-        case EVT_CMD_DELETE:
-            break;
-    }
-
-    pByte = (uint8_t*)ackBuf;
-    writebeIU32(&pByte[0], sizeof(ackBuf));
-    writebeIU32(&pByte[4], ACK_RECV_AND_EXEC);
-    writebeIU32(&pByte[8], cmd);
-    writebeIU32(&pByte[12], (res ? 1 : 0));
-
-    safeBuf = CreateSafeBufferByBin(ackBuf, sizeof(ackBuf));
-    newNormalEvent(EVT_CMD_DECLARE, DECLARE_FSM_WRITE, (void *)safeBuf, ams_remote_buildConnection, &newEvt);
-    ES_pushEvent(&newEvt);
-
-    return TRUE;
-}
-
 bool_t ramsClient_isVMActive(void)
 {
     return file_isFSRegistered();
+}
+
+
+void ams_remote_callbackHandler(AmsCBData * cbdata)
+{
+	uint8_t     ackBuf[16] = {0x0,};
+    uint8_t    *pByte;
+    SafeBuffer *safeBuf;
+    Event       newEvt;
+	uint32_t res;
+
+	if(cbdata ==NULL)
+	{
+		return;
+	}
+	if(cbdata->module != AMS_MODULE_RAMS)
+	{
+		return;
+	}
+	
+	res = cbdata->result;
+	switch(cbdata->cmd)
+	{
+	case RCMD_LIST:
+		ams_remote_list();
+		break;
+
+	case RCMD_RUN:
+		if (vm_getCurActiveApp() == NULL)
+        {
+            DVMTraceWar("No Applet in launching state\n");
+            return ;
+        }
+        vm_setCurActiveAppState(res ? TRUE : FALSE);
+
+		pByte = (uint8_t*)ackBuf;
+		writebeIU32(&pByte[0], sizeof(ackBuf));
+		writebeIU32(&pByte[4], ACK_RECV_AND_EXEC);
+		writebeIU32(&pByte[8], EVT_CMD_RUN);
+		writebeIU32(&pByte[12], (res ? 1 : 0));
+
+		safeBuf = CreateSafeBufferByBin(ackBuf, sizeof(ackBuf));
+		newNormalEvent(EVT_CMD_DECLARE, DECLARE_FSM_WRITE, (void *)safeBuf, ams_remote_buildConnection, &newEvt);
+		ES_pushEvent(&newEvt);
+		break;
+
+	case RCMD_OTA:
+		if(res==0){
+			res = 1;
+		}
+
+		pByte = (uint8_t*)ackBuf;
+
+		writebeIU32(&pByte[0], sizeof(ackBuf));
+		writebeIU32(&pByte[4], ACK_RECV_AND_EXEC);
+		writebeIU32(&pByte[8], EVT_CMD_OTA);
+		writebeIU32(&pByte[12], res);
+
+		safeBuf = CreateSafeBufferByBin(ackBuf, sizeof(ackBuf));
+		newNormalEvent(EVT_CMD_DECLARE, DECLARE_FSM_WRITE, (void *)safeBuf, ams_remote_buildConnection, &newEvt);
+		ES_pushEvent(&newEvt);
+		break;
+
+	case RCMD_DESTROY:
+		if (vm_getCurActiveApp() == NULL)
+        {
+            DVMTraceWar("No Applet in launching state\n");
+            return FALSE;
+        }
+        vm_setCurActiveAppState(res ? TRUE : FALSE);
+        vm_setCurActiveApp(NULL);//destroyed success;
+
+		pByte = (uint8_t*)ackBuf;
+		writebeIU32(&pByte[0], sizeof(ackBuf));
+		writebeIU32(&pByte[4], ACK_RECV_AND_EXEC);
+		writebeIU32(&pByte[8], EVT_CMD_DESTROY);
+		writebeIU32(&pByte[12], (res ? 1 : 0));
+
+		safeBuf = CreateSafeBufferByBin(ackBuf, sizeof(ackBuf));
+		newNormalEvent(EVT_CMD_DECLARE, DECLARE_FSM_WRITE, (void *)safeBuf, ams_remote_buildConnection, &newEvt);
+		ES_pushEvent(&newEvt);
+		break;
+
+	case RCMD_DELETE:
+		pByte = (uint8_t*)ackBuf;
+		writebeIU32(&pByte[0], sizeof(ackBuf));
+		writebeIU32(&pByte[4], ACK_RECV_AND_EXEC);
+		writebeIU32(&pByte[8], EVT_CMD_DELETE);
+		writebeIU32(&pByte[12], (res ? 1 : 0));
+
+		safeBuf = CreateSafeBufferByBin(ackBuf, sizeof(ackBuf));
+		newNormalEvent(EVT_CMD_DECLARE, DECLARE_FSM_WRITE, (void *)safeBuf, ams_remote_buildConnection, &newEvt);
+		ES_pushEvent(&newEvt);
+		break;
+	}
 }

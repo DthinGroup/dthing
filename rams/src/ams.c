@@ -14,9 +14,9 @@
     #include <Windows.h>
     #include <Mmsystem.h>
 #else
-#include "sci_types.h"
-#include "os_api.h"
-#include "priority_app.h"
+	#include "sci_types.h"
+	#include "os_api.h"
+	#include "priority_app.h"
 #endif
 
 #ifdef DVM_LOG
@@ -25,6 +25,7 @@
 #define DVM_LOG DVMTraceDbg
 #define MAX_PATH_LENGTH   255
 
+static AmsCrtlCBFunc amsCrtlCBFunc[ATYPE_MAX + 1] ;
 
 //default is Native Ams
 static int32_t s_cur_ams_crtl_platform = AMS_MODULE_NAMS;
@@ -32,8 +33,44 @@ static int32_t s_cur_ams_crtl_platform = AMS_MODULE_NAMS;
 
 static int32_t Ams_handleAmsEvent(Event *evt, void *userData);
 /*----------------------tool funcs-------------------------*/
+void Ams_init()
+{
+	AMS_TYPE_E i;
+	for(i=0;i<=ATYPE_MAX;i++)
+	{
+		amsCrtlCBFunc[i] = NULL;
+	}
+}
 
+void Ams_final()
+{
+	AMS_TYPE_E i;
+	for(i=0;i<=ATYPE_MAX;i++)
+	{
+		amsCrtlCBFunc[i] = NULL;
+	}
+}
 
+bool_t Ams_regModuleCallBackHandler(AMS_TYPE_E type, AmsCrtlCBFunc modFunc)
+{
+	if(type > ATYPE_MAX || type < ATYPE_MIN)
+	{
+		DVM_LOG("===AmsCrtlCBFunc type is invalid==\d");
+		return FALSE;
+	}
+	if(modFunc ==NULL)
+	{
+		DVM_LOG("===AmsCrtlCBFunc can not be null==\d");
+		return FALSE;
+	}
+	amsCrtlCBFunc[type] = modFunc;
+	return TRUE;
+}
+bool_t Ams_unregModuleCallBackHandler(AMS_TYPE_E type)
+{
+	amsCrtlCBFunc[type] = NULL;
+	return TRUE;
+}
 void Ams_setCurCrtlModule(AMS_TYPE_E type)
 {
     DVM_LOG("===Ams_setCurCrtlPlatform:%d\n",type);
@@ -60,6 +97,20 @@ int Ams_getCrtlModuleByType(AMS_TYPE_E type)
         case ATYPE_AAMS: return AMS_MODULE_AAMS ;
         case ATYPE_SAMS: return AMS_MODULE_SAMS ;
     }
+	DVM_LOG("==invalid ams type, to assert===\n");
+	DVM_ASSERT(0);
+}
+AMS_TYPE_E Ams_getATypeByModule(int module)
+{
+    switch(module)
+    {
+        case AMS_MODULE_NAMS: return ATYPE_NAMS ;
+        case AMS_MODULE_RAMS: return ATYPE_RAMS ;
+        case AMS_MODULE_AAMS: return ATYPE_AAMS ;
+        case AMS_MODULE_SAMS: return ATYPE_SAMS ;
+    }
+	DVM_LOG("==invalid ams module, to assert===\n");
+	DVM_ASSERT(0);
 }
 
 void Ams_listApp(AMS_TYPE_E type,AmsCrtlCBFunc func)
@@ -231,7 +282,6 @@ int32_t Ams_lifecycleProcess(Event *evt, void *userData)
     switch (evtId)
     {
     case EVT_SYS_INIT:
-        file_startup();
         vm_getCurApplist(TRUE );
         break;
 
@@ -259,25 +309,21 @@ int32_t Ams_handleAmsEvent(Event *evt, void *userData)
 
     switch(ams_type)
     {
-        case AMS_MODULE_NAMS:
-            return Ams_handleNativeAmsEvent(evt,userData);
-            break;
 
         case AMS_MODULE_RAMS:
-            return Ams_handleRemoteAmsEvent(evt,userData);
-            break;
 
         case AMS_MODULE_AAMS:
-            return Ams_handleAtAmsEvent(evt,userData);
+        case AMS_MODULE_SAMS:
+        	Ams_handleAllAmsEvent(evt,userData);
             break;
 
-        case AMS_MODULE_SAMS:
-            return Ams_handleSmsAmsEvent(evt,userData);
+     	case AMS_MODULE_NAMS:   
+            //un support now!
             break;
     }
 }
 
-int32_t Ams_handleRemoteAmsEvent(Event *evt, void *userData)
+int32_t Ams_handleAllAmsEvent(Event *evt, void *userData)
 {
     int32_t     appId;
     SafeBuffer *data;
@@ -285,6 +331,8 @@ int32_t Ams_handleRemoteAmsEvent(Event *evt, void *userData)
     Event newEvt;
     bool_t res;
 	uint8_t * url =NULL;
+	AmsCrtlCBFunc cbFunc = amsCrtlCBFunc[Ams_getATypeByModule(Ams_getCurCrtlModule())];
+	AmsCBData amsCbData;
     switch (fsm_state)
     {
         case AMS_FASM_STATE_GET_LIST:
@@ -293,7 +341,15 @@ int32_t Ams_handleRemoteAmsEvent(Event *evt, void *userData)
             break;
 
         case AMS_FASM_STATE_ACK_LIST:
-            ams_remote_list();
+            //ams_remote_list();
+			if(cbFunc !=NULL)
+			{
+				amsCbData.cmd = RCMD_LIST;
+				amsCbData.module = Ams_getCurCrtlModule();
+				amsCbData.result = 1;
+				amsCbData.exptr = NULL;
+				cbFunc(&amsCbData);
+			}
             break;
 
         case AMS_FASM_STATE_GET_RUN:
@@ -307,9 +363,13 @@ int32_t Ams_handleRemoteAmsEvent(Event *evt, void *userData)
             }
             appId = readbeIU32(data->pBuf);
             res = vm_runApp(appId);
+#if 0	//report in Java_com_yarlungsoft_ams_Scheduler_reportState
             *((int32_t*)(data->pBuf)) = (int32_t) res;
             newNormalEvent(AMS_MODULE_RAMS, AMS_FASM_STATE_ACK_RUN, userData, Ams_handleAmsEvent, &newEvt);
             ES_pushEvent(&newEvt);
+#else
+			data->buffer_free(data);
+#endif
             break;
 
         case AMS_FASM_STATE_ACK_RUN:
@@ -323,7 +383,15 @@ int32_t Ams_handleRemoteAmsEvent(Event *evt, void *userData)
             }
             res = *((int32_t*)(data->pBuf));
             data->buffer_free(data);
-            ams_remote_sendBackExecResult(EVT_CMD_RUN,(bool_t)res);
+			if(cbFunc !=NULL)
+			{
+				amsCbData.cmd = RCMD_RUN;
+				amsCbData.module = Ams_getCurCrtlModule();
+				amsCbData.result = res;
+				amsCbData.exptr = NULL;
+				cbFunc(&amsCbData);
+			}
+            //ams_remote_sendBackExecResult(EVT_CMD_RUN,(bool_t)res);
             break;
 
         case AMS_FASM_STATE_GET_DELETE:
@@ -355,7 +423,15 @@ int32_t Ams_handleRemoteAmsEvent(Event *evt, void *userData)
             }
             res = *((int32_t*)(data->pBuf));
             data->buffer_free(data);
-            ams_remote_sendBackExecResult(EVT_CMD_DELETE,(bool_t) res);
+			if(cbFunc !=NULL)
+			{
+				amsCbData.cmd = RCMD_DELETE;
+				amsCbData.module = Ams_getCurCrtlModule();
+				amsCbData.result = res;
+				amsCbData.exptr = NULL;
+				cbFunc(&amsCbData);
+			}
+            //ams_remote_sendBackExecResult(EVT_CMD_DELETE,(bool_t) res);
             break;
 
         case AMS_FASM_STATE_GET_DESTROY:
@@ -383,7 +459,15 @@ int32_t Ams_handleRemoteAmsEvent(Event *evt, void *userData)
             }
             res = *((int32_t*)(data->pBuf));
             data->buffer_free(data);
-            ams_remote_sendBackExecResult(EVT_CMD_DESTROY,res);
+			if(cbFunc !=NULL)
+			{
+				amsCbData.cmd = RCMD_DESTROY;
+				amsCbData.module = Ams_getCurCrtlModule();
+				amsCbData.result = res;
+				amsCbData.exptr = NULL;
+				cbFunc(&amsCbData);
+			}
+            //ams_remote_sendBackExecResult(EVT_CMD_DESTROY,res);
             break;
 
         case AMS_FASM_STATE_GET_OTA:        	
@@ -412,30 +496,23 @@ int32_t Ams_handleRemoteAmsEvent(Event *evt, void *userData)
             url = (uint8_t *)data->pBuf;
             res = *((int32_t*)(data->pBuf));
             data->buffer_free(data);
-            ams_remote_sendOTAExeResult(res);
+			if(cbFunc !=NULL)
+			{
+				amsCbData.cmd = RCMD_DESTROY;
+				amsCbData.module = Ams_getCurCrtlModule();
+				amsCbData.result = res;
+				amsCbData.exptr = NULL;
+				cbFunc(&amsCbData);
+			}
+           // ams_remote_sendOTAExeResult(res);
             break;
     }
     DVM_LOG("===Ams_handleRemoteAmsEvent:not support for now\n");
     return 0;
 }
 
-int32_t Ams_handleAtAmsEvent(Event *evt, void *userData)
-{
-    DVM_LOG("===Ams_handleAtAmsEvent:not support for now\n");
-    return 0;
-}
 
-int32_t Ams_handleSmsAmsEvent(Event *evt, void *userData)
-{
-    DVM_LOG("===Ams_handleSmsAmsEvent:not support for now\n");
-    return 0;
-}
 
-int32_t Ams_handleNativeAmsEvent(Event *evt, void *userData)
-{
-    DVM_LOG("===Ams_handleNativeAmsEvent:not support for now\n");
-    return 0;
-}
 
 int32_t VMThreadProc(int argc, char* argv[])
 {

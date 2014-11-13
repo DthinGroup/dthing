@@ -78,6 +78,7 @@ typedef struct APPLET_PROPS_T {
 
 typedef enum 
 {
+	ATYPE_MIN =0,
 	ATYPE_NAMS=0,	//native ams,not support fro now
 	ATYPE_RAMS,		//remote ams,controlled by remote http server
 	ATYPE_SAMS,		//SMS ams,
@@ -110,28 +111,33 @@ enum {
 typedef enum _RemoteCommandType
 {
     RCMD_ACK  = 1,
-    RCMD_LOGIN,
-    RCMD_CFGURL,
-    RCMD_CFGACCOUNT,
-    RCMD_INIT,
     RCMD_LIST,
+    RCMD_RUN,
     RCMD_INSTALL,
     RCMD_OTA,
     RCMD_DELETE,
     RCMD_DELETEALL,
-    RCMD_RUN,
     RCMD_DESTROY,
+    RCMD_LOGIN,
+    RCMD_CFGURL,
+    RCMD_CFGACCOUNT,
+    RCMD_INIT,    
     RCMD_STATUS,
     RCMD_RESET,
-    RCMD_VIEW,
-    RCMD_ACTIVATE,
-    RCMD_REMOVE,
     RCMD_OSGI,
     RCMD_CANCEL,
     RCMD_CANCELALL,
     RCMD_MAX
 } RemoteCommandType;
 
+typedef struct AmsCBData_s
+{
+	uint32_t module;			//
+	uint32_t step;				//reserved!
+	RemoteCommandType cmd;		//operate
+	uint32_t result;			//op result
+	void * exptr;				//extend data
+}AmsCBData;
 /**
  * Thread process function defintion.
  * @argc arguments count.
@@ -143,7 +149,7 @@ typedef enum _RemoteCommandType
  *      we can ignore them at 1st phaze
  */
 typedef int32_t (*DVMThreadFunc)(int argc, char* argv[]);
-typedef void(*AmsCrtlCBFunc)(void *);
+typedef void(*AmsCrtlCBFunc)(AmsCBData *);
 
 /**
  * create dalvik VM thread to handle event. After this API is called, the new 
@@ -158,11 +164,16 @@ int32_t Ams_createVMThread(DVMThreadFunc pDvmThreadProc, int argc, void* argv[])
 
 int32_t VMThreadProc(int argc, char* argv[]);
 
+void Ams_init();
+void Ams_final();
+bool_t Ams_regModuleCallBackHandler(AMS_TYPE_E type, AmsCrtlCBFunc modFunc);
+bool_t Ams_unregModuleCallBackHandler(AMS_TYPE_E type);
 //APIs
 int32_t Ams_lifecycleProcess(Event *evt, void *userData);
 
 void Ams_setCurCrtlModule(AMS_TYPE_E type);
 int Ams_getCurCrtlModule();
+AMS_TYPE_E Ams_getATypeByModule(int module);
 
 void Ams_handleAck(int module,int cmd,void * data);
 
