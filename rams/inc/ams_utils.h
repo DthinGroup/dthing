@@ -36,7 +36,29 @@ void amsUtils_releaseConfigData(RMTConfig **pp_cfg);
  * AMS Utils
  */
 char* amsUtils_getAppletList(bool_t isRunning);
+/**
+ * @brief cancel specified applets from auto-start applet list in config file
+ * @param pData char* should be formatted as "<suiteId>" or "<suiteId-1>,<suiteId-2>"
+ *
+ * @return bool_t TRUE while successfully cancelled from config file, otherwise FALSE
+ */
+bool_t amsUtils_cancelDefaultApp(const char* pData);
 
+/**
+ * @brief config user and password in config file
+ * @param pData char* should be formatted as "<user>|<password>"
+ *
+ * @return bool_t TRUE while successfully, otherwise FALSE
+ */
+bool_t amsUtils_configAccount(const char* pData);
+
+/**
+ * @brief config server and port in config file
+ * @param pData char* should be formatted as "<server>|<port>"
+ *
+ * @return bool_t TRUE while successfully, otherwise FALSE
+ */
+bool_t amsUtils_configAddress(const char* pData);
 
 
 #ifdef __cplusplus

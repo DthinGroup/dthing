@@ -152,7 +152,7 @@ static void freeTPALRequestObject(TPALRequestObject *request)
 
 static int executeTPALCommand(TPALRequestObject *request, char **outstr)
 {
-  int result = 0;
+  int result = -1;
   int suiteId = -1;
   int len = 0;
   char *dataPtr = NULL;
@@ -231,7 +231,7 @@ static int executeTPALCommand(TPALRequestObject *request, char **outstr)
       *outstr = dataPtr;
     }
   }
-  return result;
+  return (result >= 0);
 }
 #endif //ARCH_ARM_SPD
 

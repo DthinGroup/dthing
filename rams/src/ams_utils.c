@@ -286,3 +286,121 @@ char* amsUtils_getAppletList(bool_t isRunning)
 #endif
   return list;
 }
+
+/**
+ * @brief cancel specified applets from auto-start applet list in config file
+ * @param pData char* should be formatted as "<suiteId>" or "<suiteId-1>,<suiteId-2>"
+ *
+ * @return bool_t TRUE while successfully, otherwise FALSE
+ */
+bool_t amsUtils_cancelDefaultApp(const char* pData)
+{
+    bool_t ret = FALSE;
+#if defined(ARCH_ARM_SPD)
+    char init1[16] = {0};
+    char init2[16] = {0};
+    RMTConfig *cfgData = NULL;
+    char content[MAX_PATH_LENGTH] = {0};
+
+    DthingTraceD("=== RemoteCmd CMD_CANCEL - data = %s\n", pData);
+
+    if ((pData == NULL) || (strlen(pData) == 0))
+    {
+        return FALSE;
+    }
+
+    ret = amsUtils_readConfigData(&cfgData);
+
+    if (ret)
+    {
+        sscanf(cfgData->initData, "%[^,],%s", init1, init2);
+
+        if (init1 && (strcmp(init1, pData) != 0))
+        {
+            sprintf(content, "%s", init1);
+        }
+
+        if (init2 && (strcmp(init2, pData) != 0))
+        {
+            if (strlen(content) > 0)
+            {
+                sprintf(content, "%s,%s", content, init2);
+            }
+            else
+            {
+                sprintf(content, "%s", init2);
+            }
+        }
+        ret = amsUtils_initConfigData(content);
+    }
+
+#endif
+    return ret;
+}
+
+/**
+ * @brief config user and password in config file
+ * @param pData char* should be formatted as "<user>|<password>"
+ *
+ * @return bool_t TRUE while successfully, otherwise FALSE
+ */
+bool_t amsUtils_configAccount(const char* pData)
+{
+    bool_t ret = FALSE;
+#if defined(ARCH_ARM_SPD)
+    char content[MAX_PATH_LENGTH] = {0};
+    RMTConfig *cfgData = NULL;
+
+    DthingTraceD("=== ReceiveRemoteCmd CMD_CFGACCOUNT - url = %s\n", pData);
+
+    if ((pData == NULL) || (strlen(pData) == 0))
+    {
+      return FALSE;
+    }
+
+    ret = amsUtils_readConfigData(&cfgData);
+
+    if (ret)
+    {
+        sprintf(content, "%s|%s|%s|%s", pData, cfgData->initData, cfgData->user, cfgData->pwd);
+        ret = amsUtils_writeConfigData(content);
+        amsUtils_releaseConfigData(&cfgData);
+    }
+    else
+    {
+        sprintf(content, "%s|%s|%s|%s", pData, "s:0", DEFAULT_USER_NAME, DEFAULT_PASSWORD);
+        ret = amsUtils_writeConfigData(content);
+    }
+#endif
+    return ret;
+}
+
+/**
+ * @brief config server and port in config file
+ * @param pData char* should be formatted as "<server>|<port>"
+ *
+ * @return bool_t TRUE while successfully, otherwise FALSE
+ */
+bool_t amsUtils_configAddress(const char* pData)
+{
+    bool_t ret = FALSE;
+#if defined(ARCH_ARM_SPD)
+    char content[MAX_PATH_LENGTH] = {0};
+    RMTConfig *cfgData = NULL;
+    DthingTraceD("=== ReceiveRemoteCmd CMD_CFGURL - account = %s", pData);
+    ret = amsUtils_readConfigData(&cfgData);
+
+    if (ret)
+    {
+        sprintf(content, "%s|%s|%s|%s", cfgData->addr, cfgData->port, cfgData->initData, pData);
+        ret = amsUtils_writeConfigData(content);
+        amsUtils_releaseConfigData(&cfgData);
+    }
+    else
+    {
+        sprintf(content, "%s|%s|%s|%s", DEFAULT_SERVER, DEFAULT_PORT, "s:0", pData);
+        ret = amsUtils_writeConfigData(content);
+    }
+#endif
+    return ret;
+}

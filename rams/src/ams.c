@@ -539,28 +539,67 @@ int32_t Ams_createVMThread(DVMThreadFunc pDvmThreadProc, int argc, void* argv[])
 /**
  * AMS Remote Control API
  */
+
+/**
+ * @brief request ams with remote command
+ * @params cmdId int defined in <RemoteCommandType>
+ * @params cmdType AMS_TYPE_E
+ * @params suiteId int suiteId if exist or -1 when not specified
+ * @params data char*
+ * @params[OUT] ppout char** pointer to output result or NULL when no output
+ *
+ * @return int result for request, negative for failed, otherwise success
+ */
 int Ams_handleRemoteCmdSync(int cmdId, AMS_TYPE_E cmdType, int suiteId, char *data, char** ppout)
 {
     int result = -1;
 
-    *ppout = NULL;
+    if (ppout)
+    {
+      *ppout = NULL;
+    }
 
     switch(cmdId)
     {
     case RCMD_CFGURL:
-        //TODO:
+        if (amsUtils_configAddress(data))
+        {
+            result = 0;
+        }
         break;
     case RCMD_CFGACCOUNT:
-        //TODO:
+        if (amsUtils_configAccount(data))
+        {
+            result = 0;
+        }
         break;
     case RCMD_INIT:
+        DthingTraceD("=== RemoteCmd CMD_INIT - data = %s\n", data);
+        if (amsUtils_initConfigData(data))
+        {
+            result = 0;
+        }
         break;
     case RCMD_CANCEL:
+        if (amsUtils_cancelDefaultApp(data))
+        {
+          result = 0;
+        }
         break;
     case RCMD_CANCELALL:
+        DthingTraceD("=== RemoteCmd CMD_CANCELALL\n");
+        if (amsUtils_initConfigData(NULL))
+        {
+          result = 0;
+        }
         break;
     case RCMD_LIST:
-        //TODO:
+        if (ppout)
+        {
+            *ppout = amsUtils_getAppletList(FALSE);
+            DthingTraceD("=== RemoteCmd RCMD_LIST - list = %s\n", *ppout);
+            result = 0;
+        }
         break;
     case RCMD_OTA:
         if (NULL != data)
@@ -581,9 +620,15 @@ int Ams_handleRemoteCmdSync(int cmdId, AMS_TYPE_E cmdType, int suiteId, char *da
         result = Ams_destoryApp(suiteId, cmdType, NULL);
         break;
     case RCMD_STATUS:
-        //TODO:
+        if (ppout)
+        {
+          *ppout = amsUtils_getAppletList(TRUE);
+          DthingTraceD("=== RemoteCmd RCMD_STATUS - status = %s\n", *ppout);
+          result = 0;
+        }
         break;
     default:
+        DthingTraceD("=== Unknown RemoteCmd %d\n", cmdId);
         break;
     }
     return result;
