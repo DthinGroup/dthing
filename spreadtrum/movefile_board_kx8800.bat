@@ -3,8 +3,8 @@
 echo ########## Set Dthing Porting Environment Variables ######################################
 setlocal
 
-set SRCDIR=D:\dthing
-set DESDIR=D:\JbedHome\fei_dev_main\sdk\KX8800B_1112
+set SRCDIR=D:\nix.long\ReDvmAll\dvm
+set DESDIR=D:\WORK\Spreadtrum\KX8800B_CODE_UPDATE_1112\MS_Code
 
 REM ########### Auto Generated Environment Variables ##########################################
 set DTHINGDIR=%DESDIR%\BASE\dthing
