@@ -113,20 +113,16 @@ AMS_TYPE_E Ams_getATypeByModule(int module)
 	DVM_ASSERT(0);
 }
 
-void Ams_listApp(AMS_TYPE_E type,AmsCrtlCBFunc func)
+void Ams_listApp(AMS_TYPE_E type)
 {
     Event newEvt;
     switch(type)
     {
         case ATYPE_RAMS:
+        case ATYPE_SAMS:
+        case ATYPE_AAMS:
             newNormalEvent(AMS_MODULE_RAMS, AMS_FASM_STATE_GET_LIST, NULL, Ams_handleAmsEvent, &newEvt);
             ES_pushEvent(&newEvt);
-            break;
-
-        case ATYPE_AAMS:
-            break;
-
-        case ATYPE_SAMS:
             break;
 
         case ATYPE_NAMS:
@@ -136,7 +132,7 @@ void Ams_listApp(AMS_TYPE_E type,AmsCrtlCBFunc func)
     Ams_setCurCrtlModule(type);
 }
 
-int Ams_runApp(int id,AMS_TYPE_E type,AmsCrtlCBFunc func)
+int Ams_runApp(int id,AMS_TYPE_E type)
 {
     uint8_t idBuf[4] = {0x0,};
     uint8_t *pByte;
@@ -145,6 +141,8 @@ int Ams_runApp(int id,AMS_TYPE_E type,AmsCrtlCBFunc func)
     switch(type)
     {
         case ATYPE_RAMS:
+        case ATYPE_SAMS:
+        case ATYPE_AAMS:
         {
             pByte = (uint8_t*)idBuf;
             writebeIU32(&pByte[0], id);
@@ -154,12 +152,6 @@ int Ams_runApp(int id,AMS_TYPE_E type,AmsCrtlCBFunc func)
         }
         break;
 
-        case ATYPE_AAMS:
-        break;
-
-        case ATYPE_SAMS:
-        break;
-
         case ATYPE_NAMS:
         default:break;
     }
@@ -167,7 +159,7 @@ int Ams_runApp(int id,AMS_TYPE_E type,AmsCrtlCBFunc func)
     return 0;
 }
 
-int Ams_deleteApp(int id,AMS_TYPE_E type,AmsCrtlCBFunc func)
+int Ams_deleteApp(int id,AMS_TYPE_E type)
 {
     uint8_t idBuf[4] = {0x0,};
     uint8_t *pByte;
@@ -175,7 +167,9 @@ int Ams_deleteApp(int id,AMS_TYPE_E type,AmsCrtlCBFunc func)
     Event newEvt;
     switch(type)
     {
-        case ATYPE_RAMS:
+    	case ATYPE_RAMS:
+        case ATYPE_SAMS:
+        case ATYPE_AAMS:
         {
             pByte = (uint8_t*)idBuf;
             writebeIU32(&pByte[0], id);
@@ -185,12 +179,6 @@ int Ams_deleteApp(int id,AMS_TYPE_E type,AmsCrtlCBFunc func)
         }
         break;
 
-        case ATYPE_AAMS:
-        break;
-
-        case ATYPE_SAMS:
-        break;
-
         case ATYPE_NAMS:
         default:break;
     }
@@ -198,7 +186,7 @@ int Ams_deleteApp(int id,AMS_TYPE_E type,AmsCrtlCBFunc func)
     return 0;
 }
 
-int Ams_otaApp(uint8_t* url,AMS_TYPE_E type,AmsCrtlCBFunc func)
+int Ams_otaApp(uint8_t* url,AMS_TYPE_E type)
 {
     uint8_t idBuf[4] = {0x0,};
     uint8_t *pByte;
@@ -209,6 +197,8 @@ int Ams_otaApp(uint8_t* url,AMS_TYPE_E type,AmsCrtlCBFunc func)
     switch(type)
     {
         case ATYPE_RAMS:
+        case ATYPE_SAMS:
+        case ATYPE_AAMS:
         {
 			length = CRTL_strlen(url);
             safeBufSize = sizeof(SafeBuffer) + length + 1;
@@ -229,12 +219,6 @@ int Ams_otaApp(uint8_t* url,AMS_TYPE_E type,AmsCrtlCBFunc func)
         }
         break;
 
-        case ATYPE_AAMS:
-        break;
-
-        case ATYPE_SAMS:
-        break;
-
         case ATYPE_NAMS:
         default:break;
     }
@@ -242,7 +226,7 @@ int Ams_otaApp(uint8_t* url,AMS_TYPE_E type,AmsCrtlCBFunc func)
     return 0;
 }
 
-int Ams_destoryApp(int id,AMS_TYPE_E type,AmsCrtlCBFunc func)
+int Ams_destoryApp(int id,AMS_TYPE_E type)
 {
     uint8_t idBuf[4] = {0x0,};
     uint8_t *pByte;
@@ -251,6 +235,8 @@ int Ams_destoryApp(int id,AMS_TYPE_E type,AmsCrtlCBFunc func)
     switch(type)
     {
         case ATYPE_RAMS:
+        case ATYPE_SAMS:
+        case ATYPE_AAMS:
         {
             pByte = (uint8_t*)idBuf;
             writebeIU32(&pByte[0], id);
@@ -258,12 +244,6 @@ int Ams_destoryApp(int id,AMS_TYPE_E type,AmsCrtlCBFunc func)
             newNormalEvent(AMS_MODULE_RAMS, AMS_FASM_STATE_GET_DESTROY, (void *)safeBuf, Ams_handleAmsEvent, &newEvt);
             ES_pushEvent(&newEvt);
         }
-        break;
-
-        case ATYPE_AAMS:
-        break;
-
-        case ATYPE_SAMS:
         break;
 
         case ATYPE_NAMS:
@@ -309,9 +289,7 @@ int32_t Ams_handleAmsEvent(Event *evt, void *userData)
 
     switch(ams_type)
     {
-
         case AMS_MODULE_RAMS:
-
         case AMS_MODULE_AAMS:
         case AMS_MODULE_SAMS:
         	Ams_handleAllAmsEvent(evt,userData);
@@ -681,20 +659,20 @@ int Ams_handleRemoteCmdSync(int cmdId, AMS_TYPE_E cmdType, int suiteId, char *da
     case RCMD_OTA:
         if (NULL != data)
         {
-            result = Ams_otaApp(data, cmdType, NULL);
+            result = Ams_otaApp(data, cmdType);
         }
         break;
     case RCMD_DELETE:
-        result = Ams_deleteApp(suiteId, cmdType, NULL);
+        result = Ams_deleteApp(suiteId, cmdType);
         break;
     case RCMD_DELETEALL:
         //TODO:
         break;
     case RCMD_RUN:
-        result = Ams_runApp(suiteId, cmdType, NULL);
+        result = Ams_runApp(suiteId, cmdType);
         break;
     case RCMD_DESTROY:
-        result = Ams_destoryApp(suiteId, cmdType, NULL);
+        result = Ams_destoryApp(suiteId, cmdType);
         break;
     case RCMD_STATUS:
         if (ppout)

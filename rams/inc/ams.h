@@ -177,11 +177,11 @@ AMS_TYPE_E Ams_getATypeByModule(int module);
 
 void Ams_handleAck(int module,int cmd,void * data);
 
-void Ams_listApp(AMS_TYPE_E type,AmsCrtlCBFunc func);
-int Ams_runApp(int id,AMS_TYPE_E type,AmsCrtlCBFunc func);
-int Ams_deleteApp(int id,AMS_TYPE_E type,AmsCrtlCBFunc func);
-int Ams_otaApp(uint8_t* url,AMS_TYPE_E type,AmsCrtlCBFunc func);
-int Ams_destoryApp(int id,AMS_TYPE_E type,AmsCrtlCBFunc func);
+void Ams_listApp(AMS_TYPE_E type);
+int Ams_runApp(int id,AMS_TYPE_E type);
+int Ams_deleteApp(int id,AMS_TYPE_E type);
+int Ams_otaApp(uint8_t* url,AMS_TYPE_E type);
+int Ams_destoryApp(int id,AMS_TYPE_E type);
 
 /**
  * AMS Remote Control API
