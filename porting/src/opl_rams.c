@@ -38,13 +38,22 @@ int32_t rams_startupNetwork()
     int32_t res = RAMS_RES_FAILURE;
 #ifdef ARCH_X86
 	WSADATA wsaData;
-    if (!networkStarted && (WSAStartup(MAKEWORD(2,2), &wsaData) != NO_ERROR))
-    {
-        DVMTraceErr("WSAStartup failure, error code(%d)\n", WSAGetLastError());
-        return FALSE;
-    }
-    networkStarted = TRUE;
-    res = RAMS_RES_SUCCESS;
+	if(Opl_net_isActivated() != TRUE)
+	{
+		if (!networkStarted && (WSAStartup(MAKEWORD(2,2), &wsaData) != NO_ERROR))
+	    {
+	        DVMTraceErr("WSAStartup failure, error code(%d)\n", WSAGetLastError());
+	        return FALSE;
+	    }
+	    networkStarted = TRUE;
+	    res = RAMS_RES_SUCCESS;
+	}
+	else
+	{
+		networkStarted = TRUE;
+	    res = RAMS_RES_SUCCESS;
+	}
+    
 #elif defined(ARCH_ARM_SPD)	
 	if(Opl_net_isActivated() ==TRUE)
 	{

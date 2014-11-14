@@ -28,7 +28,7 @@
 static int s_net_inited = FALSE;
 static int commonResult = FALSE;
 static ASYNC_Notifier * commonNotifier;
-
+static BOOLEAN            isActived = FALSE;
 
 #ifdef ARCH_ARM_SPD
 
@@ -37,7 +37,6 @@ static ASYNC_Notifier * commonNotifier;
 
 static uint32_t       netId =0;
 static int            retrytimes;
-static BOOLEAN            isActived = FALSE;
 
 static void net_pdpCallbck(uint32 id, uint32 argc, void *argv)
 {
@@ -198,11 +197,21 @@ int Opl_net_getNetId()
 }
 
 int Opl_net_activate(void)
-{
-    NetLog("call Opl_net_activate");
+{    
 #ifdef ARCH_X86
-
+	WORD wVersionRequested;
+	WSADATA wsaData;
+	int err;
+	
+	NetLog("call Opl_net_activate");
+	wVersionRequested = MAKEWORD( 1, 1 );
+	err = WSAStartup( wVersionRequested, &wsaData );
+	if ( err != 0 ) {
+		return OPL_NET_ERROR;
+	}
+	isActived = TRUE;
 #elif defined(ARCH_ARM_SPD)
+	NetLog("call Opl_net_activate");
 	net_activeNetwowrk();
 #endif
     NetLog("call Opl_net_activate over");
@@ -220,7 +229,7 @@ int Opl_net_deactivate(void)
 int Opl_net_isActivated(void)
 {
 #ifdef ARCH_X86
-	return FALSE;
+	return isActived;
 #elif defined(ARCH_ARM_SPD)
     SCI_TRACE_LOW("Opl_net_isActivated:%d",isActived);
     return isActived;

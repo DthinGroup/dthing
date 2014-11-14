@@ -38,6 +38,7 @@ static void launchESSchdule()
 int main(int argc, char *argv[])
 {
 	file_startup();
+	Opl_net_activate();
 	Ams_init();
 	//DVM_main(argc, argv);
 #ifdef    NOT_LAUNCH_NET_TASK	
