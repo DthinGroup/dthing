@@ -267,7 +267,7 @@ char* amsUtils_getAppletList(bool_t isRunning)
 
   while(curApp != NULL)
   {
-    if(curApp->isRunning == isRunning)
+    if ((curApp->isRunning == isRunning) && (curApp->id != PROPS_UNUSED))
     {
       amsUtils_strconcat(&list, "%d %s\r\n", curApp->id, curApp->fname);
     }
