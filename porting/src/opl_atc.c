@@ -218,6 +218,12 @@ static int executeTPALCommand(TPALRequestObject *request, char **outstr)
     break;
   }
 
+  if (dataPtr != NULL)
+  {
+    free(dataPtr);
+    dataPtr = NULL;
+  }
+
   if ((outstr != NULL) && ((*outstr == NULL) || strlen(*outstr) == 0))
   {
     if (suiteId >= 0)

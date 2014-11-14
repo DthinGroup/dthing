@@ -981,6 +981,7 @@ bool_t file_registerDeviceIfNeed()
 	switch(sfsError)
 	{
 		case SFS_ERROR_NONE:
+		  isRegistered = TRUE;
 			DVMTraceInf("====device is ok!\n");
 			break;
 			
