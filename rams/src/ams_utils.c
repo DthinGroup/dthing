@@ -80,7 +80,7 @@ char* amsUtils_strconcat(char **str, char*fmt, ...)
 /*******************************************************
  * Remote Config Data Utils
  *******************************************************/
-bool_t amsUtils_initConfigData(char *pInitData)
+bool_t amsUtils_initConfigData(const char *pInitData)
 {
   bool_t ret = FALSE;
 
@@ -110,11 +110,6 @@ bool_t amsUtils_initConfigData(char *pInitData)
     sprintf(content, "%s|%s|%s%s|%s|%s", DEFAULT_SERVER, DEFAULT_PORT, needCleanInitData? "" : "s:",
     needCleanInitData? "0" : pInitData, DEFAULT_USER_NAME, DEFAULT_PASSWORD);
     ret = amsUtils_writeConfigData(content);
-  }
-
-  if (pInitData != NULL)
-  {
-    free(pInitData);
   }
 #endif
 
@@ -272,7 +267,7 @@ char* amsUtils_getAppletList(bool_t isRunning)
 
   while(curApp != NULL)
   {
-    if(curApp->isRunning == isRunning)
+    if ((curApp->isRunning == isRunning) && (curApp->id != PROPS_UNUSED))
     {
       amsUtils_strconcat(&list, "%d %s\r\n", curApp->id, curApp->fname);
     }

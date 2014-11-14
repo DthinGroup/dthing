@@ -436,7 +436,7 @@ void ams_remote_callbackHandler(AmsCBData * cbdata)
 		if (vm_getCurActiveApp() == NULL)
         {
             DVMTraceWar("No Applet in launching state\n");
-            return FALSE;
+            return;
         }
         vm_setCurActiveAppState(res ? TRUE : FALSE);
         vm_setCurActiveApp(NULL);//destroyed success;

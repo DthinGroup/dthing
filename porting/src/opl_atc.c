@@ -57,7 +57,7 @@ int cpl_handleATRequest(char* atcommand, char* instr, char** outstr)
   TPALRequestObject *request = NULL;
   int retryCount = 3;
 
-  while(!ramsClient_isVMActive())
+  while(!file_isFSRegistered())
   {
     if (retryCount == 0)
     {
@@ -216,6 +216,12 @@ static int executeTPALCommand(TPALRequestObject *request, char **outstr)
   default:
     result = Ams_handleRemoteCmdSync(request->cmdId, ATYPE_AAMS, suiteId, dataPtr, NULL);
     break;
+  }
+
+  if (dataPtr != NULL)
+  {
+    free(dataPtr);
+    dataPtr = NULL;
   }
 
   if ((outstr != NULL) && ((*outstr == NULL) || strlen(*outstr) == 0))
