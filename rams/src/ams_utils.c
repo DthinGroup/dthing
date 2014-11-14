@@ -357,13 +357,13 @@ bool_t amsUtils_configAccount(const char* pData)
 
     if (ret)
     {
-        sprintf(content, "%s|%s|%s|%s", pData, cfgData->initData, cfgData->user, cfgData->pwd);
+        sprintf(content, "%s|%s|%s|%s", cfgData->addr, cfgData->port, cfgData->initData, pData);
         ret = amsUtils_writeConfigData(content);
         amsUtils_releaseConfigData(&cfgData);
     }
     else
     {
-        sprintf(content, "%s|%s|%s|%s", pData, "s:0", DEFAULT_USER_NAME, DEFAULT_PASSWORD);
+        sprintf(content, "%s|%s|%s|%s", DEFAULT_SERVER, DEFAULT_PORT, "s:0", pData);
         ret = amsUtils_writeConfigData(content);
     }
 #endif
@@ -387,13 +387,13 @@ bool_t amsUtils_configAddress(const char* pData)
 
     if (ret)
     {
-        sprintf(content, "%s|%s|%s|%s", cfgData->addr, cfgData->port, cfgData->initData, pData);
+        sprintf(content, "%s|%s|%s|%s", pData, cfgData->initData, cfgData->user, cfgData->pwd);
         ret = amsUtils_writeConfigData(content);
         amsUtils_releaseConfigData(&cfgData);
     }
     else
     {
-        sprintf(content, "%s|%s|%s|%s", DEFAULT_SERVER, DEFAULT_PORT, "s:0", pData);
+        sprintf(content, "%s|%s|%s|%s", pData, "s:0", DEFAULT_USER_NAME, DEFAULT_PASSWORD);
         ret = amsUtils_writeConfigData(content);
     }
 #endif
