@@ -27,7 +27,7 @@ char* amsUtils_strconcat(char **str, char*fmt, ...);
 /**
  * Remote Config Utils
  */
-bool_t amsUtils_initConfigData(char *pInitData);
+bool_t amsUtils_initConfigData(const char *pInitData);
 bool_t amsUtils_writeConfigData(char *cfg);
 bool_t amsUtils_readConfigData(RMTConfig **pp_cfg);
 void amsUtils_releaseConfigData(RMTConfig **pp_cfg);
