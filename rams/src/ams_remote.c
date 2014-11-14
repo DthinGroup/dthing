@@ -59,7 +59,7 @@ static int32_t parseServerCommands(uint8_t* data, int32_t dataBytes)
             res = EVT_RES_FAILURE;
             break;
         }
-        Ams_listApp(ATYPE_RAMS,NULL);
+        Ams_listApp(ATYPE_RAMS);
         break;
 
     case EVT_CMD_DELETE:
@@ -75,7 +75,7 @@ static int32_t parseServerCommands(uint8_t* data, int32_t dataBytes)
                 res = EVT_RES_FAILURE;
                 break;
             }
-            Ams_deleteApp(appId,ATYPE_RAMS,NULL);
+            Ams_deleteApp(appId,ATYPE_RAMS);
         }
         break;
 
@@ -92,7 +92,7 @@ static int32_t parseServerCommands(uint8_t* data, int32_t dataBytes)
                 res = EVT_RES_FAILURE;
                 break;
             }
-            Ams_runApp(appId,ATYPE_RAMS,NULL);
+            Ams_runApp(appId,ATYPE_RAMS);
         }
         break;
 
@@ -109,7 +109,7 @@ static int32_t parseServerCommands(uint8_t* data, int32_t dataBytes)
                 res = EVT_RES_FAILURE;
                 break;
             }
-            Ams_destoryApp(appId,ATYPE_RAMS,NULL);
+            Ams_destoryApp(appId,ATYPE_RAMS);
         }
         break;
 
@@ -135,7 +135,7 @@ static int32_t parseServerCommands(uint8_t* data, int32_t dataBytes)
             CRTL_memset(url,0,length+1);
             CRTL_memcpy(url,p+4,length);
             DVMTraceDbg("ota:%s\n",url);
-            Ams_otaApp(url,ATYPE_RAMS,NULL);
+            Ams_otaApp(url,ATYPE_RAMS);
             
             CRTL_freeif(url);
         }
