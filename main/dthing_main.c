@@ -66,11 +66,13 @@ static void Dthing_IThreadProc(int argc, void * argv)
     int status =0;
     int    arg = 2;
     char * arga[2] = {"-cp","D:\\helloword.dex"};
-	
-	Opl_net_activate();
+
+    file_startup();
+    Opl_net_activate();
+    Ams_init();
     //DVM_main(arg,arga);
 //    launchRemoteAMSClient(FALSE, arg, arga);
-   launchESSchdule();
+    launchESSchdule();
     
     if(SCI_INVALID_BLOCK_ID != dvm_threadId)
     {

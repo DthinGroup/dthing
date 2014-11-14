@@ -57,7 +57,7 @@ int cpl_handleATRequest(char* atcommand, char* instr, char** outstr)
   TPALRequestObject *request = NULL;
   int retryCount = 3;
 
-  while(!ramsClient_isVMActive())
+  while(!file_isFSRegistered())
   {
     if (retryCount == 0)
     {
