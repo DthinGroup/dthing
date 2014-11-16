@@ -476,9 +476,9 @@ int32_t Ams_handleAllAmsEvent(Event *evt, void *userData)
             data->buffer_free(data);
             if(cbFunc !=NULL)
             {
-                amsCbData.cmd = RCMD_DESTROY;
+                amsCbData.cmd = RCMD_OTA;
                 amsCbData.module = Ams_getCurCrtlModule();
-                amsCbData.result = res;
+                amsCbData.result = (res == 0 ? 1: 0);
                 amsCbData.exptr = NULL;
                 cbFunc(&amsCbData);
             }

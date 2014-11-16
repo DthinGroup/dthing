@@ -619,9 +619,11 @@ void vm_ota_set(bool_t flag,char * url)
 
 bool_t vm_ota_get()
 {
+	bool_t ret;
 	mutex_lock(s_ota_mutex);
-	return 	s_ota_hang_flag;
+	ret = s_ota_hang_flag;
 	mutex_unlock(s_ota_mutex);
+	return ret;
 }
 
 void vm_create_otaTask()
