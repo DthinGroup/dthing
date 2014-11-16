@@ -12,6 +12,24 @@ import com.yarlungsoft.ams.AmsConfig;
 
 public class OTADownload{
 	private String OTALink;
+	
+	public static void OTA(String[] args)
+	{
+		String url;
+		if(args.length >0)
+		{
+			url = args[0]; 
+		}
+		else
+		{
+			Log("OTADownload:Ota - nothing to do");
+			return;	
+		}
+		Log("OTADownload:Ota - " + url);
+		OTADownload ota = new OTADownload(url);
+		ota.OTAStart();
+	}
+	
 	public OTADownload(String url)
 	{
 		OTALink = url;

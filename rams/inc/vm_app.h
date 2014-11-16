@@ -36,6 +36,14 @@ bool_t vm_deleteApp(int id);
 bool_t vm_destroyApp(int id);
 bool_t vm_otaApp(char * url);
 
+
+/*ota handle*/
+void vm_ota_init();
+void vm_ota_final();
+void vm_ota_set(bool_t flag,char * url);
+bool_t vm_ota_get();
+void vm_create_otaTask();
+
 #ifdef __cplusplus
 }
 #endif

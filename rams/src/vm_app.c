@@ -1,5 +1,6 @@
 #include <std_global.h>
 #include <eventsystem.h>
+//#include <dvmdex.h>
 #include <opl_file.h>
 #include <jarparser.h>
 #include <opl_rams.h>
@@ -9,6 +10,7 @@
 #include <vm_common.h>
 #include <vm_app.h>
 #include <ams.h>
+#include <opl_es.h>
 
 /* align up to 4 bytes. */
 #define MEM_ALIGN(x) ((int32_t)((x)+3)&(~3))
@@ -416,37 +418,37 @@ void refreshInstalledApp(void)
 
 AppletProps* vm_getCurApplist(bool_t refresh)
 {
-	if(refresh)
-		refreshInstalledApp();
-	return 	appletsList;
+    if(refresh)
+        refreshInstalledApp();
+    return  appletsList;
 }
 
 AppletProps* vm_getCurActiveApp(void)
 {
-	return curActiveApp;
+    return curActiveApp;
 }
 
 void vm_clearApplist(void)
 {
-	CRTL_freeif(appletsList);	
+    CRTL_freeif(appletsList);
 }
 
 void vm_setCurActiveApp(AppletProps * app)
 {
-	curActiveApp = app;
+    curActiveApp = app;
 }
 
 void vm_setCurActiveAppState(bool_t state)
 {
-	if(curActiveApp !=NULL)
-		curActiveApp->isRunning = state;
+    if(curActiveApp !=NULL)
+        curActiveApp->isRunning = state;
 }
 
 
 /*----------------------vm op APIs-------------------------------*/
 bool_t vm_runApp(int id)
 {
-	AppletProps *pap;
+    AppletProps *pap;
     uint8_t      ackBuf[16] = {0x0};
     uint8_t     *pByte;
     bool_t       res = TRUE;
@@ -478,7 +480,7 @@ bool_t vm_runApp(int id)
         vm_setCurActiveApp(pap);
     }
     while(FALSE);
-    
+
     return res;
 }
 
@@ -525,12 +527,12 @@ bool_t vm_deleteApp(int id)
 
     } while(FALSE);
 
-	return res;
+    return res;
 }
 
 bool_t vm_destroyApp(int id)
 {
-	AppletProps *pap;
+    AppletProps *pap;
     Event        newEvt;
 
     if ((pap = getAppletPropById(id)) == NULL || !pap->isRunning)
@@ -546,7 +548,7 @@ bool_t vm_destroyApp(int id)
 
 bool_t vm_otaApp(char * url)
 {
-	bool_t res = TRUE;
+    bool_t res = TRUE;
     Event        newEvt;
     static char* argv[3];
     char * otaUrl = CRTL_malloc(CRTL_strlen(url)+1);  //memery leak
@@ -569,9 +571,92 @@ bool_t vm_otaApp(char * url)
             res = FALSE;
         }
     }else{
-		DVMTraceDbg("===not support this case now..and TODO");
-        DVM_ASSERT(0);        
+        //DVMTraceDbg("===not support this case now..and TODO");
+        //DVM_ASSERT(0);
+		vm_ota_set(TRUE,url);
     }
 
     return res;
 }
+
+
+/*----------Special ota Handle--------------*/
+//OTA
+static bool_t s_ota_hang_flag;
+static char   s_ota_addr[128];
+static ES_Mutex * s_ota_mutex;
+void vm_ota_init()
+{
+	s_ota_mutex = mutex_init();
+	DVM_ASSERT(s_ota_mutex !=NULL);
+	CRTL_memset(s_ota_addr,0,128);
+	s_ota_hang_flag = FALSE;
+}
+
+void vm_ota_final()
+{
+	mutex_destory(s_ota_mutex);
+	CRTL_memset(s_ota_addr,0,128);
+	s_ota_hang_flag = FALSE;
+}
+
+void vm_ota_set(bool_t flag,char * url)
+{
+	mutex_lock(s_ota_mutex);
+	if(flag)
+	{
+		CRTL_memset(s_ota_addr,0,128);
+		CRTL_memcpy(s_ota_addr,url,CRTL_strlen(url));		
+		s_ota_hang_flag = TRUE;
+	}
+	else
+	{
+		CRTL_memset(s_ota_addr,0,128);	
+		s_ota_hang_flag = FALSE;
+	}
+	mutex_unlock(s_ota_mutex);
+}
+
+bool_t vm_ota_get()
+{
+	mutex_lock(s_ota_mutex);
+	return 	s_ota_hang_flag;
+	mutex_unlock(s_ota_mutex);
+}
+
+void vm_create_otaTask()
+{
+	if(vm_ota_get() !=TRUE)
+	{
+		//nothing
+	}
+	else
+	{
+		uint8_t** newArgv = NULL;
+	    int32_t   newArgc = 0;
+		ClassObject* otaClass = NULL;
+		Method*      startMeth = NULL;
+	    ClassObject* dummyThreadCls = NULL;
+	    Object*      dummyThreadObj = NULL;
+	    ClassObject* strCls = NULL;
+        ArrayObject* params = NULL; 
+		StringObject* strObj= NULL;
+
+		otaClass = dvmFindClass("Ljava/net/ota/OTADownload;");
+		startMeth = dvmGetStaticMethodID(otaClass, "OTA", "([Ljava/lang/String;)V");
+	    dummyThreadCls = dvmFindClass("Ljava/lang/Thread;");
+	    dummyThreadObj = dvmAllocObject(dummyThreadCls, 0);
+	    
+        strCls = dvmFindClass("[Ljava/lang/String;");
+        params = dvmAllocArrayByClass(strCls, 1, 0);
+
+		strObj = NewStringUTF(s_ota_addr);
+    	dvmSetObjectArrayElement(params, 0, strObj);
+
+        dthread_create_params(startMeth, dummyThreadObj, params);
+
+		vm_ota_set(FALSE,NULL);
+	}
+}
+
+

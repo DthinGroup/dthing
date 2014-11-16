@@ -22,6 +22,7 @@
 #include <class.h>
 #include <gc.h>
 #include <properties.h>
+#include <vm_app.h>
 
 
 GLOBAL DVMGlobal gDvm;
@@ -34,6 +35,7 @@ GLOBAL DVMGlobal gDvm;
 LOCAL void DVM_native_init()
 {
     //file_startup();
+    vm_ota_init();
 }
 
 
@@ -46,6 +48,7 @@ LOCAL void DVM_native_init()
 LOCAL void DVM_native_final()
 {
     file_shutdown();
+    vm_ota_final();
 }
 
 
@@ -164,7 +167,7 @@ static uint8_t** processOptions(int32_t argc, const uint8_t* const argv[], int32
         }
         else
         {
-            DVMTraceErr( "Unrecognized option '%s'\n", argv[i]);
+            DVMTraceWar( "Unrecognized option '%s'\n", argv[i]);
             newArgv[j++] = argv[i];
         }
     }

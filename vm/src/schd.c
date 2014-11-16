@@ -4,6 +4,7 @@
 #include "interpApi.h"
 #include "vmTime.h"
 #include "AsyncIO.h"
+#include "vm_app.h"
 
 #ifdef DVM_LOG
 #undef DVM_LOG
@@ -306,49 +307,49 @@ void Schd_DecSleepTime(u4 bkupTime)
     deltaTime = deltaTime > (2*bkupTime) ? (g_last_tick_record = this_tick,2*bkupTime) : (g_last_tick_record = this_tick,deltaTime);
     while(tmp != NULL)
     {
-		switch(tmp->threadState)
-		{
-			case THREAD_TIME_SUSPENDED:
-			{
-				DVM_LOG("Thread %d is in sleep,deltaTime=%d\n",tmp->threadId,deltaTime);
-				tmp->sleepTime = (tmp->sleepTime > deltaTime) ? (tmp->sleepTime - deltaTime) : (tmp->threadState = THREAD_READY,0) ;
-			}
-			break;
+        switch(tmp->threadState)
+        {
+            case THREAD_TIME_SUSPENDED:
+            {
+                DVM_LOG("Thread %d is in sleep,deltaTime=%d\n",tmp->threadId,deltaTime);
+                tmp->sleepTime = (tmp->sleepTime > deltaTime) ? (tmp->sleepTime - deltaTime) : (tmp->threadState = THREAD_READY,0) ;
+            }
+            break;
 
-			case THREAD_TIMEWAIT_MONITOR_SUSPENDED:
-			{
-				//complish here
-				tmp->sleepTime = (tmp->sleepTime > deltaTime) ? (tmp->sleepTime - deltaTime) : (tmp->threadState = THREAD_TRYGET_MONITOR_SUSPENDED,0) ;
-				if(tmp->threadState == THREAD_TRYGET_MONITOR_SUSPENDED)
-				{
-					//DVM_ASSERT(0);
-					Sync_bindTryLockToMonitor(tmp,false);
-				}
-			}
-			break;
+            case THREAD_TIMEWAIT_MONITOR_SUSPENDED:
+            {
+                //complish here
+                tmp->sleepTime = (tmp->sleepTime > deltaTime) ? (tmp->sleepTime - deltaTime) : (tmp->threadState = THREAD_TRYGET_MONITOR_SUSPENDED,0) ;
+                if(tmp->threadState == THREAD_TRYGET_MONITOR_SUSPENDED)
+                {
+                    //DVM_ASSERT(0);
+                    Sync_bindTryLockToMonitor(tmp,false);
+                }
+            }
+            break;
 
-			case THREAD_ASYNCIO_SUSPENDED:
-			{
-				if(ASYNC_Signalled(tmp))
-				{
-					tmp->threadState = THREAD_READY;
-					ASYNC_SetAIOState(tmp,ASYNC_IO_DONE);
-				}
-				else if(ASYNC_AllowTimeOut(tmp))
-				{
-					tmp->sleepTime = (tmp->sleepTime > deltaTime) ? (tmp->sleepTime - deltaTime) : (tmp->threadState = THREAD_READY,0) ;
-					if(tmp->threadState == THREAD_READY)
-					{
-						ASYNC_SetAIOState(tmp,ASYNC_IO_TIMEOUT);
-					}
-				}
-				
-				
-			}
-			break;
+            case THREAD_ASYNCIO_SUSPENDED:
+            {
+                if(ASYNC_Signalled(tmp))
+                {
+                    tmp->threadState = THREAD_READY;
+                    ASYNC_SetAIOState(tmp,ASYNC_IO_DONE);
+                }
+                else if(ASYNC_AllowTimeOut(tmp))
+                {
+                    tmp->sleepTime = (tmp->sleepTime > deltaTime) ? (tmp->sleepTime - deltaTime) : (tmp->threadState = THREAD_READY,0) ;
+                    if(tmp->threadState == THREAD_READY)
+                    {
+                        ASYNC_SetAIOState(tmp,ASYNC_IO_TIMEOUT);
+                    }
+                }
 
-			default:break;
-		}
+
+            }
+            break;
+
+            default:break;
+        }
         tmp = tmp->next;
     }
 
@@ -475,6 +476,14 @@ FIND_OVER:
     return find;
 }
 
+void Schd_handleSpecial()
+{
+	//to check ota task
+	vm_create_otaTask();
+	
+	//todo
+}
+
 void Schd_SCHEDULER(void)
 {
     JValue pResult;
@@ -484,7 +493,10 @@ void Schd_SCHEDULER(void)
     while(1)
     {
     SCHD_RESTART:
-		isDvmRunning = TRUE;
+        isDvmRunning = TRUE;
+        
+        Schd_handleSpecial();
+        
         if(currentThread != NULL)
         {
             if(currentThread->threadState == THREAD_ACTIVE)
@@ -528,7 +540,7 @@ void Schd_SCHEDULER(void)
 
             if(Schd_ThreadAccountInTotal() ==0)
             {
-				isDvmRunning = FALSE;
+                isDvmRunning = FALSE;
                 goto SCHD_END;
             }
             vmtime_startTimer();
@@ -543,7 +555,7 @@ void Schd_SCHEDULER(void)
         goto SCHD_RESTART;
 
     SCHD_END:
-		isDvmRunning = FALSE;
+        isDvmRunning = FALSE;
         DVM_LOG("Schd over!\n");
         break;
     }
@@ -551,7 +563,7 @@ void Schd_SCHEDULER(void)
 
 int IsDvmRunning()
 {
-	return (int)isDvmRunning;
+    return (int)isDvmRunning;
 }
 
 /*API to interpret*/
@@ -559,3 +571,5 @@ void Schd_Interpret(Thread * self)
 {
     //
 }
+
+
