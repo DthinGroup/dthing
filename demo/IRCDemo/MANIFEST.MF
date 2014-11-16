@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+Applet-Vendor: Yarlung Software
+Applet-Version: 1.0.0
+Applet-Name: IRCDemo Applet Suite
+Dex-Location: classes.dex
+Main-Class: InfraredController

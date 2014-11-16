@@ -1,0 +1,17 @@
+. build.sh ADCDemo
+. build.sh ATCDemo
+. build.sh AudioDemo
+. build.sh COMDemo
+. build.sh DogDemo
+. build.sh GPSDemo
+. build.sh HeartDemo
+. build.sh I2CDemo
+. build.sh IRCDemo
+. build.sh IRDistanceDemo
+. build.sh JSDDemo
+. build.sh PWMDemo
+. build.sh QTDemo
+. build.sh SDIODemo
+. build.sh ShakeDemo
+. build.sh UDPDemo
+. build.sh WSDDemo
