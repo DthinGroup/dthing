@@ -3,6 +3,15 @@
 /*=========================================================================*/
 
 /* Networking porting module prototypes */
+#include <vm_common.h>
+#include <ams_remote.h>
+#include <ams_sms.h>
+#include <ams.h>
+#if defined(ARCH_ARM_SPD)
+#include <dal_time.h>
+#include <Sig_code.h>
+#include <os_api.h>
+#include <priority_app.h>
 #include <sci_service.h>
 #include <mn_api.h>
 #include <mn_error.h>
@@ -12,21 +21,11 @@
 #include <socket_types.h>
 #include <Mn_events.h>
 #include <Mn_type.h>
-#include <Sig_code.h>
-#include <os_api.h>
-#include <priority_app.h>
-//#include <opl_global.h>
-//#include <cpl_remoteControl.h>
-#include <ams_remote.h>
 #include <sfs.h>
-#include <dal_time.h>
-#include <ams_sms.h>
-#include <vm_common.h>
-#include <ams.h>
 /*=========================================================================*/
 /*======= PRIVATE DEFINITIONS =============================================*/
 /*=========================================================================*/
-#if defined(ARCH_ARM_SPD)
+
 #ifdef SMSCLOG
 #undef SMSCLOG
 #endif
