@@ -311,6 +311,7 @@ int32_t Ams_handleAllAmsEvent(Event *evt, void *userData)
     uint8_t * url =NULL;
     AmsCrtlCBFunc cbFunc = amsCrtlCBFunc[Ams_getATypeByModule(Ams_getCurCrtlModule())];
     AmsCBData amsCbData;
+    DVM_LOG("===Ams_handleRemoteAmsEvent: state:%d\n",fsm_state);
     switch (fsm_state)
     {
         case AMS_FASM_STATE_GET_LIST:
@@ -485,7 +486,7 @@ int32_t Ams_handleAllAmsEvent(Event *evt, void *userData)
            // ams_remote_sendOTAExeResult(res);
             break;
     }
-    DVM_LOG("===Ams_handleRemoteAmsEvent:not support for now\n");
+    
     return 0;
 }
 
@@ -541,7 +542,7 @@ int32_t Ams_createVMThread(DVMThreadFunc pDvmThreadProc, int argc, void* argv[])
 
 #elif defined (ARCH_ARM_SPD)
 
-    #define DTHING_VM_THREAD_STACK_SIZE     (16*1024)
+    #define DTHING_VM_THREAD_STACK_SIZE     (8*1024)
     #define DTHING_VM_THREAD_QUEUE_SIZE     (40*sizeof(uint32_t)*SCI_QUEUE_ITEM_SIZE)
     DVMTraceInf("===Ready to launch dthing vm thread!\n");
     //try to alloc java heap
@@ -582,8 +583,12 @@ int32_t Ams_createVMThread(DVMThreadFunc pDvmThreadProc, int argc, void* argv[])
                     "DthingVmQueue",
                     (g_dthing_mem_space_ptr+DTHING_VM_THREAD_STACK_SIZE),
                     DTHING_VM_THREAD_QUEUE_SIZE,
-                    SCI_AUTO_START
+                    SCI_DONT_START
                 );
+    if(PNULL != g_dthing_threadid)
+    {
+        SCI_ResumeThread(g_dthing_threadid);
+    }
 #endif
     DVMTraceInf("===Create dthing vm thread success! thread id = %d \n",g_dthing_threadid);
     return g_dthing_threadid;

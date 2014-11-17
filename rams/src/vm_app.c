@@ -563,7 +563,7 @@ bool_t vm_otaApp(char * url)
         argv[0] = "-ota";
         argv[1] = otaUrl;
         argv[2] = NULL;
-        DVMTraceInf("argv=0x%x,argv-1:%s,argv-2:%s,argv-3:%s\n",(void*)argv,argv[0],argv[1],argv[2]);
+        DVMTraceInf("===argv=0x%x,argv-1:%s,argv-2:%s,argv-3:%s\n",(void*)argv,argv[0],argv[1],argv[2]);
 
         if (Ams_createVMThread(VMThreadProc, 2, argv) < 0)
         {
@@ -571,7 +571,7 @@ bool_t vm_otaApp(char * url)
             res = FALSE;
         }
     }else{
-        //DVMTraceDbg("===not support this case now..and TODO");
+        DVMTraceDbg("===vm is running,ota:%s\n",url);
         //DVM_ASSERT(0);
 		vm_ota_set(TRUE,url);
     }
@@ -588,6 +588,7 @@ static ES_Mutex * s_ota_mutex;
 void vm_ota_init()
 {
 	s_ota_mutex = mutex_init();
+	DVMTraceDbg("===s_ota_mutex:0x%x\n",s_ota_mutex);
 	DVM_ASSERT(s_ota_mutex !=NULL);
 	CRTL_memset(s_ota_addr,0,128);
 	s_ota_hang_flag = FALSE;

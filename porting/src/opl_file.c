@@ -1053,13 +1053,13 @@ void file_startup()
 	{
 		if(file_exists(DTHING_PATH,dir_len) != FILE_RES_ISDIR)
 		{
-			DVMTraceInf("file device register:to make dir\n");
+			DVMTraceInf("===file device register:to make dir\n");
 			file_mkdir(DTHING_PATH,dir_len);
 		}
 	}
 	else
 	{
-		DVMTraceInf("file device register fail!\n");
+		DVMTraceInf("===file device register fail!\n");
 	}
 #endif	
 }
