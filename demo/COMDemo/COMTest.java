@@ -4,7 +4,7 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import jp.co.aplix.io.CommConnectionImpl;
+import iot.oem.comm.CommConnectionImpl;
 
 public class COMTest extends Applet
 {

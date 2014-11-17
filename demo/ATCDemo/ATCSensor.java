@@ -2,7 +2,7 @@ import jp.co.cmcc.event.Applet;
 import jp.co.cmcc.event.Event;
 import java.io.IOException;
 
-import jp.co.aplix.atcommand.ATCommandConnection;
+import jp.co.cmcc.atcommand.*;
 
 public class ATCSensor extends Applet {
     private static final String REPORT_SERVER_FORMAT = "http://42.121.18.62:8080/dthing/ParmInfo.action?saveDataInfo&saveType=log&parmInfo=";

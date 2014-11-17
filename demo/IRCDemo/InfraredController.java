@@ -4,7 +4,7 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import jp.co.aplix.io.CommConnectionImpl;
+import iot.oem.comm.CommConnectionImpl;
 
 public class InfraredController extends Applet {
     private static final String OPEN_CODE = "1B00A394090A20500220A8000000D0A394090A2070022000000000D0";
