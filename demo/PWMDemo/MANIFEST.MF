@@ -3,4 +3,5 @@ Applet-Vendor: Yarlung Software
 Applet-Version: 1.0.0
 Applet-Name: PWMDemo Applet Suite
 Dex-Location: classes.dex
+Created-By: dx 1.7
 Main-Class: PWMSensor
