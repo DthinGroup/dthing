@@ -5,10 +5,8 @@ import java.io.IOException;
 import java.net.ClientSocket;
 import java.net.UnknownHostException;
 
-import javax.microedition.io.Connector;
-import javax.microedition.io.Datagram;
-import javax.microedition.io.HttpConnection;
-import javax.microedition.io.UDPDatagramConnection;
+import java.net.DatagramSocket;
+import java.net.DatagramPacket;
 
 public class UDPTest extends Applet {
     private static String host = "127.0.0.1";
@@ -32,11 +30,11 @@ public class UDPTest extends Applet {
             public void run() {
                 int count = 10;
                 try {
-                    UDPDatagramConnection udpserver = (UDPDatagramConnection)Connector.open("datagram://:" + port);
+					DatagramSocket udpserver = new DatagramSocket(port);
                     while(count > 0)
                     {
                         byte[] buff = new byte[128];
-                        Datagram dgbuff = udpserver.newDatagram(buff, 128);
+ 						DatagramPacket dgbuff = new DatagramPacket(buff, 128);
                         count--;
                         reportTestInfo("UDPS", "Waiting on port " + port + "...");
                         udpserver.receive(dgbuff);
@@ -63,12 +61,6 @@ public class UDPTest extends Applet {
                 {
                     System.out.println("[" + name + "]" + content);
                 }
-
-                HttpConnection httpConn = (HttpConnection)Connector.open(reportInfo);
-                httpConn.setRequestMethod(HttpConnection.POST);
-                DataInputStream dis = httpConn.openDataInputStream();
-                dis.close();
-                httpConn.close();
             }
         }.start();
         //Client Thread
@@ -125,12 +117,6 @@ public class UDPTest extends Applet {
                 {
                     System.out.println("[" + name + "]" + content);
                 }
-
-                HttpConnection httpConn = (HttpConnection)Connector.open(reportInfo);
-                httpConn.setRequestMethod(HttpConnection.POST);
-                DataInputStream dis = httpConn.openDataInputStream();
-                dis.close();
-                httpConn.close();
             }
         }.start();
     }

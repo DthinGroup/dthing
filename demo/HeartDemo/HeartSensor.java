@@ -11,9 +11,6 @@ import java.util.TimerTask;
 
 import iot.oem.adc.ADCManager;
 
-import javax.microedition.io.Connector;
-import javax.microedition.io.HttpConnection;
-
 /**
  * 心跳传感器演示软件
  *
@@ -89,12 +86,6 @@ public class HeartSensor extends Applet {
                 if (allowLogPrint) {
                     System.out.println("[Heart][Test Result]" + content);
                 }
-
-                HttpConnection httpConn = (HttpConnection) Connector.open(reportInfo);
-                httpConn.setRequestMethod(HttpConnection.POST);
-                DataInputStream dis = httpConn.openDataInputStream();
-                dis.close();
-                httpConn.close();
             }
         }.start();
     }

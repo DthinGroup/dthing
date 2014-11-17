@@ -6,9 +6,6 @@ import java.io.IOException;
 import iot.oem.gpio.Gpio;
 import iot.oem.gpio.GpioInterruptListener;
 
-import javax.microedition.io.Connector;
-import javax.microedition.io.HttpConnection;
-
 class MyListener implements GpioInterruptListener {
 
     public void onInterrupt(Gpio arg0, int arg1, boolean arg2) {
@@ -20,7 +17,7 @@ class MyListener implements GpioInterruptListener {
 public class ShakeSensor extends Applet {
     private static final String REPORT_SERVER_FORMAT = "http://42.121.18.62:8080/dthing/ParmInfo.action?saveDataInfo&saveType=jsd&parmInfo=";
     private int vibraId = 8;
-    private static boolean allowLogOnServer = false;
+    private static boolean allowLogPrint = true;
 
     public ShakeSensor() {
       // TODO Auto-generated constructor stub
@@ -117,16 +114,9 @@ public class ShakeSensor extends Applet {
         String content = "Shake%20value%20changed%20to%20" + value;
         String reportInfo = REPORT_SERVER_FORMAT + content;
 
-        if (!allowLogOnServer)
+        if (allowLogPrint)
         {
             System.out.println("[ShakeSensor]" + content);
-            return;
         }
-
-        HttpConnection httpConn = (HttpConnection)Connector.open(reportInfo);
-        httpConn.setRequestMethod(HttpConnection.POST);
-        DataInputStream dis = httpConn.openDataInputStream();
-        dis.close();
-        httpConn.close();
     }
 }

@@ -1,16 +1,12 @@
 import jp.co.cmcc.event.Applet;
 import jp.co.cmcc.event.Event;
-import java.io.DataInputStream;
 import java.io.IOException;
 
-import javax.microedition.io.Connector;
-import javax.microedition.io.HttpConnection;
-import jp.co.aplix.atcommand.*;
-
+import jp.co.aplix.atcommand.ATCommandConnection;
 
 public class ATCSensor extends Applet {
     private static final String REPORT_SERVER_FORMAT = "http://42.121.18.62:8080/dthing/ParmInfo.action?saveDataInfo&saveType=log&parmInfo=";
-    private static boolean allowLogOnServer = true;
+    private static boolean allowLogPrint = true;
 
     public ATCSensor() {
       // TODO Auto-generated constructor stub
@@ -65,16 +61,9 @@ public class ATCSensor extends Applet {
         String content = "CMD:" + cmd + ";RET:" + response;
         String reportInfo = REPORT_SERVER_FORMAT + content;
 
-        if (!allowLogOnServer)
+        if (allowLogPrint)
         {
             System.out.println("[ATDSensor]" + content);
-            return;
         }
-
-        HttpConnection httpConn = (HttpConnection)Connector.open(reportInfo);
-        httpConn.setRequestMethod(HttpConnection.POST);
-        DataInputStream dis = httpConn.openDataInputStream();
-        dis.close();
-        httpConn.close();
     }
 }

@@ -5,9 +5,6 @@ import java.io.IOException;
 
 import iot.oem.i2c.I2CManager;
 
-import javax.microedition.io.Connector;
-import javax.microedition.io.HttpConnection;
-
 public class I2CSensor extends Applet {
     private static final int I2CBusID = 2;
     private static final int DevAddress = 0xB8;
@@ -16,7 +13,7 @@ public class I2CSensor extends Applet {
     private double Humidity;
     private static final String REPORT_SERVER_FORMAT = "http://42.121.18.62:8080/dthing/ParmInfo.action?saveDataInfo&saveType=wsd&parmInfo=";
     private static int count = 12;
-    private static boolean allowLogOnServer = false;
+    private static boolean allowLogPrint = true;
 
     public I2CSensor() {
       // TODO Auto-generated constructor stub
@@ -122,15 +119,9 @@ public class I2CSensor extends Applet {
         String content = "Humidity:" + humidity + "%25;temperature:" + temperature + "C";
         String reportInfo = REPORT_SERVER_FORMAT + content;
 
-        if (!allowLogOnServer)
+        if (allowLogPrint)
         {
             System.out.println("[I2CSensor]" + content);
-            return;
         }
-        HttpConnection httpConn = (HttpConnection)Connector.open(reportInfo);
-        httpConn.setRequestMethod(HttpConnection.POST);
-        DataInputStream dis = httpConn.openDataInputStream();
-        dis.close();
-        httpConn.close();
     }
 }

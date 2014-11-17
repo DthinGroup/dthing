@@ -4,8 +4,6 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import javax.microedition.io.Connector;
-import javax.microedition.io.HttpConnection;
 import jp.co.aplix.io.CommConnectionImpl;
 
 public class InfraredController extends Applet {
@@ -75,12 +73,6 @@ public class InfraredController extends Applet {
                 {
                   System.out.println("[" + name + "]" + content);
                 }
-
-                HttpConnection httpConn = (HttpConnection)Connector.open(reportInfo);
-                httpConn.setRequestMethod("POST");
-                DataInputStream dis = httpConn.openDataInputStream();
-                dis.close();
-                httpConn.close();
             }
         }.start();
     }

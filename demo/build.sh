@@ -25,7 +25,8 @@ cp -rf ../*.java src/
 cp -rf ../MANIFEST.MF classes/
 
 javac -d tmpclasses -bootclasspath $MIDPAPI -classpath $DVMLIB src/*.java
-preverify -classpath $MIDPAPI:$DVMLIB tmpclasses -d . tmpclasses
+#preverify -classpath $MIDPAPI:$DVMLIB tmpclasses -d . tmpclasses
+cp tmpclasses/*.class .
 jar cvfm $DEMO_NAME.jar classes/MANIFEST.MF *.class
 dx --dex --output=classes.dex $DEMO_NAME.jar
 jar cvfm $DEMO_NAME.dex.jar classes/MANIFEST.MF

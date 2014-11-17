@@ -3,9 +3,6 @@ import jp.co.cmcc.event.Event;
 import java.io.DataInputStream;
 import java.io.IOException;
 
-import javax.microedition.io.Connector;
-import javax.microedition.io.HttpConnection;
-
 import iot.oem.spk.*;
 import iot.oem.ear.*;
 
@@ -26,7 +23,7 @@ public class AudioTest extends Applet {
         new Thread() {
             private SpeakerManager speaker = null;
             private EarManager ear = null;
-            private boolean allowLogOnServer = true;
+            private boolean allowLogPrint = true;
 
             public void run() {
                 System.out.println("[AudioDemo]Start SPK/EAR test");
@@ -80,17 +77,10 @@ public class AudioTest extends Applet {
                 String content = name + ":" + msg;
                 String reportInfo = REPORT_SERVER_FORMAT + content;
 
-                if (!allowLogOnServer)
+                if (allowLogPrint)
                 {
                     System.out.println("[" + name + "]" + content);
-                    return;
                 }
-
-                HttpConnection httpConn = (HttpConnection)Connector.open(reportInfo);
-                httpConn.setRequestMethod(HttpConnection.POST);
-                DataInputStream dis = httpConn.openDataInputStream();
-                dis.close();
-                httpConn.close();
             }
         }.start();
     }

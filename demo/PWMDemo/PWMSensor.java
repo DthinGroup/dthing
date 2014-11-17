@@ -3,9 +3,6 @@ import jp.co.cmcc.event.Event;
 import java.io.DataInputStream;
 import java.io.IOException;
 
-import javax.microedition.io.Connector;
-import javax.microedition.io.HttpConnection;
-
 import iot.oem.pwm.PWMManager;
 
 public class PWMSensor extends Applet {
@@ -24,7 +21,7 @@ public class PWMSensor extends Applet {
     public void startup() {
          new Thread() {
               private PWMManager manager = null;
-              private boolean allowLogOnServer = true;
+              private boolean allowLogPrint = true;
 
               public void run() {
                 int i = 0;
@@ -69,17 +66,10 @@ public class PWMSensor extends Applet {
                   String content = "PWM:" + msg;
                   String reportInfo = REPORT_SERVER_FORMAT + content;
 
-                  if (!allowLogOnServer)
+                  if (allowLogPrint)
                   {
                       System.out.println("[PWMSensor]" + content);
-                      return;
                   }
-
-                  HttpConnection httpConn = (HttpConnection)Connector.open(reportInfo);
-                  httpConn.setRequestMethod(HttpConnection.POST);
-                  DataInputStream dis = httpConn.openDataInputStream();
-                  dis.close();
-                  httpConn.close();
               }
           }.start();
   }

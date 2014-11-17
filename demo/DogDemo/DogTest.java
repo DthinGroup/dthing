@@ -3,13 +3,11 @@ import jp.co.cmcc.event.Event;
 import java.io.DataInputStream;
 import java.io.IOException;
 
-import javax.microedition.io.Connector;
-import javax.microedition.io.HttpConnection;
-import jp.co.cmcc.watchdog.*;
+import jp.co.cmcc.watchdog.WatchDogManager;
 
 public class DogTest extends Applet {
     private static final String REPORT_SERVER_FORMAT = "http://42.121.18.62:8080/dthing/ParmInfo.action?saveDataInfo&saveType=log&parmInfo=";
-    private boolean allowLogOnServer = true;
+    private boolean allowLogPrint = true;
 
     public DogTest() {
       // TODO Auto-generated constructor stub
@@ -46,16 +44,9 @@ public class DogTest extends Applet {
         String content = name + ":" + msg;
         String reportInfo = REPORT_SERVER_FORMAT + content;
 
-        if (!allowLogOnServer)
+        if (allowLogPrint)
         {
             System.out.println("[" + name + "]" + content);
-            return;
         }
-
-        HttpConnection httpConn = (HttpConnection)Connector.open(reportInfo);
-        httpConn.setRequestMethod(HttpConnection.POST);
-        DataInputStream dis = httpConn.openDataInputStream();
-        dis.close();
-        httpConn.close();
     }
 }

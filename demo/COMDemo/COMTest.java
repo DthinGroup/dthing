@@ -3,8 +3,7 @@ import jp.co.cmcc.event.Event;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import javax.microedition.io.Connector;
-import javax.microedition.io.HttpConnection;
+
 import jp.co.aplix.io.CommConnectionImpl;
 
 public class COMTest extends Applet
@@ -67,16 +66,10 @@ public class COMTest extends Applet
             private void reportTestInfo(String name, String msg) throws IOException {
                 String content = name + ":" + msg.replace(' ', '.');
                 String reportInfo = REPORT_SERVER_FORMAT + content;
-                if (COMTest.allowLogPrint)
+                if (allowLogPrint)
                 {
                   System.out.println("[" + name + "]" + content);
                 }
-
-                HttpConnection httpConn = (HttpConnection)Connector.open(reportInfo);
-                httpConn.setRequestMethod("POST");
-                DataInputStream dis = httpConn.openDataInputStream();
-                dis.close();
-                httpConn.close();
             }
         }.start();
     }

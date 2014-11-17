@@ -9,9 +9,6 @@ import java.io.IOException;
 
 import iot.oem.adc.ADCManager;
 
-import javax.microedition.io.Connector;
-import javax.microedition.io.HttpConnection;
-
 /**
  * 红外测距传感器演示软件
  *
@@ -95,12 +92,6 @@ public class InfraredDistanceSensor extends Applet {
                 {
                     System.out.println("[IRDistance][Test Result]" + content);
                 }
-
-                HttpConnection httpConn = (HttpConnection)Connector.open(reportInfo);
-                httpConn.setRequestMethod(HttpConnection.POST);
-                DataInputStream dis = httpConn.openDataInputStream();
-                dis.close();
-                httpConn.close();
             }
         }.start();
     }

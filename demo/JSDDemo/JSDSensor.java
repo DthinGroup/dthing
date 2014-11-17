@@ -9,9 +9,6 @@ import java.io.IOException;
 
 import iot.oem.adc.ADCManager;
 
-import javax.microedition.io.Connector;
-import javax.microedition.io.HttpConnection;
-
 /**
  * 加速度传感器演示软件
  *
@@ -23,7 +20,7 @@ public class JSDSensor extends Applet {
     private static final int MAX_TEST_COUNT = 18;
     private static final String REPORT_SERVER_FORMAT = "http://42.121.18.62:8080/dthing/ParmInfo.action?saveDataInfo&saveType=jsd&parmInfo=";
     private static int count = MAX_TEST_COUNT;
-    private static boolean allowLogOnServer = false;
+    private static boolean allowLogPrint = true;
 
     public JSDSensor() {
       // TODO Auto-generated constructor stub
@@ -118,17 +115,10 @@ public class JSDSensor extends Applet {
                 String content = "JSD:%20" + value + "%20Channel:%20" + cid;
                 String reportInfo = REPORT_SERVER_FORMAT + content;
 
-                if (!allowLogOnServer)
+                if (allowLogPrint)
                 {
                     System.out.println("[JSDSensor]" + content);
-                    return;
                 }
-
-                HttpConnection httpConn = (HttpConnection)Connector.open(reportInfo);
-                httpConn.setRequestMethod(HttpConnection.POST);
-                DataInputStream dis = httpConn.openDataInputStream();
-                dis.close();
-                httpConn.close();
             }
 
             /**
@@ -142,17 +132,10 @@ public class JSDSensor extends Applet {
                 String content = "JSD:X:" + valueX + "%20Y:" + valueY;
                 String reportInfo = REPORT_SERVER_FORMAT + content;
 
-                if (!allowLogOnServer)
+                if (allowLogPrint)
                 {
                     System.out.println("[JSDSensor]" + content);
-                    return;
                 }
-
-                HttpConnection httpConn = (HttpConnection)Connector.open(reportInfo);
-                httpConn.setRequestMethod(HttpConnection.POST);
-                DataInputStream dis = httpConn.openDataInputStream();
-                dis.close();
-                httpConn.close();
             }
         }.start();
     }

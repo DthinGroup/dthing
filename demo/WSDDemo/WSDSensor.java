@@ -9,9 +9,6 @@ import java.io.IOException;
 
 import iot.oem.i2c.I2CManager;
 
-import javax.microedition.io.Connector;
-import javax.microedition.io.HttpConnection;
-
 /**
  * 温湿度传感器演示软件
  *
@@ -152,11 +149,5 @@ public class WSDSensor extends Applet {
         {
             System.out.println("[WSD][Test Result]" + content);
         }
-
-        HttpConnection httpConn = (HttpConnection)Connector.open(reportInfo);
-        httpConn.setRequestMethod(HttpConnection.POST);
-        DataInputStream dis = httpConn.openDataInputStream();
-        dis.close();
-        httpConn.close();
     }
 }

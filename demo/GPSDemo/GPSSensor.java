@@ -4,11 +4,6 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import javax.microedition.io.Connector;
-import javax.microedition.io.Datagram;
-import javax.microedition.io.DatagramConnection;
-import javax.microedition.io.HttpConnection;
-
 import jp.co.aplix.io.CommConnectionImpl;
 
 public class GPSSensor extends Applet {
@@ -23,7 +18,7 @@ public class GPSSensor extends Applet {
     private static final String UPLOAD_MESSAGE_HEAD = "B";
     private static final String UPLOAD_MESSAGE_END = "E";
     private static boolean isConnected = false;
-    private static boolean allowLogOnServer = false;
+    private static boolean allowLogPrint = true;
     private String imei;
     private String longitude;
     private String latitude;
@@ -55,8 +50,6 @@ public class GPSSensor extends Applet {
     private String nciss6;
     private int messageId;
     private boolean shakeFlag;
-    DatagramConnection conn;
-    Datagram datagram;
 
     public GPSSensor()
     {
@@ -128,13 +121,12 @@ public class GPSSensor extends Applet {
                     if (GPSSensor.isConnected == true)
                     {
                         log("read gps end..... myGpsData=" + myGpsData);
-                        sendUDPMessage(myGpsData);
 
                         try {
-              reportGPSInfo();
-            } catch (IOException e) {
-              log("failed to report GPS info with exception " + e);
-            }
+                            reportGPSInfo();
+                        } catch (IOException e) {
+                            log("failed to report GPS info with exception " + e);
+                        }
                     }
                     else
                     {
@@ -373,33 +365,6 @@ public class GPSSensor extends Applet {
         return ret;
     }
 
-    private void sendUDPMessage(String message)
-    {
-        log("sendUDPMessage message= " + message);
-        try
-        {
-            String url = UPLOAD_PROTOCOL_UDP + UPLOAD_SERVER_DEFAULT_ADDRESS + ":" + UPLOAD_SERVER_DEFAULT_PORT;
-            log("sendUDPMessage 1");
-            conn = (DatagramConnection)Connector.open(url, 3, true);
-            Thread.sleep(1000L);
-            log("sendUDPMessage 2");
-            datagram = conn.newDatagram(100);
-            log("sendUDPMessage 2.5");
-            log("sendUDPMessage 3 ");
-            datagram.setData(message.getBytes(), 0, message.length());
-            log("sendUDPMessage 4 ");
-            conn.send(datagram);
-            log("sendUDPMessage 5 ");
-            Thread.sleep(1000L);
-            conn.close();
-        }
-        catch (Exception e)
-        {
-            log("sendUDPMessage exception ");
-            e.printStackTrace();
-        }
-    }
-
     private void reportGPSInfo() throws IOException
     {
         String longitudeType = "E";
@@ -420,17 +385,10 @@ public class GPSSensor extends Applet {
         String content = longitudeType + ":" + longitude + ";" + latitudeType + ":" + latitude;
         String reportInfo = REPORT_SERVER_FORMAT + content;
 
-        if (!allowLogOnServer)
+        if (allowLogPrint)
         {
             System.out.println("[GPSSensor]" + content);
-            return;
         }
-
-        HttpConnection httpConn = (HttpConnection)Connector.open(reportInfo);
-        httpConn.setRequestMethod(HttpConnection.POST);
-        DataInputStream dis = httpConn.openDataInputStream();
-        dis.close();
-        httpConn.close();
     }
 
     private String generateMessageId()

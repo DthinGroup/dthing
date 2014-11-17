@@ -4,8 +4,6 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-import javax.microedition.io.Connector;
-import javax.microedition.io.HttpConnection;
 import javax.microedition.io.file.FileConnection;
 
 import iot.oem.sdio.*;
@@ -99,12 +97,6 @@ public class SDManager extends Applet {
                 {
                     System.out.println("[" + name + "]" + content);
                 }
-
-                HttpConnection httpConn = (HttpConnection)Connector.open(reportInfo);
-                httpConn.setRequestMethod(HttpConnection.POST);
-                DataInputStream dis = httpConn.openDataInputStream();
-                dis.close();
-                httpConn.close();
             }
         }.start();
     }

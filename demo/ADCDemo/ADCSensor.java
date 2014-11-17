@@ -25,7 +25,7 @@ public class ADCSensor extends Applet {
             private int valueOfPort0 = 0;
             private int valueOfPort7 = 0;
             private boolean reportPort0 = true;
-            private boolean allowLogOnServer = false;
+            private boolean allowLogPrint = false;
 
             public void run() {
                 System.out.println("[ADCDemo]Start ADC sensor test");
@@ -102,7 +102,7 @@ public class ADCSensor extends Applet {
                 String content = "ADC:%20" + value + "%20Channel:%20" + cid;
                 String reportInfo = REPORT_SERVER_FORMAT + content;
 
-                if (!allowLogOnServer)
+                if (allowLogPrint)
                 {
                     System.out.println("[ADCSensor]" + content);
                 }
