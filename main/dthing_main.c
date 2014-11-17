@@ -3,6 +3,8 @@
 #include <opl_es.h>
 #include "vm_common.h"
 #include <opl_net.h>
+#include <ams_sms.h>
+#include <ams.h>
 
 #if defined(ARCH_ARM_SPD)
 #include <priority_app.h>
@@ -68,6 +70,8 @@ static void Dthing_IThreadProc(int argc, void * argv)
     char * arga[2] = {"-cp","D:\\helloword.dex"};
 
     file_startup();
+	smsc_registerEvent();
+	Ams_regModuleCallBackHandler(ATYPE_SAMS,smsc_callBack);
     Opl_net_activate();
     Ams_init();
     //DVM_main(arg,arga);

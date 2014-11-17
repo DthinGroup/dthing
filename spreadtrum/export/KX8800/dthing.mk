@@ -1,13 +1,28 @@
-MINCPATH =
+MINCPATH  = chip_drv/export/inc
+MINCPATH += chip_drv/export/inc/outdated 
+MINCPATH += CAF/Interface/source/resource 
+MINCPATH += CAF/Template/include 
+MINCPATH += DAPS/source/wbxml_parser/inc 
+MINCPATH += DAPS/source/wsp_header_decoder/inc
+MINCPATH += DAPS/source/xml_expat/inc 
+MINCPATH += Base/l4/export/inc 
+MINCPATH += Base/PS/export/inc 
+MINCPATH += PARSER/export/inc 
+MINCPATH += Base/sim/export/inc 
+MINCPATH += external/juniversalchardet/include
+MINCPATH += external/juniversalchardet/c/include
+MINCPATH += BASE/myriad/h/svm_tgt
+MINCPATH += BASE/myriad/h
+MINCPATH += build/$(PROJECT)_builddir/tmp
+MINCPATH += ms_customize/export/inc
+MINCPATH += Base/layer1/export/inc
+MINCPATH += MS_Ref/export/inc
 MINCPATH += rtos/export/inc
+MINCPATH += common/export/inc/trace_id
 MINCPATH += common/export/inc
-MINCPATH += CAF/Template/include
-#MINCPATH += wre/wrekernel/include/sdk
-MINCPATH += BASE/PS/export/inc
-MINCPATH += BASE/l4/export/inc
-MINCPATH += BASE/sim/export/inc
-#MINCPATH += MSL/gas/inc
-MINCPATH += daps/export/inc
+MINCPATH += ms_customize/source/product/driver/gps/sirf
+MINCPATH += Base/atc/export/inc
+MINCPATH += Base/atc/modem/source/h
 
 MINCPATH += BASE/dthing/base/inc
 MINCPATH += BASE/dthing/porting/inc
@@ -29,7 +44,7 @@ MSRCPATH += BASE/dthing/vm
 MSRCPATH += BASE/dthing/zlib
 
 SOURCES	 = dthing_main.c \
-           ansicextend.c encoding.c leb128.c properties.c trace.c \
+           ansicextend.c encoding.c leb128.c properties.c trace.c ams_sms.c \
            Eventsystem.c jarparser.c ams.c ams_remote.c ams_utils.c vmTime.c vm_app.c \
            nativeAsyncIO.c nativeClass.c nativeFile.c nativeFileInputStream.c nativeFileOutputStream.c \
            nativeFloat.c nativeMath.c nativeNetNativeBridge.c nativeObject.c nativeOTADownload.c nativeRuntime.c \
