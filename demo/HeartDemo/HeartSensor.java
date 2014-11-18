@@ -6,8 +6,6 @@ import jp.co.cmcc.event.Applet;
 import jp.co.cmcc.event.Event;
 import java.io.DataInputStream;
 import java.io.IOException;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import iot.oem.adc.ADCManager;
 
@@ -46,10 +44,59 @@ public class HeartSensor extends Applet {
 
     public void startup() {
         //ADC采样线程
-        Timer readTimer = new Timer();
-        readTimer.schedule(new readTask(), 0, 50);
+        new Thread() {
+            private long lastScheduledTime = 0;
+            private ADCManager manager = null;
 
-        //ADC数据上报线程
+            public void run() {
+                do {
+                    long currentTime = System.currentTimeMillis();
+                    if ((currentTime - lastScheduledTime) >= 50)
+                    {
+                        lastScheduledTime = currentTime;
+                        read();
+                    }
+                } while(count > 0);
+            }
+
+            public void read() {
+                System.out.println("Starting Heart sensor read task ...");
+
+                // 创建心跳传感器实例
+                manager = ADCManager.getInstance();
+
+                if (manager == null)
+                    return;
+
+                if (count <= 0)
+                {
+                    // 销毁心跳传感器实例
+                    try {
+                        manager.destroy();
+                        this.cancel();
+                    } catch (IOException e1) {
+                        System.out.println("Heart IOException: " + e1);
+                    }
+                }
+
+                // 读取心跳数据并缓存
+                try {
+                    if (readDataCount < MAX_BUFFER_COUNT)
+                    {
+                        buffer[readDataCount] = manager.read(DEFAULT_ADC_CHANNEL);
+                        readDataCount++;
+                        count--;
+                    }
+                } catch (IllegalArgumentException e) {
+                    System.out.println("Heart IllegalArgumentException:" + e);
+                } catch (IOException e) {
+                    System.out.println("Heart IOException:" + e);
+                }
+
+                System.out.println("Exiting Heart sensor read task ...");
+            }
+        }.start();
+
         new Thread() {
             public void run() {
                 System.out.println("Starting report adc data ...");
@@ -88,46 +135,5 @@ public class HeartSensor extends Applet {
                 }
             }
         }.start();
-    }
-
-    public class readTask extends TimerTask {
-        private ADCManager manager = null;
-
-        public void run() {
-            System.out.println("Starting Heart sensor read task ...");
-
-            // 创建心跳传感器实例
-            manager = ADCManager.getInstance();
-
-            if (manager == null)
-                return;
-
-            if (count <= 0)
-            {
-                // 销毁心跳传感器实例
-                try {
-                    manager.destroy();
-                    this.cancel();
-                } catch (IOException e1) {
-                    System.out.println("Heart IOException: " + e1);
-                }
-            }
-
-            // 读取心跳数据并缓存
-            try {
-                if (readDataCount < MAX_BUFFER_COUNT)
-                {
-                    buffer[readDataCount] = manager.read(DEFAULT_ADC_CHANNEL);
-                    readDataCount++;
-                    count--;
-                }
-            } catch (IllegalArgumentException e) {
-                System.out.println("Heart IllegalArgumentException:" + e);
-            } catch (IOException e) {
-                System.out.println("Heart IOException:" + e);
-            }
-
-            System.out.println("Exiting Heart sensor read task ...");
-        }
     }
 }

@@ -2,6 +2,7 @@
 . build.sh ATCDemo
 . build.sh AudioDemo
 . build.sh COMDemo
+. build.sh HeartDemo
 . build.sh I2CDemo
 . build.sh IRCDemo
 . build.sh IRDistanceDemo
