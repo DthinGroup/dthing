@@ -73,7 +73,6 @@ public class HeartSensor extends Applet {
                     // 销毁心跳传感器实例
                     try {
                         manager.destroy();
-                        this.cancel();
                     } catch (IOException e1) {
                         System.out.println("Heart IOException: " + e1);
                     }
