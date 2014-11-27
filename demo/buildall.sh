@@ -11,3 +11,4 @@
 . build.sh QTDemo
 . build.sh ShakeDemo
 . build.sh WSDDemo
+. build.sh HelloDemo
