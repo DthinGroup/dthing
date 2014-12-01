@@ -4,8 +4,11 @@
  */
 import jp.co.cmcc.event.Applet;
 import jp.co.cmcc.event.Event;
-import java.io.DataInputStream;
+
+import java.net.http.HttpURLConnection;
+import java.net.http.URL;
 import java.io.IOException;
+import java.io.InputStream;
 
 import iot.oem.adc.ADCManager;
 
@@ -105,23 +108,6 @@ public class JSDSensor extends Applet {
             }
 
             /**
-             * @brief 上报加速度信息到指定服务器
-             * @param value 端口数据
-             * @param cid   端口ID
-             * @exception   当网络连接有问题时抛出IO异常
-             */
-            private void reportADCInfo(double value, int cid) throws IOException
-            {
-                String content = "JSD:%20" + value + "%20Channel:%20" + cid;
-                String reportInfo = REPORT_SERVER_FORMAT + content;
-
-                if (allowLogPrint)
-                {
-                    System.out.println("[JSDSensor]" + content);
-                }
-            }
-
-            /**
              * @brief 上报所有加速度信息到指定服务器
              * @param valueX X轴数据
              * @param valueY Y轴数据
@@ -136,6 +122,13 @@ public class JSDSensor extends Applet {
                 {
                     System.out.println("[JSDSensor]" + content);
                 }
+
+                URL url = new URL(reportInfo);
+                HttpURLConnection httpConn = (HttpURLConnection)url.openConnection();
+                httpConn.setRequestMethod(HttpURLConnection.POST);
+                InputStream dis = httpConn.getInputStream();
+                dis.close();
+                httpConn.disconnect();
             }
         }.start();
     }

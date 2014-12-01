@@ -46,11 +46,11 @@ public class HelloDemo extends Applet
         System.out.println("[HelloDemo] key = property2 | value = " + str2);
         Runtime.getRuntime().gc();
 
-	 try {
+	    try {
             reportTestInfo("[Hello] Test.OK");
-	 } catch (IOException  e) {
-	     System.out.println("[Hello] IOException:" + e);
-	 }
+	    } catch (IOException  e) {
+	        System.out.println("[Hello] IOException:" + e);
+	    }
     }
 
     private void reportTestInfo(String info) throws IOException {
