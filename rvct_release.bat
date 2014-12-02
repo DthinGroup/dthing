@@ -43,7 +43,7 @@ md %CURDIR%\gen\release\MS_Code\
 set DESDIR=%CURDIR%\gen\release\MS_Code
 
 REM ##Copy IDH files###
-call %EXPORT_FILE% %CURDIR% %IDHDIR%
+call %EXPORT_FILE% %CURDIR% %CURDIR%\gen\release\MS_Code
 
 REM ##Copy dthing files###
 md %DESDIR%\BASE\dthing\base\inc\
