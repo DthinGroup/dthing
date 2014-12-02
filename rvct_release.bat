@@ -1,5 +1,37 @@
 @ECHO OFF
 
+echo ########## select release version #################################
+set RELEASE=%1
+
+:SELECT_RELEASE_VERSION
+
+if "0"=="%RELEASE%" (
+  rem set IDHDIR=D:\WORK\Spreadtrum\KX8800B_CODE_UPDATE_1112\MS_Code
+  set IDHDIR=
+  set EXPORT_FILE=spreadtrum\movefile_board_kx8800.bat
+) else if "1"=="%RELEASE%" (
+  set IDHDIR=
+  set EXPORT_FILE=spreadtrum\movefile_board_12C1316.bat
+) else if "2"=="%RELEASE%" (
+  set IDHDIR=
+  set EXPORT_FILE=spreadtrum\movefile_phone.bat
+) else (
+  echo ---------------------------
+  echo [0] KX8800
+  echo [1] 12C1316
+  echo [2] Phone
+  echo ---------------------------
+  echo Please input right params and press Enter to select again..
+  SET /P RELEASE=
+  GOTO SELECT_RELEASE_VERSION
+)
+
+if ""=="%IDHDIR%" (
+  echo Please set IDHDIR in rvct_release.bat before release..
+  echo e.g. set IDHDIR=D:\WORK\Spreadtrum\KX8800B_CODE_UPDATE_1112\MS_Code
+  GOTO END
+)
+
 echo ########## gen release files ######################################
 setlocal
 
@@ -8,11 +40,10 @@ echo ##### delete old files ########################
 set CURDIR=%cd%
 rd %CURDIR%\gen\release\MS_Code\ /S /Q
 md %CURDIR%\gen\release\MS_Code\
-set DESDIR=%CURDIR%\gen\release\MS_Code\
-set IDHDIR=D:\WORK\Spreadtrum\KX8800B_CODE_UPDATE_1112\MS_Code
+set DESDIR=%CURDIR%\gen\release\MS_Code
 
 REM ##Copy IDH files###
-call spreadtrum\movefile_board_kx8800.bat %CURDIR% %IDHDIR%
+call %EXPORT_FILE% %CURDIR% %IDHDIR%
 
 REM ##Copy dthing files###
 md %DESDIR%\BASE\dthing\base\inc\
@@ -73,7 +104,7 @@ xcopy %CURDIR%\gen\rvct\libs\DthingVM.a %IDHDIR%\Third-party\dthing\  /s /h /y /
 
 echo ==============================================================
 echo ==================== copy files to IDH =======================
-xcopy %CURDIR%\gen\release\MS_Code\* %IDHDIR%\  /s /h /d /y /i
+xcopy %CURDIR%\gen\release\MS_Code\* %IDHDIR%  /s /h /d /y /i
 echo =======================copy over =============================
 
 echo ==============================================================
@@ -81,4 +112,5 @@ echo ==================== gen release over ========================
 echo Release files in %CURDIR%\gen\release\MS_Code\
 echo ==============================================================
 
+:END
 endlocal
