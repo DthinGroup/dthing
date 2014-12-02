@@ -130,7 +130,6 @@ endif
 
 endif
 
-
 ######################################################
 # Source files
 ######################################################
@@ -148,23 +147,10 @@ INCLUDES = \
 
 
 
-
-#
-# base files
-#
-VM_SOURCES = \
-    base/src/ansicextend.c \
-    base/src/encoding.c \
-    base/src/leb128.c \
-    base/src/properties.c \
-    base/src/trace.c
-
-
 #
 # main files
 #
-BIN_SOURCES = \
-    main/dthing_main.c
+BIN_SOURCES =
 
 
 #
@@ -175,28 +161,20 @@ RAMS_SOURCES = \
     rams/src/jarparser.c \
     rams/src/vm_app.c
 
+#
+# vm base files
+#
+VM_SOURCES = \
+    base/src/ansicextend.c \
+    base/src/encoding.c \
+    base/src/leb128.c \
+    base/src/properties.c \
+    base/src/trace.c
 
 #
-# core vm files
+# vm core files
 #
 VM_SOURCES += \
-    vm/impl/nativeAsyncIO.c \
-    vm/impl/nativeClass.c \
-    vm/impl/nativeFile.c \
-    vm/impl/nativeFileInputStream.c \
-    vm/impl/nativeFileOutputStream.c \
-    vm/impl/nativeFloat.c \
-    vm/impl/nativeMath.c \
-    vm/impl/nativeNetNativeBridge.c \
-    vm/impl/nativeObject.c \
-    vm/impl/nativeOTADownload.c \
-    vm/impl/nativeRuntime.c \
-    vm/impl/nativeScheduler.c \
-    vm/impl/nativeString.c \
-    vm/impl/nativeSystem.c \
-    vm/impl/nativeThread.c \
-    vm/impl/nativeThrowable.c \
-    vm/impl/nativeTimeZone.c \
     vm/init.c \
     vm/src/accesscheck.c \
     vm/src/annotation.c \
@@ -231,7 +209,34 @@ VM_SOURCES += \
     vm/src/upcall.c \
     vm/src/utfstring.c \
     vm/src/voiderr.c
+#vmTime.c build in spd
 
+#
+# vm porting files
+#
+VM_SOURCES += \
+    vm/impl/nativeAsyncIO.c \
+    vm/impl/nativeClass.c \
+    vm/impl/nativeFile.c \
+    vm/impl/nativeFileInputStream.c \
+    vm/impl/nativeFileOutputStream.c \
+    vm/impl/nativeFloat.c \
+    vm/impl/nativeMath.c \
+    vm/impl/nativeNetNativeBridge.c \
+    vm/impl/nativeObject.c \
+    vm/impl/nativeOTADownload.c \
+    vm/impl/nativeRuntime.c \
+    vm/impl/nativeScheduler.c \
+    vm/impl/nativeString.c \
+    vm/impl/nativeSystem.c \
+    vm/impl/nativeSystemInputStream.c \
+    vm/impl/nativeSystemPrintStream.c \
+    vm/impl/nativeThread.c \
+    vm/impl/nativeThrowable.c \
+    vm/impl/nativeTimeZone.c
+
+#vm/impl/nativeDouble.c \
+#vm/impl/nativeDthread.c \
 
 #
 # zlib files
@@ -253,30 +258,7 @@ ZLIB_SOURCES = \
 #
 # porting files
 #
-PORTING_SOURCES = \
-    vm/src/voiderr.c \
-    porting/src/opl_core.c \
-    porting/src/opl_es.c \
-    porting/src/opl_file.c \
-    porting/src/opl_mm.c \
-    porting/src/opl_net.c \
-    porting/src/opl_rams.c \
-    vm/impl/nativeADCManager.c \
-    vm/impl/nativeATCommandConnection.c \
-    vm/impl/nativeBatteryManager.c \
-    vm/impl/nativeEarManager.c \
-    vm/impl/nativeGpio.c \
-    vm/impl/nativeI2CManager.c \
-    vm/impl/nativeLCD.c \
-    vm/impl/nativeMicophone.c \
-    vm/impl/nativeMyMessageSender.c \
-    vm/impl/nativeMySmsConnectionThread.c \
-    vm/impl/nativePCMChannel.c \
-    vm/impl/nativePWMManager.c \
-    vm/impl/nativeSimManager.c \
-    vm/impl/nativeSpeakerManager.c \
-    vm/impl/nativeSPIManager.c \
-    vm/impl/nativeUSBConnection.c
+PORTING_SOURCES =
 
 
 #
