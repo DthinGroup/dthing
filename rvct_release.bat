@@ -9,25 +9,10 @@ set CURDIR=%cd%
 rd %CURDIR%\gen\release\MS_Code\ /S /Q
 md %CURDIR%\gen\release\MS_Code\
 set DESDIR=%CURDIR%\gen\release\MS_Code\
-set IDHDIR=D:\WORK\Spreadtrum\KX8800B_CODE_UPDATE_1112\MS_Code\
+set IDHDIR=D:\WORK\Spreadtrum\KX8800B_CODE_UPDATE_1112\MS_Code
 
 REM ##Copy IDH files###
-
-copy %CURDIR%\spreadtrum\export\KX8800\SC6530.modules  %DESDIR%\
-copy %CURDIR%\spreadtrum\export\KX8800\SC6800H.modules  %DESDIR%\
-copy %CURDIR%\spreadtrum\export\KX8800\SC8800G.modules  %DESDIR%\
-copy %CURDIR%\spreadtrum\export\KX8800\Makefile.rules  %DESDIR%\
-copy %CURDIR%\spreadtrum\export\KX8800\Makefile.third-party  %DESDIR%\
-md %DESDIR%\BASE\make\dthing\
-copy %CURDIR%\spreadtrum\export\KX8800\dthing.mk  %DESDIR%\BASE\make\dthing\
-md %DESDIR%\common\export\inc\
-copy %CURDIR%\spreadtrum\export\KX8800\priority_app.h  %DESDIR%\common\export\inc\
-md %DESDIR%\MS_Customize\source\product\config\sc6500_modem\
-copy %CURDIR%\spreadtrum\export\KX8800\sc6500_modem\os_app_cfg.c  %DESDIR%\MS_Customize\source\product\config\sc6500_modem\
-md %DESDIR%\MS_Customize\source\product\config\sc6530_modem\
-copy %CURDIR%\spreadtrum\export\KX8800\sc6530_modem\os_app_cfg.c  %DESDIR%\MS_Customize\source\product\config\sc6530_modem\
-md %DESDIR%\MS_Ref\source\base\src\
-copy %CURDIR%\spreadtrum\export\KX8800\MS_Ref\source\base\src\init.c %DESDIR%\MS_Ref\source\base\src\
+call spreadtrum\movefile_board_kx8800.bat %CURDIR% %IDHDIR%
 
 REM ##Copy dthing files###
 md %DESDIR%\BASE\dthing\base\inc\
@@ -88,7 +73,7 @@ xcopy %CURDIR%\gen\rvct\libs\DthingVM.a %IDHDIR%\Third-party\dthing\  /s /h /y /
 
 echo ==============================================================
 echo ==================== copy files to IDH =======================
-xcopy %CURDIR%\gen\release\MS_Code\* %IDHDIR%  /s /h /d /y /i
+xcopy %CURDIR%\gen\release\MS_Code\* %IDHDIR%\  /s /h /d /y /i
 echo =======================copy over =============================
 
 echo ==============================================================
