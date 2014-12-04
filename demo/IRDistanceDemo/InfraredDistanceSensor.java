@@ -4,8 +4,11 @@
  */
 import jp.co.cmcc.event.Applet;
 import jp.co.cmcc.event.Event;
-import java.io.DataInputStream;
+
+import java.net.http.HttpURLConnection;
+import java.net.http.URL;
 import java.io.IOException;
+import java.io.InputStream;
 
 import iot.oem.adc.ADCManager;
 
@@ -92,6 +95,13 @@ public class InfraredDistanceSensor extends Applet {
                 {
                     System.out.println("[IRDistance][Test Result]" + content);
                 }
+
+                URL url = new URL(reportInfo);
+                HttpURLConnection httpConn = (HttpURLConnection)url.openConnection();
+                httpConn.setRequestMethod(HttpURLConnection.POST);
+                InputStream dis = httpConn.getInputStream();
+                dis.close();
+                httpConn.disconnect();
             }
         }.start();
     }

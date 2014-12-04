@@ -1,5 +1,37 @@
 @ECHO OFF
 
+echo ########## select release version #################################
+set RELEASE=%1
+
+:SELECT_RELEASE_VERSION
+
+if "0"=="%RELEASE%" (
+  rem set IDHDIR=D:\WORK\Spreadtrum\KX8800B_CODE_UPDATE_1112\MS_Code
+  set IDHDIR=
+  set EXPORT_FILE=spreadtrum\movefile_board_kx8800.bat
+) else if "1"=="%RELEASE%" (
+  set IDHDIR=
+  set EXPORT_FILE=spreadtrum\movefile_board_12C1316.bat
+) else if "2"=="%RELEASE%" (
+  set IDHDIR=
+  set EXPORT_FILE=spreadtrum\movefile_phone.bat
+) else (
+  echo ---------------------------
+  echo [0] KX8800
+  echo [1] 12C1316
+  echo [2] Phone
+  echo ---------------------------
+  echo Please input right params and press Enter to select again..
+  SET /P RELEASE=
+  GOTO SELECT_RELEASE_VERSION
+)
+
+if ""=="%IDHDIR%" (
+  echo Please set IDHDIR in rvct_release.bat before release..
+  echo e.g. set IDHDIR=D:\WORK\Spreadtrum\KX8800B_CODE_UPDATE_1112\MS_Code
+  GOTO END
+)
+
 echo ########## gen release files ######################################
 setlocal
 
@@ -8,32 +40,17 @@ echo ##### delete old files ########################
 set CURDIR=%cd%
 rd %CURDIR%\gen\release\MS_Code\ /S /Q
 md %CURDIR%\gen\release\MS_Code\
-set DESDIR=%CURDIR%\gen\release\MS_Code\
-set IDHDIR=D:\WORK\Spreadtrum\KX8800B_CODE_UPDATE_1112\MS_Code\
+set DESDIR=%CURDIR%\gen\release\MS_Code
 
 REM ##Copy IDH files###
-
-copy %CURDIR%\spreadtrum\export\KX8800\SC6530.modules  %DESDIR%\
-copy %CURDIR%\spreadtrum\export\KX8800\SC6800H.modules  %DESDIR%\
-copy %CURDIR%\spreadtrum\export\KX8800\SC8800G.modules  %DESDIR%\
-copy %CURDIR%\spreadtrum\export\KX8800\Makefile.rules  %DESDIR%\
-copy %CURDIR%\spreadtrum\export\KX8800\Makefile.third-party  %DESDIR%\
-md %DESDIR%\BASE\make\dthing\
-copy %CURDIR%\spreadtrum\export\KX8800\dthing.mk  %DESDIR%\BASE\make\dthing\
-md %DESDIR%\common\export\inc\
-copy %CURDIR%\spreadtrum\export\KX8800\priority_app.h  %DESDIR%\common\export\inc\
-md %DESDIR%\MS_Customize\source\product\config\sc6500_modem\
-copy %CURDIR%\spreadtrum\export\KX8800\sc6500_modem\os_app_cfg.c  %DESDIR%\MS_Customize\source\product\config\sc6500_modem\
-md %DESDIR%\MS_Customize\source\product\config\sc6530_modem\
-copy %CURDIR%\spreadtrum\export\KX8800\sc6530_modem\os_app_cfg.c  %DESDIR%\MS_Customize\source\product\config\sc6530_modem\
-md %DESDIR%\MS_Ref\source\base\src\
-copy %CURDIR%\spreadtrum\export\KX8800\MS_Ref\source\base\src\init.c %DESDIR%\MS_Ref\source\base\src\
+call %EXPORT_FILE% %CURDIR% %CURDIR%\gen\release\MS_Code
 
 REM ##Copy dthing files###
 md %DESDIR%\BASE\dthing\base\inc\
 md %DESDIR%\BASE\dthing\main\
 md %DESDIR%\BASE\dthing\porting\inc
 md %DESDIR%\BASE\dthing\rams\inc
+md %DESDIR%\BASE\dthing\rams\src
 md %DESDIR%\BASE\dthing\vm\impl
 md %DESDIR%\BASE\dthing\vm\inc
 md %DESDIR%\BASE\dthing\vm
@@ -42,6 +59,7 @@ md %DESDIR%\BASE\dthing\zlib
 md %DESDIR%\BASE\dthing\vm\src
 md %DESDIR%\BASE\dthing\vm\impl
 md %DESDIR%\BASE\dthing\porting\src
+md %DESDIR%\Third-party\dthing
 
 
 copy %CURDIR%\base\inc\*.h  %DESDIR%\BASE\dthing\base\inc\
@@ -56,6 +74,11 @@ copy %CURDIR%\zlib\*.h  %DESDIR%\BASE\dthing\zlib\
 copy %CURDIR%\main\dthing_main.c  %DESDIR%\BASE\dthing\main\
 copy %CURDIR%\vm\src\vmTime.c  %DESDIR%\BASE\dthing\vm\src\
 copy %CURDIR%\porting\src\*.c  %DESDIR%\BASE\dthing\porting\src\
+
+copy %CURDIR%\rams\src\ams.c  %DESDIR%\BASE\dthing\rams\src\
+copy %CURDIR%\rams\src\ams_remote.c  %DESDIR%\BASE\dthing\rams\src\
+copy %CURDIR%\rams\src\ams_utils.c  %DESDIR%\BASE\dthing\rams\src\
+copy %CURDIR%\rams\src\ams_sms.c  %DESDIR%\BASE\dthing\rams\src\
 
 copy %CURDIR%\vm\impl\nativeADCManager.c  %DESDIR%\BASE\dthing\vm\impl\
 copy %CURDIR%\vm\impl\nativeATCommandConnection.c  %DESDIR%\BASE\dthing\vm\impl\
@@ -73,7 +96,10 @@ copy %CURDIR%\vm\impl\nativeSimManager.c  %DESDIR%\BASE\dthing\vm\impl\
 copy %CURDIR%\vm\impl\nativeSpeakerManager.c  %DESDIR%\BASE\dthing\vm\impl\
 copy %CURDIR%\vm\impl\nativeSPIManager.c  %DESDIR%\BASE\dthing\vm\impl\
 copy %CURDIR%\vm\impl\nativeUSBConnection.c  %DESDIR%\BASE\dthing\vm\impl\
+copy %CURDIR%\vm\impl\nativeCommConnectionImpl.c  %DESDIR%\BASE\dthing\vm\impl\
+copy %CURDIR%\vm\impl\nativeRawKeyPdDriver.c  %DESDIR%\BASE\dthing\vm\impl\
 
+xcopy %CURDIR%\gen\rvct\libs\DthingVM.a %DESDIR%\Third-party\dthing\  /s /h /y /i
 xcopy %CURDIR%\gen\rvct\libs\DthingVM.a %IDHDIR%\Third-party\dthing\  /s /h /y /i
 
 echo ==============================================================
@@ -86,4 +112,5 @@ echo ==================== gen release over ========================
 echo Release files in %CURDIR%\gen\release\MS_Code\
 echo ==============================================================
 
+:END
 endlocal

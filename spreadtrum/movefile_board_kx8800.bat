@@ -3,33 +3,15 @@
 echo ########## Set Dthing Porting Environment Variables ######################################
 setlocal
 
-set SRCDIR=D:\nix.long\ReDvmAll\dvm
-set DESDIR=D:\WORK\Spreadtrum\KX8800B_CODE_UPDATE_1112\MS_Code
+REM ########## TODO: check if %1 and %2 is "" #################################################
+REM ########## %1: root dir of dthing  ########################################################
+REM ########## %2: root dir of spd sdk ########################################################
+set SRCDIR=%1
+set DESDIR=%2
 
 REM ########### Auto Generated Environment Variables ##########################################
-set DTHINGDIR=%DESDIR%\BASE\dthing
+
 set EXPORT_SOURCE_ROOT=%SRCDIR%\spreadtrum\export\KX8800
-
-RMDIR /S /Q %DTHINGDIR%\
-MKDIR %DTHINGDIR%\
-
-XCOPY /R /Y %SRCDIR%\appdb\*  %DTHINGDIR%\appdb\
-XCOPY /R /Y %SRCDIR%\base\inc\*  %DTHINGDIR%\base\inc\
-XCOPY /R /Y %SRCDIR%\base\src\*  %DTHINGDIR%\base\src\
-XCOPY /R /Y %SRCDIR%\main\*  %DTHINGDIR%\main\
-XCOPY /R /Y %SRCDIR%\porting\inc\*  %DTHINGDIR%\porting\inc\
-XCOPY /R /Y %SRCDIR%\porting\src\*  %DTHINGDIR%\porting\src\
-XCOPY /R /Y %SRCDIR%\rams\inc\*  %DTHINGDIR%\rams\inc\
-XCOPY /R /Y %SRCDIR%\rams\src\*  %DTHINGDIR%\rams\src\
-XCOPY /R /Y %SRCDIR%\vm\impl\*  %DTHINGDIR%\vm\impl\
-XCOPY /R /Y %SRCDIR%\vm\inc\*  %DTHINGDIR%\vm\inc\
-XCOPY /R /Y %SRCDIR%\vm\src\*  %DTHINGDIR%\vm\src\
-XCOPY /R /Y %SRCDIR%\vm\common.h  %DTHINGDIR%\vm\
-XCOPY /R /Y %SRCDIR%\vm\dthing.h  %DTHINGDIR%\vm\
-XCOPY /R /Y %SRCDIR%\vm\init.c  %DTHINGDIR%\vm\
-XCOPY /R /Y %SRCDIR%\www\inc\*  %DTHINGDIR%\www\inc\
-XCOPY /R /Y %SRCDIR%\www\src\*  %DTHINGDIR%\www\src\
-XCOPY /R /Y %SRCDIR%\zlib\*  %DTHINGDIR%\zlib\
 
 XCOPY /R /Y %EXPORT_SOURCE_ROOT%\SC6530.modules  %DESDIR%\
 XCOPY /R /Y %EXPORT_SOURCE_ROOT%\SC6800H.modules  %DESDIR%\

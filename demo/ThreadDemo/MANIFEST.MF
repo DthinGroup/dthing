@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+Applet-Vendor: Yarlungsoft
+Applet-Version: 1.0.0
+Dex-Location: classes.dex
+Applet-Name: ThreadDemo
+Main-Class: ThreadDemo
+

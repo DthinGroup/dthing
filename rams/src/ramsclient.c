@@ -986,7 +986,7 @@ bool_t ramsClient_runApplet(int32_t id)
         argv[0] = "-run";
         argv[1] = pap->fpath;
         argv[2] = pap->mainCls;
-        DVMTraceInf("argv=0x%x,argv-1:%s,argv-2:%s,argv-3:%s\n",(void*)argv,argv[0],argv[1],argv[2]);
+        DVMTraceInf("===argv=0x%x,argv-1:%s,argv-2:%s,argv-3:%s\n",(void*)argv,argv[0],argv[1],argv[2]);
 
         if (Ams_createVMThread(VMThreadProc, 3, argv) < 0)
         {

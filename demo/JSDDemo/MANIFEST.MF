@@ -6,3 +6,4 @@ Applet-Name: JSDDemo Applet Suite
 Dex-Location: classes.dex
 Created-By: dx 1.7
 Main-Class: JSDSensor
+
