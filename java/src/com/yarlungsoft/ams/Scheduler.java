@@ -93,11 +93,13 @@ public final class Scheduler {
                 }
             } catch (Throwable t) {
                 t.printStackTrace();
+            } finally {
+                sApp = null;
             }
         }
     }
 
-    protected static Applet getCurrentRunningApp() {
+    public static Applet getCurrentRunningApp() {
         return sApp;
     }
 
@@ -108,7 +110,7 @@ public final class Scheduler {
     protected static void deregister(AppletState as) {
         sAppState = null;
     }
-    
+
     native static void reportState(int state);
     native static void reportRunningObject(Object obj);
 }

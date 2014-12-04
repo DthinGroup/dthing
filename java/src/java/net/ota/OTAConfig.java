@@ -1,6 +1,7 @@
 package java.net.ota;
 
 public class OTAConfig {
+    public static final int OTA_UNKNOWN = -1;
 	public static final int OTA_SUCCESS = 0;
 	public static final int OTA_INVALID_URL = 1;
 	public static final int OTA_IO_ERROR =2;

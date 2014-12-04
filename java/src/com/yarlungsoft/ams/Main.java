@@ -30,37 +30,42 @@ public class Main {
     private static CommandProcessor sCmdState;
 
     public static void main(String[] args) {
-    	try{
-	        for (int i = 0; i < args.length; i++) {
-	            Log.amsLog(TAG, "args[" + i + "] = " + args[i]);
-	        }
-	
-	        sCmdState = new CommandProcessor();
-	        sCmdState.setCurCmd(CommandProcessor.CMD_EXIT);
-	        sCmdState.parseCommandArgs(args);
-	
-	        switch (sCmdState.getCurCmd()) {
-	        case CommandProcessor.CMD_RUN:
-	            launchApp(sCmdState.getMainClsName());
-	            break;
-	
-	        case CommandProcessor.CMD_LIST:
-	        case CommandProcessor.CMD_INSTALL:
-	            launchAms();
-	            break;
-	            
-	        case CommandProcessor.CMD_OTA:
-	        	OTADownload ota = new OTADownload(sCmdState.getInstallURL());
-	        	ota.OTAStart();
-	        	break;
-	
-	        default:
-	        case CommandProcessor.CMD_EXIT:
-	            break;
-	        }
-    	}catch(Exception e){
-    		
-    	}
+        try {
+            for (int i = 0; i < args.length; i++) {
+                Log.amsLog(TAG, "args[" + i + "] = " + args[i]);
+            }
+
+            sCmdState = new CommandProcessor();
+            sCmdState.setCurCmd(CommandProcessor.CMD_EXIT);
+            sCmdState.parseCommandArgs(args);
+
+            switch (sCmdState.getCurCmd()) {
+            case CommandProcessor.CMD_RUN:
+                launchApp(sCmdState.getMainClsName());
+                break;
+
+            case CommandProcessor.CMD_LIST:
+            case CommandProcessor.CMD_INSTALL:
+                launchAms();
+                break;
+
+            case CommandProcessor.CMD_OTA:
+                OTADownload ota = new OTADownload(sCmdState.getInstallURL());
+                ota.OTAStart();
+                break;
+
+            case CommandProcessor.CMD_TCK:
+                TCKRunner tckrunner = new TCKRunner(sCmdState.getInstallURL());
+                tckrunner.start();
+                break;
+
+            default:
+            case CommandProcessor.CMD_EXIT:
+                break;
+            }
+        } catch (Exception e) {
+
+        }
     }
 
     protected static CommandProcessor getCmdState() {
@@ -77,14 +82,14 @@ public class Main {
         }
     }
 
-    private static void launchApp(String mClsName) {
+    public static void launchApp(String mClsName) {
         AppletContent ac = null;
         /* how to get App Name in java side? */
         ac = new AppletContent("test", mClsName);
-		try {
-			Scheduler.schedule(ac);
-		} catch (Throwable t) {
-			Log.amsLog(TAG, "launch APP failure!");
-		}
+        try {
+            Scheduler.schedule(ac);
+        } catch (Throwable t) {
+            Log.amsLog(TAG, "launch APP failure!");
+        }
     }
 }

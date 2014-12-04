@@ -24,6 +24,7 @@ public class CommandProcessor {
     public static final int CMD_INSTALL = 2;
     public static final int CMD_EXIT    = 3;
     public static final int CMD_OTA     = 4;
+    public static final int CMD_TCK     = 5;
 
     private static final String TAG = "CommandProcessor";
 
@@ -49,7 +50,7 @@ public class CommandProcessor {
     protected String getAppName() {
         return mAppName;
     }
-    
+
     protected String getMainClsName() {
     	return mClsName;
     }
@@ -76,6 +77,9 @@ public class CommandProcessor {
                 } else if ("-ota".equals(arg)) {
                 	mCurCmd = CMD_OTA;
                 	mInstallURL = args[++i];
+                } else if ("-tck".equals(arg)) {
+                    mCurCmd = CMD_TCK;
+                    mInstallURL = args[++i];
                 } else {
                     Log.amsLog(TAG, "argument:args[" + i + "]=" + args[i] + " is not exists!");
                     mCurCmd = CMD_EXIT;
