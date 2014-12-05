@@ -9,8 +9,8 @@
 #undef DVM_LOG
 #endif
 
-#define DVM_LOG DVMTraceDbg
-
+//#define DVM_LOG DVMTraceDbg
+#define DVM_LOG //
 
 Monitor * gMonitorList = NULL;
 

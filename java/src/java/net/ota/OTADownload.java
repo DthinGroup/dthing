@@ -128,7 +128,7 @@ public class OTADownload {
 
                 fs = new FileOutputStream(file, true);
                 System.out.println("Start read");
-                byte[] buffer = new byte[100];
+                byte[] buffer = new byte[3072];
                 while ((byteread = in.read(buffer)) > 0) {
                     bytesum += byteread;
                     System.out.println("Read count:" + bytesum);
