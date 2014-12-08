@@ -23,7 +23,7 @@ import java.util.Map;
 
 /*
  * nix.long 2014.07
- * Refer to: http://opengrok-cn.myriad.int:8180/masterpack/xref/tmp/harmony/jbed6/cfg/jbed6/harmony/java/net/URLConnection.java
+ * Refer to: http://opengrok-cn.myd.int:8180/masterpack/xref/tmp/harmony/myd-jvm6/cfg/myd-jvm6/harmony/java/net/URLConnection.java
  */
 
 public abstract class URLConnection {
