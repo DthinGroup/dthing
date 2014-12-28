@@ -1,9 +1,10 @@
 ################ Please update below enviroment varable #####################################
-export DVMLIB_DIR=/home/cmccclient/dthing/dvmlib
-export VMTOOL=/home/cmccclient/dthing/tools
-export WTK_ROOT=/home/cmccclient/dthing/tools/WTK2.5.2
+export ROOTDIR=/storage/auto
+export DVMLIB_DIR=$ROOTDIR/dvmlib
+export VMTOOL=$ROOTDIR/tools
+export WTK_ROOT=$ROOTDIR/tools/WTK2.5.2
 
-export PATH=$PATH:/home/cmccclient/dthing/sdk/build-tools/android-4.3
+export PATH=$PATH:$ROOTDIR/sdk/build-tools/android-4.3
 export PATH=$PATH:$WTK_ROOT/bin
 export MIDPAPI=$DVMLIB_DIR/df.jar
 export DVMLIB=$DVMLIB_DIR/df.jar

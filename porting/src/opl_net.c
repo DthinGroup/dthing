@@ -252,8 +252,7 @@ int Opl_net_startup(void)
         netId = 0;
 
         NetLog(("===Opl_net_startup - ASYNC_firstCall in"));
-        Jbed_conn_activeNetwowrk(runningId);
-        NetLog(("===net:CPL_net_startup - Jbed_conn_activeNetwowrk called"));
+
         //netUtil_pdpCallbck() should have been called before this state.
         if(netId != 0 && commonResult)
         {

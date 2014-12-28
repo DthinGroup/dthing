@@ -29,7 +29,7 @@ public class InfraredController extends Applet {
     public void startup() {
         new Thread() {
             public void run() {
-                CommConnectionImpl comm = CommConnectionImpl.getComInstance(1, 9600);
+                CommConnectionImpl comm = CommConnectionImpl.getComInstance(1, 115200);
                 try {
                     System.out.println("[IRC]Current baudrate is " + comm.getBaudRate());
 

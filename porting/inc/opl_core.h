@@ -56,7 +56,7 @@ int64_t OPL_core_getCurrentTimeMillis();
  * a suitable alternative (for example '?').
  *
  * A port is also free to completely discard all of this output, but there are
- * many classes in Jbed have a compile-time switch to print debugging
+ * many classes in myd-jvm have a compile-time switch to print debugging
  * information, and this can be a very useful debugging technique.
  *
  * @param chr the character to print

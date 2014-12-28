@@ -13,7 +13,7 @@ public class AsyncIO
     public static final int AIO_IDLE    = 0;  //idle,original state
     public static final int AIO_BUSY    = 1;  //io in progress (thread still runnable) [support?]    
     public static final int AIO_ASLEEP  = 2;  //io in progress (thread is now suspended)
-    public static final int AIO_FIRST   = 3;  //first in,used to distinguish first call,like done0 in jbed
+    public static final int AIO_FIRST   = 3;  //first in,used to distinguish first call,like done0 in myd-jvm
     public static final int AIO_DONE    = 4;  //done (io has completed)
     public static final int AIO_TIMEOUT = 5;  //like DONE, but indicates the IO timed out
     

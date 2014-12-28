@@ -11,7 +11,7 @@
 
 #define kMinStackSize       (512 + STACK_OVERFLOW_RESERVE)
 #define kDefaultStackSize   (16*1024)   /* four 4K pages */
-#define kMaxStackSize       (256*1024 + STACK_OVERFLOW_RESERVE)
+#define kMaxStackSize       (32*1024 + STACK_OVERFLOW_RESERVE)
 
 
 

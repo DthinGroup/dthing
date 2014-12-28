@@ -1,6 +1,6 @@
 package java.util;
 
-//masterpack/raw/tmp/harmony/jbed6/cfg/jbed6/harmony/java/util/StringTokenizer.java
+//masterpack/raw/tmp/harmony/myd-jvm6/cfg/myd-jvm6/harmony/java/util/StringTokenizer.java
 
 /**
  * The {@code StringTokenizer} class allows an application to break a string

@@ -18,7 +18,7 @@ public final class NetConstants {
     public static final int AI_NUMERICHOST = 0x00000004; /* prevent host name resolution */
     public static final int AI_NUMERICSERV = 0x00000008; /* prevent service name resolution */
 
-    /* net operation result as in cpl_net.h of jbed */
+    /* net operation result as in cpl_net.h of myd-jvm */
     /** General success. */
     public static final int NET_OP_SUCCESS = 0;
     /** General failure. */
