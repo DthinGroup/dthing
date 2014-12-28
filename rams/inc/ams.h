@@ -98,13 +98,15 @@ enum {
 	AMS_FASM_STATE_GET_DELETE,
 	AMS_FASM_STATE_GET_DESTROY,
 	AMS_FASM_STATE_GET_OTA,
-	
+	AMS_FASM_STATE_GET_TCK,
+
 	AMS_FASM_STATE_ACK_MASK = 0x80,//use for mask,not real state
 	AMS_FASM_STATE_ACK_LIST =0x81,
 	AMS_FASM_STATE_ACK_RUN,
 	AMS_FASM_STATE_ACK_DELETE,
 	AMS_FASM_STATE_ACK_DESTROY,
 	AMS_FASM_STATE_ACK_OTA,
+	AMS_FASM_STATE_ACK_TCK,
 };
 
 /* Remote Control Command for AMS Access */
@@ -115,6 +117,7 @@ typedef enum _RemoteCommandType
     RCMD_RUN,
     RCMD_INSTALL,
     RCMD_OTA,
+    RCMD_TCK,
     RCMD_DELETE,
     RCMD_DELETEALL,
     RCMD_DESTROY,
@@ -181,7 +184,8 @@ void Ams_listApp(AMS_TYPE_E type);
 int Ams_runApp(int id,AMS_TYPE_E type);
 int Ams_deleteApp(int id,AMS_TYPE_E type);
 int Ams_otaApp(uint8_t* url,AMS_TYPE_E type);
-int Ams_destoryApp(int id,AMS_TYPE_E type);
+int Ams_tckApp(uint8_t* url, AMS_TYPE_E type);
+int Ams_destoryApp(int id, AMS_TYPE_E type);
 
 /**
  * AMS Remote Control API

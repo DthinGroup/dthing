@@ -455,7 +455,7 @@ DexClassLookup* dexCreateClassLookup(DexFile* pDexFile)
     }
 
     DVMTraceDbg("Class lookup: classes=%d slots=%d (%d%% occ) alloc=%d"
-         " total=%d max=%d",
+         " total=%d max=%d\n",
         pDexFile->pHeader->classDefsSize, numEntries,
         (100 * pDexFile->pHeader->classDefsSize) / numEntries,
         allocSize, totalProbes, maxProbes);

@@ -41,6 +41,16 @@ public class TCKRunner extends Thread implements OTAListener {
         this.jadUrl = jadUrl;
     }
 
+    public static void launchFromNative(String[] urls) {
+        if (urls == null || urls.length == 0) {
+            log("nothing to do");
+            return;
+        }
+        log("url " + urls[0]);
+        TCKRunner tckrunner = new TCKRunner(urls[0]);
+        tckrunner.start();
+    }
+
     /**
      * Print a string to stdout if DEBUG is true, prefixed with "TCKRunner: ".
      *

@@ -480,7 +480,10 @@ void Schd_handleSpecial()
 {
 	//to check ota task
 	vm_create_otaTask();
-	
+
+    //to check tck task
+    vm_create_tckTask();
+
 	//todo
 }
 

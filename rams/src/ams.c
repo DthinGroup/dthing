@@ -226,6 +226,46 @@ int Ams_otaApp(uint8_t* url,AMS_TYPE_E type)
     return 0;
 }
 
+int Ams_tckApp(uint8_t* url, AMS_TYPE_E type)
+{
+    uint8_t idBuf[4] = { 0x0, };
+    uint8_t *pByte;
+    SafeBuffer  *safeBuf;
+    int32_t safeBufSize;
+    int32_t length;
+    Event newEvt;
+    switch (type)
+    {
+        case ATYPE_RAMS:
+        case ATYPE_SAMS:
+        case ATYPE_AAMS:
+            {
+                length = CRTL_strlen(url);
+                safeBufSize = sizeof(SafeBuffer) + length + 1;
+                safeBuf = (SafeBuffer *)CRTL_malloc(safeBufSize);
+                if (safeBuf == NULL)
+                {
+                    DVMTraceErr("Ams_tckApp ATYPE_RAMS: alloc fail\n");
+                    break;
+                }
+                CRTL_memset(safeBuf, 0x0, safeBufSize);
+
+                safeBuf->pBuf = ((uint8_t*)(safeBuf)+sizeof(SafeBuffer));
+                safeBuf->bytes = length;
+                safeBuf->buffer_free = SafeBufferFree;
+                CRTL_memcpy(safeBuf->pBuf, url, length);
+                newNormalEvent(AMS_MODULE_RAMS, AMS_FASM_STATE_GET_TCK, (void *)safeBuf, Ams_handleAmsEvent, &newEvt);
+                ES_pushEvent(&newEvt);
+            }
+            break;
+
+        case ATYPE_NAMS:
+        default:break;
+    }
+    Ams_setCurCrtlModule(type);
+    return 0;
+}
+
 int Ams_destoryApp(int id,AMS_TYPE_E type)
 {
     uint8_t idBuf[4] = {0x0,};
@@ -485,8 +525,45 @@ int32_t Ams_handleAllAmsEvent(Event *evt, void *userData)
             }
            // ams_remote_sendOTAExeResult(res);
             break;
-    }
-    
+
+        case AMS_FASM_STATE_GET_TCK:
+            if (userData != NULL)
+            {
+                data = (SafeBuffer *)userData;
+            }
+            else
+            {
+                data = (SafeBuffer *)evt->userData;
+            }
+            url = (uint8_t *)data->pBuf;
+            res = vm_tckApp(url);
+            data->buffer_free(data);
+            break;
+
+        case AMS_FASM_STATE_ACK_TCK:
+            if (userData != NULL)
+            {
+                data = (SafeBuffer *)userData;
+            }
+            else
+            {
+                data = (SafeBuffer *)evt->userData;
+            }
+            url = (uint8_t *)data->pBuf;
+            res = *((int32_t*)(data->pBuf));
+            data->buffer_free(data);
+            if (cbFunc != NULL)
+            {
+                amsCbData.cmd = RCMD_TCK;
+                amsCbData.module = Ams_getCurCrtlModule();
+                amsCbData.result = (res == 0 ? 1 : 0);
+                amsCbData.exptr = NULL;
+                cbFunc(&amsCbData);
+            }
+            // ams_remote_sendTCKExeResult(res);
+            break;
+	}
+
     return 0;
 }
 
@@ -665,6 +742,12 @@ int Ams_handleRemoteCmdSync(int cmdId, AMS_TYPE_E cmdType, int suiteId, char *da
         if (NULL != data)
         {
             result = Ams_otaApp(data, cmdType);
+        }
+        break;
+    case RCMD_TCK:
+        if (NULL != data)
+        {
+            result = Ams_tckApp(data, cmdType);
         }
         break;
     case RCMD_DELETE:
