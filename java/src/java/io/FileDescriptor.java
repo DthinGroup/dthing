@@ -27,10 +27,10 @@ package java.io;
 public final class FileDescriptor {
 
     /* FileDescriptor type IDs */
-    final static int INVALID = -1;
-    final static int STDIN = 0;
-    final static int STDOUT = 1;
-    final static int STDERR = 2;
+    static final int INVALID = -1;
+    static final int STDIN = 0;
+    static final int STDOUT = 1;
+    static final int STDERR = 2;
 
     protected int handle = -1;
     /**

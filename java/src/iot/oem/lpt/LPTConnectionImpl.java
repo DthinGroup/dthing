@@ -11,17 +11,17 @@ public class LPTConnectionImpl {
     /**
      * Access mode READ.
      */
-    public final static int READ = 1;
+    public static final int READ = 1;
 
     /**
      * Access mode WRITE.
      */
-    public final static int WRITE = 2;
+    public static final int WRITE = 2;
 
     /**
      * Access mode READ_WRITE.
      */
-    public final static int READ_WRITE = (READ | WRITE);
+    public static final int READ_WRITE = (READ | WRITE);
 
     private int baudRate;
 

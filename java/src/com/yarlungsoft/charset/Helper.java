@@ -30,7 +30,7 @@ public class Helper {
      * When matching names, ignore the case. Preserve the case in the returned
      * canonical and internal names.
      */
-    private final static String encodingMapping[] =
+    private static final String encodingMapping[] =
     {
         // Normalized historical name   Canonical name  Internal name
         "ISO_8859_1",                   "ISO8859_1",    "ISO8859_1",
