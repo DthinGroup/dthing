@@ -21,10 +21,6 @@
 #define DVM_PDP_ACTIVE_TIMEOUT_MS         (1 * 1 * 1000)
 #define DVM_RECONNECT_TIMEOUT_MS          (1 * 1 * 1000)
 
-
-#define NetLog	printf
-
-
 static int s_net_inited = FALSE;
 static int commonResult = FALSE;
 static ASYNC_Notifier * commonNotifier;
@@ -203,18 +199,19 @@ int Opl_net_activate(void)
 	WSADATA wsaData;
 	int err;
 	
-	NetLog("call Opl_net_activate");
+	DVMTraceDbg("call Opl_net_activate\n");
 	wVersionRequested = MAKEWORD( 1, 1 );
 	err = WSAStartup( wVersionRequested, &wsaData );
 	if ( err != 0 ) {
 		return OPL_NET_ERROR;
 	}
 	isActived = TRUE;
+	DVMTraceDbg("call Opl_net_activate over\n");
 #elif defined(ARCH_ARM_SPD)
-	NetLog("call Opl_net_activate");
+	SCI_TRACE_LOW("call Opl_net_activate\n");
 	net_activeNetwowrk();
+	SCI_TRACE_LOW("call Opl_net_activate over\n");
 #endif
-    NetLog("call Opl_net_activate over");
 }
 
 int Opl_net_deactivate(void)
@@ -239,7 +236,7 @@ int Opl_net_isActivated(void)
 
 int Opl_net_startup(void)
 {
-
+	DVMTraceDbg("Opl_net_startup() s_net_inited=%d\n", s_net_inited);
 	if(s_net_inited)
 	{
 		return OPL_NET_SUCCESS;
@@ -251,30 +248,31 @@ int Opl_net_startup(void)
         commonResult = FALSE;
         netId = 0;
 
-        NetLog(("===Opl_net_startup - ASYNC_firstCall in"));
+        DVMTraceDbg("===Opl_net_startup - ASYNC_firstCall in\n");
 
         //netUtil_pdpCallbck() should have been called before this state.
         if(netId != 0 && commonResult)
         {
-            NetLog(("===net:CPL_net_startup - commonResult==TRUE retrun"));
+            DVMTraceDbg("===net:CPL_net_startup - commonResult==TRUE retrun\n");
             commonResult = FALSE;
             return CPL_NET_SUCCESS;
         }
 
         
-        NetLog(("===net:CPL_net_startup - ASYNC_callAgainWhenSignalledOrTimeout called"));
+        DVMTraceDbg("===net:CPL_net_startup - ASYNC_callAgainWhenSignalledOrTimeout called\n");
         commonNotifier = Async_getCurNotifier();
-        NetLog(("===net:CPL_net_startup - ASYNC_getNotifier called"));
+        DVMTraceDbg("===net:CPL_net_startup - ASYNC_getNotifier called\n");
         ASYNC_setInvalidateFunc(netUtil_checkNotifierValidity);
-        NetLog(("===net:CPL_net_startup - ASYNC_setInvalidateFunc called"));
-        NetLog(("===net:CPL_net_startup - INFO: activeNetwork would block"));
+        DVMTraceDbg("===net:CPL_net_startup - ASYNC_setInvalidateFunc called\n");
+        DVMTraceDbg("===net:CPL_net_startup - INFO: activeNetwork would block\n");
 		*/
         AsyncIO_callAgainWhenSignalledOrTimeOut(DVM_PDP_ACTIVE_TIMEOUT_MS);
+		DVMTraceDbg("Opl_net_startup() first call return\n");
 		return OPL_NET_WOULDBLOCK;
     }
     else
     {
-        NetLog(("===CPL_net_startup - not ASYNC_firstCall in"));
+        DVMTraceDbg("Opl_net_startup() not ASYNC_firstCall in\n");
         //if (commonResult)
         {
 #ifdef ARCH_X86
@@ -302,7 +300,7 @@ int Opl_net_startup(void)
 #endif
 			s_net_inited = TRUE;
             commonResult = FALSE;
-            NetLog(("===net:CPL_net_startup - INFO: activeNetwork success!"));
+            DVMTraceDbg("Opl_net_startup() activeNetwork success!\n");
             return OPL_NET_SUCCESS;
         }
     }
@@ -315,7 +313,7 @@ int Opl_net_streamSocket()
 	sock = sci_sock_socket(AF_INET, SOCK_STREAM, 0, netId);
     if (sock <= 0)
     {
-        NetLog(("===net:CPL_net_clientSocket - ERROR: create socket fail (%d)(%d)", *sock, netId));
+        DVMTraceDbg("===net:CPL_net_clientSocket - ERROR: create socket fail (%d)(%d)\n", *sock, netId);
         //create socket failure.
         return CPL_NET_ERROR;
     }
@@ -327,7 +325,7 @@ int Opl_net_streamSocket()
 	sock = sci_sock_socket(AF_INET, SOCK_STREAM, 0,  Opl_net_getNetId());
 	sci_sock_setsockopt(sock, SO_NBIO, NULL);
 #endif
-
+	DVMTraceDbg("Opl_net_streamSocket() sock=0x%08X\n", sock);
 	return sock;
 }
 
@@ -341,7 +339,7 @@ int Opl_net_datagramSocket()
 #elif defined(ARCH_ARM_SPD)
 	sock = sci_sock_socket(AF_INET, SOCK_DGRAM, 0,  Opl_net_getNetId());
 #endif
-
+	DVMTraceDbg("Opl_net_datagramSocket() sock=0x%08X\n", sock);
 	return sock;
 }
 
@@ -354,10 +352,12 @@ int Opl_net_connect(int sock,int ip,int port,int timeout)
 	SOCKADDR_IN addrSrv;
 
 	sprintf(ipbuf,"%d.%d.%d.%d",0xff&(ip>>24),0xff&(ip>>16),0xff&(ip>>8),ip&0xff);
+	DVMTraceDbg("Opl_net_connect(0x%08X, %s, %d %d)\n", sock, ipbuf, port, timeout);
     addrSrv.sin_addr.S_un.S_addr=inet_addr(ipbuf/*"127.0.0.1"*/);//本机地址，服务器在本机开启
     addrSrv.sin_family=AF_INET;
     addrSrv.sin_port=htons(port);// 设置端口号
     ret = connect((SOCKET)sock,(SOCKADDR*)&addrSrv,sizeof(SOCKADDR));//连接服务器
+	DVMTraceDbg("Opl_net_connect() ret=%d\n", ret);
 #elif defined(ARCH_ARM_SPD)
 	struct sci_sockaddr ssa;
 	
@@ -408,8 +408,10 @@ int Opl_net_connect(int sock,int ip,int port,int timeout)
 int Opl_net_send(int sock,char * sendbuf,int count)
 {
 	int ret = 0;
+	DVMTraceDbg("Opl_net_send(0x%08X, 0x%08X, %d)\n", sock, sendbuf, count);
 #ifdef ARCH_X86	
 	ret = send((SOCKET)sock,sendbuf,count,0);
+	DVMTraceDbg("Opl_net_send() ret=%d\n", ret);
 #elif defined(ARCH_ARM_SPD)	
 	if (AsyncIO_firstCall())
 	{
@@ -456,8 +458,14 @@ int Opl_net_send(int sock,char * sendbuf,int count)
 int Opl_net_recv(int sock,char * recvbuf,int count)
 {
 	int ret = 0;
-#ifdef ARCH_X86	
+
+	DVMTraceDbg("Opl_net_recv(0x%08X, 0x%08X, %d)\n", sock, recvbuf, count);
+#ifdef ARCH_X86
 	ret = recv(sock,recvbuf,count,0);
+	if (ret == SOCKET_ERROR) {
+        DVMTraceDbg("Opl_net_recv() error=%d\n", WSAGetLastError());
+	}
+	DVMTraceDbg("Opl_net_recv() ret=%d\n", ret);
 #elif defined(ARCH_ARM_SPD)
 
 	if (AsyncIO_firstCall())
@@ -512,6 +520,7 @@ int Opl_net_recvfrom(int sock,char * recvbuf,int count,int ip,int port)
 	int len =0;
 
 	sprintf(ipbuf,"%d.%d.%d.%d",0xff&(ip>>24),0xff&(ip>>16),0xff&(ip>>8),ip&0xff);
+	DVMTraceDbg("Opl_net_recvfrom(0x%08X, 0x%08X, %d, %s, %d)\n", sock, recvbuf, count, ipbuf, port);
     addrSrv.sin_addr.S_un.S_addr=inet_addr(ipbuf/*"127.0.0.1"*/);//本机地址，服务器在本机开启
     addrSrv.sin_family=AF_INET;
     addrSrv.sin_port=htons(port);// 设置端口号	
@@ -521,7 +530,7 @@ int Opl_net_recvfrom(int sock,char * recvbuf,int count,int ip,int port)
 #elif defined(ARCH_ARM_SPD)
 	//not support now
 #endif
-
+	DVMTraceDbg("Opl_net_recvfrom() ret=%d\n", ret);
 	return ret;	
 }
 
@@ -533,6 +542,7 @@ int Opl_net_sendto(int sock,char * sendbuf,int count,int ip,int port)
 	SOCKADDR_IN addrSrv;
 
 	sprintf(ipbuf,"%d.%d.%d.%d",0xff&(ip>>24),0xff&(ip>>16),0xff&(ip>>8),ip&0xff);
+	DVMTraceDbg("Opl_net_sendto(0x%08X, 0x%08X, %d, %s, %d)\n", sock, sendbuf, count, ipbuf, port);
     addrSrv.sin_addr.S_un.S_addr=inet_addr(ipbuf/*"127.0.0.1"*/);//本机地址，服务器在本机开启
     addrSrv.sin_family=AF_INET;
     addrSrv.sin_port=htons(port);// 设置端口号	
@@ -541,18 +551,20 @@ int Opl_net_sendto(int sock,char * sendbuf,int count,int ip,int port)
 #elif defined(ARCH_ARM_SPD)
 	//not support now
 #endif
-
+	DVMTraceDbg("Opl_net_sendto() ret=%d\n", ret);
 	return ret;
 }
 
 int Opl_net_closeSocket(int socket)
 {
 	int ret =0;
+	DVMTraceDbg("Opl_net_closeSocket(0x%08X)\n", socket);
 #ifdef ARCH_X86	
 
 	ret = closesocket((SOCKET)socket);
 #elif defined(ARCH_ARM_SPD)
 	ret = sci_sock_socketclose(socket);
 #endif
+	DVMTraceDbg("Opl_net_closeSocket() ret=%d\n", ret);
 	return ret;
 }

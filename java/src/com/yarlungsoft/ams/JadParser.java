@@ -1,7 +1,6 @@
 
 package com.yarlungsoft.ams;
 
-import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -53,12 +52,10 @@ public class JadParser {
         if (fname == null || fname.length() == 0) {
             return null;
         }
-
         InputStream is = new FileInputStream(fname);
-        BufferedInputStream bis = new BufferedInputStream(is);
 
         remainder = NO_REMAINDER;
-        Reader in = new InputStreamReader(bis, "UTF-8");
+        Reader in = new InputStreamReader(is, "UTF-8");
         lineBuffer = new char[512];
         boolean firstLine = true;
         char[] separators = new char[] {':'};
@@ -73,9 +70,9 @@ public class JadParser {
              */
             // Get next line
             String line = readLine(in);
-            if (line == null)
+            if (line == null) {
                 break;
-
+            }
             if (firstLine) {
                 // The first line may include byte order mask (BOM) of the file.
                 // Ignore the potential BOM of UTF8 file as UTF-8 does not have
@@ -265,7 +262,7 @@ public class JadParser {
      * @param jarUrl
      * @return
      */
-    public static String checkSetJarUrl(String jadUrl, String jarUrl) {
+    public static String buildJarUrl(String jadUrl, String jarUrl) {
         int offset = jarUrl.indexOf("://");
         if (offset < 1 && !jarUrl.startsWith("/")) {
             offset = jadUrl.lastIndexOf('/');

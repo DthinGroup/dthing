@@ -91,7 +91,7 @@ public final class String implements CharSequence {
         this.offset = 0;
         this.value = null;
     }
-    
+
     /**
      * Converts the byte array to a string using the system's
      * {@link java.nio.charset.Charset#defaultCharset default charset}.
@@ -427,7 +427,7 @@ public final class String implements CharSequence {
      *         {@code false} otherwise.
      * @see #hashCode
      */
-    //@Override 
+    //@Override
     public boolean equals(Object object) {
     	if (this == object) {
     	    return true;
@@ -550,7 +550,7 @@ public final class String implements CharSequence {
      *
      * @return  a hash code value for this object.
      */
-    //@Override 
+    //@Override
     public int hashCode() {
         int hash = hashCode;
         if (hash == 0) {
@@ -763,7 +763,7 @@ public final class String implements CharSequence {
 
         return -1;
     }
-    
+
     /**
      * Returns an interned string equal to this string. The VM maintains an internal set of
      * unique strings. All string literals found in loaded classes'
@@ -904,13 +904,13 @@ public final class String implements CharSequence {
 
 	        if (fromIndex < 0)
 	            return -1;
-	
+
 	        if (fromIndex > (sourceCount - targetCount))
 	            fromIndex = sourceCount - targetCount;
-	
+
 	        if (targetCount == 0)
 	            return fromIndex;   // empty string matches immediately
-	
+
 	        outerloop:
 	        for (; fromIndex >= 0; fromIndex--) {
 	            for (int i = 0, so = sourceOffset + fromIndex, to = targetOffset;
@@ -925,7 +925,7 @@ public final class String implements CharSequence {
 	        return -1;
 
     }
-    
+
     /**
      * Returns the size of this string.
      *
@@ -1486,13 +1486,8 @@ public final class String implements CharSequence {
         return regionMatches(0, cs.toString(), 0, len);
     }
 
-
 	//@Override
 	public CharSequence subSequence(int start, int end) {
 		return this.substring(start, end);
-	}
-	
-	public boolean isEmpty() {
-		return 0 == count;
 	}
 }

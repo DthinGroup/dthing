@@ -1,36 +1,30 @@
 package java.net.http;
 
-
-
-import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.ProtocolException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 import java.util.StringTokenizer;
 import java.util.Map.Entry;
 
+import com.yarlungsoft.util.Log;
+import com.yarlungsoft.util.TextUtils;
 
+public class HttpURLConnection extends URLConnection {
+    private static final String TAG = "HttpURLConnection";
 
-public class HttpURLConnection extends URLConnection{
-	private static boolean DEBUG = true; 
-	
-	public final static String GET 	= "GET";
-	public final static String POST = "POST";
-	public final static String HEAD = "HEAD";
-	public final static String OPTIONS 	= "OPTIONS";
-	public final static String PUT 		= "PUT";
-	public final static String DELETE 	= "DELETE";
-	public final static String TRACE 	= "TRACE";
-	
-	// 2XX: generally "OK"
+    public final static String GET = "GET";
+    public final static String POST = "POST";
+    public final static String HEAD = "HEAD";
+    public final static String OPTIONS = "OPTIONS";
+    public final static String PUT = "PUT";
+    public final static String DELETE = "DELETE";
+    public final static String TRACE = "TRACE";
+
+    // 2XX: generally "OK"
     // 3XX: relocation/redirect
     // 4XX: client error
     // 5XX: server error
@@ -208,410 +202,392 @@ public class HttpURLConnection extends URLConnection{
      * Numeric status code, 505: Version not supported
      */
     public final static int HTTP_VERSION = 505;
-	
-	
-	
-	private static final String SP =" ";
-	private static final String CRLF = "\r\n";
-	private static final String HTTP = "HTTP/1.1"; 
-	private static final String KV_SEGM = ": ";
-	private static final String[] methods = {
-	    "GET", "POST", "HEAD", "OPTIONS", "PUT", "DELETE", "TRACE"};
-	//connected is in URLConnection
-	
-	private String method = "GET";
-	
-	private volatile boolean isRequested = false;
-	
-	private int responseCode =-1;
-	private String responseHttp;	
-	private String responseMessage;
-	
-	private ByteArrayOutputStream userOutput;
-	private Socket socket;
-	private InputStream socketIn;
-	private OutputStream socketOut;
-	private InetSocketAddress socketAddress =null;
-	
-	protected HttpURLConnection(URL url) {
-		super(url);
-		socketIn = null;
-		socketOut =null;
-		connected = false;
-		isRequested = false;
-		userOutput = new ByteArrayOutputStream();
-	}
 
-	//@Override
-	public void connect() throws IOException {
-		System.out.println("test point 1");
-		if(connected)
-			return;
-		System.out.println("test point 2");
-		int port = url.getPort();
-		System.out.println("test point 3");
-		if(port ==-1)
-			port = getDefaultPort();
-		System.out.println("test point 4,port:" + port);
-		try{
-			socketAddress = new InetSocketAddress(url.getHost(),port);
-			System.out.println("test point 5,socketAddress:" + socketAddress);
-		}catch(Exception e){
-			System.out.println("test point 6");
-			throw new IOException("Create socket fail!");
-		}
-		System.out.println("test point 7");
-		socket = new Socket();
-		System.out.println("test point 8");
-		//socket.setSoTimeout(connectTimeout);
-		System.out.println("test point 9");
-		socket.connect(socketAddress);
-		System.out.println("test point 10");
-		socketIn = socket.getInputStream();
-		System.out.println("test point 11");
-		socketOut = socket.getOutputStream();
-		System.out.println("test point 12");
+    private static final String SP = " ";
+    private static final String CRLF = "\r\n";
+    private static final String HTTP = "HTTP/1.0";
+    private static final String KV_SEGM = ": ";
+    private static final String[] methods = {GET, POST, HEAD, OPTIONS, PUT, DELETE, TRACE};
 
-		connected = true;
-	}
+    // connected is in URLConnection
 
-	//@Override
-	public InputStream getInputStream() throws IOException {
-		if(!doInput){
-			throw new IOException("Can't get inPut stream!");
-		}
-		connect();
-		doRequest();
-		return socketIn;
-	}
+    private String method = GET;
 
-	//@Override
-	public OutputStream getOutputStream() throws IOException {
-		if(!doOutput){
-			throw new IOException("Can't get outputStream if doOutput=false - call setDoOutput(true)");
-		}
-		if(isRequested){
-			throw new IOException("Cannot write output after reading input");
-		}
-		
-		return userOutput;
-	}
+    private volatile boolean isRequested = false;
 
-	//@Override
-	public int getDefaultPort() {
-		return 80;
-	}
-	
-	private int getPort(){
-		if(url.getPort() >0)
-			return url.getPort();
-		return getDefaultPort();
-	}
+    private int responseCode = -1;
+    private String responseHttp;
+    private String responseMessage;
 
-	
-	
-	private void doRequest() throws IOException
-	{
-		String requestHeader ;
-		String responseHeader ;
-		if(!connected){
-			throw new IOException("Socket not connected!");
-		}
-		
-		if(isRequested){
-			return;
-		}
-		
-		// HTTP 1/1 requests require the Host header to
-		// distinguish virtual host locations.
-		if(!requestProperties.containsKey("Host")){
-			List<String> arlist = (List<String>) new ArrayList<String>();
-			arlist.add((url.getHost() + ':') + getPort());
-			requestProperties.put("Host", arlist);
-		}
-		if(!requestProperties.containsKey("User-Agent")){
-			List<String> arlist = (List<String>) new ArrayList<String>();
-			arlist.add("DthingClient/0.1");
-			requestProperties.put("User-Agent", arlist);
-		}
+    private ByteArrayOutputStream userOutput;
+    private Socket socket;
+    private InputStream socketIn;
+    private OutputStream socketOut;
+    private InetSocketAddress socketAddress = null;
 
-		byte[] userarr= userOutput.toByteArray();
-		int len = 0;
-		if(userarr != null && userarr.length >0){
-			len = userarr.length;			
-		}
-		List<String> arlist = (List<String>) new ArrayList<String>();
-		arlist.add(""+len);
-		requestProperties.put("Content-Length", arlist);
-		
-		requestHeader = getRequestHeaderStr();		
-		socketOut.write(requestHeader.getBytes());
-		if(userarr != null && userarr.length >0){
-			socketOut.write(userarr);			
-			socketOut.write(CRLF.getBytes());
-		}
-		socketOut.write(CRLF.getBytes());
-		
-
-		//write user stream
-		responseHeader = ReadHeader(socketIn);
-		if(responseHeader.isEmpty()){
-			throw new IOException("Request header fail");
-		}
-		parseRequestheader(responseHeader);
-
-		if(DEBUG)
-			System.out.println("Body:");
-		isRequested = true;
-	}
-
-	private String getRequestStatusLine()
-	{
-		String line = method;
-		line += SP;
-
-		if(url.getPath() == null ||url.getPath().isEmpty()){
-			line += "/";
-		}else{
-			line += url.getPath();
-		}
-		if(url.getRef() !=null){
-			line += "#" + url.getRef();
-		}
-		if(url.getQuery() !=null){
-			line += "?" + url.getQuery();
-		}
-		line += SP + HTTP + CRLF;
-		
-		if(DEBUG)
-			System.out.println("Http Status line:"+line);
-		return  line;
-	}
-	
-	private String getRequestHeaderStr()
-	{
-		StringBuffer header = new StringBuffer(getRequestStatusLine());
-		for (Entry<String, List<String>> next : this.requestProperties.entrySet()) {
-			String key = next.getKey();
-			String value = next.getValue().get(0);
-			header.append(key).append(KV_SEGM).append(value).append(CRLF);
-		}
-		header.append(CRLF);
-		
-		if(DEBUG)
-			System.out.print("http header:\n" + header.toString()+"\n");
-		return header.toString();
-	}
-	
-
-	private String ReadHeader(InputStream is) throws IOException {
-        String ClientMessage = "";
-        String line;
-
-        BufferedReader bRead = new BufferedReader(new InputStreamReader(socketIn));
-        while(null != (line = bRead.readLine()) && !line.isEmpty()){
-        	ClientMessage += line + CRLF;
-        }
-        if(DEBUG)
-        	System.out.println("Response header:" +ClientMessage);
-        
-        /*
-        
-
-        byte[] aread = new byte[32];
-        int length =0;
-        
-        try{
-        while(0< (length = socketIn.read(aread))){
-        	System.out.print("" + new String(aread));
-        	aread = new byte[32];
-        }
-        }catch(Exception e){
-        	throw new IOException("read exception");
-        }
-		*/
-        return ClientMessage;
+    protected HttpURLConnection(URL url) {
+        super(url);
+        socketIn = null;
+        socketOut = null;
+        connected = false;
+        isRequested = false;
+        userOutput = new ByteArrayOutputStream();
     }
 
-	private void parseRequestheader(String header) throws IOException
-	{
-		StringTokenizer st = new StringTokenizer(header,CRLF);
-		int i=0;
-		if(st.countTokens() <=0){
-			throw new IOException("parse header fail!");
-		}
-		String head[] = new String[st.countTokens()];
-		while(st.hasMoreElements()){
-			head[i++] = st.nextToken();
-		}
-		//status line
-		st = new StringTokenizer(head[0],SP);
-		
-		responseHttp = st.nextToken().trim();
-		responseCode = Integer.parseInt(st.nextToken().trim());
-		responseMessage = "";
-		while(st.hasMoreElements()){
-			responseMessage += st.nextToken()+SP;
-		}
-		responseMessage.trim();
-
-		if(DEBUG){
-			System.out.println("Response Http:" + responseHttp);
-			System.out.println("Response Code:" + responseCode);
-			System.out.println("Response Message:" + responseMessage);
-		}
-		String key,val;
-		for(i=1;i<head.length;i++){
-			key = head[i].substring(0, head[i].indexOf(KV_SEGM)).trim();
-			val = head[i].substring(head[i].indexOf(KV_SEGM) + KV_SEGM.length()).trim();
-			List<String> list = (List<String>) new ArrayList<String>();
-			list.add(val);
-			this.responseProperties.put(key, list);
-			if(DEBUG){
-				System.out.println("Response key:" + key + "  val:" +val);				
-			}
-		}
-		
-		/*
-		String head[] = header.split(CRLF);
-		String statusLine[] = head[0].split(SP,3); 
-		responseHttp = statusLine[0];
-		responseCode = Integer.parseInt(statusLine[1]);
-		responseMessage = statusLine[2];
-		for(i=1;i<head.length;i++){
-			String kv[] = head[i].split(KV_SEGM);
-			List<String> list = new ArrayList<String>();
-			list.add(kv[1]);
-			this.responseProperties.put(kv[0], list);
-		}
-		*/
-	}
-
-	//support public
-	public void disconnect() {
-		
-		try {
-			if(socketIn!=null){
-				socketIn.close();
-				socketIn = null;
-			}
-			if(socketOut!=null){				
-				socketOut.close();				
-				socketOut = null;
-			}
-			if(socket!=null){
-				socket.close();
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		connected = false;
-		isRequested = false;
-		this.requestProperties.clear();
-		this.responseProperties.clear();
-	}
-	
-	public InputStream getErrorStream() {
-		return null;
-	}
-	
-	public static boolean getFollowRedirects(){
-		return false;
-	}
-	
-	public static void setFollowRedirects(boolean set){
-		
-	}
-	
-	//@Override
-	public String getHeaderField(int n) {
-		if(n<0 || n >= responseProperties.size()){
-			return null;
-		}
-		int i=0;
-		Iterator<Entry<String, List<String>>> iter = responseProperties.entrySet().iterator();
-		while(iter.hasNext()){
-			
-			if(n==i){
-				List<String> lstr = iter.next().getValue();
-				return lstr.get(0);
-			}
-			else{
-				iter.next();
-			}
-			i++;
-		}
-		return null;
-	}
-	
-	//@Override
-	public String getHeaderField(String name) {
-    	if(this.responseProperties.containsKey(name)){
-    		List<String> lstr = responseProperties.get(name);
-    		return lstr.get(0);
-    	}
-    	return null;
+    // @Override
+    public void connect() throws IOException {
+        Log.netLog(TAG, "connect() begin");
+        if (connected) {
+            Log.netLog(TAG, "connect() already connected, return");
+            return;
+        }
+        Log.netLog(TAG, "connect() start connect");
+        int port = getPort();
+        Log.netLog(TAG, "connect() port=" + port);
+        try {
+            Log.netLog(TAG, "connect() set socketAddress");
+            socketAddress = new InetSocketAddress(url.getHost(), port);
+            Log.netLog(TAG, "connect() socketAddress:" + socketAddress);
+        } catch (Exception e) {
+            Log.netLog(TAG, "connect() set socketAddress failed:" + e);
+            throw new IOException("Create socket fail!");
+        }
+        Log.netLog(TAG, "connect() set socket");
+        socket = new Socket();
+        Log.netLog(TAG, "connect() socket:" + socket);
+        // socket.setSoTimeout(connectTimeout);
+        Log.netLog(TAG, "connect() before socket.connect(socketAddress)");
+        socket.connect(socketAddress);
+        Log.netLog(TAG, "connect() after socket.connect(socketAddress)");
+        socketIn = socket.getInputStream();
+        Log.netLog(TAG, "connect() socketIn:" + socketIn);
+        socketOut = socket.getOutputStream();
+        Log.netLog(TAG, "connect() socketOut:" + socketOut);
+        connected = true;
+        Log.netLog(TAG, "connect() end");
     }
-	
-	public long getHeaderFieldDate(String name,long Default){
-		return Default;
-	}
-	
-	public String getHeaderFieldKey(int n){
-		return null;
-	}
-	
-	public boolean getInstanceFollowRedirects(){
-		return false;
-	}
-	
-	public void setInstanceFollowRedirects(){
-		
-	}
 
-	public int getResponseCode() throws IOException{
-		if(isRequested){
-			return responseCode;
-		}
-		getInputStream();
-		return responseCode;
-	}
-	
-	public String getResponseMessage() throws IOException{
-		if(isRequested){
-			return responseMessage;
-		}
-		getInputStream();
-		return responseMessage;
-	}
-	
-	public void setChunkedStreamingMode(int chunklen){
-		throw new IllegalStateException("not support setChunkedStreamingMode for now!");
-	}
-	
-	public void setFixedLengthStreamingMode(int contentlen){
-		throw new IllegalStateException("not support setFixedLengthStreamingMode for now!");
-	}
+    // @Override
+    public InputStream getInputStream() throws IOException {
+        if (!doInput) {
+            throw new IOException("Can't get inPut stream!");
+        }
+        connect();
+        doRequest();
+        return socketIn;
+    }
 
-	public void setRequestMethod(String method) throws ProtocolException {
-		if (connected) {
-		    throw new ProtocolException("Can't reset method: already connected");
-		}
+    // @Override
+    public OutputStream getOutputStream() throws IOException {
+        if (!doOutput) {
+            throw new IOException("Can't get outputStream if doOutput=false - call setDoOutput(true)");
+        }
+        if (isRequested) {
+            throw new IOException("Cannot write output after reading input");
+        }
 
-		for (int i = 0; i < methods.length; i++) {
-		    if (methods[i].equals(method)) {
-		    	this.method = method;
-		    	return;
-		    }
-		}
-		throw new ProtocolException("Invalid HTTP method: " + method);
-	}
-	
-	public String getRequestMethod() {
-		return method;
-	}
-	
-	//not support
-	//public Permission getPermission(){}
-	//public abstract boolean usingProxy(){}
+        return userOutput;
+    }
+
+    // @Override
+    public int getDefaultPort() {
+        return 80;
+    }
+
+    private int getPort() {
+        if (url.getPort() >= 0) {
+            return url.getPort();
+        }
+        return getDefaultPort();
+    }
+
+    private void doRequest() throws IOException {
+        if (!connected) {
+            throw new IOException("Socket not connected!");
+        }
+
+        if (isRequested) {
+            return;
+        }
+
+        // HTTP 1/1 requests require the Host header to
+        // distinguish virtual host locations.
+        if (!requestProperties.containsKey("Host")) {
+            requestProperties.put("Host", url.getHost() + ":" + getPort());
+        }
+        if (!requestProperties.containsKey("User-Agent")) {
+            requestProperties.put("User-Agent", "DthingClient/0.1");
+        }
+
+        int userDataLen = 0;
+        byte[] userData = null;
+        if (method.equals(PUT) || method.equals(POST)) {
+            userData = userOutput.toByteArray();
+            if (userData != null && userData.length > 0) {
+                userDataLen = userData.length;
+            }
+            requestProperties.put("Content-Length", String.valueOf(userDataLen));
+        }
+
+        String requestHeader = getRequestHeaderStr();
+        socketOut.write(requestHeader.getBytes());
+        if (userDataLen > 0 && userData != null) {
+            socketOut.write(userData);
+            socketOut.write(CRLF.getBytes());
+        }
+        socketOut.write(CRLF.getBytes());
+        socketOut.flush();
+
+        // read HTTP response
+        String responseHeader = readHeader();
+        if (TextUtils.isEmpty(responseHeader)) {
+            throw new IOException("Request header fail");
+        }
+        parseHeader(responseHeader);
+
+        Log.netLog(TAG, "doRequest() end");
+        isRequested = true;
+    }
+
+    private void getRequestStatusLine(StringBuffer buf) {
+        buf.append(method).append(SP);
+
+        if (TextUtils.isEmpty(url.getPath())) {
+            buf.append('/');
+        } else {
+            buf.append(url.getPath());
+        }
+        if (url.getRef() != null) {
+            buf.append('#').append(url.getRef());
+        }
+        if (url.getQuery() != null) {
+            buf.append('?').append(url.getQuery());
+        }
+        buf.append(SP).append(HTTP).append(CRLF);
+        Log.netLog(TAG, "Http Status line:" + buf);
+    }
+
+    private String getRequestHeaderStr() {
+        StringBuffer header = new StringBuffer();
+        getRequestStatusLine(header);
+        for (Entry<String, String> entry : requestProperties.entrySet()) {
+            String key = entry.getKey();
+            String value = entry.getValue();
+            header.append(key).append(KV_SEGM).append(value).append(CRLF);
+        }
+        header.append(CRLF);
+
+        Log.netLog(TAG, "http header:\n" + header.toString());
+        return header.toString();
+    }
+
+    private String readHeader() throws IOException {
+        StringBuffer buf = new StringBuffer();
+        int l = 0;
+        int c = -1;
+        while ((c = socketIn.read()) != -1) {
+            buf.append((char) c);
+
+            l = buf.length();
+            if (l > 3 && buf.charAt(l - 4) == '\r' && buf.charAt(l - 3) == '\n' && buf.charAt(l - 2) == '\r'
+                && buf.charAt(l - 1) == '\n') {
+                // reach HTTP response header end
+                break;
+            }
+        }
+        Log.netLog(TAG, "readHeader() header:" + buf);
+        return buf.toString();
+    }
+
+    private void parseHeader(String header) throws IOException {
+        Log.netLog(TAG, "parseHeader() header=" + header);
+
+        if (TextUtils.isEmpty(header)) {
+            throw new IOException("parse empty header");
+        }
+
+        StringTokenizer st = new StringTokenizer(header, CRLF);
+        int tkCnt = st.countTokens();
+        if (tkCnt <= 0) {
+            throw new IOException("parse header fail!");
+        }
+
+        int i = 0;
+        String head[] = new String[tkCnt];
+        while (st.hasMoreTokens()) {
+            head[i++] = st.nextToken();
+        }
+
+        responseMessage = "";
+        int pos = head[0].indexOf(SP);
+        if (pos == -1) {
+            Log.netLog(TAG, "parseHeader() no space in response status line");
+            responseHttp = head[0].trim();
+        } else {
+            Log.netLog(TAG, "parseHeader() first space in response status line:" + pos);
+            responseHttp = head[0].substring(0, pos).trim();
+            int p = pos + SP.length();
+            pos = head[0].indexOf(SP, p);
+            Log.netLog(TAG, "parseHeader() second space in response status line:" + pos);
+            if (pos != -1) {
+                try {
+                    responseCode = Integer.parseInt(head[0].substring(p, pos).trim());
+                } catch (NumberFormatException e) {
+                    Log.netLog(TAG, "parseHeader() fail to parse responseCode:" + e);
+                }
+
+                p = pos + SP.length();
+                if (p < head[0].length()) {
+                    responseMessage = head[0].substring(p).trim();
+                }
+            }
+        }
+
+        Log.netLog(TAG, "Response Http:" + responseHttp);
+        Log.netLog(TAG, "Response Code:" + responseCode);
+        Log.netLog(TAG, "Response Message:" + responseMessage);
+
+        String key, val;
+        pos = -1;
+        for (i = 1; i < head.length; i++) {
+            pos = head[i].indexOf(KV_SEGM);
+            if (pos == -1) {
+                Log.netLog(TAG, "illegal response header [" + i + "]:" + head[i]);
+                key = head[i].trim();
+                val = "";
+            } else {
+                Log.netLog(TAG, "response header [" + i + "]:" + head[i]);
+                key = head[i].substring(0, pos).trim();
+                val = head[i].substring(pos + KV_SEGM.length()).trim();
+            }
+            responseProperties.put(key, val);
+            Log.netLog(TAG, "response key:" + key + "  val:" + val);
+        }
+    }
+
+    // support public
+    public void disconnect() {
+        try {
+            if (socketIn != null) {
+                socketIn.close();
+                socketIn = null;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        try {
+            if (socketOut != null) {
+                socketOut.close();
+                socketOut = null;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        try {
+            if (socket != null) {
+                socket.close();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        connected = false;
+        isRequested = false;
+        requestProperties.clear();
+        responseProperties.clear();
+    }
+
+    public InputStream getErrorStream() {
+        return null;
+    }
+
+    public static boolean getFollowRedirects() {
+        return false;
+    }
+
+    public static void setFollowRedirects(boolean set) {
+    }
+
+    // @Override
+    public String getHeaderField(int idx) {
+        if (idx < 0 || idx >= responseProperties.size()) {
+            return null;
+        }
+
+        int i = 0;
+        for (Entry<String, String> entry : responseProperties.entrySet()) {
+            if (i == idx) {
+                return entry.getValue();
+            }
+            i++;
+        }
+        return null;
+    }
+
+    // @Override
+    public String getHeaderField(String name) {
+        return responseProperties.get(name);
+    }
+
+    public long getHeaderFieldDate(String name, long Default) {
+        Log.netLog(TAG, "getHeaderFieldDate() not supported yet!");
+        return Default;
+    }
+
+    public String getHeaderFieldKey(int n) {
+        Log.netLog(TAG, "getHeaderFieldKey() not supported yet!");
+        return null;
+    }
+
+    public boolean getInstanceFollowRedirects() {
+        return false;
+    }
+
+    public void setInstanceFollowRedirects() {
+    }
+
+    public int getResponseCode() throws IOException {
+        if (isRequested) {
+            return responseCode;
+        }
+        getInputStream();
+        return responseCode;
+    }
+
+    public String getResponseMessage() throws IOException {
+        if (isRequested) {
+            return responseMessage;
+        }
+        getInputStream();
+        return responseMessage;
+    }
+
+    public void setChunkedStreamingMode(int chunklen) {
+        throw new IllegalStateException("not support setChunkedStreamingMode for now!");
+    }
+
+    public void setFixedLengthStreamingMode(int contentlen) {
+        throw new IllegalStateException("not support setFixedLengthStreamingMode for now!");
+    }
+
+    public void setRequestMethod(String method) throws ProtocolException {
+        if (connected) {
+            throw new ProtocolException("Can't reset method: already connected");
+        }
+
+        for (int i = 0; i < methods.length; i++) {
+            if (methods[i].equals(method)) {
+                this.method = method;
+                return;
+            }
+        }
+        throw new ProtocolException("Invalid HTTP method: " + method);
+    }
+
+    public String getRequestMethod() {
+        return method;
+    }
+
+    // not support
+    // public Permission getPermission(){}
+    // public abstract boolean usingProxy(){}
 }
