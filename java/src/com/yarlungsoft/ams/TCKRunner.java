@@ -91,7 +91,7 @@ public class TCKRunner extends Thread implements OTAListener {
             Log.amsLog(TAG, "installing from " + url + " (try " + (tries + 1) + "/"
                             + TRIES_FOR_TEST_FINISHED + ")");
 
-            ota = new OTADownload(jadUrl);
+            ota = new OTADownload(url);
             ota.setListener(this);
 
             synchronized (lock) {

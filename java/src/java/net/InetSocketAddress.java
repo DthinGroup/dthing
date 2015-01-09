@@ -124,7 +124,7 @@ public class InetSocketAddress extends SocketAddress {
      */
     // @Override
     public String toString() {
-        return ((addr != null) ? addr.toString() : hostname) + ":" + port;
+        return ((addr != null) ? addr.toString() : hostname) + ", port:" + port;
     }
 
     /**
