@@ -87,7 +87,7 @@ public class PlainDatagramSocketImpl extends DatagramSocketImpl {
         DatagramPacket packet = new DatagramPacket(EmptyArray.BYTE, 0);
         int result = peekData(packet);
         // Note: evil side-effect on InetAddress! This method should have returned InetSocketAddress!
-        sender.ipaddress = packet.getAddress().getAddress();
+        sender.ipAddress = packet.getAddress().getAddress();
         return result;
     }
 

@@ -114,7 +114,7 @@ public class OTADownload {
                 int leng = uConn.getContentLength();
                 FileOutputStream fs = null;
 
-                Log.amsLog(TAG, "Start downlowd");
+                Log.amsLog(TAG, "Start downlowd, content length:" + leng);
 
                 String file = getStorageFilename();
                 Log.amsLog(TAG, "file name:" + file);
@@ -136,7 +136,8 @@ public class OTADownload {
                 notifyOTAResult(OTAConfig.OTA_FILE_ERROR);
                 uConn.disconnect();
                 return;
-            } catch (IOException e1) {
+            } catch (IOException e) {
+                e.printStackTrace();
                 notifyOTAResult(OTAConfig.OTA_IO_ERROR);
                 uConn.disconnect();
                 return;

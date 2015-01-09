@@ -3,6 +3,7 @@ package java.net;
 
 
 import java.io.IOException;
+import java.util.Arrays;
 
 import com.yarlungsoft.util.Log;
 
@@ -46,6 +47,10 @@ public final class NetNativeBridge {
 
     private static native int sendto0(int sock, byte[] buff, int offset, int count, int flag,
             int ip, int port);
+
+    private static native int shutdown0(boolean input, int sock);
+
+    private static native int getHostByName0(String host, byte[] addr);
 
     private static native int closeSocket0(int sock);
 
@@ -202,5 +207,22 @@ public final class NetNativeBridge {
             cnt = sendto0(sockHandle, bytes, offset, count, flags, ip, port);
         }
         return cnt;
+    }
+
+    public static boolean shutdownInput(int sockHandle) {
+        return shutdown0(true, sockHandle) == 0;
+    }
+
+    public static boolean shutdownOutput(int sockHandle) {
+        return shutdown0(false, sockHandle) == 0;
+    }
+
+    public static byte[] getHostByName(String host) {
+        byte[] addr = new byte[NetConstants.INADDR16SZ];
+        int count = getHostByName0(host, addr);
+        if (count != NetConstants.INADDR4SZ && count != NetConstants.INADDR16SZ) {
+            return null;
+        }
+        return Arrays.copyOf(addr, count);
     }
 }

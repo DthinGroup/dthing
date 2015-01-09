@@ -1,4 +1,5 @@
 #include <nativeNetNativeBridge.h>
+#include <utfstring.h>
 #include <opl_net.h>
 #include "vm_common.h"
 
@@ -9,7 +10,7 @@
  */
 void Java_java_net_NetNativeBridge_isNetworkInited(const u4* args, JValue* pResult) {
     jboolean ret = false;
-    printf("call isNetworkInited!\n");
+    DVMTraceDbg("call isNetworkInited!\n");
 
     RETURN_BOOLEAN(ret);
 }
@@ -29,7 +30,7 @@ void Java_java_net_NetNativeBridge_startUpNetwork(const u4* args, JValue* pResul
 
     memset(arrbuf, 5, arrlen);
 
-    printf("call startUpNetwork!\n");
+    DVMTraceDbg("call startUpNetwork!\n");
     ret = Opl_net_startup();
 
     RETURN_INT(ret);
@@ -44,7 +45,7 @@ void Java_java_net_NetNativeBridge_socket0(const u4* args, JValue* pResult) {
     int handle = 0;
     int stream = (int) args[1];
 
-    printf("call socket init!\n");
+    DVMTraceDbg("call socket init!\n");
 
     if (stream) { // TCP
         handle = Opl_net_streamSocket();
@@ -145,6 +146,39 @@ void Java_java_net_NetNativeBridge_sendto0(const u4* args, JValue* pResult) {
 
     int ret = Opl_net_sendto(sock, &arrbuf[offset], count, ip, port);
 
+    RETURN_INT(ret);
+}
+
+/**
+ * Class:     java_net_NetNativeBridge
+ * Method:    shutdown0
+ * Signature: (ZI)I
+ */
+void Java_java_net_NetNativeBridge_shutdown0(const u4* args, JValue* pResult) {
+    jboolean input = (jboolean) args[1];
+    jint sock = (jint) args[2];
+    jint ret = Opl_net_shutdown(sock, input);
+    RETURN_INT(ret);
+}
+
+/**
+ * Class:     java_net_NetNativeBridge
+ * Method:    getHostByName0
+ * Signature: (Ljava/lang/String;[B)I
+ */
+void Java_java_net_NetNativeBridge_getHostByName0(const u4* args, JValue* pResult) {
+    StringObject * hostObj = (StringObject *) args[1];
+    const jchar* host = dvmGetStringData(hostObj);
+    int hostLen = dvmGetStringLength(hostObj);
+    jbyte * addrArrPtr = (jbyte *)(KNI_GET_ARRAY_BUF(args[2]));
+    int addrArrLen = KNI_GET_ARRAY_LEN(args[2]);
+    jint ret = 0;
+
+    if (host == NULL || hostLen <= 0 || addrArrPtr == NULL || addrArrLen < INADDR16SZ) {
+        RETURN_BOOLEAN(OPL_NET_ERROR);
+    }
+
+    ret = Opl_net_gethostbyname(host, hostLen, addrArrPtr, addrArrLen);
     RETURN_INT(ret);
 }
 

@@ -337,6 +337,7 @@ public class HttpURLConnection extends URLConnection {
         }
         socketOut.write(CRLF.getBytes());
         socketOut.flush();
+        socket.shutdownOutput();
 
         // read HTTP response
         String responseHeader = readHeader();
@@ -545,6 +546,12 @@ public class HttpURLConnection extends URLConnection {
     public void setInstanceFollowRedirects() {
     }
 
+    /**
+     * Get the HTTP response code
+     *
+     * @return the response code if successfully get HTTP response, -1 otherwise.
+     * @throws IOException
+     */
     public int getResponseCode() throws IOException {
         if (isRequested) {
             return responseCode;

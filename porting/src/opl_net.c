@@ -5,6 +5,7 @@
 #ifdef ARCH_X86
 #include <stdio.h>
 #include <Winsock2.h>
+#include <Ws2tcpip.h>
 #pragma comment(lib, "ws2_32.lib")
 #else
 #include <os_api.h>
@@ -459,13 +460,13 @@ int Opl_net_recv(int sock,char * recvbuf,int count)
 {
 	int ret = 0;
 
-	DVMTraceDbg("Opl_net_recv(0x%08X, 0x%08X, %d)\n", sock, recvbuf, count);
+	DVMTraceInf("Opl_net_recv(0x%08X, 0x%08X, %d)\n", sock, recvbuf, count);
 #ifdef ARCH_X86
 	ret = recv(sock,recvbuf,count,0);
 	if (ret == SOCKET_ERROR) {
         DVMTraceDbg("Opl_net_recv() error=%d\n", WSAGetLastError());
 	}
-	DVMTraceDbg("Opl_net_recv() ret=%d\n", ret);
+	DVMTraceInf("Opl_net_recv() ret=%d\n", ret);
 #elif defined(ARCH_ARM_SPD)
 
 	if (AsyncIO_firstCall())
@@ -553,6 +554,72 @@ int Opl_net_sendto(int sock,char * sendbuf,int count,int ip,int port)
 #endif
 	DVMTraceDbg("Opl_net_sendto() ret=%d\n", ret);
 	return ret;
+}
+
+/**
+ * Shutdown input/output of the specified socket.
+ *
+ * @param sock the socket to operate
+ * @param isInput TRUE to shutdown input, FALSE to shutdown output
+ * @return OPL_NET_SUCCESS if success, OPL_NET_ERROR otherwise.
+ */
+int Opl_net_shutdown(int sock, int isInput)
+{
+    int ret = OPL_NET_ERROR;
+#ifdef ARCH_X86
+    ret = shutdown(sock, isInput ? SD_RECEIVE : SD_SEND);
+#elif defined(ARCH_ARM_SPD)
+    // TODO: implement shutdown feature
+#endif
+    return ret;
+}
+
+/**
+ * Resolve the specified hostname and output its IPv4/IPv6 address
+ *
+ * @param host pointer to the buffer of hostname to resolve
+ * @param hostLen length in bytes of the buffer of hostname to resolve
+ * @param addrArrPtr pointer to the buffer storing the resolved IPv4/IPv6 address
+ * @param addrArrLen length in bytes of the buffer storing IP address.
+ * @return the length in bytes of the resolved IP address if successfully resolved, OPL_NET_ERROR otherwise.
+ */
+int Opl_net_gethostbyname(uint16_t* host, int hostLen, char* addrArrPtr, int addrArrLen)
+{
+    /*
+     * the parameters have been verified in the caller, i.e. nativeNetNativeBridge.c
+     */
+    int ret = OPL_NET_ERROR;
+#ifdef ARCH_X86
+    ADDRINFOW *result = NULL;
+    ADDRINFOW *ptr = NULL;
+    ADDRINFOW hints;
+    LPSOCKADDR_IN addr4 = NULL;
+    LPSOCKADDR_IN6 addr6 = NULL;
+
+    ZeroMemory(&hints, sizeof(hints));
+    hints.ai_family = AF_UNSPEC;
+    hints.ai_socktype = SOCK_STREAM;
+    hints.ai_protocol = IPPROTO_TCP;
+
+    host[hostLen] = 0;
+    if (GetAddrInfoW(host, NULL, &hints, &result) == 0) {
+        for(ptr = result; ptr != NULL; ptr = ptr->ai_next) {
+            if (ptr->ai_family == AF_INET) {
+                addr4 = (LPSOCKADDR_IN) ptr->ai_addr;
+                CopyMemory(addrArrPtr, &(addr4->sin_addr), INADDR4SZ);
+                ret = INADDR4SZ;
+            } else if (ptr->ai_family == AF_INET6) {
+                addr6 = (LPSOCKADDR_IN6) ptr->ai_addr;
+                CopyMemory(addrArrPtr, &(addr6->sin6_addr), INADDR16SZ);
+                ret = INADDR16SZ;
+            }
+        }
+        FreeAddrInfoW(result);
+    }
+#elif defined(ARCH_ARM_SPD)
+    // TODO: implement gethostbyname feature
+#endif
+    return ret;
 }
 
 int Opl_net_closeSocket(int socket)
