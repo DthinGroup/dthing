@@ -282,7 +282,7 @@ ClassObject* dvmFindArrayClass(const char* descriptor)
         clazz = createArrayClass(descriptor);
         if (clazz == NULL)
         {
-            DVMTraceErr("dvmFindArrayClass - error: create Array class failure");
+            DVMTraceErr("dvmFindArrayClass - error: create Array class (%s) failure", descriptor);
         }
     }
 

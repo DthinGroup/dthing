@@ -10,7 +10,7 @@ MULTI_BIN_RAM = FALSE                                ## Option1  32MBIT_LEVEL1  
                                                      ## Option2  32MBIT_LEVEL2   ----32x32
                                                      ## Option3  32MBIT_LEVEL3   ----32x32
 
-RELEASE_INFO = FALSE                                 ### RELEASE version
+RELEASE_INFO = TRUE                       ### RELEASE version
                                                      # Option1:TRUE
                                                      # Option2:FALSE
 
@@ -409,7 +409,7 @@ CARD_LOG = TRUE                                     ### CARD SAVE LOG SUPPORT:
 #  OLD MACRO OR NO USE
 #
 ##########################################################################################
-ASSERT_TYPE_SUPPORT = ASSERT                         ### ASSERT TYPE SUPPORT
+ASSERT_TYPE_SUPPORT = WARNING    ### ASSERT TYPE SUPPORT
                                                      # Option1:ASSERT
                                                      # Option2:WARNING
 
@@ -480,6 +480,6 @@ MODEM_WAKEUP_SUPPORT = FALSE     					           ### MODEM_WAKEUP_SUPPORT
                                                      # Option1:TRUE
                                                      # Option2:FALSE                                             
 
-GPS_SUPPORT = TRUE                                   ### GPS Module Support
+GPS_SUPPORT = FALSE                      ### GPS Module Support
                                                      # Option1:TRUE
                                                      # Option2:FALSE
