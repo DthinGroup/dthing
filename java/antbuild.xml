@@ -9,6 +9,8 @@
     <property name="kni.header.src" location="${basedir}/../vm/inc/nativeMethods.h" />
     <property name="kni.header.out" location="${output.dir}/nativeMethods.h" />
     <property name="java.src" location="${basedir}/src" />
+	<property name="third.party.src" location="${basedir}/tp_src" />
+	<property name="third.party.output.dir" location="${basedir}/tp_bin" />
 
     <macrodef name="updateFileIfNecessary">
         <attribute name="srcFile" />
@@ -33,6 +35,30 @@
         <jar jarfile="${output.dir}/../df.jar" basedir="${output.dir}" excludes="*.h,*.dex"/>
     </target>
 
+
+    <path id="core.framework.classpath">
+        <fileset dir="${basedir}">  
+            <include name="df.jar" />  
+        </fileset> 
+    </path> 
+
+    <target name="buildTPJava">
+        <mkdir dir="${third.party.output.dir}" />
+        <javac includeantruntime="no" includeJavaRuntime="yes" srcdir="${third.party.src}" destdir="${third.party.output.dir}" source="1.6" target="1.6">
+            <compilerarg line="-encoding UTF-8"/>
+            <classpath refid="core.framework.classpath" />
+        </javac>
+        <jar jarfile="${output.dir}/../df_tp.jar" basedir="${third.party.output.dir}"/>
+    </target>
+
+    <target name="mergeJars">
+        <jar destfile="df_all.jar">
+            <zipfileset src="df.jar"/>
+            <zipfileset src="df_tp.jar"/>
+        </jar>
+        <delete file="{basedir}/df_tp.jar" />
+    </target>
+
     <target name="createDex">
         <echo message="${dx_tool} --verbose --core-library --dex --output=${dex.out} ${classes.dir}" />
         <exec executable="${dx_tool}" failonerror="true">
@@ -40,7 +66,7 @@
             <arg value="--core-library" />
             <arg value="--dex" />
             <arg value="--output=${dex.out}" />
-            <arg value="${classes.dir}" />
+            <arg value="${basedir}/df_all.jar" />
         </exec>
     </target>
 
@@ -68,6 +94,13 @@
         <updateFileIfNecessary srcFile="${kni.header.out}" dstFile="${kni.header.src}" updateMsg="WARNING: ${kni.header.src} has been updated, please update other KNI declarations headers by referring headers under ${output.dir}!" />
     </target>
 
+    <target name="cleantp" depends="clean">
+        <delete file="${basedir}/df_all.jar" />
+        <delete>
+            <fileset dir="${output.dir}" includes="**/*.class" />
+        </delete>
+    </target>
+
     <target name="clean">
         <delete file="${dex.out}" />
         <delete>
@@ -75,7 +108,8 @@
         </delete>
     </target>
 
-    <target name="all" depends="buildJava, createDex, createDexHeader, createKniHeaders" />
+    <target name="all" depends="buildJava, buildTPJava, mergeJars, createDex, createDexHeader, createKniHeaders" />
+    <target name="tp" depends="buildTPJava, mergeJars, createDex, createDexHeader" />
     <target name="cleanbuild" depends="clean, all" />
 
 </project>
