@@ -32,7 +32,7 @@
         <javac includeantruntime="no" includeJavaRuntime="yes" srcdir="${java.src}" destdir="${output.dir}" source="1.6" target="1.6">
             <compilerarg line="-encoding UTF-8"/>
         </javac>
-        <jar jarfile="${output.dir}/../df.jar" basedir="${output.dir}" excludes="*.h,*.dex"/>
+        <jar jarfile="${output.dir}/../df.jar" basedir="${output.dir}" excludes="*.h,*.dex,*.c"/>
     </target>
 
 
@@ -56,7 +56,6 @@
             <zipfileset src="df.jar"/>
             <zipfileset src="df_tp.jar"/>
         </jar>
-        <delete file="{basedir}/df_tp.jar" />
     </target>
 
     <target name="createDex">
@@ -78,6 +77,7 @@
             <arg value="${dex.header.out}" />
         </exec>
         <updateFileIfNecessary srcFile="${dex.header.out}" dstFile="${dex.header.src}" updateMsg="update ${dex.header.src}" />
+        <delete file="${basedir}/df_all.jar" />
     </target>
 
     <target name="createKniHeaders">
@@ -94,8 +94,9 @@
         <updateFileIfNecessary srcFile="${kni.header.out}" dstFile="${kni.header.src}" updateMsg="WARNING: ${kni.header.src} has been updated, please update other KNI declarations headers by referring headers under ${output.dir}!" />
     </target>
 
-    <target name="cleantp" depends="clean">
+    <target name="cleantp">
         <delete file="${basedir}/df_all.jar" />
+        <delete file="${basedir}/df_tp.jar" />
         <delete>
             <fileset dir="${output.dir}" includes="**/*.class" />
         </delete>
