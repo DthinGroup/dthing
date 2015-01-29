@@ -37,7 +37,7 @@ public class MD5
     private byte test;
     
     private String getMD5ofStr(String s)
-    {//·µ»ØMD5´®£»
+    {//è¿”å›MD5ä¸²ï¼›
         int i;
         md5Init();
         md5Update(s.getBytes(), s.length());
@@ -49,7 +49,7 @@ public class MD5
     }
     
     private byte[] getMD5ofBytes(byte[] bytes)
-    {//·µ»ØMD5´®
+    {//è¿”å›MD5ä¸²
         int i;
         md5Init();
         md5Update(bytes, bytes.length);
@@ -66,7 +66,7 @@ public class MD5
         md5Init();
     }
     private void md5Init()
-    {//³õÊ¼»¯²¿·Ö±äÁ¿£»
+    {//åˆå§‹åŒ–éƒ¨åˆ†å˜é‡ï¼›
         count[0] = 0L;
         count[1] = 0L;
         state[0] = 0x67452301L;
@@ -119,7 +119,7 @@ public class MD5
         return l;
     }
     private void md5Update(byte abyte0[], int i)
-    {//²¹Î»²Ù×÷£¬abyte0ÎªĞèÒª½øĞĞMD5¼ÓÃÜµÄ×Ö·û´®£¬iÎª×Ö·û´®³¤¶È£»
+    {//è¡¥ä½æ“ä½œï¼Œabyte0ä¸ºéœ€è¦è¿›è¡ŒMD5åŠ å¯†çš„å­—ç¬¦ä¸²ï¼Œiä¸ºå­—ç¬¦ä¸²é•¿åº¦ï¼›
         byte abyte1[] = new byte[64];
         int k = (int)(count[0] >>> 3) & 0x3f;
         if((count[0] += i << 3) < (long)(i << 3))
@@ -144,7 +144,7 @@ public class MD5
         md5Memcpy(buffer, abyte0, k, j, i - j);
     }
     private void md5Final()
-    {//×îÖÕ´¦Àí£¬½«µÃµ½µÄ128Î»£¨16×Ö½Ú£©MD5Âë´æ·ÅÔÚdigestÊı×éÖĞ
+    {//æœ€ç»ˆå¤„ç†ï¼Œå°†å¾—åˆ°çš„128ä½ï¼ˆ16å­—èŠ‚ï¼‰MD5ç å­˜æ”¾åœ¨digestæ•°ç»„ä¸­
         byte abyte0[] = new byte[8];
         Encode(abyte0, count, 8);
         int i = (int)(count[0] >>> 3) & 0x3f;
@@ -236,8 +236,8 @@ public class MD5
         state[3] += l3;
     }
     private void Encode(byte abyte0[], long al[], int i)
-    {//×ª»»º¯Êı£¬½«alÖĞlongĞÍµÄ±äÁ¿Êä³öµ½byteĞÍµÄÊı×éabyte0ÖĞ£¬
-     //µÍÎ»×Ö½ÚÔÚÇ°£¬¸ßÎ»×Ö½ÚÔÚºó£»
+    {//è½¬æ¢å‡½æ•°ï¼Œå°†alä¸­longå‹çš„å˜é‡è¾“å‡ºåˆ°byteå‹çš„æ•°ç»„abyte0ä¸­ï¼Œ
+     //ä½ä½å­—èŠ‚åœ¨å‰ï¼Œé«˜ä½å­—èŠ‚åœ¨åï¼›
         int j = 0;
         for(int k = 0; k < i; k += 4)
         {
@@ -262,7 +262,7 @@ public class MD5
         return byte0 >= 0 ? byte0 : byte0 & 0xff;
     }
     public static String byteHEX(byte byte0)
-    {//×Ö½Úµ½Ê®Áù½øÖÆµÄASCIIÂë×ª»»
+    {//å­—èŠ‚åˆ°åå…­è¿›åˆ¶çš„ASCIIç è½¬æ¢
         char ac[] = {
             '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
             'A', 'B', 'C', 'D', 'E', 'F'

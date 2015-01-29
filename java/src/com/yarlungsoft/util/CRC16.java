@@ -10,30 +10,30 @@ public class CRC16 {
     
     public CRC16(byte[] source)
     {
-        //初始化多项式
+        //缘始郫谞挟式
         int temp=0xA001;
         ploy=InttoByteArray(temp,2);
-        //初始化寄存器
+        //缘始郫輨咋欠
         temp=0xFFFF;
         reg=InttoByteArray(temp,2);
         
         for(int i=0;i<source.length;i++)
         {
-            //获取数据
+            //鼙取私邼
             data=source[i];
-            //与寄存器中数据进行异或操作
+            //垣輨咋欠讗私邼薷褠蝇懿訖胤
             reg[1]=(byte) (reg[1]^data);
-            //移动数据
+            //訂织私邼
             for(int j=0;j<8;j++)
             {
-                //获取数据的最后一位，即被移动出的数据判断是否与多项式异或
+                //鼙取私邼謩禺鄢一位矛艽鸦訂织远謩私邼茞讖藝乇垣谞挟式蝇懿
                 Op=reg[0];
-                //右移一位
+                //話訂一位
                 reg=InttoByteArray(ByteArraytoInt(reg)>>1,2);
-                //如果移出数据为1
+                //骚诨訂远私邼为1
                 if((Op&0x01)==1)
                 {
-                    //与多项式进行异或操作
+                    //垣谞挟式薷褠蝇懿訖胤
                     reg[0]=(byte) (reg[0]^ploy[0]);
                     reg[1]=(byte) (reg[1]^ploy[1]);
                 }                
@@ -46,7 +46,7 @@ public class CRC16 {
     {
         return CRC;
     }
-//格式化辅助函数
+//俦式郫亘缀诏私
     private static byte[] InttoByteArray(int iSource, int iArrayLen) 
     {
         byte[] bLocalArr = new byte[iArrayLen];
