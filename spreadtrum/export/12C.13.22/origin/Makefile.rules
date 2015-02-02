@@ -1,0 +1,275 @@
+#
+# Compiler Cmd Definition
+#
+ifeq ($(strip $(COMPILER)), RVCT)
+	SIMPLE_PATH_NAME=Progra~1
+	FULL_PATH_NAME  =Program Files
+	ARM_HOME        =$(subst \,/,$(subst $(FULL_PATH_NAME),$(SIMPLE_PATH_NAME),$(RVCT31BIN)))
+	ARMCC           ="$(ARM_HOME)/armcc"
+	CC              ="$(ARM_HOME)/tcc"
+	CPP             ="$(ARM_HOME)/tcpp"
+	ASM             ="$(ARM_HOME)/armasm"
+	LINK            ="$(ARM_HOME)/armlink"
+	AR              ="$(ARM_HOME)/armar"
+	FROMELF         ="$(ARM_HOME)/fromelf"
+	ARMINC          ="$(subst \,/,$(subst $(FULL_PATH_NAME),$(SIMPLE_PATH_NAME),$(RVCT31INC)))"
+	ARMLIB          ="$(subst \,/,$(subst $(FULL_PATH_NAME),$(SIMPLE_PATH_NAME),$(RVCT31LIB)))"
+	BIG_ENDIAN_OPT  = --bi
+	LITTLE_ENDIAN_OPT = --li
+	APCS            = --apcs
+        VIA             = --via
+	KEEP            = --keep
+	CODE16          = --16
+        CHECKREGLIST    = --diag_warning 1206
+        CPU             = --cpu
+	PD_OPT 		= --pd
+        IGNOR_WARNNINGS = --diag_suppress 1,9,61,66,68,111,117,144,152,167,170,174,177,186,188,191,223,226,236,494,513,550,940,1134,1287,1294,1295,1296,1381,1441,1608,1652,1764,1786,3017,3052
+				VFP             = --fpu VFPv2
+else
+	ARM_HOME        =$(subst \,/,$(ARMHOME))
+	ARMCC           ="$(ARM_HOME)/Bin/armcc"
+	CC              ="$(ARM_HOME)/Bin/tcc"
+	CPP             ="$(ARM_HOME)/Bin/tcpp"
+	ASM             ="$(ARM_HOME)/Bin/armasm"
+	LINK            ="$(ARM_HOME)/Bin/armlink"
+	AR              ="$(ARM_HOME)/Bin/armar"
+	FROMELF         ="$(ARM_HOME)/Bin/fromelf"
+	ARMINC          ="$(ARM_HOME)/Include"
+	BIG_ENDIAN_OPT  = -bi
+	LITTLE_ENDIAN_OPT = -li
+	APCS            = -apcs
+        VIA             = -via
+	KEEP            = -keep
+	CODE16          = -16
+        CHECKREGLIST    = -checkreglist
+        CPU             = -cpu
+	PD_OPT 		= -pd
+        IGNOR_WARNNINGS =
+        VFP             = -fpu VFPv2
+endif
+
+  MKDIR           =make
+
+#
+# Common Compiler Options
+#
+ifeq ($(strip $(PLATFORM)),SC6600L)
+CFLAGS        = $(CPU) ARM7TDMI -O2 $(APCS) /interwork/ -fy -D_RTOS -D_DEBUG -Ec -W
+AFLAGS        = $(CPU) ARM7TDMI $(KEEP) $(APCS) /shlclient/interwork/
+endif
+
+ifeq ($(strip $(PLATFORM)),SC8800H)
+ifeq ($(strip $(COMPILER)),	RVCT)
+CFLAGS        = $(CPU) ARM926EJ-S -O2 $(APCS) /interwork/ --enum_is_int -D_RTOS -D_DEBUG --loose_implicit_cast --remove_unneeded_entities
+AFLAGS        = $(CPU) ARM926EJ-S $(KEEP) $(APCS) /interwork/
+else
+CFLAGS        = $(CPU) ARM926EJ-S -O2 $(APCS) /interwork/ -fy -D_RTOS -D_DEBUG -Ec -W
+AFLAGS        = $(CPU) ARM926EJ-S $(KEEP) $(APCS) /shlclient/interwork/
+endif
+endif
+
+ifeq ($(strip $(PLATFORM)),SC6800H)
+ifeq ($(strip $(COMPILER)),	RVCT)
+CFLAGS        = $(CPU) ARM926EJ-S -O3 $(APCS) /interwork/ --enum_is_int -D_RTOS -D_DEBUG --loose_implicit_cast -W --bss_threshold=0 --remove_unneeded_entities
+AFLAGS        = $(CPU) ARM926EJ-S $(KEEP) $(APCS) /interwork/
+else
+CFLAGS        = $(CPU) ARM926EJ-S -O2 $(APCS) /interwork/ -fy -D_RTOS -D_DEBUG -Ec -W
+AFLAGS        = $(CPU) ARM926EJ-S $(KEEP) $(APCS) /shlclient/interwork/
+endif
+endif
+
+ifeq ($(strip $(PLATFORM)),SC8800G)
+ifeq ($(strip $(COMPILER)),	RVCT)
+CFLAGS        = $(CPU) ARM926EJ-S -O3 $(APCS) /interwork/ --enum_is_int -D_RTOS -D_DEBUG --loose_implicit_cast
+AFLAGS        = $(CPU) ARM926EJ-S $(KEEP) $(APCS) /interwork/
+else
+CFLAGS        = $(CPU) ARM926EJ-S -O2 $(APCS) /interwork/ -fy -D_RTOS -D_DEBUG -Ec -W
+AFLAGS        = $(CPU) ARM926EJ-S $(KEEP) $(APCS) /shlclient/interwork/
+endif
+endif
+
+
+ifeq ($(strip $(PLATFORM)),SC6530)
+ifeq ($(strip $(COMPILER)),	RVCT)
+CFLAGS        = $(CPU) ARM926EJ-S -O3 $(APCS) /interwork/ $(IGNOR_WARNNINGS) $(VFP) --enum_is_int -D_RTOS -D_DEBUG --loose_implicit_cast  --debug
+AFLAGS        = $(CPU) ARM926EJ-S $(KEEP) $(APCS) /interwork/ $(IGNOR_WARNNINGS) $(VFP)
+else
+CFLAGS        = -cpu ARM926EJ-S -O2 -apcs /interwork/ $(VFP) -fy -D_RTOS -D_DEBUG -Ec -W
+AFLAGS        = -cpu ARM926EJ-S -keep -apcs /shlclient/interwork/ $(VFP)
+endif
+endif
+
+
+ifeq ($(strip $(STACK_CHECK_SUPPORT)),TRUE)
+	ifeq ($(strip $(COMPILER)),	RVCT)
+		SWST_OPT      = 
+	else
+		SWST_OPT      = $(APCS) /swst
+	endif
+endif	
+
+# for endian selection
+ENDIAN_OPT    = 
+ifneq ($(strip $(CHIP_ENDIAN)), LITTLE)
+		ENDIAN_OPT    = $(BIG_ENDIAN_OPT)	
+else
+		ENDIAN_OPT    = $(LITTLE_ENDIAN_OPT)	
+endif
+
+
+CFLAGS	     += $(SWST_OPT) $(ENDIAN_OPT)
+AFLAGS	     += $(SWST_OPT) $(ENDIAN_OPT)
+
+
+# for library and link option
+ifeq ($(strip $(COMPILER)),	RVCT)
+ARFLAGS         = --create
+LFLAGS          = --no_merge
+MDFLAGS         = --depend
+else
+ARFLAGS         = -create
+LFLAGS          =
+MDFLAGS         = -depend
+endif
+
+#
+# Bash Systmm Commands
+#
+
+  ROOT_DIR	= $(shell $(PERL) ./make/perl_script/get_root_fullpath.pl)
+  MAKESHELL=CMD
+  MAKE_HOME     = make\make_cmd
+  SHELL         = $(MAKE_HOME)\CMD.exe
+  COPY_FILE     = copy /y
+  COPY_DIR      = xcopy /E /Y /R
+  DEL_FILE      = del /F /Q /S
+  ECHO          = "$(MAKE_HOME)\echo.exe"
+  TEE           = "$(MAKE_HOME)\tee"
+  CAT           = type
+  DIFF          = $(MAKE_HOME)\diff
+  PERL          = make\make_cmd\Perl
+  MAKE          = $(MAKE_HOME)\make
+  CP_FILE       = make\make_cmd\Perl make\perl_script\cp.pl
+  MOVE	      = $(MAKE_HOME)\mv -f
+  BZP           = $(MAKE_HOME)\BZPcmd.exe
+
+#
+# Common Build Directories Definition
+#
+COMMON_INCPATH = MS_Ref/export/inc common/export/inc common/export/inc/trace_id RTOS/export/inc MS_Customize/export/inc chip_drv/export/inc DAPS/export/inc char_lib/export/inc
+
+
+
+
+  SPRDLIB_DIR      = lib
+  3RDLIB_DIR       = Third-party/lib
+
+ifneq ($(strip $(SPRD_CUSTOMER)),TRUE)
+  PCLINT_DIR       = $(ROOT_DIR)/project/pclint_tool
+else
+  PCLINT_DIR       = $(ROOT_DIR)/tools/DEBUG_TOOL/PCLINT
+endif
+
+  ifeq ($(strip $(DM_BASE)),TRUE)
+      PS_INCPATH = PS/export/inc
+      L1_INCPATH = Layer1/export/inc
+      PS_PATH = PS
+      L1_PATH = Layer1
+      L1_DSP_PATH = Layer1_dsp
+      ATC_INCPATH =  atc/export/inc
+      ATC_PATH = atc
+      P_TJPATH = ../P_TianJi2
+  else
+      ifeq ($(strip $(PRODUCT_DM)),TRUE)
+               PS_INCPATH = dm_2g_PS/export/inc
+    	       L1_INCPATH = dm_2g_Layer1/export/inc
+    	       PS_PATH = dm_2g_PS
+    	       L1_PATH = dm_2g_Layer1
+    	       L1_DSP_PATH = dm_2g_Layer1_dsp
+    	       ATC_INCPATH = atc_3g/export/inc
+    	       ATC_PATH = atc_3g
+    	       P_TJPATH=P_TianJi2
+      else  
+               PS_PATH = Base/PS
+               L1_PATH = Base/Layer1
+               PS_INCPATH = Base/PS/export/inc
+               L1_INCPATH = Base/Layer1/export/inc
+               ATC_INCPATH =  Base/atc/export/inc
+               ATC_PATH = Base/atc               
+      endif    
+  endif
+
+#
+# makefile location
+#
+  MAKEFILE_DIR_atc = Base/make/atc
+  MAKEFILE_DIR_myriad = Base/make/myriad
+  MAKEFILE_DIR_l4 = Base/make/l4
+  MAKEFILE_DIR_sim = Base/make/sim
+  MAKEFILE_DIR_ps = Base/make/ps
+  MAKEFILE_DIR_layer1 = Base/make/layer1
+  MAKEFILE_DIR_layer1_dsp = Base/make/layer1_dsp
+  MAKEFILE_DIR_bt_ps_v3x = connectivity/make/bt/bt_ps_v3x
+  MAKEFILE_DIR_bt_pal = make/bt_pal
+  MAKEFILE_DIR_logsave = Base/make/logsave
+  MAKEFILE_DIR_tdd_atc_hsdpa = P_TianJi2/Source/msd/build
+  MAKEFILE_DIR_tdd_bcfe = P_TianJi2/Source/msd/build
+  MAKEFILE_DIR_tdd_rrc_adapter = P_TianJi2/Source/msd/build
+  MAKEFILE_DIR_chip_base = make/chip_drv
+  MAKEFILE_DIR_tdd_common_hsdpa = P_TianJi2/Source/msd/build
+  MAKEFILE_DIR_tdd_dcfe = P_TianJi2/Source/msd/build
+  MAKEFILE_DIR_tdd_l2_hsdpa = P_TianJi2/Source/msd/build
+  MAKEFILE_DIR_tdd_l4_hsdpa = P_TianJi2/Source/msd/build
+  MAKEFILE_DIR_tdd_lib = P_TianJi2/Source/msd/build
+  MAKEFILE_DIR_tdd_nas = P_TianJi2/Source/msd/build
+  MAKEFILE_DIR_tdd_sim = P_TianJi2/Source/msd/build
+  MAKEFILE_DIR_dm_2g_layer1 = dm_2g_layer1
+  MAKEFILE_DIR_dm_2g_layer1_dsp = dm_2g_layer1_dsp
+  MAKEFILE_DIR_dm_2g_ps = dm_2g_ps
+  MAKEFILE_DIR_tdd_atc_hsdpa = atc_3g/project
+  MAKEFILE_DIR_l1c_dm = P_TianJi2/Layer1/Source_8800S
+  MAKEFILE_DIR_asn1 = P_TianJi2/Source/infra/tools/asn1lib
+  MAKEFILE_DIR_asn1ber = P_TianJi2/Source/infra/tools/asn1lib
+  MAKEFILE_DIR_asn1uper = P_TianJi2/Source/infra/tools/asn1lib
+  MAKEFILE_DIR_xsr = Third-party/Source/XSR_STLMP
+  MAKEFILE_DIR_xsr_bl = Third-party/Source/XSR_STLMP
+  MAKEFILE_DIR_mplapi_threadx_8801h = Third-party/Source/Mplapi/stacks
+  MAKEFILE_DIR_mplapi_intg_8801h = Third-party/Source/Mplapi/stacks
+#
+# public function
+# 
+
+  empty:=
+  space:=$(empty) $(empty)
+
+  Path_process = $(if $(strip $(MAKESHELL)),$(subst /,\,$(1)),$(1))
+               
+  FILTER_MACRO=BLUETOOTH_SUPPORT RELEASE_LEVEL_D0 BT_OPP_SUPPORT  BT_FTP_SERVER_SUPPORT BT_FTS_SUPPORT BT_FTP_CLIENT_SUPPORT BT_DUN_SUPPORT BT_SPP_SUPPORT  BT_HFG_SUPPORT BT_A2DP_SUPPORT BT_A2DP_SAMPLERATE_RECONFIG_SUPPORT BT_AVRCP_SUPPORT MP3_A2DP_SUPPORT AAC_A2DP_SUPPORT WMA_A2DP_SUPPORT
+
+  GETMAKEPATH = $(if $(strip $(MAKEFILE_DIR_$(1))),$(strip $(MAKEFILE_DIR_$(1))/$(1).mk),make/$(1)/$(1).mk)
+
+  GET_ALLMACRO_LIST=$(sort $(filter-out $(filter-out_macro) filter-out_macro,$(foreach W,$(.VARIABLES),$(if $(filter-out environment default automatic, $(origin $W)),$W,))))
+  GET_SIMU_C_MACRO=$(foreach V,$(ALL_MACRO_LIST),$(if $(filter-out FALSE,$($(V))),$(if $(filter-out TRUE,$($(V))),$(if $(filter-out NONE,$($(V))),-D$(strip $(V)) -D$(V)_$(strip $($(V))),-D$(V)_$(strip $($(V)))),-D$(strip $(V))),))
+
+  GET_C_MACRO=$(foreach V,$(call GET_ALLMACRO_LIST),$(if $(filter-out FALSE,$($(V))),$(if $(filter-out TRUE,$($(V))),$(if $(filter-out NONE,$($(V))),-D$(strip $(V)) -D$(V)_$(strip $($(V))),-D$(V)_$(strip $($(V)))),-D$(strip $(V))),))
+  GET_A_MACRO=$(foreach V,$(call GET_ALLMACRO_LIST),$(if $(filter-out FALSE,$($(V))),$(if $(filter-out TRUE,$($(V))),$(if $(filter-out NONE,$($(V))),$(PD_OPT) "$(V)_$(strip $($(V))) SETL {TRUE}" $(PD_OPT) "$(strip $(V)) SETL {TRUE}",$(PD_OPT) "$(V)_$(strip $($(V))) SETL {TRUE}"),$(PD_OPT) "$(strip $(V)) SETL {TRUE}"),))
+
+  GET_SPRD_MACRO_START = $(foreach W,$(.VARIABLES),$(if $(filter-out file, $(origin $W)),,$W))
+  
+  GET_SPRD_MACRO_LIST=$(sort $(filter-out $(filter-out_macro) filter-out_macro SPRD_CUSTOMER $(SPRD_MACRO_LIST_START),$(foreach W,$(.VARIABLES),$(if $(filter-out file, $(origin $W)),,$W))))
+  GET_SPRD_MACRO=$(foreach V,$(filter-out  $(FILTER_MACRO) ,$(SPRD_MACRO_LIST)),$(if $(filter-out FALSE,$($(V))),$(if $(filter-out TRUE,$($(V))),$(if $(filter-out NONE,$($(V))),-D$(strip $(V)) -D$(V)_$(strip $($(V))),-D$(V)_$(strip $($(V)))),-D$(strip $(V))),))
+
+  ECHO_Long = $(foreach V,$(1),$(shell $(ECHO) $(V) $(2) $(3)))
+
+  temp_var := $(foreach W,$(.VARIABLES),$(if $(filter-out environment default automatic command line, $(origin $W)),$W,))
+  filter-out_macro := p project P PROJECT m M modules MODULES ib IB run RUN lite LITE job JOB stop STOP C_MACRO A_MACRO $(temp_var) temp_var CUSTOM_CFLAG PRODUCT_BASELIB_DIR MMI_RES_DIR  SPRD_MACRO_LIST_START SPRD_MACRO MAKESHELL SOURCES COMPONENT PS_PATH SPRD_MACRO_LIST  
+
+  ENCODE_A_MACRO = $(subst $(space)SETL$(space){TRUE}",:SETL:{TRUE}\",$(subst -pd$(space)",$(PD_OPT):\",$(1)))
+  ENCODE_C_MACRO = $(subst $(space),:,$(1))
+  DECODE_AC_MACRO = $(subst :,$(space),$(1))
+
+  CO_OPTION_TO_FILE = $(if $(1)$(2),$(foreach V, SHELL_ACTION_DELETE $(call ENCODE_C_MACRO,$(wordlist 1, 200,$(1))) $(call ENCODE_C_MACRO,$(wordlist 201, 400,$(1)))  $(wordlist 401, $(words $(1)),$(1)), $(if $(findstring SHELL_ACTION_DELETE,$(V)),$(shell $(PERL) make/perl_script/rm_file.pl $(2) ./),$(shell $(ECHO) $(call DECODE_AC_MACRO,$(V)) >> $(2)))),)
+  A_OPTION_TO_FILE  = $(if $(1)$(2),$(foreach V, SHELL_ACTION_DELETE $(call ENCODE_C_MACRO,$(wordlist 1, 150,$(call ENCODE_A_MACRO,$(1)))) $(call ENCODE_C_MACRO,$(wordlist 151, 300,$(call ENCODE_A_MACRO,$(1))))  $(wordlist 301, $(words $(call ENCODE_A_MACRO,$(1))),$(call ENCODE_A_MACRO,$(1))), $(if $(findstring SHELL_ACTION_DELETE,$(V)),$(shell $(PERL) make/perl_script/rm_file.pl $(2) ./),$(shell $(ECHO) $(call DECODE_AC_MACRO,$(V)) >> $(2)))),)
+
+  PATH_TO_FILE = $(if $(1)$(2),$(foreach V, SHELL_ACTION_DELETE $(wordlist 1, 20,$(1)) $(wordlist 21, 40,$(1))  $(wordlist 41, $(words $(1)),$(1)), $(if $(findstring SHELL_ACTION_DELETE,$(V)),$(shell $(PERL) make/perl_script/rm_file.pl $(2) ./),$(shell $(ECHO) $(V) >> $(2)))),)
+  
