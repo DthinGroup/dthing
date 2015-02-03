@@ -18,6 +18,9 @@ typedef enum
 
 #define INLINE
 
+// MSM_WIS_DEBUG this macro define wis_debug  for qijun board, if longshang cannot use this macro, default was not defined
+//#define MSM_WIS_DEBUG
+
 #define _TEST_ED_    //test edward code of classloader
 
 

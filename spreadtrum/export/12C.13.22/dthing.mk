@@ -54,7 +54,7 @@ SOURCES	 = dthing_main.c \
            heap.c interpApi.c interpCore.c interpOpcode.c interpStack.c kni.c mm.c native.c object.c \
            rawdexfile.c resolve.c schd.c sync.c typecheck.c upcall.c utfstring.c voiderr.c \
            adler32.c compress.c crc32.c deflate.c infback.c inffast.c inflate.c inftrees.c trees.c uncompr.c zutil.c \
-           voiderr.c opl_core.c opl_es.c opl_file.c opl_mm.c opl_net.c opl_rams.c nativeADCManager.c nativeATCommandConnection.c \
+           voiderr.c opl_core.c opl_es.c opl_file.c opl_mm.c opl_net.c opl_rams.c opl_trace.c nativeADCManager.c nativeATCommandConnection.c \
            nativeBatteryManager.c nativeEarManager.c nativeGpio.c nativeI2CManager.c nativeLCD.c nativeMicophone.c \
            nativeMyMessageSender.c nativeMySmsConnectionThread.c nativePCMChannel.c nativePWMManager.c nativeSimManager.c \
            nativeSpeakerManager.c nativeSPIManager.c nativeUSBConnection.c nativeCommConnectionImpl.c nativeRawKeyPdDriver.c opl_atc.c
