@@ -91,8 +91,15 @@ const PM_PINFUNC_T pm_func[]=
 
     { PIN_EXTINT0_REG,   ( PIN_I_EN | PIN_SPU_EN  | PIN_FUNC_DEF | PIN_FPU_EN | PIN_DS_1) },
     { PIN_EXTINT1_REG,   ( PIN_I_EN | PIN_SPU_EN  | PIN_FUNC_DEF | PIN_FPU_EN | PIN_DS_1) },
-
+#ifdef M2M_EVB_SUPPORT
     { PIN_GPIO_0_REG,    ( PIN_Z_EN | PIN_SPD_EN  | PIN_FUNC_DEF | PIN_FPD_EN | PIN_DS_1) },    // GPIO_0, NC
+#else
+#if defined(WMMP_SDK_ENABLE)//hongtc 2013/10/18 
+    { PIN_GPIO_0_REG,    ( PIN_O_EN | PIN_SPD_EN  | PIN_FUNC_DEF | PIN_FPD_EN | PIN_DS_1) },    // GPIO_0, NC
+#else
+    { PIN_GPIO_0_REG,    ( PIN_Z_EN | PIN_SPD_EN  | PIN_FUNC_DEF | PIN_FPD_EN | PIN_DS_1) },    // GPIO_0, NC
+#endif
+#endif
     { PIN_GPIO_1_REG,    ( PIN_Z_EN | PIN_SPD_EN  | PIN_FUNC_DEF | PIN_FPD_EN | PIN_DS_1) },    // GPIO_1: NC
     { PIN_GPIO_2_REG,    ( PIN_Z_EN | PIN_SPD_EN  | PIN_FUNC_DEF | PIN_FPD_EN | PIN_DS_1) },    // GPIO_2: NC
     { PIN_GPIO_3_REG,    ( PIN_Z_EN | PIN_SPD_EN  | PIN_FUNC_DEF | PIN_FPD_EN | PIN_DS_1) },    // GPIO_3: NC
@@ -103,19 +110,48 @@ const PM_PINFUNC_T pm_func[]=
     { PIN_IISDO_REG,     ( PIN_Z_EN | PIN_SPD_EN  | PIN_FUNC_DEF | PIN_FPX_EN | PIN_DS_1) },
     { PIN_IISLRCK_REG,   ( PIN_Z_EN | PIN_SPD_EN  | PIN_FUNC_DEF | PIN_FPD_EN | PIN_DS_1) },
     { PIN_IISMCK_REG,    ( PIN_O_EN | PIN_SPX_EN  | PIN_FUNC_1   | PIN_FPX_EN | PIN_DS_1) },      // NOTICE: 32K used for FM/BT
+#ifdef M2M_EVB_SUPPORT
     { PIN_KEYIN0_REG,    ( PIN_I_EN | PIN_SPU_EN  | PIN_FUNC_DEF | PIN_FPU_EN | PIN_DS_1) },    
     { PIN_KEYIN1_REG,    ( PIN_I_EN | PIN_SPU_EN  | PIN_FUNC_DEF | PIN_FPU_EN | PIN_DS_1) },    
     { PIN_KEYIN2_REG  ,  ( PIN_I_EN | PIN_SPU_EN  | PIN_FUNC_DEF | PIN_FPU_EN | PIN_DS_1) },
     { PIN_KEYIN3_REG,    ( PIN_I_EN | PIN_SPU_EN  | PIN_FUNC_DEF | PIN_FPU_EN | PIN_DS_1) },    
+#else
+    { PIN_KEYIN0_REG,    ( PIN_O_EN | PIN_SPU_EN  | PIN_FUNC_3 | PIN_FPU_EN | PIN_DS_1) },    //GPIO91 //modify by lgz 2013-03-05
+#if defined(WMMP_SDK_ENABLE)//hongtc 2013/10/18 
+    { PIN_KEYIN1_REG,    ( PIN_O_EN | PIN_SPD_EN  | PIN_FUNC_3 | PIN_FPD_EN | PIN_DS_1) },//GPIO_92
+#else
+    { PIN_KEYIN1_REG,    ( PIN_I_EN | PIN_SPU_EN  | PIN_FUNC_DEF | PIN_FPU_EN | PIN_DS_1) },
+#endif
+    { PIN_KEYIN2_REG  ,  ( PIN_I_EN | PIN_SPU_EN  | PIN_FUNC_DEF | PIN_FPU_EN | PIN_DS_1) },
+    { PIN_KEYIN3_REG,    ( PIN_I_EN | PIN_SPU_EN  | PIN_FUNC_DEF | PIN_FPU_EN | PIN_DS_1) },
+#endif
     { PIN_KEYIN4_REG,    ( PIN_I_EN | PIN_SPU_EN  | PIN_FUNC_DEF | PIN_FPU_EN | PIN_DS_1) },    
     { PIN_KEYIN5_REG,    ( PIN_I_EN | PIN_SPU_EN  | PIN_FUNC_DEF | PIN_FPU_EN | PIN_DS_1) },    
     { PIN_KEYIN6_REG,    ( PIN_Z_EN | PIN_SPU_EN  | PIN_FUNC_1   | PIN_FPU_EN | PIN_DS_1) }, // SDA1
     { PIN_KEYIN7_REG,    ( PIN_Z_EN | PIN_SPU_EN  | PIN_FUNC_1   | PIN_FPU_EN | PIN_DS_1) }, // SCL1
+#ifdef M2M_EVB_SUPPORT
     { PIN_KEYOUT0_REG ,  ( PIN_O_EN | PIN_SPX_EN  | PIN_FUNC_DEF | PIN_FPX_EN | PIN_DS_1) },
     { PIN_KEYOUT1_REG ,  ( PIN_O_EN | PIN_SPX_EN  | PIN_FUNC_DEF | PIN_FPX_EN | PIN_DS_1) },
-    { PIN_KEYOUT2_REG ,  ( PIN_O_EN | PIN_SPX_EN  | PIN_FUNC_3 | PIN_FPX_EN | PIN_DS_1) },    // GPIO_88:
+    { PIN_KEYOUT2_REG ,  ( PIN_O_EN | PIN_SPX_EN  | PIN_FUNC_DEF | PIN_FPX_EN | PIN_DS_1) },
     { PIN_KEYOUT3_REG ,  ( PIN_O_EN | PIN_SPX_EN  | PIN_FUNC_DEF | PIN_FPX_EN | PIN_DS_1) },
     { PIN_KEYOUT4_REG ,  ( PIN_O_EN | PIN_SPX_EN  | PIN_FUNC_DEF | PIN_FPX_EN | PIN_DS_1) },
+#else
+#if defined(WMMP_SDK_ENABLE)//hongtc 2013/10/18 
+    { PIN_KEYOUT0_REG ,  ( PIN_I_EN | PIN_SPU_EN  | PIN_FUNC_3 | PIN_FPU_EN | PIN_DS_1) },      //GPIO86 //modify by lgz 2013-03-05
+    { PIN_KEYOUT1_REG ,  ( PIN_I_EN | PIN_SPU_EN  | PIN_FUNC_3 | PIN_FPU_EN | PIN_DS_1) },      //GPIO87 //modify by lgz 2013-03-05
+#else
+#if (defined(MODEM_COSTAR) || defined(MODEM_ROCKCHIP))
+    { PIN_KEYOUT0_REG ,  ( PIN_I_EN | PIN_SPD_EN  | PIN_FUNC_3   | PIN_FPU_EN | PIN_DS_1) },      //GPIO86 //Modified by lqf.2013-Jul-03
+    { PIN_KEYOUT1_REG ,  ( PIN_O_EN | PIN_SPD_EN  | PIN_FUNC_3 | PIN_FPD_EN | PIN_DS_1) },      //GPIO87 //Modified by lqf.2013-Jul-03
+#else
+    { PIN_KEYOUT0_REG ,  ( PIN_O_EN | PIN_SPX_EN  | PIN_FUNC_3 | PIN_FPX_EN | PIN_DS_1) },      //GPIO86 //modify by lgz 2013-03-05
+    { PIN_KEYOUT1_REG ,  ( PIN_O_EN | PIN_SPD_EN  | PIN_FUNC_3 | PIN_FPD_EN | PIN_DS_1) },      //GPIO87 //modify by lgz 2013-03-05
+#endif
+#endif
+    { PIN_KEYOUT2_REG ,  ( PIN_O_EN | PIN_SPX_EN  | PIN_FUNC_3 | PIN_FPX_EN | PIN_DS_1) },    // GPIO_88:
+    { PIN_KEYOUT3_REG ,  ( PIN_O_EN | PIN_SPX_EN  | PIN_FUNC_3 | PIN_FPX_EN | PIN_DS_1) },    //GPIO_89;
+    { PIN_KEYOUT4_REG ,  ( PIN_O_EN | PIN_SPX_EN  | PIN_FUNC_DEF | PIN_FPX_EN | PIN_DS_1) },
+#endif
     { PIN_KEYOUT5_REG ,  ( PIN_O_EN | PIN_SPX_EN  | PIN_FUNC_DEF | PIN_FPX_EN | PIN_DS_1) },
     { PIN_KEYOUT6_REG ,  ( PIN_O_EN | PIN_SPX_EN  | PIN_FUNC_DEF | PIN_FPX_EN | PIN_DS_1) },
 
@@ -136,20 +172,48 @@ const PM_PINFUNC_T pm_func[]=
     { PIN_LCMRSTN_REG,   ( PIN_O_EN | PIN_SPX_EN  | PIN_FUNC_DEF | PIN_FPX_EN | PIN_DS_1) },    // GPIO_62 : 
     { PIN_LCMWR_REG,     ( PIN_Z_EN | PIN_SPD_EN  | PIN_FUNC_DEF | PIN_FPD_EN | PIN_DS_1) },    // GPIO_40 : 
 #else                                                                                           //LCM_INTERFACE_LCM
+#ifdef M2M_EVB_SUPPORT
+	{ PIN_LCMRD_REG,     ( PIN_I_EN | PIN_SPU_EN  | PIN_FUNC_2| PIN_FPU_EN | PIN_DS_1) }, // GPIO_39 : GPIO_PROD_AP_WAKEUP_BB_ID
+    { PIN_LCMWR_REG,     ( PIN_O_EN | PIN_SPX_EN  | PIN_FUNC_2| PIN_FPX_EN | PIN_DS_1) },    // GPIO_40 :
+    { PIN_LCMCD_REG,     ( PIN_O_EN | PIN_SPU_EN  | PIN_FUNC_2| PIN_FPX_EN | PIN_DS_1) },    // GPIO_41 :
+    { PIN_LCMCS0_REG,     ( PIN_O_EN | PIN_SPU_EN  | PIN_FUNC_2| PIN_FPX_EN | PIN_DS_1) },    // GPIO_42 : GPIO_PROD_BB_WAKEUP_AP_ID
+    { PIN_LCMCS1_REG,     ( PIN_O_EN | PIN_SPD_EN  | PIN_FUNC_3 | PIN_FPU_EN | PIN_DS_1) },    // GPIO_49 :
+    { PIN_LCMD6_REG,     ( PIN_O_EN | PIN_SPD_EN  | PIN_FUNC_3 | PIN_FPU_EN | PIN_DS_1) },    // GPIO_59 :
+    { PIN_LCMD7_REG,     ( PIN_O_EN | PIN_SPD_EN  | PIN_FUNC_3 | PIN_FPU_EN | PIN_DS_1) },    // GPIO_60 :
+    { PIN_LCMD0_REG,     ( PIN_I_EN | PIN_SPD_EN  | PIN_FUNC_3   | PIN_FPU_EN | PIN_DS_1) },    // GPIO_53 : GPIO_PROD_AP_WAKEUP_BB_ID
+    { PIN_LCMD1_REG,     ( PIN_Z_EN | PIN_SPD_EN  | PIN_FUNC_DEF | PIN_FPX_EN | PIN_DS_1) },    // GPIO_54 :
+    { PIN_LCMD2_REG,     ( PIN_Z_EN | PIN_SPD_EN  | PIN_FUNC_DEF | PIN_FPX_EN | PIN_DS_1) },    // GPIO_55 :
+    { PIN_LCMD3_REG,     ( PIN_O_EN | PIN_SPD_EN  | PIN_FUNC_3 | PIN_FPD_EN | PIN_DS_1) },    // GPIO_56 : GPIO_PROD_BB_WAKEUP_AP_ID
+    { PIN_LCMD4_REG,     ( PIN_O_EN | PIN_SPD_EN  | PIN_FUNC_3 | PIN_FPU_EN | PIN_DS_1) },    // GPIO_57 :
+    { PIN_LCMD5_REG,     ( PIN_O_EN | PIN_SPD_EN  | PIN_FUNC_3 | PIN_FPU_EN | PIN_DS_1) },    // GPIO_58 :
+    { PIN_LCMD8_REG,     ( PIN_Z_EN | PIN_SPD_EN  | PIN_FUNC_DEF | PIN_FPX_EN | PIN_DS_1) },    // GPIO_61 :
+    { PIN_LCMRSTN_REG,   ( PIN_O_EN | PIN_SPX_EN  | PIN_FUNC_DEF | PIN_FPX_EN | PIN_DS_1) },    // GPIO_62 :
+#else
     { PIN_LCMCD_REG,     ( PIN_Z_EN | PIN_SPD_EN  | PIN_FUNC_DEF | PIN_FPX_EN | PIN_DS_1) },    // GPIO_41 :
     { PIN_LCMCS0_REG,    ( PIN_O_EN | PIN_SPX_EN  | PIN_FUNC_DEF | PIN_FPX_EN | PIN_DS_1) },    // GPIO_42 :
     { PIN_LCMCS1_REG,    ( PIN_I_EN | PIN_SPU_EN  | PIN_FUNC_3   | PIN_FPU_EN | PIN_DS_1) },    // GPIO_49 : GPIO_PROD_SIM_PLUG_IN_ID
+#if defined(WMMP_SDK_ENABLE)   //duanq 2013/10/15 
 #if 0
-    { PIN_LCMD0_REG,     ( PIN_Z_EN | PIN_SPD_EN  | PIN_FUNC_DEF | PIN_FPX_EN | PIN_DS_1) },    // GPIO_53 :
+    { PIN_LCMD0_REG,     ( PIN_I_EN | PIN_SPU_EN  | PIN_FUNC_2| PIN_FPU_EN | PIN_DS_1) },       // GPIO_53 :
 #else
 	{ PIN_LCMD0_REG,     ( PIN_O_EN | PIN_SPU_EN  | PIN_FUNC_3 | PIN_FPU_EN | PIN_DS_1) },    // GPIO_53 :
 	//{ PIN_IISCLK_REG,    ( PIN_O_EN | PIN_SPU_EN  | PIN_FUNC_3 | PIN_FPU_EN | PIN_DS_1) },
 #endif    
+    { PIN_LCMD1_REG,     ( PIN_O_EN | PIN_SPX_EN  | PIN_FUNC_2| PIN_FPX_EN | PIN_DS_1) },    // GPIO_54 :
+    { PIN_LCMD2_REG,     ( PIN_O_EN | PIN_SPU_EN  | PIN_FUNC_2| PIN_FPX_EN | PIN_DS_1) },    // GPIO_55 :
+    { PIN_LCMD3_REG,     ( PIN_O_EN | PIN_SPU_EN  | PIN_FUNC_2| PIN_FPX_EN | PIN_DS_1) },    // GPIO_56 : GPIO_PROD_BB_WAKEUP_AP_ID
+#else
+#if 0
+    { PIN_LCMD0_REG,     ( PIN_I_EN | PIN_SPD_EN  | PIN_FUNC_3   | PIN_FPU_EN | PIN_DS_1) },    // GPIO_53 : GPIO_PROD_AP_WAKEUP_BB_ID
+#else
+	{ PIN_LCMD0_REG,     ( PIN_O_EN | PIN_SPU_EN  | PIN_FUNC_3 | PIN_FPU_EN | PIN_DS_1) },    // GPIO_53 :
+#endif
     { PIN_LCMD1_REG,     ( PIN_Z_EN | PIN_SPD_EN  | PIN_FUNC_DEF | PIN_FPX_EN | PIN_DS_1) },    // GPIO_54 :
     { PIN_LCMD2_REG,     ( PIN_Z_EN | PIN_SPD_EN  | PIN_FUNC_DEF | PIN_FPX_EN | PIN_DS_1) },    // GPIO_55 :
-    { PIN_LCMD3_REG,     ( PIN_Z_EN | PIN_SPD_EN  | PIN_FUNC_DEF | PIN_FPX_EN | PIN_DS_1) },    // GPIO_56 :
-    { PIN_LCMD4_REG,     ( PIN_Z_EN | PIN_SPD_EN  | PIN_FUNC_DEF | PIN_FPX_EN | PIN_DS_1) },    // GPIO_57 :
-    { PIN_LCMD5_REG,     ( PIN_Z_EN | PIN_SPD_EN  | PIN_FUNC_DEF | PIN_FPX_EN | PIN_DS_1) },    // GPIO_58 :
+    { PIN_LCMD3_REG,     ( PIN_O_EN | PIN_SPD_EN  | PIN_FUNC_3 | PIN_FPD_EN | PIN_DS_1) },    // GPIO_56 : GPIO_PROD_BB_WAKEUP_AP_ID
+#endif
+    { PIN_LCMD4_REG,     ( PIN_O_EN | PIN_SPD_EN  | PIN_FUNC_3 | PIN_FPU_EN | PIN_DS_1) },    // GPIO_57 :
+    { PIN_LCMD5_REG,     ( PIN_O_EN | PIN_SPD_EN  | PIN_FUNC_3 | PIN_FPU_EN | PIN_DS_1) },    // GPIO_58 :
     { PIN_LCMD6_REG,     ( PIN_Z_EN | PIN_SPD_EN  | PIN_FUNC_DEF | PIN_FPX_EN | PIN_DS_1) },    // GPIO_59 :
     { PIN_LCMD7_REG,     ( PIN_Z_EN | PIN_SPD_EN  | PIN_FUNC_DEF | PIN_FPX_EN | PIN_DS_1) },    // GPIO_60 :
     { PIN_LCMD8_REG,     ( PIN_Z_EN | PIN_SPD_EN  | PIN_FUNC_DEF | PIN_FPX_EN | PIN_DS_1) },    // GPIO_61 :
@@ -157,30 +221,44 @@ const PM_PINFUNC_T pm_func[]=
     { PIN_LCMRSTN_REG,   ( PIN_O_EN | PIN_SPX_EN  | PIN_FUNC_DEF | PIN_FPX_EN | PIN_DS_1) },    // GPIO_62 :
     { PIN_LCMWR_REG,     ( PIN_Z_EN | PIN_SPD_EN  | PIN_FUNC_DEF | PIN_FPX_EN | PIN_DS_1) },    // GPIO_40 :
 #endif
-
+#endif
     { PIN_LCMD14_REG,    ( PIN_Z_EN | PIN_SPD_EN  | PIN_FUNC_DEF | PIN_FPD_EN | PIN_DS_1) },
     { PIN_LCMD15_REG,    ( PIN_Z_EN | PIN_SPD_EN  | PIN_FUNC_DEF | PIN_FPD_EN | PIN_DS_1) },
     { PIN_LCMD16_REG,    ( PIN_Z_EN | PIN_SPD_EN  | PIN_FUNC_DEF | PIN_FPD_EN | PIN_DS_1) },
     { PIN_LCMD17_REG,    ( PIN_Z_EN | PIN_SPD_EN  | PIN_FUNC_DEF | PIN_FPD_EN | PIN_DS_1) },
 
-#ifdef 1
-    { PIN_MTDO_REG,      ( PIN_Z_EN | PIN_SPU_EN  | PIN_FUNC_DEF | PIN_FPX_EN | PIN_DS_1) },    // GPIO_22 :
-    { PIN_MTDI_REG,      ( PIN_Z_EN | PIN_SPU_EN  | PIN_FUNC_DEF | PIN_FPU_EN | PIN_DS_1) },    // GPIO_20 : 
-    { PIN_MTCK_REG,      ( PIN_Z_EN | PIN_SPU_EN  | PIN_FUNC_DEF | PIN_FPU_EN | PIN_DS_1) },    // GPIO_21 :
-    { PIN_MTMS_REG,      ( PIN_Z_EN | PIN_SPU_EN  | PIN_FUNC_DEF | PIN_FPU_EN | PIN_DS_1) },    // GPIO_19 :
-    { PIN_MTRSTN_REG,    ( PIN_Z_EN | PIN_SPU_EN  | PIN_FUNC_DEF | PIN_FPU_EN | PIN_DS_1) },    // GPIO_23 :
+#if defined(WMMP_SDK_ENABLE)//hongtc 2013/10/18 
+	{ PIN_MTDO_REG, 	 ( PIN_Z_EN | PIN_SPX_EN  | PIN_FUNC_1 | PIN_FPX_EN | PIN_DS_1) },// GPIO_22 :
+#ifdef M2M_EVB_SUPPORT
+    { PIN_MTDI_REG,      ( PIN_O_EN | PIN_SPD_EN  | PIN_FUNC_3 | PIN_FPD_EN | PIN_DS_1) },    // GPIO_20 :
 #else
-    { PIN_MTDO_REG,      ( PIN_Z_EN | PIN_SPU_EN  | PIN_FUNC_1   | PIN_FPU_EN | PIN_DS_1) },    // GPIO_22 : SDA2: gsensor
-    { PIN_MTDI_REG,      ( PIN_Z_EN | PIN_SPD_EN  | PIN_FUNC_DEF | PIN_FPD_EN | PIN_DS_1) },    // GPIO_20 :
-    { PIN_MTCK_REG,      ( PIN_Z_EN | PIN_SPD_EN  | PIN_FUNC_DEF | PIN_FPD_EN | PIN_DS_1) },    // GPIO_21 : 
-    { PIN_MTMS_REG,      ( PIN_Z_EN | PIN_SPD_EN  | PIN_FUNC_DEF | PIN_FPD_EN | PIN_DS_1) },    // GPIO_19 :
-    { PIN_MTRSTN_REG,    ( PIN_Z_EN | PIN_SPU_EN  | PIN_FUNC_1   | PIN_FPU_EN | PIN_DS_1) },    // GPIO_23 : SCL2: gsensor
+    { PIN_MTDI_REG,      ( PIN_Z_EN | PIN_SPU_EN  | PIN_FUNC_DEF | PIN_FPU_EN | PIN_DS_1) },    // GPIO_20 : 
+#endif
+    { PIN_MTCK_REG,      ( PIN_Z_EN | PIN_SPX_EN  | PIN_FUNC_3 | PIN_FPX_EN | PIN_DS_1) },    // GPIO_21 :
+#ifdef M2M_EVB_SUPPORT
+    { PIN_MTMS_REG,      ( PIN_O_EN | PIN_SPD_EN  | PIN_FUNC_3 | PIN_FPD_EN | PIN_DS_1) },    // GPIO_19 :
+#else
+    { PIN_MTMS_REG,      ( PIN_O_EN | PIN_SPU_EN  | PIN_FUNC_3 | PIN_FPU_EN | PIN_DS_1) },    // GPIO_19 :
 #endif      
+    { PIN_MTRSTN_REG,    ( PIN_Z_EN | PIN_SPX_EN  | PIN_FUNC_1 | PIN_FPX_EN | PIN_DS_1) },// GPIO_23 :
+#if 0
     { PIN_PTEST_REG,     ( PIN_Z_EN | PIN_SPX_EN  | PIN_FUNC_DEF | PIN_FPD_EN | PIN_DS_1) },    // PULL DOWN TO GROUND EXTERNALLY
-#ifdef 0
+    { PIN_PWM_REG,       ( PIN_O_EN | PIN_SPD_EN  | PIN_FUNC_DEF   | PIN_FPD_EN | PIN_DS_1) },    // GPIO_25 : ATV_PCLK
+#else
+    { PIN_PWM_REG,       ( PIN_O_EN | PIN_SPU_EN  | PIN_FUNC_DEF   | PIN_FPU_EN | PIN_DS_1) },    // GPIO_25 : EXT_GPIO7/PWM
+#endif      
+#else
+    { PIN_MTDO_REG,      ( PIN_O_EN | PIN_SPU_EN  | PIN_FUNC_3 | PIN_FPX_EN | PIN_DS_1) },    // GPIO_22 :
+    { PIN_MTDI_REG,      ( PIN_O_EN | PIN_SPD_EN  | PIN_FUNC_3 | PIN_FPU_EN | PIN_DS_1) },    // GPIO_20 :
+    { PIN_MTCK_REG,      ( PIN_O_EN | PIN_SPD_EN  | PIN_FUNC_3 | PIN_FPU_EN | PIN_DS_1) },    // GPIO_21 :
+    { PIN_MTMS_REG,      ( PIN_O_EN | PIN_SPU_EN  | PIN_FUNC_3 | PIN_FPU_EN | PIN_DS_1) },    // GPIO_19 :
+    { PIN_MTRSTN_REG,    ( PIN_Z_EN | PIN_SPU_EN  | PIN_FUNC_DEF | PIN_FPU_EN | PIN_DS_1) },    // GPIO_23 :
+    { PIN_PTEST_REG,     ( PIN_Z_EN | PIN_SPX_EN  | PIN_FUNC_DEF | PIN_FPD_EN | PIN_DS_1) },    // PULL DOWN TO GROUND EXTERNALLY
+#if 0
     { PIN_PWM_REG,       ( PIN_Z_EN | PIN_SPD_EN  | PIN_FUNC_2   | PIN_FPX_EN | PIN_DS_1) },    // GPIO_25 : ATV_PCLK
 #else
     { PIN_PWM_REG,       ( PIN_O_EN | PIN_SPU_EN  | PIN_FUNC_DEF   | PIN_FPU_EN | PIN_DS_1) },    // GPIO_25 : EXT_GPIO7/PWM
+#endif
 #endif
     // following RF pins, if not used as DSP RF, they could be used as GPIO, e.g. PIN_RF_PAMODE_REG
     { PIN_RF_PAMODE_REG,   ( PIN_O_EN | PIN_SPX_EN  | PIN_FUNC_DEF | PIN_FPX_EN | PIN_DS_1)},    // GPIO_47 : DSP_RF
@@ -258,8 +336,39 @@ const PM_GPIO_CTL_T  pm_gpio_default_map[]=
 //   {0,         0,              PM_OUTPUT,          PM_NO_INT       },  // GPIO_PROD_SPEAKER_PA_EN_ID
 //   {47,        0,              PM_OUTPUT,          PM_NO_INT       },  // GPIO_PROD_BT_RESET_ID
 //   {49,        0,              PM_INPUT,           PM_LEVEL        },  // GPIO_PROD_SIM_PLUG_IN_ID 
+#ifdef M2M_EVB_SUPPORT
     {8,        0,              PM_INPUT,          PM_LEVEL       },
+    {19,		0,		 PM_OUTPUT,					PM_NO_INT},		//GPIO19  modify by ldq.2013-11-02
+    {20,		0,		 PM_OUTPUT,					PM_NO_INT},
+	{21,		1,		 PM_INPUT,					PM_LEVEL},		//GPIO21  modify by ldq.2013-11-02
+	{22,		0,		 PM_INPUT,					PM_LEVEL},		//GPIO22  modify by ldq.2013-11-02
+	{23,		1,		 PM_OUTPUT,					PM_NO_INT},		//GPIO23 modify by ldq.2013-11-02
+	{49,		0,		 PM_INPUT,					PM_LEVEL},		//GPIO49  modify by ldq.2013-11-02
     {53,        0,              PM_INPUT,          PM_NO_INT       },
+	{59,		1,		 PM_INPUT,					PM_NO_INT},		//GPIO59 modify by ldq.2013-11-02
+	{60,		1,		 PM_INPUT,					PM_NO_INT},		//GPIO60 modify by ldq.2013-11-02
+#else
+    {91,      0,      PM_OUTPUT,   PM_NO_INT},  //modify by lgz 2013-03-05
+#if defined(MODEM_COSTAR) || defined(MODEM_ROCKCHIP)
+    {86,     	1,      		PM_INPUT,      		PM_LEVEL		},   //GPIO86  GPIO_PROD_AP_WAKEUP_BB_ID
+    {87,     	0,      		PM_OUTPUT,   		PM_NO_INT		},   //GPIO87 GPIO_PROD_BB_WAKEUP_AP_ID
+#else
+#if !defined(WMMP_SDK_ENABLE)  //duanq 2013/10/15 wmmp sdk
+    {53,     	1,      		PM_INPUT,      		PM_LEVEL		},   //GPIO53  GPIO_PROD_AP_WAKEUP_BB_ID
+    {56,     	0,      		PM_OUTPUT,   		PM_NO_INT		},   //GPIO56  GPIO_PROD_BB_WAKEUP_AP_ID
+#endif    
+#if defined(AT_BASIC_MODEM) // ldq 2013-11-11
+	{20,		0,		 PM_INPUT,					PM_LEVEL},		//GPIO20  modify by ldq.2013-11-02
+	{21,		1,		 PM_INPUT,					PM_LEVEL},		//GPIO21  modify by ldq.2013-11-02
+	{22,		0,		 PM_INPUT,					PM_LEVEL},		//GPIO22  modify by ldq.2013-11-02
+	{19,		1,		 PM_INPUT,					PM_LEVEL},		//GPIO19  modify by ldq.2013-11-02
+	{23,		1,		 PM_OUTPUT,					PM_NO_INT},		//GPIO23 modify by ldq.2013-11-02
+	{57,		0,		 PM_INPUT,					PM_LEVEL},		//GPIO57  modify by ldq.2013-11-02
+	{58,		1,		 PM_INPUT,					PM_NO_INT},		//GPIO58 modify by ldq.2013-11-02
+#endif
+#endif
+    {89,        0,       PM_OUTPUT,          PM_NO_INT }, //Modified by lqf.2013-Jul-02
+#endif
     {0xffff,    0,              PM_INVALID_DIR,     PM_INVALID_INT  }
 };
 

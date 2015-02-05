@@ -2020,6 +2020,9 @@ PUBLIC uint32 ATC_ProcessSioSADLVVENVData(
                 uint8           *data_ptr,  // pointer to the data
                 uint16          param_len
                 );
+#ifndef DAM_TEST
+AT_CMD_FUNC(ATC_ProcessSFSTEST);
+#endif
 /**---------------------------------------------------------------------------*
  **                         Compiler Flag                                     *
  **---------------------------------------------------------------------------*/

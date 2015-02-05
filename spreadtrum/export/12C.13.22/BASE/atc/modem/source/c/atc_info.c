@@ -5031,6 +5031,10 @@ const ATC_PARAM_STRING_T    atc_cmd_name_IPDEACT[1] =
     { 8, (const uint8 *)"+IPDEACT" }
 };
 
+const ATC_PARAM_STRING_T    atc_cmd_name_SFSTEST[1] = 
+{
+    { 8, (const uint8 *)"+SFSTEST" }
+};
 const ATC_PARAM_STRING_T    atc_cmd_name_AMS[1] = 
 {
     { 3, (const uint8 *)"AMS" }
@@ -5454,22 +5458,23 @@ const ATC_INFO_T            g_atc_info_table[] =
     { 272,  14, atc_cmd_name_IPSEND,  2, atc_param_info_IPSEND },
     { 273,  10, atc_cmd_name_IPCLOSE,  1, atc_param_info_IPCLOSE },
     { 274,   9, atc_cmd_name_IPDEACT,  0, NULL },
-    { 275,   1, atc_cmd_name_AMS,  0, NULL },
-    { 276,   3, atc_cmd_name_AMSOTA,  1, atc_param_info_AMSOTA },
-    { 277,   3, atc_cmd_name_AMSINSTALL,  1, atc_param_info_AMSINSTALL },
-    { 278,   3, atc_cmd_name_AMSDL,  1, atc_param_info_AMSDL },
-    { 279,   3, atc_cmd_name_AMSDELETE,  1, atc_param_info_AMSDELETE },
-    { 280,   1, atc_cmd_name_AMSDELETEALL,  0, NULL },
-    { 281,   3, atc_cmd_name_AMSRUN,  1, atc_param_info_AMSRUN },
-    { 282,   1, atc_cmd_name_AMSLIST,  0, NULL },
-    { 283,   3, atc_cmd_name_AMSDESTROY,  1, atc_param_info_AMSDESTROY },
-    { 284,   1, atc_cmd_name_AMSSTATUS,  0, NULL },
-    { 285,   1, atc_cmd_name_AMSRESET,  0, NULL },
-    { 286,   3, atc_cmd_name_AMSCFGINIT,  1, atc_param_info_AMSCFGINIT },
-    { 287,   3, atc_cmd_name_AMSCFGURL,  1, atc_param_info_AMSCFGURL },
-    { 288,   3, atc_cmd_name_AMSCFGACCOUNT,  1, atc_param_info_AMSCFGACCOUNT },
-    { 289,   3, atc_cmd_name_AMSCFGCANCEL,  1, atc_param_info_AMSCFGCANCEL },
-    { 290,   1, atc_cmd_name_AMSCFGCANCELALL,  0, NULL }
+    { 275,   1, atc_cmd_name_SFSTEST,  0, NULL },
+    { 276,   1, atc_cmd_name_AMS,  0, NULL },
+    { 277,   3, atc_cmd_name_AMSOTA,  1, atc_param_info_AMSOTA },
+    { 278,   3, atc_cmd_name_AMSINSTALL,  1, atc_param_info_AMSINSTALL },
+    { 279,   3, atc_cmd_name_AMSDL,  1, atc_param_info_AMSDL },
+    { 280,   3, atc_cmd_name_AMSDELETE,  1, atc_param_info_AMSDELETE },
+    { 281,   1, atc_cmd_name_AMSDELETEALL,  0, NULL },
+    { 282,   3, atc_cmd_name_AMSRUN,  1, atc_param_info_AMSRUN },
+    { 283,   1, atc_cmd_name_AMSLIST,  0, NULL },
+    { 284,   3, atc_cmd_name_AMSDESTROY,  1, atc_param_info_AMSDESTROY },
+    { 285,   1, atc_cmd_name_AMSSTATUS,  0, NULL },
+    { 286,   1, atc_cmd_name_AMSRESET,  0, NULL },
+    { 287,   3, atc_cmd_name_AMSCFGINIT,  1, atc_param_info_AMSCFGINIT },
+    { 288,   3, atc_cmd_name_AMSCFGURL,  1, atc_param_info_AMSCFGURL },
+    { 289,   3, atc_cmd_name_AMSCFGACCOUNT,  1, atc_param_info_AMSCFGACCOUNT },
+    { 290,   3, atc_cmd_name_AMSCFGCANCEL,  1, atc_param_info_AMSCFGCANCEL },
+    { 291,   1, atc_cmd_name_AMSCFGCANCELALL,  0, NULL }
 
 };
 /*lint +e651*/
@@ -5753,22 +5758,9 @@ ATC_Func_Handle_F g_atc_handle_table[] =
     ATC_ProcessIPSEND,
     ATC_ProcessIPCLOSE,
     ATC_ProcessIPDEACT,
-    ATC_ProcessAMS,
-    ATC_ProcessAMSOTA,
-    ATC_ProcessAMSINSTALL,
-    ATC_ProcessAMSDL,
-    ATC_ProcessAMSDELETE,
-    ATC_ProcessAMSDELETEALL,
-    ATC_ProcessAMSRUN,
-    ATC_ProcessAMSLIST,
-    ATC_ProcessAMSDESTROY,
-    ATC_ProcessAMSSTATUS,
-    ATC_ProcessAMSRESET,
-    ATC_ProcessAMSCFGINIT,
-    ATC_ProcessAMSCFGURL,
-    ATC_ProcessAMSCFGACCOUNT,
-    ATC_ProcessAMSCFGCANCEL,
-    ATC_ProcessAMSCFGCANCELALL,
+#ifndef DAM_TEST
+    ATC_ProcessSFSTEST,
+#endif     
 };
 
 

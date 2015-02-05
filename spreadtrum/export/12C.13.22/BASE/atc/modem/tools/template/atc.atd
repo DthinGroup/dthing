@@ -1648,6 +1648,11 @@ xor_SYSCONFIG
     " "
 };
 
++SFSTEST
+{
+    1,
+    " "
+};
 AMS
 {
     1,

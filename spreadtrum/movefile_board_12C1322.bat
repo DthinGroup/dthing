@@ -16,24 +16,6 @@ set EXPORT_SOURCE_ROOT=%SRCDIR%\spreadtrum\export\12C.13.22
 RMDIR /S /Q %DTHINGDIR%\
 MKDIR %DTHINGDIR%\
 
-XCOPY /R /Y %SRCDIR%\appdb\*  %DTHINGDIR%\appdb\
-XCOPY /R /Y %SRCDIR%\base\inc\*  %DTHINGDIR%\base\inc\
-XCOPY /R /Y %SRCDIR%\base\src\*  %DTHINGDIR%\base\src\
-XCOPY /R /Y %SRCDIR%\main\*  %DTHINGDIR%\main\
-XCOPY /R /Y %SRCDIR%\porting\inc\*  %DTHINGDIR%\porting\inc\
-XCOPY /R /Y %SRCDIR%\porting\src\*  %DTHINGDIR%\porting\src\
-XCOPY /R /Y %SRCDIR%\rams\inc\*  %DTHINGDIR%\rams\inc\
-XCOPY /R /Y %SRCDIR%\rams\src\*  %DTHINGDIR%\rams\src\
-XCOPY /R /Y %SRCDIR%\vm\impl\*  %DTHINGDIR%\vm\impl\
-XCOPY /R /Y %SRCDIR%\vm\inc\*  %DTHINGDIR%\vm\inc\
-XCOPY /R /Y %SRCDIR%\vm\src\*  %DTHINGDIR%\vm\src\
-XCOPY /R /Y %SRCDIR%\vm\common.h  %DTHINGDIR%\vm\
-XCOPY /R /Y %SRCDIR%\vm\dthing.h  %DTHINGDIR%\vm\
-XCOPY /R /Y %SRCDIR%\vm\init.c  %DTHINGDIR%\vm\
-XCOPY /R /Y %SRCDIR%\www\inc\*  %DTHINGDIR%\www\inc\
-XCOPY /R /Y %SRCDIR%\www\src\*  %DTHINGDIR%\www\src\
-XCOPY /R /Y %SRCDIR%\zlib\*  %DTHINGDIR%\zlib\
-
 XCOPY /R /Y %EXPORT_SOURCE_ROOT%\SC6530.modules  %DESDIR%\
 XCOPY /R /Y %EXPORT_SOURCE_ROOT%\SC6800H.modules  %DESDIR%\
 XCOPY /R /Y %EXPORT_SOURCE_ROOT%\SC8800G.modules  %DESDIR%\
@@ -54,6 +36,9 @@ XCOPY /R /Y %EXPORT_SOURCE_ROOT%\BASE\atc\modem\source\c\atc_lex.c %DESDIR%\BASE
 XCOPY /R /Y %EXPORT_SOURCE_ROOT%\BASE\atc\modem\source\c\atc_yacc.c %DESDIR%\BASE\atc\modem\source\c\
 XCOPY /R /Y %EXPORT_SOURCE_ROOT%\BASE\atc\modem\source\h\atc_basic_cmd.h %DESDIR%\BASE\atc\modem\source\h\
 XCOPY /R /Y %EXPORT_SOURCE_ROOT%\BASE\atc\modem\source\h\atc_def.h %DESDIR%\BASE\atc\modem\source\h\
+XCOPY /R /Y %EXPORT_SOURCE_ROOT%\BASE\atc\modem\source\c\modem_*.c %DESDIR%\BASE\atc\modem\source\c\
+XCOPY /R /Y %EXPORT_SOURCE_ROOT%\BASE\atc\modem\source\h\modem_*.h %DESDIR%\BASE\atc\modem\source\h\
+XCOPY /R /Y %EXPORT_SOURCE_ROOT%\BASE\make\atc\atc.mk %DESDIR%\BASE\make\atc\
 XCOPY /R /Y %EXPORT_SOURCE_ROOT%\inc\cpl_atcontrol.h %DESDIR%\MS_Ref\export\inc\
 
 XCOPY /R /Y %EXPORT_SOURCE_ROOT%\MS_Ref\source\base\src\init.c %DESDIR%\MS_Ref\source\base\src\

@@ -78,6 +78,7 @@
 #include "sci_codec.h"
 #include "nv_classmark.h"
 
+#include "modem_public.h"
 #ifdef WIN32
 #define ATC_MODE          0x01
 #define DATA_MODE         0x02
@@ -282,6 +283,11 @@ extern MUX_SYS_PARA_T cmux_sys_para;
 
 ATC_BUF_T             atc_buffer[MN_SYS_NUMBER] = {0};
 
+#define MAX_MODEM_FILE_BUFFER_SIZE 2048
+#define MAX_DEBUG_BUFFER_SIZE 512
+static uint8 atc_cmd_buffer[MAX_MODEM_FILE_BUFFER_SIZE] = {0};
+static uint32 atc_cmd_buffer_len = 0;
+static uint32 atc_cmd_buffer_pos = 0;
 static BOOLEAN        atc_is_echo;
 
 static char           atc_end_ch1[ATC_MAX_LINK_ID];
@@ -1955,6 +1961,22 @@ void ATC_SetCmdLineBackSpaceChar(
     atc_bs_ch[link_id] = back_space_char;
 }
 
+int ATC_CheckSOH(const char* data, int datalen)
+{
+  int i = 0;
+  int result = -1;
+  char* pch = data;
+  for(i = 0; i < datalen; i++)
+  {
+    if (*pch == 0x01)//XSOH
+    {
+      result = i;
+      break;
+    }
+    pch++;
+  }
+  return result;
+}
 /******************************************************************************/
 // Description : This function called by CMUX to ind ATC that a new char received
 // Global resource dependence :
@@ -1966,7 +1988,80 @@ void ATC_SendNewATInd(uint8 link_id, uint32 data_length, uint8 *data_ptr)
     MN_DUAL_SYS_E dual_sys = ATC_GetSimIdFromLinkId(link_id);
     ATC_MUX_RECV_NEW_AT_T   *psig = PNULL;
     unsigned char           nchar = '\0';
+    uint32 ulen = 0;
 
+    ATC_TRACE_LOW("ATC_SendNewATInd: link_id:%d data_length:%d\n", link_id, data_length);
+#ifndef NO_MODEM_PROTOCOL
+    if (ATC_isFileProtocolMode(link_id))
+    {
+      if ((atc_cmd_buffer_len + data_length) > MAX_MODEM_FILE_BUFFER_SIZE)
+      {
+        int len = atc_cmd_buffer_len - atc_cmd_buffer_pos;
+        memcpy(&atc_cmd_buffer[0], &atc_cmd_buffer[atc_cmd_buffer_pos], len);
+        atc_cmd_buffer_len = len;
+        atc_cmd_buffer_pos = 0;
+        memset(&atc_cmd_buffer[atc_cmd_buffer_len], 0x0, (MAX_MODEM_FILE_BUFFER_SIZE - atc_cmd_buffer_len));
+      }
+      if (ATC_isFileReceivingMode(link_id))
+      {
+        uint8 tchar[MAX_DEBUG_BUFFER_SIZE] = {0};
+        int startPos = atc_cmd_buffer_len;
+        for (ulen = 0; ulen < data_length; ulen++)
+        {
+          atc_cmd_buffer[startPos + ulen] = (uint8)data_ptr[ulen];
+          atc_cmd_buffer_len++;
+        }
+        ConvertBinToHex(&atc_cmd_buffer[atc_cmd_buffer_pos], ulen, tchar);
+        ATC_TRACE_LOW("[ModemFile] ATC_SendNewATInd: %s\n", tchar);
+        if (ulen > 0)
+        {
+          SCI_CREATE_SIGNAL((xSignalHeaderRec *)psig, ATC_MUX_RECV_NEW_AT, sizeof(ATC_MUX_RECV_NEW_AT_T), SCI_IdentifyThread());//lint !e63
+          psig->len       = ulen;//lint !e613
+          psig->link_id   = link_id;//lint !e613
+          s_atc_global_info.buffered_at_cmd_count++;
+          SCI_SEND_SIGNAL((xSignalHeaderRec *)psig, P_ATC);
+        }
+        return;
+      }
+      else
+      {
+        uint8 tchar[MAX_DEBUG_BUFFER_SIZE] = {0};
+        int cur = ATC_CheckSOH(data_ptr, data_length);
+        int startPos = atc_cmd_buffer_len;
+        if (cur >= 0)
+        {
+          atc_cmd_buffer_len = 0;
+          atc_cmd_buffer_pos = 0;
+          memset(&atc_cmd_buffer[0], 0x0, MAX_MODEM_FILE_BUFFER_SIZE);
+          for (ulen = cur; ulen < data_length; ulen++)
+          {
+            atc_cmd_buffer[startPos + ulen] = (uint8)data_ptr[ulen];
+            atc_cmd_buffer_len++;
+          }
+          ConvertBinToHex(&atc_cmd_buffer[atc_cmd_buffer_pos], ulen, tchar);
+          ATC_TRACE_LOW("[ModemFile] ATC_SendNewATInd: %s\n", tchar);
+          if ((ulen - cur) > 0)
+          {
+            SCI_CREATE_SIGNAL((xSignalHeaderRec *)psig, ATC_MUX_RECV_NEW_AT, sizeof(ATC_MUX_RECV_NEW_AT_T), SCI_IdentifyThread());//lint !e63
+            psig->len       = ulen - cur;//lint !e613
+            psig->link_id   = link_id;//lint !e613
+            s_atc_global_info.buffered_at_cmd_count++;
+            SCI_SEND_SIGNAL((xSignalHeaderRec *)psig, P_ATC);
+          }
+          return;
+        }
+      }
+    }
+    else
+    {
+        if ((atc_cmd_buffer_len > 0) || (atc_cmd_buffer_pos > 0))
+        {
+            atc_cmd_buffer_len = 0;
+            atc_cmd_buffer_pos = 0;
+            memset(atc_cmd_buffer, 0x0, MAX_MODEM_FILE_BUFFER_SIZE);
+        }
+    }
+#endif
     ATC_TRACE_LOW("ATC: N_ATInd,link_id:%d,data_len:%d ,%x, %x, close:%d,cnt:%d,discard:%d,ch1:%d,ch2:%d",
                   link_id, data_length, data_ptr[data_length-2], data_ptr[data_length-1],
                   is_close_atc_queue, s_atc_global_info.buffered_at_cmd_count, s_dicard_count,
@@ -1994,7 +2089,7 @@ void ATC_SendNewATInd(uint8 link_id, uint32 data_length, uint8 *data_ptr)
         *  buffer at command num and should buffer at command length,if it over 1200 bytes
         * we should clear the first at command for very long at command
         */
-
+        ATC_TRACE_LOW("ATC: buffered_at_cmd_count >= 16\n");
         is_close_atc_queue = TRUE;
     }
 
@@ -2023,7 +2118,7 @@ void ATC_SendNewATInd(uint8 link_id, uint32 data_length, uint8 *data_ptr)
 
         if(s_atc_global_info.buffered_at_cmd_count >= 16) //16, modify to 50 by auto tesf jungo
         {
-            //ATC_TRACE_LOW("ATC:Discard some message!! ");
+            ATC_TRACE_LOW("ATC:Discard some message!! ");
             s_dicard_count++;
             continue;
         }
@@ -2032,6 +2127,7 @@ void ATC_SendNewATInd(uint8 link_id, uint32 data_length, uint8 *data_ptr)
             (nchar == atc_end_ch1[link_id] || nchar == atc_end_ch2[link_id])
             || nchar == 0x0a)
         {
+            ATC_TRACE_LOW("ATC: continue 0\n");
             continue;
         }
 
@@ -2980,7 +3076,7 @@ void ATC_Task(uint32 argc, void *argv)
 
         ATC_Task_Dispatch(sig_ptr);
 
-        if(s_atc_global_info.buffered_at_cmd_count > 16)
+        if(s_atc_global_info.buffered_at_cmd_count > 64)
         {
             ATC_TRACE_LOW("ATC: CMD COUNT ERROR %d, SigCode=%d",
                           s_atc_global_info.buffered_at_cmd_count, sig_ptr->SignalCode);
@@ -4349,7 +4445,7 @@ LOCAL ATC_STATUS ATC_Initialize(void  // Retur S_ATC_SUCCESS if success,
     ATC_InitAutoStartPS();
 #else
     //auto start ps when run in CALIBRATION_POST_MODE
-    if (  (CALIBRATION_POST_MODE == POWER_GetResetMode()) || (CALIBRATION_MODE == POWER_GetResetMode()) || (CALIBRATION_POST_NO_LCM_MODE == POWER_GetResetMode()))
+    //if (  (CALIBRATION_POST_MODE == POWER_GetResetMode()) || (CALIBRATION_MODE == POWER_GetResetMode()) || (CALIBRATION_POST_NO_LCM_MODE == POWER_GetResetMode()))
     {//modify by longsung  
         ATC_InitAutoStartPSNoSat();
     }
@@ -4434,6 +4530,21 @@ LOCAL ATC_STATUS ATC_RecNewLineSig(  // Return S_ATC_SUCCESS if success,
     dual_sys = ATC_GetSimIdFromLinkId(((ATC_MUX_RECV_NEW_AT_T *)sig_ptr)->link_id);
 
     ATC_TRACE_LOW("ATC: N_AT_L, link_id:%d, len:%d", atc_link_id, atc_line_length);
+    {
+        uint8 tchar[MAX_DEBUG_BUFFER_SIZE] = {0};
+        ConvertBinToHex(&atc_cmd_buffer[atc_cmd_buffer_pos], (atc_cmd_buffer_len - atc_cmd_buffer_pos), tchar);
+        ATC_TRACE_LOW("[ModemFile] ATC_RecNewLineSig: %s\n", tchar);
+    }
+    if (0 <= ATC_ProcessModemFileProtocol(atc_global_info_ptr->atc_config_ptr,
+                                          &atc_cmd_buffer[atc_cmd_buffer_pos],
+                                          (atc_cmd_buffer_len - atc_cmd_buffer_pos),
+                                          atc_link_id,
+                                          ATC_SendReslutRsp))
+    {
+      atc_cmd_buffer_pos = atc_cmd_buffer_len;
+      ATC_TRACE_LOW("[ModemFile] modem file protocol response ok\n");
+      return S_ATC_SUCCESS;
+    }
 
     if(0 == atc_line_length)
     {
@@ -6500,9 +6611,10 @@ void ATC_InitConfig(
 LOCAL void ATC_RegisterEvent(void)
 {
     POWER_RESTART_CONDITION_E      start_condition = POWER_GetRestartCondition();
-
+#if 0
     if ((RESTART_BY_ALARM != start_condition &&RESTART_BY_CHARGE != start_condition)
         || 1 == CLASSMARK_GetModelType() )
+#endif        
     {
         //Register phone event
         SCI_RegisterMsg( MN_APP_PHONE_SERVICE, 
@@ -8742,6 +8854,26 @@ void ATC_SendReslutRsp(
 }
 
 /******************************************************************************/
+void ATC_SendReslutRspEx(
+                 uint8 current_link_id,
+                 uint8  *data_ptr,                // point to the response string
+                 uint32 data_length               // length of response string
+                 )
+{
+    ATC_SaveResultRsp(current_link_id, data_ptr, data_length);
+#ifdef _MUX_ENABLE_
+    if(ATC_DEBUG_LINK == current_link_id)
+    {
+        SIO_ATC_WriteCmdRes(data_ptr, data_length);
+    }
+    else
+    {
+        MUX_Write(data_ptr, data_length, current_link_id);
+    }
+#else
+    SIO_ATC_WriteCmdRes(data_ptr, data_length);
+#endif
+}
 // Description : This function send the asynchronous information.
 // Global resource dependence : None
 // Author : Elvis.xu

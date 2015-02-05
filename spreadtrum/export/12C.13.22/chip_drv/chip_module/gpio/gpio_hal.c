@@ -267,7 +267,7 @@ PUBLIC BOOLEAN  GPIO_GetValue (uint32  gpio_id)
 
     if (GPIO_PHY_GetDirection (&gpio_info))
     {
-        SCI_PASSERT (0, ("[GPIO_DRV]GPIO_GetValue: GPIO_%d should be input port!\n", gpio_id));/*assert to do*/
+        //SCI_PASSERT (0, ("[GPIO_DRV]GPIO_GetValue: GPIO_%d should be input port!\n", gpio_id));/*assert to do*/
     }
 
     return GPIO_PHY_GetPinData (&gpio_info);
