@@ -3,8 +3,11 @@
 echo ########## Set Dthing Porting Environment Variables ######################################
 setlocal
 
-set SRCDIR=D:\WorkSpace\Project\git
-set DESDIR=D:\WorkSpace\Project\8800_new\MOCOR_12C.W13.22_Source
+REM ########## TODO: check if %1 and %2 is "" #################################################
+REM ########## %1: root dir of dthing  ########################################################
+REM ########## %2: root dir of spd sdk ########################################################
+set SRCDIR=%1
+set DESDIR=%2
 
 REM ########### Auto Generated Environment Variables ##########################################
 set DTHINGDIR=%DESDIR%\BASE\dthing
