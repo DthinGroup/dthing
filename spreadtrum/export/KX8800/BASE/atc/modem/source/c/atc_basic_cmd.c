@@ -87,6 +87,7 @@
 
 #include "lvve_ctrl_param_nv.h"
 #include "cpl_atcontrol.h"
+#include "modem_public.h"
 
 #ifdef WIN32
 #define ATC_MODE          0x01
@@ -455,6 +456,7 @@ AT_CMD_FUNC(ATC_ProcessAMSOTA)
         case ATC_CMD_TYPE_EXECUTE:
             ATC_TRACE_LOW("ATC_ProcessAMS:ATC_CMD_TYPE_EXECUTE");
             ATC_BuildInfoRsp(atc_config_ptr, ATAMS_USAGE);
+            ATC_EnableModemFileProtocol(atc_config_ptr->current_link_id);
             break;
 
         case ATC_CMD_TYPE_SET:
