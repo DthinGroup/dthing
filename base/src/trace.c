@@ -23,7 +23,7 @@ void DthingTrace(const char* tag, const char* fmt, va_list argList)
 	#if defined(WIN32)
 		SCI_Trace(msgBuf);
 	#else
-		SCI_TraceLow(msgBuf);
+		Dthing_log(msgBuf);
 	#endif    
 #else
 	#error "unsupport!"
