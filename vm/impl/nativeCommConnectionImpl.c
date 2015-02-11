@@ -13,7 +13,7 @@ static int s_deviceType = DEVICE_NORMAL;
 #include "os_api.h"
 #include "com_drvapi.h"
 #include "AsyncIO.h"
-#include "gps_drv.h"
+//#include "gps_drv.h"
 #endif
 
 #if defined(ARCH_ARM_SPD)
@@ -27,6 +27,48 @@ static void cpl_com_stop_reading(int port);
 static void cpl_com_start_writing(int port);
 static void cpl_com_stop_writing(int port);
 #endif
+
+int GPS_GetStatus()
+{
+    //TODO:
+    return -1;
+}
+
+int GPS_Init()
+{
+    //TODO:
+    return -1;
+}
+
+int GPS_Open(int mode)
+{
+    //TODO:
+    return -1;
+}
+
+int GPS_Close()
+{
+    //TODO:
+    return -1;
+}
+
+int GPS_ReadData(char * read_buf_ptr, int byte_to_read)
+{
+    //TODO:
+    return -1;
+}
+
+int GPS_WriteData(char * write_buf_ptr, int byte_to_write)
+{
+    //TODO:
+    return -1;
+}
+
+int GPS_SetBaudRate(int bps)
+{
+    //TODO:
+    return -1;
+}
 
 /**
  * Class:     iot_oem_comm_CommConnectionImpl
@@ -585,7 +627,7 @@ void Java_iot_oem_comm_CommConnectionImpl_writeBytes0(const u4*args, JValue* pRe
     if (AsyncIO_firstCall())
     {
         writeDoneNotifier = Async_getCurNotifier();
-        if (s_deviceType = DEVICE_GPS)
+        if (s_deviceType == DEVICE_GPS)
         {
             ret = GPS_WriteData(data, len);
             DthingTraceD("[GPS] write gps data with result[%d]\n", ret);
@@ -624,7 +666,7 @@ void Java_iot_oem_comm_CommConnectionImpl_readBytes0(const u4*args, JValue* pRes
 
     if (AsyncIO_firstCall())
     {
-        if (s_deviceType = DEVICE_GPS)
+        if (s_deviceType == DEVICE_GPS)
         {
             ret = GPS_ReadData(buf, len);
             DthingTraceD("[GPS] read gps data with result[%d]\n", ret);
