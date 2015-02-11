@@ -29,7 +29,7 @@ static void cpl_com_stop_writing(int port);
 #endif
 
 #define GPS_MODE_NORMAL 0
-#define GPS_ERR_NONE = 0
+#define GPS_ERR_NONE 0
 
 int GPS_GetStatus()
 {
