@@ -1,11 +1,19 @@
 #include <vm_common.h>
 #include "nativeCommConnectionImpl.h"
 
+//STATIC_iot_oem_comm_CommConnectionImpl_DEVICE_NORMAL
+#define DEVICE_NORMAL 0
+//STATIC_iot_oem_comm_CommConnectionImpl_DEVICE_GPS
+#define DEVICE_GPS    1
+
+static int s_deviceType = DEVICE_NORMAL;
+
 #if defined(ARCH_ARM_SPD)
 #include "sci_types.h"
 #include "os_api.h"
 #include "com_drvapi.h"
 #include "AsyncIO.h"
+#include "gps_drv.h"
 #endif
 
 #if defined(ARCH_ARM_SPD)
@@ -23,20 +31,41 @@ static void cpl_com_stop_writing(int port);
 /**
  * Class:     iot_oem_comm_CommConnectionImpl
  * Method:    open0
- * Signature: (II)I
+ * Signature: (III)I
  */
 void Java_iot_oem_comm_CommConnectionImpl_open0(const u4* args, JValue* pResult) {
     ClassObject* thisObj = (ClassObject*) args[0];
     jint port = (jint) args[1];
     jint bps = (jint)args[2];
+    jint device = (jint)args[3];
     jint ret = 0;
 
 #if defined(ARCH_ARM_SPD)
-    ret = cpl_com_default_init(port, bps);
-    SCI_Sleep(1000);
-    cpl_com_default_open(port);
-    DthingTraceD("[COM] open COM%d with baudrate %d\n", port, bps);
- #endif
+    if (s_deviceType == DEVICE_GPS)
+    {
+        int i = 0;
+        for (i = 0; i < 10; i++)
+        {
+            SCI_Sleep(10000);
+            ret = GPS_Init();
+
+            if(ret == 0)
+                break;
+        }
+        DthingTraceD("[GPS] do init with result %d and gps status %d\n", ret, GPS_GetStatus());
+        ret = GPS_Open(GPS_MODE_NORMAL);
+        DthingTraceD("[GPS] do open with result %d and gps status %d\n", ret, GPS_GetStatus());
+    }
+    else
+    {
+        s_deviceType = device;
+
+        ret = cpl_com_default_init(port, bps);
+        SCI_Sleep(1000);
+        cpl_com_default_open(port);
+        DthingTraceD("[COM] open COM%d with baudrate %d\n", port, bps);
+    }
+#endif
 
     RETURN_INT(ret);
 }
@@ -91,7 +120,14 @@ void Java_iot_oem_comm_CommConnectionImpl_setBaudRate0(const u4* args, JValue* p
     jint ret = 0;
 
 #if defined(ARCH_ARM_SPD)
-    UART_SetBaudSpeed(port, bps);
+    if (s_deviceType == DEVICE_GPS)
+    {
+        GPS_SetBaudRate(bps);
+    }
+    else
+    {
+        UART_SetBaudSpeed(port, bps);
+    }
     DthingTraceD("[COM] set COM%d baudrate to %d\n", port, bps);
  #endif
 
@@ -109,7 +145,17 @@ void Java_iot_oem_comm_CommConnectionImpl_close0(const u4* args, JValue* pResult
     jint ret = 0;
 
 #if defined(ARCH_ARM_SPD)
-    cpl_com_default_close(port);
+    if (s_deviceType == DEVICE_GPS)
+    {
+        if (GPS_ERR_NONE != GPS_Close())
+        {
+            ret = -1;
+        }
+    }
+    else
+    {
+        cpl_com_default_close(port);
+    }
     DthingTraceD("[COM] close COM%d\n", port);
  #endif
 
@@ -539,9 +585,17 @@ void Java_iot_oem_comm_CommConnectionImpl_writeBytes0(const u4*args, JValue* pRe
     if (AsyncIO_firstCall())
     {
         writeDoneNotifier = Async_getCurNotifier();
-        ret = cpl_com_write(port, data, len);
+        if (s_deviceType = DEVICE_GPS)
+        {
+            ret = GPS_WriteData(data, len);
+            DthingTraceD("[GPS] write gps data with result[%d]\n", ret);
+        }
+        else
+        {
+            ret = cpl_com_write(port, data, len);
+        }
         DthingTraceD("[COM%d] write data with result[%d]\n", port, ret);
-	 //FIXME: Implement async write function
+        //FIXME: Implement async write function
         writeDoneNotifier = NULL;
     }
 #endif
@@ -570,10 +624,18 @@ void Java_iot_oem_comm_CommConnectionImpl_readBytes0(const u4*args, JValue* pRes
 
     if (AsyncIO_firstCall())
     {
-        if (uart_object.rec_len > 0)
+        if (s_deviceType = DEVICE_GPS)
         {
-            ret = cpl_com_read(port, buf, len);
-            DthingTraceD("[COM%d] read data with result[%d]\n", port, ret);
+            ret = GPS_ReadData(buf, len);
+            DthingTraceD("[GPS] read gps data with result[%d]\n", ret);
+        }
+        else
+        {
+            if (uart_object.rec_len > 0)
+            {
+                ret = cpl_com_read(port, buf, len);
+                DthingTraceD("[COM%d] read data with result[%d]\n", port, ret);
+            }
         }
         //FIXME: Implement async read function
         dataReadyNotifier = NULL;
