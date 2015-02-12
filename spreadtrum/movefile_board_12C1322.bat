@@ -21,11 +21,14 @@ XCOPY /R /Y %EXPORT_SOURCE_ROOT%\SC6800H.modules  %DESDIR%\
 XCOPY /R /Y %EXPORT_SOURCE_ROOT%\SC8800G.modules  %DESDIR%\
 XCOPY /R /Y %EXPORT_SOURCE_ROOT%\Makefile.rules  %DESDIR%\
 XCOPY /R /Y %EXPORT_SOURCE_ROOT%\Makefile.third-party  %DESDIR%\
+XCOPY /R /Y %EXPORT_SOURCE_ROOT%\project_sc6500_32X32_modem.mk  %DESDIR%\
+XCOPY /R /Y %EXPORT_SOURCE_ROOT%\project_sc6500_32X32_modem_debug.mk  %DESDIR%\
 
 XCOPY /R /Y %EXPORT_SOURCE_ROOT%\dthing.mk  %DESDIR%\BASE\make\dthing\
 XCOPY /R /Y %EXPORT_SOURCE_ROOT%\priority_app.h  %DESDIR%\common\export\inc\
 XCOPY /R /Y %EXPORT_SOURCE_ROOT%\sc6500_modem\os_app_cfg.c  %DESDIR%\MS_Customize\source\product\config\sc6500_modem\
 XCOPY /R /Y %EXPORT_SOURCE_ROOT%\sc6530_modem\os_app_cfg.c  %DESDIR%\MS_Customize\source\product\config\sc6530_modem\
+XCOPY /R /Y %EXPORT_SOURCE_ROOT%\make\custom_drv\custom_drv.mk %DESDIR%\make\custom_drv\
 
 REM ########## Spreadtrum SDK files changed by Yarlung Software ################################
 XCOPY /R /Y %EXPORT_SOURCE_ROOT%\BASE\atc\modem\tools\template\atc.atd %DESDIR%\BASE\atc\modem\tools\template\
@@ -44,6 +47,9 @@ XCOPY /R /Y %EXPORT_SOURCE_ROOT%\inc\cpl_atcontrol.h %DESDIR%\MS_Ref\export\inc\
 XCOPY /R /Y %EXPORT_SOURCE_ROOT%\MS_Ref\source\base\src\init.c %DESDIR%\MS_Ref\source\base\src\
 
 XCOPY /R /Y %EXPORT_SOURCE_ROOT%\MS_Customize\export\inc\gps_com.h %DESDIR%\MS_Customize\export\inc\
+
+XCOPY /R /Y %EXPORT_SOURCE_ROOT%\MS_Customize\source\product\driver\gps\*.c %DESDIR%\MS_Customize\source\product\driver\gps\
+XCOPY /R /Y %EXPORT_SOURCE_ROOT%\MS_Customize\source\product\driver\gps\sirf\*.c %DESDIR%\MS_Customize\source\product\driver\gps\sirf\
 
 XCOPY /R /Y %EXPORT_SOURCE_ROOT%\MS_Customize\source\product\config\sc6500_modem\mem_cfg.c %DESDIR%\MS_Customize\source\product\config\sc6500_modem\
 XCOPY /R /Y %EXPORT_SOURCE_ROOT%\MS_Customize\source\product\config\sc6500_modem\pinmap_cfg.c %DESDIR%\MS_Customize\source\product\config\sc6500_modem\
