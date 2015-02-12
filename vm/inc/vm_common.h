@@ -8,7 +8,7 @@ typedef enum
     ARCH_X86,
     ARCH_ARM_SPD
 }ARCH_E;
-#define ARCH_X86
+//#define ARCH_X86
 
 #ifndef ARCH_X86 
 #define ARCH_ARM_SPD
@@ -17,6 +17,9 @@ typedef enum
 //#define NOT_LAUNCH_NET_TASK
 
 #define INLINE
+
+// MSM_WIS_DEBUG this macro define wis_debug  for qijun board, if longshang cannot use this macro, default was not defined
+//#define MSM_WIS_DEBUG
 
 #define _TEST_ED_    //test edward code of classloader
 

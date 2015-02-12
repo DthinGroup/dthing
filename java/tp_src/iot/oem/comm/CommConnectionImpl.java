@@ -14,6 +14,8 @@ public class CommConnectionImpl extends Object {
     public static final int READ_WRITE = 2;
     private static final int COM0 = 0;
     private static final int COM1 = 1;
+    private static final int DEVICE_NORMAL = 0;
+    private static final int DEVICE_GPS = 1;
 
     private static boolean isConnected = false;
     private static CommConnectionImpl connection = null;
@@ -34,26 +36,7 @@ public class CommConnectionImpl extends Object {
      */
     public static CommConnectionImpl getComInstance(int port)
     {
-        if (connection == null)
-        {
-            connection = new CommConnectionImpl();
-        }
-
-        if (!isConnected)
-        {
-            isConnected = (open0(port, 115200) < 0)? false : true;
-
-            if (isConnected == true)
-            {
-                hPort = port;
-            }
-        }
-        else if (port != hPort)
-        {
-            //any port has been opened before.
-            return null;
-        }
-        return connection;
+        return getComInstance(port, 115200, DEVICE_NORMAL);
     }
 
     /**
@@ -63,6 +46,16 @@ public class CommConnectionImpl extends Object {
      */
     public static CommConnectionImpl getComInstance(int port, int baudrate)
     {
+        return getComInstance(port, baudrate, DEVICE_NORMAL);
+    }
+
+    /**
+     * get com instance and try to connect com device
+     *
+     * @return instance that connected to com device, or null for failure
+     */
+    public static CommConnectionImpl getComInstance(int port, int baudrate, int device)
+    {
         if (connection == null)
         {
             connection = new CommConnectionImpl();
@@ -70,7 +63,7 @@ public class CommConnectionImpl extends Object {
 
         if (!isConnected)
         {
-            isConnected = (open0(port, baudrate) < 0)? false : true;
+            isConnected = (open0(port, baudrate, device) < 0)? false : true;
 
             if (isConnected == true)
             {
@@ -85,7 +78,7 @@ public class CommConnectionImpl extends Object {
         return connection;
     }
 
-    private static native int open0(int port, int baudrate);
+    private static native int open0(int port, int baudrate, int device);
 
     /**
      * get baud rate of com

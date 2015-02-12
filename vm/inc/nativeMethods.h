@@ -55,7 +55,7 @@ KniNativeMethodInfo gJava_iot_oem_battery_BatteryManager[2] = {
 
 /* iot.oem.comm.CommConnectionImpl native APIs */
 KniNativeMethodInfo gJava_iot_oem_comm_CommConnectionImpl[6] = {
-    {"open0",        "(II)I",    (KniFunc)Java_iot_oem_comm_CommConnectionImpl_open0},
+    {"open0",        "(III)I",    (KniFunc)Java_iot_oem_comm_CommConnectionImpl_open0},
     {"getBaudRate0", "(I)I",     (KniFunc)Java_iot_oem_comm_CommConnectionImpl_getBaudRate0},
     {"setBaudRate0", "(II)I",    (KniFunc)Java_iot_oem_comm_CommConnectionImpl_setBaudRate0},
     {"close0",       "(I)I",     (KniFunc)Java_iot_oem_comm_CommConnectionImpl_close0},

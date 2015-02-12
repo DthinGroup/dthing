@@ -30,10 +30,14 @@ BINPATH=$(GENPATH)/$(TOOLCHAIN)/bins
 DIRS=$(GENPATH) $(OBJPATH) $(LIBPATH) $(BINPATH)
 SHELL=cmd.exe
 
-MAKEDIRS=@FOR %%i IN ($(DIRS)) DO IF NOT EXIST %%i mkdir %%~fi
+## Disable below code since meet dir issues in both gmake and make ##
+#MAKEDIRS=@FOR %%i IN ($(DIRS)) DO IF NOT EXIST %%i mkdir %%~fi
+
+MAKEDIRS=
 MAKEOBJDIRS=@$(subst /,\,$(SHELL)) /c IF NOT EXIST $(subst /,\,$(dir $@)) DO MD $(subst /,\,$(dir $@))
 RM=$(subst /,\,$(SHELL)) /c DEL /Q /S /F
 RMDIR=$(subst /,\,$(SHELL)) /c RD /Q /S
+MKDIR=$(subst /,\,$(SHELL)) /c MD
 
 ######################################################
 # Compiler info
@@ -302,7 +306,10 @@ $(OBJECTS): $(OBJPATH)/%.$(OBJEXT) : %.c
 	$(COMPILE)
 
 dirs:
-	$(MAKEDIRS)
+	-$(MKDIR) $(subst /,\,$(OBJPATH))
+	-$(MKDIR) $(subst /,\,$(BINPATH))
+	-$(MKDIR) $(subst /,\,$(LIBPATH))
+  $(MAKEDIRS)
 
 clean:
 	-$(RMDIR) $(subst /,\,$(OBJPATH))

@@ -6,7 +6,6 @@ set RELEASE=%1
 :SELECT_RELEASE_VERSION
 
 if "0"=="%RELEASE%" (
-  rem set IDHDIR=D:\WORK\Spreadtrum\KX8800B_CODE_UPDATE_1112\MS_Code
   set IDHDIR=
   set EXPORT_FILE=spreadtrum\movefile_board_kx8800.bat
 ) else if "1"=="%RELEASE%" (
@@ -15,11 +14,15 @@ if "0"=="%RELEASE%" (
 ) else if "2"=="%RELEASE%" (
   set IDHDIR=
   set EXPORT_FILE=spreadtrum\movefile_phone.bat
-) else (
+) else if "3"=="%RELEASE%" (
+  set IDHDIR=
+  set EXPORT_FILE=spreadtrum\movefile_board_12C1322.bat
+  ) else (
   echo ---------------------------
   echo [0] KX8800
   echo [1] 12C1316
   echo [2] Phone
+  echo [3] 12C.13.22 Qijun
   echo ---------------------------
   echo Please input right params and press Enter to select again..
   SET /P RELEASE=

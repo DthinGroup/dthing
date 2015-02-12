@@ -154,6 +154,8 @@ LOCAL const uint8_t bootStrapClasses[] =
 #include<dalvik_core.h>
 ;
 
+extern const uint8_t bootStrapClasses[];
+
 #define CLASS_SFIELD_SLOTS 1
 
 /* search for these criteria in the Class hash table */

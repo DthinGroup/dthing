@@ -14,7 +14,7 @@ extern "C" {
 /**
  * Class:     iot_oem_comm_CommConnectionImpl
  * Method:    open0
- * Signature: (II)I
+ * Signature: (III)I
  */
 void Java_iot_oem_comm_CommConnectionImpl_open0(const u4* args, JValue* pResult);
 
