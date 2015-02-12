@@ -90,6 +90,8 @@
             <arg value="${output.dir}" />
             <arg value="-s" />
             <arg value="${java.src}" />
+            <arg value="-t" />
+            <arg value="${third.party.src}" />
         </exec>
         <updateFileIfNecessary srcFile="${kni.header.out}" dstFile="${kni.header.src}" updateMsg="WARNING: ${kni.header.src} has been updated, please update other KNI declarations headers by referring headers under ${output.dir}!" />
     </target>
