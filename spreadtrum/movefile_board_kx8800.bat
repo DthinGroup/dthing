@@ -10,19 +10,23 @@ set SRCDIR=%1
 set DESDIR=%2
 
 REM ########### Auto Generated Environment Variables ##########################################
-
+set DTHINGDIR=%DESDIR%\BASE\dthing
 set EXPORT_SOURCE_ROOT=%SRCDIR%\spreadtrum\export\KX8800
 
+RMDIR /S /Q %DTHINGDIR%\
+MKDIR %DTHINGDIR%\
 XCOPY /R /Y %EXPORT_SOURCE_ROOT%\SC6530.modules  %DESDIR%\
 XCOPY /R /Y %EXPORT_SOURCE_ROOT%\SC6800H.modules  %DESDIR%\
 XCOPY /R /Y %EXPORT_SOURCE_ROOT%\SC8800G.modules  %DESDIR%\
 XCOPY /R /Y %EXPORT_SOURCE_ROOT%\Makefile.rules  %DESDIR%\
 XCOPY /R /Y %EXPORT_SOURCE_ROOT%\Makefile.third-party  %DESDIR%\
+XCOPY /R /Y %EXPORT_SOURCE_ROOT%\project_sc6500_64X32_modem_single.mk  %DESDIR%\
 
 XCOPY /R /Y %EXPORT_SOURCE_ROOT%\dthing.mk  %DESDIR%\BASE\make\dthing\
 XCOPY /R /Y %EXPORT_SOURCE_ROOT%\priority_app.h  %DESDIR%\common\export\inc\
 XCOPY /R /Y %EXPORT_SOURCE_ROOT%\sc6500_modem\os_app_cfg.c  %DESDIR%\MS_Customize\source\product\config\sc6500_modem\
 XCOPY /R /Y %EXPORT_SOURCE_ROOT%\sc6530_modem\os_app_cfg.c  %DESDIR%\MS_Customize\source\product\config\sc6530_modem\
+XCOPY /R /Y %EXPORT_SOURCE_ROOT%\make\custom_drv\custom_drv.mk %DESDIR%\make\custom_drv\
 
 REM ########## Spreadtrum SDK files changed by Yarlung Software ################################
 XCOPY /R /Y %EXPORT_SOURCE_ROOT%\BASE\atc\modem\tools\template\atc.atd %DESDIR%\BASE\atc\modem\tools\template\
@@ -42,6 +46,8 @@ XCOPY /R /Y %EXPORT_SOURCE_ROOT%\MS_Ref\source\base\src\init.c %DESDIR%\MS_Ref\s
 
 XCOPY /R /Y %EXPORT_SOURCE_ROOT%\MS_Customize\export\inc\gps_com.h %DESDIR%\MS_Customize\export\inc\
 
+XCOPY /R /Y %EXPORT_SOURCE_ROOT%\MS_Customize\source\product\driver\gps\*.c %DESDIR%\MS_Customize\source\product\driver\gps\
+XCOPY /R /Y %EXPORT_SOURCE_ROOT%\MS_Customize\source\product\driver\gps\sirf\*.* %DESDIR%\MS_Customize\source\product\driver\gps\sirf\
 XCOPY /R /Y %EXPORT_SOURCE_ROOT%\MS_Customize\source\product\config\sc6500_modem\mem_cfg.c %DESDIR%\MS_Customize\source\product\config\sc6500_modem\
 XCOPY /R /Y %EXPORT_SOURCE_ROOT%\MS_Customize\source\product\config\sc6500_modem\pinmap_cfg.c %DESDIR%\MS_Customize\source\product\config\sc6500_modem\
 XCOPY /R /Y %EXPORT_SOURCE_ROOT%\MS_Customize\source\product\config\sc6500_modem\spiflash_cfg.c %DESDIR%\MS_Customize\source\product\config\sc6500_modem\

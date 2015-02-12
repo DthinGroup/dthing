@@ -3009,16 +3009,16 @@ PUBLIC BOOLEAN ATC_TaskStatus_Get(void)
 
 void SfsMount()
 {
-	const uint16 g_file_device_sysname[] = { 'D', 0 };   //将创建D盘
-	SFS_ERROR_E	ret = 0;
-	SFS_DEVICE_FORMAT_E format = SFS_UNKNOWN_FORMAT;
-	ret = SFS_GetDeviceStatus(g_file_device_sysname);  //查看分区是否存在
-	wis_debug("SFS_GetDeviceStatus ret 0x%x\r\n",ret);
-	if(0 != ret)  //不为0代表没这个分区，需要注册
-	{
-		ret = SFS_RegisterDevice (g_file_device_sysname, &format); //进行分区注册
-		wis_debug("SFS_RegisterDevice ret 0x%x\r\n",ret);
-	}
+    const uint16 g_file_device_sysname[] = { 'D', 0 };   //将创建D盘
+    SFS_ERROR_E	ret = 0;
+    SFS_DEVICE_FORMAT_E format = SFS_UNKNOWN_FORMAT;
+    ret = SFS_GetDeviceStatus(g_file_device_sysname);  //查看分区是否存在
+    SCI_TRACE_LOW("SFS_GetDeviceStatus ret 0x%x\r\n",ret);
+    if(0 != ret)  //不为0代表没这个分区，需要注册
+    {
+        ret = SFS_RegisterDevice (g_file_device_sysname, &format); //进行分区注册
+        SCI_TRACE_LOW("SFS_RegisterDevice ret 0x%x\r\n",ret);
+    }
 }
 /******************************************************************************/
 // Description : This function is the main entry point of ATC task.
