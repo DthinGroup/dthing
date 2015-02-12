@@ -337,7 +337,8 @@ endif
 
 ifeq ($(strip $(GPS_SUPPORT)), TRUE)
 MSRCPATH	+=	$(DRIVERPATH)/gps
-MSRCPATH	+=	MS_Customize/source/product/driver/gps/sirf MS_Customize/source/product/driver/gps/sirf/prgflash/src
+MSRCPATH	+=	MS_Customize/source/product/driver/gps/sirf
+#MSRCPATH  +=  MS_Customize/source/product/driver/gps/sirf/prgflash/src
 SOURCES		+=	gps_com.c \
                 gps_cfg.c \
                 gps_drv.c \
@@ -346,7 +347,7 @@ SOURCES		+=	gps_com.c \
                 gps_sirf.c \
                 srf_func.c
 
-include make/custom_drv/gps.mk
+#include make/custom_drv/gps.mk
 								
 endif
 

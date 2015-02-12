@@ -38,6 +38,7 @@
 	#define GPS_TRACE( _format_string )  
 #endif
 
+#define GPS_COM 1 //UART_COM1
 
 /**---------------------------------------------------------------------------*
  **                         Compiler Flag                                     *
@@ -340,6 +341,7 @@ PUBLIC GPS_ERR_E GPS_Open(GPS_MODE_E mode)
 	{
 		err_val = GPS_ERR_NO_MODULE;
 	}
+	UART_Rx_Int_Enable(GPS_COM,TRUE);
 	
 	return err_val;
 }
@@ -523,7 +525,7 @@ PUBLIC GPS_NV_INFO_T* GPS_GetNVInfo(void)
     // Read REF parameter initial values from NVItem.
     status = EFS_NvitemRead(NV_GPS_PARAM, sizeof(s_gps_nv_info), (uint8 *)(&s_gps_nv_info));    
     // If the initial values don't exist.
-    if (NVERR_NOT_EXIST == status)
+    if (/*NVERR_NOT_EXIST*/4 == status)
     {
 #ifdef WIN32
         EFS_NvitemWrite(NV_GPS_PARAM, sizeof(s_gps_nv_info), (uint8 *)(&s_gps_nv_info), 1);

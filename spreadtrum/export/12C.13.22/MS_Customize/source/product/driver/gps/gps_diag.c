@@ -124,7 +124,7 @@ LOCAL uint32 _GPS_DIAG_CmdRoutine(
 			#else
             QueueClean(&Input_Q);
             QueueClean(&Output_Q);
-            GPS_ComInit();
+            GPS_ComInit(9600);
             GPS_ComWrite((uint8 *)"GPSCalCmd open.\r\n", 17);
 			#endif
             break;

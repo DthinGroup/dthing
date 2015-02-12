@@ -478,7 +478,7 @@ CALI_MODE_PORT = UART0                               ### Calibration MODE uart p
                                                      # Option1:UART1 (defaut)
                                                      # Option2:UART0 (ZBX recommand)
 
-UART0_HWFLOW_SUPPORT = FALSE                          ### UART 0 HW Flow support 
+UART0_HWFLOW_SUPPORT = FALSE                         ### UART 0 HW Flow support 
                                                      # Option1:TURE : NOTE: it will use U0CTS/RTS, which is default as UART1_0 TX/RX, so please use UART1_PIN_SEL_UART1_1 in following MACRO
                                                      # Option2:FALSE (default)
 
@@ -486,7 +486,12 @@ UART1_PIN_SEL = UART1_0                              ### UART 1 pin selection
                                                      # Option1:UART1_0 (defaut) : PIN_U0CTS_REG,  PIN_U0RTS_REG
                                                      # Option2:UART1_1 :          PIN_SD_CMD_REG, PIN_SD_D0_REG
 
-WMMP_SDK_ENABLE = TRUE                            #wmmp sdk的编译开关，再这种情况下,pinmap 要重新映射
-MODEM_WAKEUP_SUPPORT = FALSE     					 ### MODEM_WAKEUP_SUPPORT
+WMMP_SDK_ENABLE = TRUE                               ### wmmp sdk的编译开关，再这种情况下,pinmap 要重新映射
+
+MODEM_WAKEUP_SUPPORT = FALSE     					           ### MODEM_WAKEUP_SUPPORT
                                                      # Option1:TRUE
-                                                     # Option2:FALSE                                                    
+                                                     # Option2:FALSE
+
+GPS_SUPPORT = TRUE                                   ### GPS Module Support
+                                                     # Option1:TRUE
+                                                     # Option2:FALSE

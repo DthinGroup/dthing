@@ -30,11 +30,11 @@
 /*----------------------------------------------------------------------------*
 **                            Mcaro Definitions                               *
 **---------------------------------------------------------------------------*/
-#define COM_BUFFER_SIZE 1048        //default com send/receive buffer size
+#define COM_BUFFER_SIZE   548    //1048        //default com send/receive buffer size
 #define GPS_TX_WATER_MARK	8
 #define GPS_RX_WATER_MARK	48
 #define GPS_GET_DELAY       50      //@David.Jia 2007.7.12 get command fequency 20Hz
-#define GPS_COM   2               //uart port
+#define GPS_COM  UART_COM1
 
 typedef struct {
     uint8 *buf;
@@ -144,6 +144,7 @@ static void QueueClean(CycleQueue *Q_ptr)
     Q_ptr->overflow = 0;    
 }
 
+PUBLIC void GPS_setReadable(int bol);
 /*****************************************************************************/
 //  FUNCTION:     QueueInsert(CycleQueue *Q_ptr, uint8 *data, uint32 len)
 //  Description:    insert a string in cycle queue
@@ -209,6 +210,10 @@ static int QueueInsert(CycleQueue *Q_ptr, uint8 *data, uint32 len)
         Q_ptr->tail = Q_ptr->head;
     }
 #endif
+    if(Q_ptr->full )
+    {
+		GPS_setReadable(1);
+    }
    
     return ret;       
 }
@@ -252,6 +257,25 @@ static int QueueDelete(CycleQueue *Q_ptr, uint8 *data, uint32 len)
     return ret;    
 }
 
+static volatile int b_read_able = 0;
+PUBLIC void GPS_setReadable(int bol)
+{
+	b_read_able = bol;
+	if(bol)
+	{
+		UART_Rx_Int_Enable(GPS_COM, FALSE);
+		SCI_TRACE_LOW("===>>disable IRQ,to read.");
+	}
+	else
+	{
+		UART_Rx_Int_Enable(GPS_COM, TRUE);
+		SCI_TRACE_LOW("===>>enable IRQ,to recv.");
+	}
+}
+PUBLIC int GPS_getReadable(void)
+{
+	return b_read_able;
+}
 /*****************************************************************************/
 //  FUNCTION:     uart1_callback(uint32 event)
 //  Description:    callback function for uartcom_drv.
@@ -261,14 +285,14 @@ static int QueueDelete(CycleQueue *Q_ptr, uint8 *data, uint32 len)
 //      return value will large than called UART_GetRxFifoCnt.
 /*****************************************************************************/
 
-static void gps_uart_callback(uint32 event)
+PUBLIC void gps_uart_callback(uint32 event)
 {
 	uint8 tmp_buf[128+1];
     uint32 cnt_old, cnt;
     COM_OBJ *pcom = &gps_com_ins;
     
     //SCI_ASSERT(event < COM_MAX_EVENT);
-    //SCI_TraceLow("event=%x",event);
+	SCI_TRACE_LOW("===>>event=%d \n",event);
     switch (event)
     {
         case EVENT_DATA_TO_READ:    
@@ -279,6 +303,7 @@ static void gps_uart_callback(uint32 event)
             pcom->rec_len_done += cnt;
             
             QueueInsert(&Input_Q, tmp_buf, cnt);
+		SCI_TRACE_LOW("===>>Read cnt_old:%d,size:%d,buff:%s \n",cnt_old,cnt,tmp_buf);
             
             //SCI_TraceLow("\r\nuart1_callback:cnt=0x%x 0x%x,0x%x,0x%x,0x%x", cnt,tmp_buf[0], tmp_buf[1],tmp_buf[2],tmp_buf[3]);
                        
@@ -301,6 +326,7 @@ static void gps_uart_callback(uint32 event)
         }
         
         case EVENT_INIT_COMPLETE:
+			SCI_TRACE_LOW("===>>EVENT_INIT_COMPLETE");
             break;
         
         case EVENT_SHUTDOWN_COMPLETE:
@@ -378,6 +404,7 @@ int GPS_ComInit(uint32 BaudRate)
     //SCI_TRACE_LOW:"\r\nGPS_ComInit.BaudRate=%d"
     SCI_TRACE_ID(TRACE_TOOL_CONVERT,GPS_COM_351_112_2_18_0_33_6_1549,(uint8*)"d",BaudRate);
 
+	GPS_setReadable(0);
     uart_st.tx_watermark  = GPS_TX_WATER_MARK; // 0~127B
     uart_st.rx_watermark  = GPS_RX_WATER_MARK; // 0~127B
     switch(BaudRate)
@@ -391,6 +418,9 @@ int GPS_ComInit(uint32 BaudRate)
         case 115200:
         	uart_st.baud_rate     = BAUD_115200;
         break;
+	 case 9600:
+	 	uart_st.baud_rate     = BAUD_9600;
+	break;
         default:
         uart_st.baud_rate     = BAUD_115200;
         break;
@@ -405,6 +435,7 @@ int GPS_ComInit(uint32 BaudRate)
     
     gps_com_ins.port = GPS_COM;
     
+	SCI_TRACE_LOW("===>>gps_uart_callback addr:0x%x \n",(void *)gps_uart_callback);
     ret = UART_Initilize(GPS_COM, &uart_st, gps_uart_callback);
     QueueClean(&Input_Q);
     QueueClean(&Output_Q);

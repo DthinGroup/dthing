@@ -39,7 +39,7 @@
 #define SIRF_DEBUG
 
 #ifdef  SIRF_DEBUG
-#define GPS_LOG     SCI_TraceLow
+#define GPS_LOG     SCI_TRACE_LOW
 #endif
 
 #ifdef GPS_SUPPORT
@@ -190,6 +190,11 @@ LOCAL GPS_ERR_E Srf_Init(void)
     return GPS_ERR_NONE;
 }
 
+int GpsDownloadSrf(uint32 a)
+{
+	SCI_TRACE_LOW("===>>Fuck GpsDownloadSrf\n");
+	return 0;
+}
 /*****************************************************************************/
 //  FUNCTION:       Srf_Open
 //  Description:    called before GPS work.
@@ -210,13 +215,13 @@ LOCAL GPS_ERR_E Srf_Open(GPS_MODE_E mode)
   	GPIO_GPS_UART2GPIO(SCI_FALSE); // GPIO-->uart1
 
     //serial com init    
-    GPS_ComInit();
+    GPS_ComInit(9600);
      
     //download firmware
 	IsSrfDownload = PROD_GetPeripheralNVParam( PROD_NV_ID_GPS );
     if (!(IsSrfDownload && 0x1))   //download firmware
     {
-        extern int GpsDownloadSrf(uint32);
+        //extern int GpsDownloadSrf(uint32);
         
         //GPS_LOG:"Srf_Open: reflash!"
         SCI_TRACE_ID(TRACE_TOOL_CONVERT,GPS_SIRF_191_112_2_18_0_33_22_1696,(uint8*)"");
@@ -241,7 +246,7 @@ LOCAL GPS_ERR_E Srf_Open(GPS_MODE_E mode)
         {
             PROD_SetPeripheralNVParam( PROD_NV_ID_GPS , IsSrfDownload | 0x1);
         }
-        GPS_ComInit();
+        GPS_ComInit(9600);
         
         //after reflash, must power off and boot from external again
         GPIO_GPS_PowerOn(SCI_FALSE);

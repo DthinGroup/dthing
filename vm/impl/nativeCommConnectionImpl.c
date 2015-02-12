@@ -13,7 +13,7 @@ static int s_deviceType = DEVICE_NORMAL;
 #include "os_api.h"
 #include "com_drvapi.h"
 #include "AsyncIO.h"
-//#include "gps_drv.h"
+#include "gps_drv.h"
 #endif
 
 #if defined(ARCH_ARM_SPD)
@@ -27,51 +27,6 @@ static void cpl_com_stop_reading(int port);
 static void cpl_com_start_writing(int port);
 static void cpl_com_stop_writing(int port);
 #endif
-
-#define GPS_MODE_NORMAL 0
-#define GPS_ERR_NONE 0
-
-int GPS_GetStatus()
-{
-    //TODO:
-    return -1;
-}
-
-int GPS_Init()
-{
-    //TODO:
-    return -1;
-}
-
-int GPS_Open(int mode)
-{
-    //TODO:
-    return -1;
-}
-
-int GPS_Close()
-{
-    //TODO:
-    return -1;
-}
-
-int GPS_ReadData(char * read_buf_ptr, int byte_to_read)
-{
-    //TODO:
-    return -1;
-}
-
-int GPS_WriteData(char * write_buf_ptr, int byte_to_write)
-{
-    //TODO:
-    return -1;
-}
-
-int GPS_SetBaudRate(int bps)
-{
-    //TODO:
-    return -1;
-}
 
 /**
  * Class:     iot_oem_comm_CommConnectionImpl
