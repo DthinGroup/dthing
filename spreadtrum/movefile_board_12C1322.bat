@@ -49,7 +49,7 @@ XCOPY /R /Y %EXPORT_SOURCE_ROOT%\MS_Ref\source\base\src\init.c %DESDIR%\MS_Ref\s
 XCOPY /R /Y %EXPORT_SOURCE_ROOT%\MS_Customize\export\inc\gps_com.h %DESDIR%\MS_Customize\export\inc\
 
 XCOPY /R /Y %EXPORT_SOURCE_ROOT%\MS_Customize\source\product\driver\gps\*.c %DESDIR%\MS_Customize\source\product\driver\gps\
-XCOPY /R /Y %EXPORT_SOURCE_ROOT%\MS_Customize\source\product\driver\gps\sirf\*.c %DESDIR%\MS_Customize\source\product\driver\gps\sirf\
+XCOPY /R /Y %EXPORT_SOURCE_ROOT%\MS_Customize\source\product\driver\gps\sirf\*.* %DESDIR%\MS_Customize\source\product\driver\gps\sirf\
 
 XCOPY /R /Y %EXPORT_SOURCE_ROOT%\MS_Customize\source\product\config\sc6500_modem\mem_cfg.c %DESDIR%\MS_Customize\source\product\config\sc6500_modem\
 XCOPY /R /Y %EXPORT_SOURCE_ROOT%\MS_Customize\source\product\config\sc6500_modem\pinmap_cfg.c %DESDIR%\MS_Customize\source\product\config\sc6500_modem\
