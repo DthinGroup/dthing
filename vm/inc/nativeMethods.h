@@ -55,7 +55,7 @@ KniNativeMethodInfo gJava_iot_oem_battery_BatteryManager[2] = {
 
 /* iot.oem.comm.CommConnectionImpl native APIs */
 KniNativeMethodInfo gJava_iot_oem_comm_CommConnectionImpl[6] = {
-    {"open0",        "(II)I",    (KniFunc)Java_iot_oem_comm_CommConnectionImpl_open0},
+    {"open0",        "(III)I",    (KniFunc)Java_iot_oem_comm_CommConnectionImpl_open0},
     {"getBaudRate0", "(I)I",     (KniFunc)Java_iot_oem_comm_CommConnectionImpl_getBaudRate0},
     {"setBaudRate0", "(II)I",    (KniFunc)Java_iot_oem_comm_CommConnectionImpl_setBaudRate0},
     {"close0",       "(I)I",     (KniFunc)Java_iot_oem_comm_CommConnectionImpl_close0},
@@ -301,16 +301,18 @@ KniNativeMethodInfo gJava_java_lang_Throwable[1] = {
 };
 
 /* java.net.NetNativeBridge native APIs */
-KniNativeMethodInfo gJava_java_net_NetNativeBridge[9] = {
-    {"isNetworkInited", "()Z",          (KniFunc)Java_java_net_NetNativeBridge_isNetworkInited},
-    {"startUpNetwork",  "([B)I",        (KniFunc)Java_java_net_NetNativeBridge_startUpNetwork},
-    {"socket0",         "(Z)I",         (KniFunc)Java_java_net_NetNativeBridge_socket0},
-    {"connect0",        "(IIII)I",      (KniFunc)Java_java_net_NetNativeBridge_connect0},
-    {"recv0",           "(I[BII)I",     (KniFunc)Java_java_net_NetNativeBridge_recv0},
-    {"send0",           "(I[BII)I",     (KniFunc)Java_java_net_NetNativeBridge_send0},
-    {"recvfrom0",       "(I[BIIIIII)I", (KniFunc)Java_java_net_NetNativeBridge_recvfrom0},
-    {"sendto0",         "(I[BIIIII)I",  (KniFunc)Java_java_net_NetNativeBridge_sendto0},
-    {"closeSocket0",    "(I)I",         (KniFunc)Java_java_net_NetNativeBridge_closeSocket0},
+KniNativeMethodInfo gJava_java_net_NetNativeBridge[11] = {
+    {"isNetworkInited", "()Z",                     (KniFunc)Java_java_net_NetNativeBridge_isNetworkInited},
+    {"startUpNetwork",  "([B)I",                   (KniFunc)Java_java_net_NetNativeBridge_startUpNetwork},
+    {"socket0",         "(Z)I",                    (KniFunc)Java_java_net_NetNativeBridge_socket0},
+    {"connect0",        "(IIII)I",                 (KniFunc)Java_java_net_NetNativeBridge_connect0},
+    {"recv0",           "(I[BII)I",                (KniFunc)Java_java_net_NetNativeBridge_recv0},
+    {"send0",           "(I[BII)I",                (KniFunc)Java_java_net_NetNativeBridge_send0},
+    {"recvfrom0",       "(I[BIIIIII)I",            (KniFunc)Java_java_net_NetNativeBridge_recvfrom0},
+    {"sendto0",         "(I[BIIIII)I",             (KniFunc)Java_java_net_NetNativeBridge_sendto0},
+    {"shutdown0",       "(ZI)I",                   (KniFunc)Java_java_net_NetNativeBridge_shutdown0},
+    {"getHostByName0",  "(Ljava/lang/String;[B)I", (KniFunc)Java_java_net_NetNativeBridge_getHostByName0},
+    {"closeSocket0",    "(I)I",                    (KniFunc)Java_java_net_NetNativeBridge_closeSocket0},
 };
 
 /* java.net.ota.OTADownload native APIs */
@@ -380,7 +382,7 @@ KniClassNativeMethodInfo gNativeMthTab[NATIVE_CLASSES_COUNT] = {
     {"Ljava/lang/System;",                             gJava_java_lang_System,                             4},
     {"Ljava/lang/Thread;",                             gJava_java_lang_Thread,                             11},
     {"Ljava/lang/Throwable;",                          gJava_java_lang_Throwable,                          1},
-    {"Ljava/net/NetNativeBridge;",                     gJava_java_net_NetNativeBridge,                     9},
+    {"Ljava/net/NetNativeBridge;",                     gJava_java_net_NetNativeBridge,                     11},
     {"Ljava/net/ota/OTADownload;",                     gJava_java_net_ota_OTADownload,                     2},
     {"Ljava/util/TimeZone;",                           gJava_java_util_TimeZone,                           1},
     {"Ljp/co/cmcc/atcommand/ATCommandConnection;",     gJava_jp_co_cmcc_atcommand_ATCommandConnection,     5},

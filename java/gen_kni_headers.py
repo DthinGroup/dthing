@@ -5,6 +5,7 @@ parser = OptionParser()
 parser.add_option("-f", "--src-header", dest = "src_header", help = "The source HEADER file to compare with.", metavar = "HEADER")
 parser.add_option("-d", "--output-dir", dest = "out_dir", help = "The folder to store intermediate files.", metavar = "OUTDIR")
 parser.add_option("-s", "--java-dir", dest = "java_src_dir", help = "The folder of Java source files.", metavar = "JAVADIR")
+parser.add_option("-t", "--java-tp-dir", dest = "java_tp_dir", help = "The folder of Java third party source files", metavar = "JAVATPDIR")
 
 type_signature_map = {
 	'boolean'   : 'Z',
@@ -497,7 +498,7 @@ KniNativeMethodInfo %s[%d] = {
 
 if __name__ == '__main__':
 	(options, args) = parser.parse_args()
-	for opt in [options.src_header, options.out_dir, options.java_src_dir]:
+	for opt in [options.src_header, options.out_dir, options.java_src_dir, options.java_tp_dir]:
 		if opt is None:
 			parser.print_help()
 			sys.exit(2)
@@ -507,6 +508,7 @@ if __name__ == '__main__':
 	out_header = os.path.join(options.out_dir, os.path.basename(options.src_header))
 
 	res = get_native_methods(options.java_src_dir)
+	res = dict(res.items() + get_native_methods(options.java_tp_dir).items())  
 	#dump_java_native_methods(res)
 	#generate_jni_header(res)
 	generate_kni_header(res, options.out_dir)

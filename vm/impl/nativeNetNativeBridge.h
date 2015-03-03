@@ -69,6 +69,20 @@ void Java_java_net_NetNativeBridge_sendto0(const u4* args, JValue* pResult);
 
 /**
  * Class:     java_net_NetNativeBridge
+ * Method:    shutdown0
+ * Signature: (ZI)I
+ */
+void Java_java_net_NetNativeBridge_shutdown0(const u4* args, JValue* pResult);
+
+/**
+ * Class:     java_net_NetNativeBridge
+ * Method:    getHostByName0
+ * Signature: (Ljava/lang/String;[B)I
+ */
+void Java_java_net_NetNativeBridge_getHostByName0(const u4* args, JValue* pResult);
+
+/**
+ * Class:     java_net_NetNativeBridge
  * Method:    closeSocket0
  * Signature: (I)I
  */

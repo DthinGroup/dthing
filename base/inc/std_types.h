@@ -33,10 +33,10 @@ extern "C" {
  *
  * Any compilation errors produced by this structure indicate that there are
  * serious problems elsewhere with the size or sign of the underlying types
- * used by the Jbed sources. Do NOT delete or modify this structure if it does
+ * used by the myd-jvm sources. Do NOT delete or modify this structure if it does
  * not compile -- the types it is checking must be fixed.
  */
-struct __unused_jbed_types_h_assertion___ {
+struct __unused_dthing_types_h_assertion___ {
     char check_size_int8_t[sizeof(int8_t) == 1 ? 1 : -1];
     char check_size_uint8_t[sizeof(uint8_t) == 1 ? 1 : -1];
     char check_size_int16_t[sizeof(int16_t) == 2 ? 1 : -1];

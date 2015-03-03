@@ -9,21 +9,23 @@
  * Signature: (Ljava/lang/String;)I
  */
 void Java_java_io_FileInputStream_openFile(const u4* args, JValue* pResult) {
-    StringObject * nameObj = (StringObject *) args[0];
+    StringObject * nameObj = (StringObject *) args[1];
     const jchar* name = dvmGetStringData(nameObj);
 //    const char* name = dvmCreateCstrFromString(nameObj);
     int nameLen = dvmGetStringLength(nameObj);
-    jint ret = 0;
-	jint handle =0;
+	jint handle = 0;
 	jint fioRes = FILE_RES_FAILURE;
 
+	DVMTraceDbg("Java_java_io_FileInputStream_openFile name=0x%08X, nameLen=%d\n",name, nameLen);
+
 	if (name == NULL || nameLen <= 0) {
-		RETURN_INT(ret);
+		RETURN_INT(0);
 	}
 
 	fioRes = file_open(name, nameLen, FILE_MODE_RD, &handle);
+	DVMTraceDbg("Java_java_io_FileInputStream_openFile fioRes=%d handle=%d\n",fioRes, handle);
 	if (fioRes != FILE_RES_SUCCESS || handle == NULL) {
-		RETURN_INT(ret);
+		RETURN_INT(0);
 	}
 
     RETURN_INT(handle);
@@ -35,7 +37,7 @@ void Java_java_io_FileInputStream_openFile(const u4* args, JValue* pResult) {
  * Signature: (I)Z
  */
 void Java_java_io_FileInputStream_closeFile(const u4* args, JValue* pResult) {
-    jint handle = (jint) args[0];
+    jint handle = (jint) args[1];
     jboolean ret = FALSE;
 
     if(file_close(handle) ==FILE_RES_SUCCESS)
@@ -49,12 +51,12 @@ void Java_java_io_FileInputStream_closeFile(const u4* args, JValue* pResult) {
  * Signature: (I[BII)I
  */
 void Java_java_io_FileInputStream_readFile(const u4* args, JValue* pResult) {
-    jint handle = (jint) args[0];
-    ArrayObject * buffArr = (ArrayObject *)args[1];
-    jbyte * buffArrPtr = (jbyte *)(KNI_GET_ARRAY_BUF(args[1]));
-    int buffArrLen = KNI_GET_ARRAY_LEN(args[1]);
-    jint off = (jint) args[2];
-    jint count = (jint) args[3];
+    jint handle = (jint) args[1];
+    ArrayObject * buffArr = (ArrayObject *)args[2];
+    jbyte * buffArrPtr = (jbyte *)(KNI_GET_ARRAY_BUF(args[2]));
+    int buffArrLen = KNI_GET_ARRAY_LEN(args[2]);
+    jint off = (jint) args[3];
+    jint count = (jint) args[4];
     jint ret = 0;
 
     ret = file_read(handle, &buffArrPtr[off],count);
@@ -68,7 +70,7 @@ void Java_java_io_FileInputStream_readFile(const u4* args, JValue* pResult) {
  * Signature: (I)I
  */
 void Java_java_io_FileInputStream_available0(const u4* args, JValue* pResult) {
-    jint handle = (jint) args[0];
+    jint handle = (jint) args[1];
 	jint size =0;
 
     if(file_getsize(handle,&size)==FILE_RES_SUCCESS)
@@ -83,8 +85,8 @@ void Java_java_io_FileInputStream_available0(const u4* args, JValue* pResult) {
  * Signature: (IJ)J
  */
 void Java_java_io_FileInputStream_skip0(const u4* args, JValue* pResult) {
-    jint handle = (jint) args[0];
-    jlong byteCount = (jlong) args[1];
+    jint handle = (jint) args[1];
+    jlong byteCount = (jlong) args[2];
     jlong ret = 0;
 
 	ret = file_seekex(handle,byteCount,FILE_SEEK_CURRENT);

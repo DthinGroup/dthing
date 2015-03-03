@@ -9,7 +9,7 @@
 #undef DVM_LOG
 #endif
 
-//#define DVM_LOG DVMTraceDbg
+//#define DVM_LOG DVMTraceInf
 #define DVM_LOG //
 
 Monitor * gMonitorList = NULL;
@@ -34,9 +34,9 @@ Monitor* Sync_dvmCreateMonitor(Object* obj)
 {
     Monitor* mon = NULL;
 
-	DVMTraceDbg("===Sync_dvmCreateMonitor obj=0x%x\n",obj);
+	DVMTraceInf("===Sync_dvmCreateMonitor obj=0x%x\n",obj);
     mon = (Monitor*) calloc(1, sizeof(Monitor));
-	DVMTraceDbg("===Sync_dvmCreateMonitor malloc mon=0x%x\n",mon);
+	DVMTraceInf("===Sync_dvmCreateMonitor malloc mon=0x%x\n",mon);
     DVM_ASSERT(mon != NULL) ;
 
     DVM_MEMSET(mon,0,sizeof(Monitor));
@@ -44,7 +44,7 @@ Monitor* Sync_dvmCreateMonitor(Object* obj)
 	//nix in 2014.11.04: the align check gets wrong in update 1112, comment assert for now!
     if (((u4)mon & 7) != 0)
     {
-		DVMTraceDbg("===Sync_dvmCreateMonitor,malloc address don't align\n");
+		DVMTraceInf("===Sync_dvmCreateMonitor,malloc address don't align\n");
         //DVM_ASSERT(0);
     }
     mon->obj = obj;
@@ -241,21 +241,21 @@ vbool Sync_dvmLockObject(Thread* self, Object *obj)
     Monitor * mon = NULL;
     vbool lockRet = 0;
 
-	DVMTraceDbg("===Sync_dvmLockObject self=0x%x,obj=0x%x\n",self,obj);
+	DVMTraceInf("===Sync_dvmLockObject self=0x%x,obj=0x%x\n",self,obj);
     DVM_ASSERT(self != NULL);
     DVM_ASSERT(obj != NULL);
 
-	DVMTraceDbg("===Sync_dvmLockObject start\n");
+	DVMTraceInf("===Sync_dvmLockObject start\n");
     if(LW_MONITOR(obj->lock) == NULL)
     {
         mon = Sync_dvmCreateMonitor(obj);
         obj->lock = (u4) mon;
-		DVMTraceDbg("===Sync_dvmLockObject create monitor=0x%x\n",mon);
+		DVMTraceInf("===Sync_dvmLockObject create monitor=0x%x\n",mon);
     }
     else
     {
         mon = LW_MONITOR(obj->lock);
-		DVMTraceDbg("===Sync_dvmLockObject get monitor=0x%x\n",mon);
+		DVMTraceInf("===Sync_dvmLockObject get monitor=0x%x\n",mon);
     }
 
     //考虑是否执行一次 Sync_removeWaitSet ?要保证lockCount的正确性
@@ -281,7 +281,7 @@ vbool Sync_dvmLockObject(Thread* self, Object *obj)
 
         lockRet = 0;
     }
-	DVMTraceDbg("===Sync_dvmLockObject monitor owner=0x%x,ret=%d\n",mon->owner,lockRet);
+	DVMTraceInf("===Sync_dvmLockObject monitor owner=0x%x,ret=%d\n",mon->owner,lockRet);
     return lockRet;
 }
 

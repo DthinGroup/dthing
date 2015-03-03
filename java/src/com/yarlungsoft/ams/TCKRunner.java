@@ -7,10 +7,11 @@ import java.net.ota.OTAConfig;
 import java.net.ota.OTADownload;
 import java.net.ota.OTAListener;
 
+import com.yarlungsoft.util.Log;
+
 public class TCKRunner extends Thread implements OTAListener {
 
-    /** Output debug traces, should be false when checked in */
-    private static final boolean DEBUG = AmsConfig.debug();
+    private static final String TAG = "TCKRunner";
 
     /** The number of tries for installing test Applets */
     private static final int TRIES_FOR_TEST_FINISHED = 3;
@@ -41,15 +42,14 @@ public class TCKRunner extends Thread implements OTAListener {
         this.jadUrl = jadUrl;
     }
 
-    /**
-     * Print a string to stdout if DEBUG is true, prefixed with "TCKRunner: ".
-     *
-     * @param log the string to print
-     */
-    private static void log(String log) {
-        if (DEBUG) {
-            System.out.println("TCKRunner: " + log);
+    public static void launchFromNative(String[] urls) {
+        if (urls == null || urls.length == 0) {
+            Log.amsLog(TAG, "nothing to do");
+            return;
         }
+        Log.amsLog(TAG, "url " + urls[0]);
+        TCKRunner tckrunner = new TCKRunner(urls[0]);
+        tckrunner.start();
     }
 
     @Override
@@ -88,10 +88,10 @@ public class TCKRunner extends Thread implements OTAListener {
          * something that was part of a normal test.
          */
         while (!isDownloaded && tries < TRIES_FOR_TEST_FINISHED) {
-            log("installing from " + url + " (try " + (tries + 1) + "/" + TRIES_FOR_TEST_FINISHED
-                    + ")");
+            Log.amsLog(TAG, "installing from " + url + " (try " + (tries + 1) + "/"
+                            + TRIES_FOR_TEST_FINISHED + ")");
 
-            ota = new OTADownload(jadUrl);
+            ota = new OTADownload(url);
             ota.setListener(this);
 
             synchronized (lock) {
@@ -113,28 +113,28 @@ public class TCKRunner extends Thread implements OTAListener {
                     tries = 0;
                     break;
                 case OTAConfig.OTA_FILE_ERROR:
-                    log("folder not found: " + ota.getAppDir());
+                    Log.amsLog(TAG, "folder not found: " + ota.getAppDir());
                     tries = 0;
                     break;
                 case OTAConfig.OTA_INVALID_URL:
-                    log("invalid TCK url: " + jadUrl);
+                    Log.amsLog(TAG, "invalid TCK url: " + jadUrl);
                     tries = 0;
                     break;
 
                 case OTAConfig.OTA_IO_ERROR:
                 case OTAConfig.OTA_TASK_FAIL:
-                    log("failed to download: " + jadUrl);
+                    Log.amsLog(TAG, "failed to download: " + jadUrl);
                     tries++;
                     break;
                 case OTAConfig.OTA_NET_ERROR:
-                    log("cannot connect to: " + jadUrl);
+                    Log.amsLog(TAG, "cannot connect to: " + jadUrl);
                     tries++;
                     break;
                 }
             }
 
             if (!isDownloaded) {
-                log("waiting for " + (RETRY_DELAY / 1000) + " seconds");
+                Log.amsLog(TAG, "waiting for " + (RETRY_DELAY / 1000) + " seconds");
                 sleep0(RETRY_DELAY);
                 if (tries == 0) {
                     break;
@@ -144,14 +144,14 @@ public class TCKRunner extends Thread implements OTAListener {
 
         if (isDownloaded) {
             otaStorageFilename = ota.getStorageFilename();
-            log("downloaed " + otaStorageFilename);
+            Log.amsLog(TAG, "downloaded " + otaStorageFilename);
         } else {
             if (tries >= TRIES_FOR_TEST_FINISHED) {
-                log("install() failing " + TRIES_FOR_TEST_FINISHED
-                        + " times, we suppose tests are finished");
+                Log.amsLog(TAG, "install() failing " + TRIES_FOR_TEST_FINISHED
+                                + " times, we suppose tests are finished");
                 restartRunner = false;
             } else {
-                log("install() failing, we restart the vm and retry");
+                Log.amsLog(TAG, "install() failing, we restart the vm and retry");
                 restartRunner = true;
             }
         }
@@ -170,11 +170,12 @@ public class TCKRunner extends Thread implements OTAListener {
     }
 
     public void run() {
-        log("started!");
+        Log.amsLog(TAG, "started!");
         boolean downloaded = false;
 
         for (;;) {
             downloaded = downloadUrl(jadUrl);
+            Log.amsLog(TAG, "downloaded=" + downloaded);
             if (!downloaded) {
                 if (restartRunner) {
                     continue;
@@ -185,10 +186,16 @@ public class TCKRunner extends Thread implements OTAListener {
 
             JadInfo jadInfo = null;
             try {
+                Log.amsLog(TAG, "parseJad:" + otaStorageFilename);
                 jadInfo = new JadParser().parseJad(otaStorageFilename);
-                jadInfo.jarUrl = JadParser.checkSetJarUrl(jadUrl, jadInfo.jarUrl);
+                Log.amsLog(TAG, "jadInfo=" + jadInfo);
+                if (jadInfo != null) {
+                    jadInfo.jarUrl = JadParser.buildJarUrl(jadUrl, jadInfo.jarUrl);
+                    Log.amsLog(TAG, "jadInfo.jarUrl=" + jadInfo.jarUrl);
+                    Log.amsLog(TAG, "jadInfo.appClass=" + jadInfo.appClass);
+                }
             } catch (IOException e) {
-                // ignore
+                Log.amsLog(TAG, "parseJad exception:" + e);
             }
             if (jadInfo == null || jadInfo.jarUrl == null || jadInfo.jarUrl.length() == 0
                     || jadInfo.appClass == null || jadInfo.appClass.length() == 0) {
@@ -227,6 +234,6 @@ public class TCKRunner extends Thread implements OTAListener {
             // delete downloaded jar file
             removeCurDownloadedFile();
         }
-        log("ended!");
+        Log.amsLog(TAG, "ended!");
     }
 }

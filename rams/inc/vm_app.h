@@ -35,7 +35,7 @@ bool_t vm_runApp(int appid);
 bool_t vm_deleteApp(int id);
 bool_t vm_destroyApp(int id);
 bool_t vm_otaApp(char * url);
-
+bool_t vm_tckApp(char * url);
 
 /*ota handle*/
 void vm_ota_init();
@@ -43,6 +43,13 @@ void vm_ota_final();
 void vm_ota_set(bool_t flag,char * url);
 bool_t vm_ota_get();
 void vm_create_otaTask();
+
+/*tck handle*/
+void vm_tck_init();
+void vm_tck_final();
+void vm_tck_set(bool_t flag, char * url);
+bool_t vm_tck_get();
+void vm_create_tckTask();
 
 #ifdef __cplusplus
 }

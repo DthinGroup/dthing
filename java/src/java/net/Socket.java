@@ -36,12 +36,12 @@ public class Socket {
 
     private InetAddress localAddress = Inet4Address.ANY;
 
-    private final Object connectLock = new Object();
+    private final byte[] connectLock = new byte[0];
 
     /**
-     * Creates a new unconnected socket. When a SocketImplFactory is defined it
-     * creates the internal socket implementation, otherwise the default socket
-     * implementation will be used for this socket.
+     * Creates a new unconnected socket. When a SocketImplFactory is defined it creates the internal
+     * socket implementation, otherwise the default socket implementation will be used for this
+     * socket.
      *
      * @see SocketImplFactory
      * @see SocketImpl
@@ -50,206 +50,120 @@ public class Socket {
         this.impl = new PlainSocketImpl();
     }
 
-	/**
-	 * If the argument addr represents an IP
-	 * address in dot notation format "%d.%d.%d.%d", returns
-	 * the int value of it
-	 *
-	 * @param     addr The candidate
-	 * @return the int value of the argument addr if it
-	 * represents an IP address in dot notation format
-	 * "%d.%d.%d.%d".
-	 * @exception IllegalArgumentException If the argument addr
-	 * does not represents an IP
-	 * address in dot notation format "%d.%d.%d.%d"
-	 **/
-	private static byte[] getIP(String addr) throws IllegalArgumentException {
-		byte[] ip = new byte[4];
-	    int i = addr.indexOf('.');
-	    ip[0] = Byte.parseByte(addr.substring(0, i++));
-	    int j = addr.indexOf('.',i);
-	    ip[1] = Byte.parseByte(addr.substring(i, j++));
-	    i = addr.indexOf('.',j);
-	    ip[2] = Byte.parseByte(addr.substring(j, i++));
-	
-	    ip[3] = Byte.parseByte(addr.substring(i));
-	    
-	    return ip;
-	}
-
     /**
-     * Tries to connect a socket to all IP addresses of the given hostname.
+     * Creates a new streaming socket connected to the target host specified by the parameters
+     * {@code dstName} and {@code dstPort}. The socket is bound to any available port on the local
+     * host.
+     * <p>
+     * This implementation tries each IP address for the given hostname (in <a
+     * href="http://www.ietf.org/rfc/rfc3484.txt">RFC 3484</a> order) until it either connects
+     * successfully or it exhausts the set.
      *
-     * @param dstip
-     *            the target IP address to connect to.
-     * @param dstPort
-     *            the port on the target host to connect to.
-     * @param localAddress
-     *            the address on the local host to bind to.
-     * @param localPort
-     *            the port on the local host to bind to.
-     * @throws UnknownHostException
-     *             if the host name could not be resolved into an IP address.
-     * @throws IOException
-     *             if an error occurs while creating the socket.
+     * @param dstName the target host name or IP address to connect to.
+     * @param dstPort the port on the target host to connect to.
+     * @throws UnknownHostException if the host name could not be resolved into an IP address.
+     * @throws IOException if an error occurs while creating the socket.
      */
-    private void tryAllAddresses(String dstip, int dstPort, InetAddress
-            localAddress, int localPort) throws IOException 
-    {
-    	
-    	byte[] ip ;
-    	
-    	try
-    	{
-    		ip = getIP(dstip);
-    	}
-    	catch(IllegalArgumentException e)
-    	{
-    		throw new IOException("illegal ip address");
-    	}
-    	
-    	InetAddress dstAddress = new Inet4Address(ip);
-
-        checkDestination(dstAddress, dstPort);
-        startupSocket(dstAddress, dstPort, localAddress, localPort);
+    public Socket(String dstName, int dstPort) throws UnknownHostException, IOException {
+        this(dstName, dstPort, null, 0);
     }
 
     /**
-     * Creates a new streaming socket connected to the target host specified by
-     * the parameters {@code dstName} and {@code dstPort}. The socket is bound
-     * to any available port on the local host.
+     * Creates a new streaming socket connected to the target host specified by the parameters
+     * {@code dstName} and {@code dstPort}. On the local endpoint the socket is bound to the given
+     * address {@code localAddress} on port {@code localPort}. If {@code host} is {@code null} a
+     * loopback address is used to connect to.
+     * <p>
+     * This implementation tries each IP address for the given hostname (in <a
+     * href="http://www.ietf.org/rfc/rfc3484.txt">RFC 3484</a> order) until it either connects
+     * successfully or it exhausts the set.
      *
-     * <p>This implementation tries each IP address for the given hostname (in
-     * <a href="http://www.ietf.org/rfc/rfc3484.txt">RFC 3484</a> order)
-     * until it either connects successfully or it exhausts the set.
-     *
-     * @param dstIp
-     *            the target IP address to connect to. cann't be host name
-     * @param dstPort
-     *            the port on the target host to connect to.
-     * @throws UnknownHostException
-     *             if the host name could not be resolved into an IP address.
-     * @throws IOException
-     *             if an error occurs while creating the socket.
+     * @param dstName the target host name or IP address to connect to.
+     * @param dstPort the port on the target host to connect to.
+     * @param localAddress the address on the local host to bind to.
+     * @param localPort the port on the local host to bind to.
+     * @throws UnknownHostException if the host name could not be resolved into an IP address.
+     * @throws IOException if an error occurs while creating the socket.
      */
-    public Socket(String dstIp, int dstPort) throws UnknownHostException, IOException {
-        this(dstIp, dstPort, null, 0);
+    public Socket(String dstName, int dstPort, InetAddress localAddress, int localPort)
+            throws IOException {
+        this(InetAddress.getByName(dstName), dstPort, localAddress, localPort);
     }
 
     /**
-     * Creates a new streaming socket connected to the target host specified by
-     * the parameters {@code dstName} and {@code dstPort}. On the local endpoint
-     * the socket is bound to the given address {@code localAddress} on port
-     * {@code localPort}. If {@code host} is {@code null} a loopback address is used to connect to.
+     * Creates a new streaming socket connected to the target host specified by the parameters
+     * {@code dstAddress} and {@code dstPort}. The socket is bound to any available port on the
+     * local host.
      *
-     * <p>This implementation tries each IP address for the given hostname (in
-     * <a href="http://www.ietf.org/rfc/rfc3484.txt">RFC 3484</a> order)
-     * until it either connects successfully or it exhausts the set.
-     *
-     * @param dstName
-     *            the target IP address to connect to.
-     * @param dstPort
-     *            the port on the target host to connect to.
-     * @param localAddress
-     *            the address on the local host to bind to.
-     * @param localPort
-     *            the port on the local host to bind to.
-     * @throws UnknownHostException
-     *             if the host name could not be resolved into an IP address.
-     * @throws IOException
-     *             if an error occurs while creating the socket.
-     */
-    public Socket(String dstIp, int dstPort, InetAddress localAddress, int localPort) throws IOException {
-        this();
-        tryAllAddresses(dstIp, dstPort, localAddress, localPort);
-    }
-
-    /**
-     * Creates a new streaming socket connected to the target host specified by
-     * the parameters {@code dstAddress} and {@code dstPort}. The socket is
-     * bound to any available port on the local host.
-     *
-     * @param dstAddress
-     *            the target host address to connect to.
-     * @param dstPort
-     *            the port on the target host to connect to.
-     * @throws IOException
-     *             if an error occurs while creating the socket.
+     * @param dstAddress the target host address to connect to.
+     * @param dstPort the port on the target host to connect to.
+     * @throws IOException if an error occurs while creating the socket.
      */
     public Socket(InetAddress dstAddress, int dstPort) throws IOException {
-        this();
-        checkDestination(dstAddress, dstPort);
-        startupSocket(dstAddress, dstPort, null, 0);
+        this(dstAddress, dstPort, null, 0);
     }
 
     /**
-     * Creates a new streaming socket connected to the target host specified by
-     * the parameters {@code dstAddress} and {@code dstPort}. On the local
-     * endpoint the socket is bound to the given address {@code localAddress} on
-     * port {@code localPort}.
+     * Creates a new streaming socket connected to the target host specified by the parameters
+     * {@code dstAddress} and {@code dstPort}. On the local endpoint the socket is bound to the
+     * given address {@code localAddress} on port {@code localPort}.
      *
-     * @param dstAddress
-     *            the target host address to connect to.
-     * @param dstPort
-     *            the port on the target host to connect to.
-     * @param localAddress
-     *            the address on the local host to bind to.
-     * @param localPort
-     *            the port on the local host to bind to.
-     * @throws IOException
-     *             if an error occurs while creating the socket.
+     * @param dstAddress the target host address to connect to.
+     * @param dstPort the port on the target host to connect to.
+     * @param localAddress the address on the local host to bind to.
+     * @param localPort the port on the local host to bind to.
+     * @throws IOException if an error occurs while creating the socket.
      */
-    public Socket(InetAddress dstAddress, int dstPort,InetAddress localAddress, int localPort) throws IOException {
+    public Socket(InetAddress dstAddress, int dstPort, InetAddress localAddress, int localPort)
+            throws IOException {
         this();
         checkDestination(dstAddress, dstPort);
         startupSocket(dstAddress, dstPort, localAddress, localPort);
     }
-
 
     /**
      * Creates an unconnected socket with the given socket implementation.
      *
-     * @param impl
-     *            the socket implementation to be used.
-     * @throws SocketException
-     *             if an error occurs while creating the socket.
+     * @param impl the socket implementation to be used.
+     * @throws SocketException if an error occurs while creating the socket.
      */
     protected Socket(SocketImpl impl) throws SocketException {
         this.impl = impl;
     }
 
     /**
-     * Checks whether the connection destination satisfies the security policy
-     * and the validity of the port range.
+     * Checks whether the connection destination satisfies the security policy and the validity of
+     * the port range.
      *
-     * @param destAddr
-     *            the destination host address.
-     * @param dstPort
-     *            the port on the destination host.
+     * @param addr the destination host address.
+     * @param port the port on the destination host.
      */
-    private void checkDestination(InetAddress destAddr, int dstPort) {
-        if (dstPort < 0 || dstPort > 65535) {
-            throw new IllegalArgumentException("Port out of range: " + dstPort);
+    private void checkDestination(InetAddress addr, int port) {
+        if (addr == null) {
+            throw new IllegalArgumentException("addr is null");
+        }
+        if (port < 0 || port > 65535) {
+            throw new IllegalArgumentException("Port out of range: " + port);
         }
     }
 
     /**
-     * Closes the socket. It is not possible to reconnect or rebind to this
-     * socket thereafter which means a new socket instance has to be created.
+     * Closes the socket. It is not possible to reconnect or rebind to this socket thereafter which
+     * means a new socket instance has to be created.
      *
-     * @throws IOException
-     *             if an error occurs while closing the socket.
+     * @throws IOException if an error occurs while closing the socket.
      */
     public synchronized void close() throws IOException {
         isClosed = true;
-        // RI compatibility: the RI returns the any address (but the original local port) after close.
+        // RI compatibility: the RI returns the any address (but the original local port) after
+        // close.
         localAddress = Inet4Address.ANY;
         impl.close();
     }
 
     /**
-     * Returns the IP address of the target host this socket is connected to, or null if this
-     * socket is not yet connected.
+     * Returns the IP address of the target host this socket is connected to, or null if this socket
+     * is not yet connected.
      */
     public InetAddress getInetAddress() {
         if (!isConnected()) {
@@ -262,9 +176,8 @@ public class Socket {
      * Returns an input stream to read data from this socket.
      *
      * @return the byte-oriented input stream.
-     * @throws IOException
-     *             if an error occurs while creating the input stream or the
-     *             socket is in an invalid state.
+     * @throws IOException if an error occurs while creating the input stream or the socket is in an
+     *         invalid state.
      */
     public InputStream getInputStream() throws IOException {
         checkOpenAndCreate(false);
@@ -283,8 +196,8 @@ public class Socket {
     }
 
     /**
-     * Returns the local IP address this socket is bound to, or {@code InetAddress.ANY} if
-     * the socket is unbound.
+     * Returns the local IP address this socket is bound to, or {@code InetAddress.ANY} if the
+     * socket is unbound.
      */
     public InetAddress getLocalAddress() {
         return localAddress;
@@ -304,16 +217,15 @@ public class Socket {
      * Returns an output stream to write data into this socket.
      *
      * @return the byte-oriented output stream.
-     * @throws IOException
-     *             if an error occurs while creating the output stream or the
-     *             socket is in an invalid state.
+     * @throws IOException if an error occurs while creating the output stream or the socket is in
+     *         an invalid state.
      */
     public OutputStream getOutputStream() throws IOException {
         checkOpenAndCreate(false);
         if (isOutputShutdown()) {
             throw new SocketException("Socket output is shutdown");
         }
-        return this.impl.getOutputStream();
+        return impl.getOutputStream();
     }
 
     /**
@@ -328,8 +240,8 @@ public class Socket {
     }
 
     /**
-     * Returns this socket's {@link SocketOptions#SO_LINGER linger} timeout in seconds, or -1
-     * for no linger (i.e. {@code close} will return immediately).
+     * Returns this socket's {@link SocketOptions#SO_LINGER linger} timeout in seconds, or -1 for no
+     * linger (i.e. {@code close} will return immediately).
      */
     public int getSoLinger() throws SocketException {
         checkOpenAndCreate(true);
@@ -337,9 +249,8 @@ public class Socket {
         Object value = impl.getOption(SocketOptions.SO_LINGER);
         if (value instanceof Integer) {
             return (Integer) value;
-        } else {
-            return -1;
         }
+        return -1;
     }
 
     /**
@@ -378,13 +289,11 @@ public class Socket {
      * Sets this socket's {@link SocketOptions#SO_KEEPALIVE} option.
      */
     public void setKeepAlive(boolean keepAlive) throws SocketException {
-    	int kalive = keepAlive ? 1:0;
         if (impl != null) {
             checkOpenAndCreate(true);
-            impl.setOption(SocketOptions.SO_KEEPALIVE, kalive);
+            impl.setOption(SocketOptions.SO_KEEPALIVE, keepAlive ? 1 : 0);
         }
     }
-
 
     /**
      * Sets this socket's {@link SocketOptions#SO_SNDBUF send buffer size}.
@@ -409,8 +318,8 @@ public class Socket {
     }
 
     /**
-     * Sets this socket's {@link SocketOptions#SO_LINGER linger} timeout in seconds.
-     * If {@code on} is false, {@code timeout} is irrelevant.
+     * Sets this socket's {@link SocketOptions#SO_LINGER linger} timeout in seconds. If {@code on}
+     * is false, {@code timeout} is irrelevant.
      */
     public void setSoLinger(boolean on, int timeout) throws SocketException {
         checkOpenAndCreate(true);
@@ -418,17 +327,12 @@ public class Socket {
         if (on && timeout < 0) {
             throw new IllegalArgumentException("timeout < 0");
         }
-        if (on) {
-            impl.setOption(SocketOptions.SO_LINGER, timeout);
-        } else {
-            impl.setOption(SocketOptions.SO_LINGER, 0);
-        }
+        impl.setOption(SocketOptions.SO_LINGER, on ? timeout : 0);
     }
 
     /**
-     * Sets this socket's {@link SocketOptions#SO_TIMEOUT read timeout} in milliseconds.
-     * Use 0 for no timeout.
-     * To take effect, this option must be set before the blocking method was called.
+     * Sets this socket's {@link SocketOptions#SO_TIMEOUT read timeout} in milliseconds. Use 0 for
+     * no timeout. To take effect, this option must be set before the blocking method was called.
      */
     public synchronized void setSoTimeout(int timeout) throws SocketException {
         checkOpenAndCreate(true);
@@ -442,38 +346,29 @@ public class Socket {
      * Sets this socket's {@link SocketOptions#TCP_NODELAY} option.
      */
     public void setTcpNoDelay(boolean on) throws SocketException {
-    	int ion = on ? 1:0;
         checkOpenAndCreate(true);
-        impl.setOption(SocketOptions.TCP_NODELAY, ion);
+        impl.setOption(SocketOptions.TCP_NODELAY, on ? 1 : 0);
     }
 
     /**
-     * Creates a stream socket, binds it to the nominated local address/port,
-     * then connects it to the nominated destination address/port.
+     * Creates a stream socket, binds it to the nominated local address/port, then connects it to
+     * the nominated destination address/port.
      *
-     * @param dstAddress
-     *            the destination host address.
-     * @param dstPort
-     *            the port on the destination host.
-     * @param localAddress
-     *            the address on the local machine to bind.
-     * @param localPort
-     *            the port on the local machine to bind.
-     * @throws IOException
-     *             thrown if an error occurs during the bind or connect
-     *             operations.
+     * @param dstAddress the destination host address.
+     * @param dstPort the port on the destination host.
+     * @param localAddress the address on the local machine to bind.
+     * @param localPort the port on the local machine to bind.
+     * @throws IOException thrown if an error occurs during the bind or connect operations.
      */
-    private void startupSocket(InetAddress dstAddress, int dstPort,
-            InetAddress localAddress, int localPort)
-            throws IOException {
+    private void startupSocket(InetAddress dstAddress, int dstPort, InetAddress localAddress,
+            int localPort) throws IOException {
 
         if (localPort < 0 || localPort > 65535) {
             throw new IllegalArgumentException("Local port out of range: " + localPort);
         }
 
         InetAddress addr = localAddress == null ? Inet4Address.ANY : localAddress;
-        synchronized (this) 
-        {
+        synchronized (this) {
             impl.create();
             isCreated = true;
             try {
@@ -487,11 +382,8 @@ public class Socket {
         }
     }
 
-
-
     /**
-     * Returns a {@code String} containing a concise, human-readable description of the
-     * socket.
+     * Returns a {@code String} containing a concise, human-readable description of the socket.
      *
      * @return the textual representation of this socket.
      */
@@ -503,14 +395,12 @@ public class Socket {
     }
 
     /**
-     * Closes the input stream of this socket. Any further data sent to this
-     * socket will be discarded. Reading from this socket after this method has
-     * been called will return the value {@code EOF}.
+     * Closes the input stream of this socket. Any further data sent to this socket will be
+     * discarded. Reading from this socket after this method has been called will return the value
+     * {@code EOF}.
      *
-     * @throws IOException
-     *             if an error occurs while closing the socket input stream.
-     * @throws SocketException
-     *             if the input stream is already closed.
+     * @throws IOException if an error occurs while closing the socket input stream.
+     * @throws SocketException if the input stream is already closed.
      */
     public void shutdownInput() throws IOException {
         if (isInputShutdown()) {
@@ -522,14 +412,11 @@ public class Socket {
     }
 
     /**
-     * Closes the output stream of this socket. All buffered data will be sent
-     * followed by the termination sequence. Writing to the closed output stream
-     * will cause an {@code IOException}.
+     * Closes the output stream of this socket. All buffered data will be sent followed by the
+     * termination sequence. Writing to the closed output stream will cause an {@code IOException}.
      *
-     * @throws IOException
-     *             if an error occurs while closing the socket output stream.
-     * @throws SocketException
-     *             if the output stream is already closed.
+     * @throws IOException if an error occurs while closing the socket output stream.
+     * @throws SocketException if the output stream is already closed.
      */
     public void shutdownOutput() throws IOException {
         if (isOutputShutdown()) {
@@ -541,11 +428,10 @@ public class Socket {
     }
 
     /**
-     * Checks whether the socket is closed, and throws an exception. Otherwise
-     * creates the underlying SocketImpl.
+     * Checks whether the socket is closed, and throws an exception. Otherwise creates the
+     * underlying SocketImpl.
      *
-     * @throws SocketException
-     *             if the socket is closed.
+     * @throws SocketException if the socket is closed.
      */
     private void checkOpenAndCreate(boolean create) throws SocketException {
         if (isClosed()) {
@@ -558,8 +444,7 @@ public class Socket {
             }
 
             /*
-             * return directly to fix a possible bug, if !create, should return
-             * here
+             * return directly to fix a possible bug, if !create, should return here
              */
             return;
         }
@@ -582,9 +467,8 @@ public class Socket {
     }
 
     /**
-     * Returns the local address and port of this socket as a SocketAddress or
-     * null if the socket is unbound. This is useful on multihomed
-     * hosts.
+     * Returns the local address and port of this socket as a SocketAddress or null if the socket is
+     * unbound. This is useful on multihomed hosts.
      */
     public SocketAddress getLocalSocketAddress() {
         if (!isBound()) {
@@ -594,8 +478,8 @@ public class Socket {
     }
 
     /**
-     * Returns the remote address and port of this socket as a {@code
-     * SocketAddress} or null if the socket is not connected.
+     * Returns the remote address and port of this socket as a {@code SocketAddress} or null if the
+     * socket is not connected.
      *
      * @return the remote socket address and port.
      */
@@ -609,8 +493,7 @@ public class Socket {
     /**
      * Returns whether this socket is bound to a local address and port.
      *
-     * @return {@code true} if the socket is bound to a local address, {@code
-     *         false} otherwise.
+     * @return {@code true} if the socket is bound to a local address, {@code false} otherwise.
      */
     public boolean isBound() {
         return isBound;
@@ -635,18 +518,13 @@ public class Socket {
     }
 
     /**
-     * Binds this socket to the given local host address and port specified by
-     * the SocketAddress {@code localAddr}. If {@code localAddr} is set to
-     * {@code null}, this socket will be bound to an available local address on
-     * any free port.
+     * Binds this socket to the given local host address and port specified by the SocketAddress
+     * {@code localAddr}. If {@code localAddr} is set to {@code null}, this socket will be bound to
+     * an available local address on any free port.
      *
-     * @param localAddr
-     *            the specific address and port on the local machine to bind to.
-     * @throws IllegalArgumentException
-     *             if the given SocketAddress is invalid or not supported.
-     * @throws IOException
-     *             if the socket is already bound or an error occurs while
-     *             binding.
+     * @param localAddr the specific address and port on the local machine to bind to.
+     * @throws IllegalArgumentException if the given SocketAddress is invalid or not supported.
+     * @throws IOException if the socket is already bound or an error occurs while binding.
      */
     public void bind(SocketAddress localAddr) throws IOException {
         checkOpenAndCreate(true);
@@ -658,12 +536,12 @@ public class Socket {
         InetAddress addr = Inet4Address.ANY;
         if (localAddr != null) {
             if (!(localAddr instanceof InetSocketAddress)) {
-                throw new IllegalArgumentException("Local address not an InetSocketAddress: " +
-                        localAddr.getClass());
+                throw new IllegalArgumentException("Local address not an InetSocketAddress: "
+                                                   + localAddr.getClass());
             }
             InetSocketAddress inetAddr = (InetSocketAddress) localAddr;
             if ((addr = inetAddr.getAddress()) == null) {
-                throw new UnknownHostException("Host is unresolved: " /*+ inetAddr.getHostName()*/);
+                throw new UnknownHostException("Host is unresolved: " /* + inetAddr.getHostName() */);
             }
             port = inetAddr.getPort();
         }
@@ -680,38 +558,27 @@ public class Socket {
     }
 
     /**
-     * Connects this socket to the given remote host address and port specified
-     * by the SocketAddress {@code remoteAddr}.
+     * Connects this socket to the given remote host address and port specified by the SocketAddress
+     * {@code remoteAddr}.
      *
-     * @param remoteAddr
-     *            the address and port of the remote host to connect to.
-     * @throws IllegalArgumentException
-     *             if the given SocketAddress is invalid or not supported.
-     * @throws IOException
-     *             if the socket is already connected or an error occurs while
-     *             connecting.
+     * @param remoteAddr the address and port of the remote host to connect to.
+     * @throws IllegalArgumentException if the given SocketAddress is invalid or not supported.
+     * @throws IOException if the socket is already connected or an error occurs while connecting.
      */
     public void connect(SocketAddress remoteAddr) throws IOException {
         connect(remoteAddr, 0);
     }
 
     /**
-     * Connects this socket to the given remote host address and port specified
-     * by the SocketAddress {@code remoteAddr} with the specified timeout. The
-     * connecting method will block until the connection is established or an
-     * error occurred.
+     * Connects this socket to the given remote host address and port specified by the SocketAddress
+     * {@code remoteAddr} with the specified timeout. The connecting method will block until the
+     * connection is established or an error occurred.
      *
-     * @param remoteAddr
-     *            the address and port of the remote host to connect to.
-     * @param timeout
-     *            the timeout value in milliseconds or {@code 0} for an infinite
-     *            timeout.
-     * @throws IllegalArgumentException
-     *             if the given SocketAddress is invalid or not supported or the
-     *             timeout value is negative.
-     * @throws IOException
-     *             if the socket is already connected or an error occurs while
-     *             connecting.
+     * @param remoteAddr the address and port of the remote host to connect to.
+     * @param timeout the timeout value in milliseconds or {@code 0} for an infinite timeout.
+     * @throws IllegalArgumentException if the given SocketAddress is invalid or not supported or
+     *         the timeout value is negative.
+     * @throws IOException if the socket is already connected or an error occurs while connecting.
      */
     public void connect(SocketAddress remoteAddr, int timeout) throws IOException {
         checkOpenAndCreate(true);
@@ -726,13 +593,13 @@ public class Socket {
         }
 
         if (!(remoteAddr instanceof InetSocketAddress)) {
-            throw new IllegalArgumentException("Remote address not an InetSocketAddress: " +
-                    remoteAddr.getClass());
+            throw new IllegalArgumentException("Remote address not an InetSocketAddress: "
+                                               + remoteAddr.getClass());
         }
         InetSocketAddress inetAddr = (InetSocketAddress) remoteAddr;
         InetAddress addr;
         if ((addr = inetAddr.getAddress()) == null) {
-            throw new UnknownHostException("Host is unresolved: " /*+ inetAddr.getHostName()*/);
+            throw new UnknownHostException("Host is unresolved: " /* + inetAddr.getHostName() */);
         }
         int port = inetAddr.getPort();
 
@@ -740,13 +607,12 @@ public class Socket {
         synchronized (connectLock) {
             try {
                 if (!isBound()) {
-                    // socket already created at this point by earlier call or
-                    // checkOpenAndCreate this caused us to lose socket
-                    // options on create
+                    // socket already created at this point by earlier call or checkOpenAndCreate
+                    // this caused us to lose socket options on create
                     // impl.create(true);
-                    //if (!usingSocks()) {
-                        impl.bind(Inet4Address.ANY, 0);
-                    //}
+                    // if (!usingSocks()) {
+                    impl.bind(Inet4Address.ANY, 0);
+                    // }
                     isBound = true;
                 }
                 impl.connect(remoteAddr, timeout);
@@ -759,22 +625,20 @@ public class Socket {
     }
 
     /**
-     * Returns whether the incoming channel of the socket has already been
-     * closed.
+     * Returns whether the incoming channel of the socket has already been closed.
      *
-     * @return {@code true} if reading from this socket is not possible anymore,
-     *         {@code false} otherwise.
+     * @return {@code true} if reading from this socket is not possible anymore, {@code false}
+     *         otherwise.
      */
     public boolean isInputShutdown() {
         return isInputShutdown;
     }
 
     /**
-     * Returns whether the outgoing channel of the socket has already been
-     * closed.
+     * Returns whether the outgoing channel of the socket has already been closed.
      *
-     * @return {@code true} if writing to this socket is not possible anymore,
-     *         {@code false} otherwise.
+     * @return {@code true} if writing to this socket is not possible anymore, {@code false}
+     *         otherwise.
      */
     public boolean isOutputShutdown() {
         return isOutputShutdown;
@@ -784,9 +648,8 @@ public class Socket {
      * Sets this socket's {@link SocketOptions#SO_REUSEADDR} option.
      */
     public void setReuseAddress(boolean reuse) throws SocketException {
-    	int iReuse = reuse ? 1: 0;
         checkOpenAndCreate(true);
-        impl.setOption(SocketOptions.SO_REUSEADDR, iReuse);
+        impl.setOption(SocketOptions.SO_REUSEADDR, reuse ? 1 : 0);
     }
 
     /**
@@ -801,9 +664,8 @@ public class Socket {
      * Sets this socket's {@link SocketOptions#SO_OOBINLINE} option.
      */
     public void setOOBInline(boolean oobinline) throws SocketException {
-    	int obline = oobinline ? 1: 0;
         checkOpenAndCreate(true);
-        impl.setOption(SocketOptions.SO_OOBINLINE, obline);
+        impl.setOption(SocketOptions.SO_OOBINLINE, oobinline ? 1 : 0);
     }
 
     /**
@@ -833,10 +695,8 @@ public class Socket {
         return (Integer) impl.getOption(SocketOptions.IP_TOS);
     }
 
-
     /**
-     * Set the appropriate flags for a socket created by {@code
-     * ServerSocket.accept()}.
+     * Set the appropriate flags for a socket created by {@code ServerSocket.accept()}.
      *
      * @see ServerSocket#implAccept
      */
@@ -844,19 +704,14 @@ public class Socket {
         isCreated = isBound = isConnected = true;
     }
 
-
     /**
      * Sets performance preferences for connectionTime, latency and bandwidth.
+     * <p>
+     * This method does currently nothing.
      *
-     * <p>This method does currently nothing.
-     *
-     * @param connectionTime
-     *            the value representing the importance of a short connecting
-     *            time.
-     * @param latency
-     *            the value representing the importance of low latency.
-     * @param bandwidth
-     *            the value representing the importance of high bandwidth.
+     * @param connectionTime the value representing the importance of a short connecting time.
+     * @param latency the value representing the importance of low latency.
+     * @param bandwidth the value representing the importance of high bandwidth.
      */
     public void setPerformancePreferences(int connectionTime, int latency, int bandwidth) {
         // Our socket implementation only provide one protocol: TCP/IP, so

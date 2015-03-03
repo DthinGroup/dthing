@@ -27,6 +27,12 @@
 
 GLOBAL DVMGlobal gDvm;
 
+/* bootstrap classes buffer */
+/* open source code for java framework and third-party java source. */
+const uint8_t bootStrapClasses[] =
+#include<dalvik_core.h>
+;
+
 /**
  * Initialize native environment, such as file system,
  * graphics and so on.
@@ -36,6 +42,7 @@ LOCAL void DVM_native_init()
 {
     //file_startup();
     vm_ota_init();
+    vm_tck_init();
 }
 
 
@@ -49,6 +56,7 @@ LOCAL void DVM_native_final()
 {
     file_shutdown();
     vm_ota_final();
+    vm_tck_final();
 }
 
 

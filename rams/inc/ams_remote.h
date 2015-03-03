@@ -30,6 +30,7 @@ extern "C" {
 #define EVT_CMD_REMOVE   (9)
 #define EVT_CMD_OSGI	 (10)
 #define EVT_CMD_VIEWINFO (11)
+#define EVT_CMD_TCK      (12)
 
 /* internal eventy commands */
 #define EVT_CMD_DECLARE  (0|RAMS_INTERNAL_MARK)

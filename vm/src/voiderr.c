@@ -329,12 +329,12 @@ INLINE s4 dvmGetFieldIntVolatile(const Object* obj, int offset)
 	s4* ptr = &((JValue*)BYTE_OFFSET(obj, offset))->i;
     return (s4)(*ptr);  //android_atomic_acquire_load(ptr);
 }
-
+/*
 float	fmodf(float a, float b)
 {
     return 0.0;
 }
-
+*/
 void dvmThrowArithmeticException(const char* msg) 
 {
 }

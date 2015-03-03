@@ -18,11 +18,11 @@ import com.yarlungsoft.util.Log;
 public class HttpConnectionImpl {
 
     /** HTTP Head method. */
-    public final static String HEAD = "HEAD";
+    public static final String HEAD = "HEAD";
     /** HTTP Get method. */
-    public final static String GET = "GET";
+    public static final String GET = "GET";
     /** HTTP Post method. */
-    public final static String POST = "POST";
+    public static final String POST = "POST";
 
     /** 2XX: generally "OK" */
     /** 200: The request has succeeded. */
@@ -278,19 +278,19 @@ public class HttpConnectionImpl {
     /**
      * Access mode READ.
      */
-    public final static int READ = 1;
+    public static final int READ = 1;
 
     /**
      * Access mode WRITE.
      */
-    public final static int WRITE = 2;
+    public static final int WRITE = 2;
 
     /**
      * Access mode READ_WRITE.
      */
-    public final static int READ_WRITE = (READ | WRITE);
+    public static final int READ_WRITE = (READ | WRITE);
 
-    private final static String SCHEME = "http";
+    private static final String SCHEME = "http";
 
     private int index; // used by URL parsing functions
     private String url;

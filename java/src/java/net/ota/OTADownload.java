@@ -1,4 +1,3 @@
-
 package java.net.ota;
 
 import java.io.FileNotFoundException;
@@ -9,9 +8,10 @@ import java.io.MalformedURLException;
 import java.net.http.HttpURLConnection;
 import java.net.http.URL;
 
-import com.yarlungsoft.ams.AmsConfig;
+import com.yarlungsoft.util.Log;
 
 public class OTADownload {
+    private static final String TAG = "OTADownload";
 
     private String OTALink;
     private OTAListener resultListener = null;
@@ -21,10 +21,10 @@ public class OTADownload {
         if (args.length > 0) {
             url = args[0];
         } else {
-            Log("OTADownload:Ota - nothing to do");
+            Log.amsLog(TAG, "Ota - nothing to do");
             return;
         }
-        Log("OTADownload:Ota - " + url);
+        Log.amsLog(TAG, "Ota - " + url);
         OTADownload ota = new OTADownload(url);
         ota.OTAStart();
     }
@@ -72,17 +72,11 @@ public class OTADownload {
         case OTAConfig.OTA_TASK_FAIL:
             break;
         }
-        Log("OTA Result:" + result);
+        Log.amsLog(TAG, "Result:" + result);
         if (resultListener != null) {
             resultListener.onResult(result);
         }
         notifyOTAResult0(result);
-    }
-
-    private static void Log(String log) {
-        if (AmsConfig.debug()) {
-            System.out.println(log);
-        }
     }
 
     class OTAThread implements Runnable {
@@ -94,7 +88,7 @@ public class OTADownload {
                 url = new URL(OTALink);
             } catch (MalformedURLException e) {
                 e.printStackTrace();
-                Log("Exception: new URL(" + OTALink + ")");
+                Log.amsLog(TAG, "Exception: new URL(" + OTALink + ")");
                 notifyOTAResult(OTAConfig.OTA_INVALID_URL);
                 return;
             }
@@ -104,14 +98,13 @@ public class OTADownload {
                 uConn = (HttpURLConnection) url.openConnection();
             } catch (Exception e) {
                 e.printStackTrace();
-                Log("Exception:open connection fail");
+                Log.amsLog(TAG, "Exception:open connection fail");
                 notifyOTAResult(OTAConfig.OTA_NET_ERROR);
                 return;
             }
 
-            uConn.setRequestProperty("Accept", "text/html");
-            uConn.setRequestProperty("Content-Length", "10");
-            uConn.setRequestProperty("Connection", "keep-alive");
+            uConn.setRequestProperty("Accept", "*/*");
+            uConn.setRequestProperty("Connection", "Keep-Alive");
             uConn.setDoOutput(false);
 
             try {
@@ -121,34 +114,37 @@ public class OTADownload {
                 int leng = uConn.getContentLength();
                 FileOutputStream fs = null;
 
-                Log("OTA: Start downlowd");
+                Log.amsLog(TAG, "Start downlowd, content length:" + leng);
 
                 String file = getStorageFilename();
-                Log("OTA file name:" + file);
+                Log.amsLog(TAG, "file name:" + file);
 
                 fs = new FileOutputStream(file, true);
-                System.out.println("Start read");
+                Log.amsLog(TAG, "Start read");
                 byte[] buffer = new byte[3072];
                 while ((byteread = in.read(buffer)) > 0) {
                     bytesum += byteread;
-                    System.out.println("Read count:" + bytesum);
+                    Log.amsLog(TAG, "Read count:" + bytesum);
                     fs.write(buffer, 0, byteread);
-                    if (bytesum >= leng)
+                    if (bytesum >= leng) {
                         break;
+                    }
                 }
                 fs.flush();
                 fs.close();
             } catch (FileNotFoundException e) {
                 notifyOTAResult(OTAConfig.OTA_FILE_ERROR);
+                uConn.disconnect();
                 return;
-            } catch (IOException e1) {
+            } catch (IOException e) {
+                e.printStackTrace();
                 notifyOTAResult(OTAConfig.OTA_IO_ERROR);
+                uConn.disconnect();
                 return;
             }
-            Log("OTA downlowd over");
+            uConn.disconnect();
+            Log.amsLog(TAG, "downlowd over");
             notifyOTAResult(OTAConfig.OTA_SUCCESS);
         }
-
     }
-
 }

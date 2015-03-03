@@ -68,6 +68,22 @@ public final class Integer {
     }
 
     /**
+     * Constructs a new {@code Integer} with the specified big endian bytes.
+     *
+     * @param bytes big endian bytes.
+     */
+    public Integer(byte[] bytes) {
+        int v = 0;
+        if (bytes != null && bytes.length > 0) {
+            int max = bytes.length > 4 ? 4 : bytes.length;
+            for (int i = 0; i < max; i++) {
+                v ^= (bytes[i] & 0x0FF) << ((max - 1 - i) * 8);
+            }
+        }
+        value = v;
+    }
+
+    /**
      * Returns the value of this Integer as a byte.
      *
      * @return the value of this Integer as a byte.
@@ -303,7 +319,7 @@ public final class Integer {
 
         return new String(buf, charPos, (32 - charPos));
     }
-    
+
     /**
      * Converts the specified integer into its binary string representation. The
      * returned string is a concatenation of '0' and '1' characters.

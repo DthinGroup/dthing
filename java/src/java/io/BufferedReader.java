@@ -1,7 +1,7 @@
 package java.io;
 
 
-///masterpack/raw/tmp/harmony/jbed6/cfg/jbed6/harmony/java/io/BufferedReader.java
+///masterpack/raw/tmp/harmony/myd-jvm6/cfg/myd-jvm6/harmony/java/io/BufferedReader.java
 
 /**
  * Wraps an existing {@link Reader} and <em>buffers</em> the input. Expensive

@@ -694,7 +694,7 @@ public class AttributedString {
 
 
     // returns whether the two objects are either both null or equal
-    private final static boolean valuesMatch(Object value1, Object value2) {
+    private static final boolean valuesMatch(Object value1, Object value2) {
         if (value1 == null) {
             return value2 == null;
         } else {

@@ -573,12 +573,46 @@ bool_t vm_otaApp(char * url)
     }else{
         DVMTraceDbg("===vm is running,ota:%s\n",url);
         //DVM_ASSERT(0);
-		vm_ota_set(TRUE,url);
+        vm_ota_set(TRUE,url);
     }
 
     return res;
 }
 
+bool_t vm_tckApp(char * url)
+{
+    bool_t res = TRUE;
+    Event        newEvt;
+    static char* argv[3];
+    char * tckUrl = CRTL_malloc(CRTL_strlen(url) + 1);  //memery leak
+    if (tckUrl == NULL)
+    {
+    }
+
+    if (!IsDvmRunning())
+    {
+        CRTL_memset(tckUrl, 0, CRTL_strlen(url) + 1);
+        CRTL_memcpy(tckUrl, url, CRTL_strlen(url));
+
+        argv[0] = "-tck";
+        argv[1] = tckUrl;
+        argv[2] = NULL;
+        DVMTraceInf("===argv=0x%x,argv-1:%s,argv-2:%s,argv-3:%s\n", (void*)argv, argv[0], argv[1], argv[2]);
+
+        if (Ams_createVMThread(VMThreadProc, 2, argv) < 0)
+        {
+            DVMTraceErr("lauch VM thread failure\n");
+            res = FALSE;
+        }
+    }
+    else{
+        DVMTraceDbg("===vm is running,tck:%s\n", url);
+        //DVM_ASSERT(0);
+        vm_tck_set(TRUE, url);
+    }
+
+    return res;
+}
 
 /*----------Special ota Handle--------------*/
 //OTA
@@ -607,12 +641,12 @@ void vm_ota_set(bool_t flag,char * url)
 	if(flag)
 	{
 		CRTL_memset(s_ota_addr,0,128);
-		CRTL_memcpy(s_ota_addr,url,CRTL_strlen(url));		
+		CRTL_memcpy(s_ota_addr,url,CRTL_strlen(url));
 		s_ota_hang_flag = TRUE;
 	}
 	else
 	{
-		CRTL_memset(s_ota_addr,0,128);	
+		CRTL_memset(s_ota_addr,0,128);
 		s_ota_hang_flag = FALSE;
 	}
 	mutex_unlock(s_ota_mutex);
@@ -642,14 +676,14 @@ void vm_create_otaTask()
 	    ClassObject* dummyThreadCls = NULL;
 	    Object*      dummyThreadObj = NULL;
 	    ClassObject* strCls = NULL;
-        ArrayObject* params = NULL; 
+        ArrayObject* params = NULL;
 		StringObject* strObj= NULL;
 
 		otaClass = dvmFindClass("Ljava/net/ota/OTADownload;");
 		startMeth = dvmGetStaticMethodID(otaClass, "OTA", "([Ljava/lang/String;)V");
 	    dummyThreadCls = dvmFindClass("Ljava/lang/Thread;");
 	    dummyThreadObj = dvmAllocObject(dummyThreadCls, 0);
-	    
+
         strCls = dvmFindClass("[Ljava/lang/String;");
         params = dvmAllocArrayByClass(strCls, 1, 0);
 
@@ -662,4 +696,84 @@ void vm_create_otaTask()
 	}
 }
 
+/*----------Special tck Handle--------------*/
+//TCK
+static bool_t s_tck_hang_flag;
+static char   s_tck_addr[128];
+static ES_Mutex * s_tck_mutex;
+void vm_tck_init()
+{
+    s_tck_mutex = mutex_init();
+    DVMTraceDbg("===s_tck_mutex:0x%x\n", s_tck_mutex);
+    DVM_ASSERT(s_tck_mutex != NULL);
+    CRTL_memset(s_tck_addr, 0, 128);
+    s_tck_hang_flag = FALSE;
+}
 
+void vm_tck_final()
+{
+    mutex_destory(s_tck_mutex);
+    CRTL_memset(s_tck_addr, 0, 128);
+    s_tck_hang_flag = FALSE;
+}
+
+void vm_tck_set(bool_t flag, char * url)
+{
+    mutex_lock(s_tck_mutex);
+    if (flag)
+    {
+        CRTL_memset(s_tck_addr, 0, 128);
+        CRTL_memcpy(s_tck_addr, url, CRTL_strlen(url));
+        s_tck_hang_flag = TRUE;
+    }
+    else
+    {
+        CRTL_memset(s_tck_addr, 0, 128);
+        s_tck_hang_flag = FALSE;
+    }
+    mutex_unlock(s_tck_mutex);
+}
+
+bool_t vm_tck_get()
+{
+    bool_t ret;
+    mutex_lock(s_tck_mutex);
+    ret = s_tck_hang_flag;
+    mutex_unlock(s_tck_mutex);
+    return ret;
+}
+
+void vm_create_tckTask()
+{
+    if (vm_tck_get() != TRUE)
+    {
+        //nothing
+    }
+    else
+    {
+        uint8_t** newArgv = NULL;
+        int32_t   newArgc = 0;
+        ClassObject* tckClass = NULL;
+        Method*      startMeth = NULL;
+        ClassObject* dummyThreadCls = NULL;
+        Object*      dummyThreadObj = NULL;
+        ClassObject* strCls = NULL;
+        ArrayObject* params = NULL;
+        StringObject* strObj = NULL;
+
+        tckClass = dvmFindClass("Lcom/yarlungsoft/ams/TCKRunner;");
+        startMeth = dvmGetStaticMethodID(tckClass, "launchFromNative", "([Ljava/lang/String;)V");
+        dummyThreadCls = dvmFindClass("Ljava/lang/Thread;");
+        dummyThreadObj = dvmAllocObject(dummyThreadCls, 0);
+
+        strCls = dvmFindClass("[Ljava/lang/String;");
+        params = dvmAllocArrayByClass(strCls, 1, 0);
+
+        strObj = NewStringUTF(s_tck_addr);
+        dvmSetObjectArrayElement(params, 0, strObj);
+
+        dthread_create_params(startMeth, dummyThreadObj, params);
+
+        vm_tck_set(FALSE, NULL);
+    }
+}

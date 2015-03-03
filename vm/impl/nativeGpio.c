@@ -444,7 +444,6 @@ void vibra_gpio_callback(uint32 gpio_id, uint32 gpio_state)
   if (GPIO_VIBRA_ID == gpio_id)
   {
     DthingTraceD("[INFO][GPIO] Enter callback for vibra gpio\n");
-	//Jbed_setProperty("yarlung.vibra", state? "true" : "false"); //TODO:any property access apis in dvm?
     GPIO_SetInterruptSense(GPIO_VIBRA_ID, GPIO_INT_EDGES_RISING);
     GPIO_ClearIntStatus(GPIO_VIBRA_ID);
     GPIO_EnableIntCtl(GPIO_VIBRA_ID);

@@ -30,6 +30,58 @@ static int16_t currentFsmState;
 static int32_t ams_remote_buildConnection(Event *evt, void *userData);
 
 static void ams_remote_callbackHandler(AmsCBData * cbdata);
+
+/**
+ * Parse App ID from command data, and verify whether the data length is correct.
+ * @param data, raw data from server side.
+ * @param dataLen, data length.
+ * @return App ID (positive) or error value in EvtSysResult_e (negative).
+ */
+static int32_t parseAndVerifyAppId(uint8_t* data, int dataLen)
+{
+    uint8_t* p = data;
+    int32_t length = readbeIU32(p += 4);
+    int32_t appId = readbeIU32(p += 4);
+
+    if (dataLen != 16 + 4 + length)
+    {
+        DVMTraceErr("parseAndVerifyAppId: Error, wrong data length.\n");
+        return EVT_RES_FAILURE;
+    }
+    return appId;
+}
+
+/**
+ * Parse URL from command data, and verify whether the data length is correct.
+ * The caller should free the returned buffer if it is not NULL.
+ * @param data, raw data from server side.
+ * @param dataLen, data length.
+ * @return URL if success, or NULL otherwise.
+ */
+static uint8_t* parseAndVerifyUrl(uint8_t* data, int dataLen)
+{
+    uint8_t* p = data;
+    int32_t length = readbeIU32(p += 4);
+    uint8_t * url = NULL;
+
+    if (dataLen != 16 + 4 + length)
+    {
+        DVMTraceErr("parseAndVerifyUrl: Error, wrong data length.\n");
+        return NULL;
+    }
+
+    url = (uint8_t*)CRTL_malloc(length + 1);
+    if (url == NULL)
+    {
+        DVMTraceErr("parseAndVerifyUrl: alloc fail\n");
+        return NULL;
+    }
+
+    CRTL_memset(url, 0, length + 1);
+    CRTL_memcpy(url, p + 4, length);
+    return url;
+}
+
 /**
  * Parse server commands.
  * @param data, raw data from server side.
@@ -64,80 +116,80 @@ static int32_t parseServerCommands(uint8_t* data, int32_t dataBytes)
 
     case EVT_CMD_DELETE:
         {
-            int32_t length = readbeIU32(p+=4);
-            int32_t appId  = readbeIU32(p+=4);
-            SafeBuffer *safeBuf;
-            int32_t safeBufSize;
+            int32_t appId = parseAndVerifyAppId(p, len);
 
-            if (len != 16 + 4 + length)
+            if (appId < 0)
             {
-                DVMTraceErr("parseServerCommands: Error, wrong data length.\n");
                 res = EVT_RES_FAILURE;
-                break;
             }
-            Ams_deleteApp(appId,ATYPE_RAMS);
+            else
+            {
+                Ams_deleteApp(appId, ATYPE_RAMS);
+            }
         }
         break;
 
     case EVT_CMD_RUN:
         {
-            int32_t length = readbeIU32(p+=4);
-            int32_t appId  = readbeIU32(p+=4);
-            SafeBuffer *safeBuf;
-            int32_t safeBufSize;
+            int32_t appId = parseAndVerifyAppId(p, len);
 
-            if (len != 16 + 4 + length)
+            if (appId < 0)
             {
-                DVMTraceErr("parseServerCommands: Error, wrong data length.\n");
                 res = EVT_RES_FAILURE;
-                break;
             }
-            Ams_runApp(appId,ATYPE_RAMS);
+            else
+            {
+                Ams_runApp(appId, ATYPE_RAMS);
+            }
         }
         break;
 
     case EVT_CMD_DESTROY:
         {
-            int32_t length = readbeIU32(p+=4);
-            int32_t appId  = readbeIU32(p+=4);
-            SafeBuffer *safeBuf;
-            int32_t safeBufSize;
+            int32_t appId = parseAndVerifyAppId(p, len);
 
-            if (len != 16 + 4 + length)
+            if (appId < 0)
             {
-                DVMTraceErr("parseServerCommands: Error, wrong data length.\n");
                 res = EVT_RES_FAILURE;
-                break;
             }
-            Ams_destoryApp(appId,ATYPE_RAMS);
+            else
+            {
+                Ams_destoryApp(appId, ATYPE_RAMS);
+            }
         }
         break;
 
     case EVT_CMD_OTA:
         {
-            int32_t length = readbeIU32(p+=4);
-            uint8_t * url = NULL;
-            
-            if (len != 16 + 4 + length)
-            {
-                DVMTraceErr("parseServerCommands EVT_CMD_OTA: Error, wrong data length.\n");
-                res = EVT_RES_FAILURE;
-                break;
-            }
-            
-            url = (uint8_t*)CRTL_malloc(length +1);
+            uint8_t * url = parseAndVerifyUrl(p, len);
+
             if (url == NULL)
             {
                 res = EVT_RES_FAILURE;
-                DVMTraceErr("parseServerCommands EVT_CMD_OTA: alloc fail\n");
-                break;
             }
-            CRTL_memset(url,0,length+1);
-            CRTL_memcpy(url,p+4,length);
-            DVMTraceDbg("ota:%s\n",url);
-            Ams_otaApp(url,ATYPE_RAMS);
-            
-            CRTL_freeif(url);
+            else
+            {
+                DVMTraceDbg("ota:%s\n", url);
+                Ams_otaApp(url, ATYPE_RAMS);
+                CRTL_freeif(url);
+            }
+        }
+        break;
+
+    case EVT_CMD_TCK:
+        {
+            uint8_t * url = parseAndVerifyUrl(p, len);
+
+            if (url == NULL)
+            {
+                res = EVT_RES_FAILURE;
+            }
+            else
+            {
+                DVMTraceDbg("tck:%s\n", url);
+                Ams_tckApp(url, ATYPE_RAMS);
+                CRTL_freeif(url);
+            }
         }
         break;
 
@@ -282,7 +334,7 @@ int32_t ams_remote_lifecycleProcess(Event *evt, void *userData)
     switch (evtId)
     {
     case EVT_SYS_INIT:
-		Ams_regModuleCallBackHandler(ATYPE_RAMS,ams_remote_callbackHandler);
+        Ams_regModuleCallBackHandler(ATYPE_RAMS,ams_remote_callbackHandler);
         //file_startup();
         //appletsList = listInstalledApplets(NULL);
         /* push connection event to queue */
@@ -374,66 +426,83 @@ bool_t ramsClient_isVMActive(void)
 
 void ams_remote_callbackHandler(AmsCBData * cbdata)
 {
-	uint8_t     ackBuf[16] = {0x0,};
+    uint8_t     ackBuf[16] = {0x0,};
     uint8_t    *pByte;
     SafeBuffer *safeBuf;
     Event       newEvt;
-	uint32_t res;
+    uint32_t res;
 
-	if(cbdata ==NULL)
-	{
-		return;
-	}
-	if(cbdata->module != AMS_MODULE_RAMS)
-	{
-		return;
-	}
-	
-	res = cbdata->result;
-	switch(cbdata->cmd)
-	{
-	case RCMD_LIST:
-		ams_remote_list();
-		break;
+    if(cbdata ==NULL)
+    {
+        return;
+    }
+    if(cbdata->module != AMS_MODULE_RAMS)
+    {
+        return;
+    }
 
-	case RCMD_RUN:
-		if (vm_getCurActiveApp() == NULL)
+    res = cbdata->result;
+    switch(cbdata->cmd)
+    {
+    case RCMD_LIST:
+        ams_remote_list();
+        break;
+
+    case RCMD_RUN:
+        if (vm_getCurActiveApp() == NULL)
         {
             DVMTraceWar("No Applet in launching state\n");
             return ;
         }
         vm_setCurActiveAppState(res ? TRUE : FALSE);
 
-		pByte = (uint8_t*)ackBuf;
-		writebeIU32(&pByte[0], sizeof(ackBuf));
-		writebeIU32(&pByte[4], ACK_RECV_AND_EXEC);
-		writebeIU32(&pByte[8], EVT_CMD_RUN);
-		writebeIU32(&pByte[12], (res ? 1 : 0));
+        pByte = (uint8_t*)ackBuf;
+        writebeIU32(&pByte[0], sizeof(ackBuf));
+        writebeIU32(&pByte[4], ACK_RECV_AND_EXEC);
+        writebeIU32(&pByte[8], EVT_CMD_RUN);
+        writebeIU32(&pByte[12], (res ? 1 : 0));
 
-		safeBuf = CreateSafeBufferByBin(ackBuf, sizeof(ackBuf));
-		newNormalEvent(EVT_CMD_DECLARE, DECLARE_FSM_WRITE, (void *)safeBuf, ams_remote_buildConnection, &newEvt);
-		ES_pushEvent(&newEvt);
-		break;
+        safeBuf = CreateSafeBufferByBin(ackBuf, sizeof(ackBuf));
+        newNormalEvent(EVT_CMD_DECLARE, DECLARE_FSM_WRITE, (void *)safeBuf, ams_remote_buildConnection, &newEvt);
+        ES_pushEvent(&newEvt);
+        break;
 
-	case RCMD_OTA:
-		if(res==0){
-			res = 1;
-		}
+    case RCMD_OTA:
+        if(res==0){
+            res = 1;
+        }
 
-		pByte = (uint8_t*)ackBuf;
+        pByte = (uint8_t*)ackBuf;
 
-		writebeIU32(&pByte[0], sizeof(ackBuf));
-		writebeIU32(&pByte[4], ACK_RECV_AND_EXEC);
-		writebeIU32(&pByte[8], EVT_CMD_OTA);
-		writebeIU32(&pByte[12], res);
+        writebeIU32(&pByte[0], sizeof(ackBuf));
+        writebeIU32(&pByte[4], ACK_RECV_AND_EXEC);
+        writebeIU32(&pByte[8], EVT_CMD_OTA);
+        writebeIU32(&pByte[12], res);
 
-		safeBuf = CreateSafeBufferByBin(ackBuf, sizeof(ackBuf));
-		newNormalEvent(EVT_CMD_DECLARE, DECLARE_FSM_WRITE, (void *)safeBuf, ams_remote_buildConnection, &newEvt);
-		ES_pushEvent(&newEvt);
-		break;
+        safeBuf = CreateSafeBufferByBin(ackBuf, sizeof(ackBuf));
+        newNormalEvent(EVT_CMD_DECLARE, DECLARE_FSM_WRITE, (void *)safeBuf, ams_remote_buildConnection, &newEvt);
+        ES_pushEvent(&newEvt);
+        break;
 
-	case RCMD_DESTROY:
-		if (vm_getCurActiveApp() == NULL)
+    case RCMD_TCK:
+        if (res == 0){
+            res = 1;
+        }
+
+        pByte = (uint8_t*)ackBuf;
+
+        writebeIU32(&pByte[0], sizeof(ackBuf));
+        writebeIU32(&pByte[4], ACK_RECV_AND_EXEC);
+        writebeIU32(&pByte[8], EVT_CMD_TCK);
+        writebeIU32(&pByte[12], res);
+
+        safeBuf = CreateSafeBufferByBin(ackBuf, sizeof(ackBuf));
+        newNormalEvent(EVT_CMD_DECLARE, DECLARE_FSM_WRITE, (void *)safeBuf, ams_remote_buildConnection, &newEvt);
+        ES_pushEvent(&newEvt);
+        break;
+
+    case RCMD_DESTROY:
+        if (vm_getCurActiveApp() == NULL)
         {
             DVMTraceWar("No Applet in launching state\n");
             return;
@@ -441,27 +510,27 @@ void ams_remote_callbackHandler(AmsCBData * cbdata)
         vm_setCurActiveAppState(res ? TRUE : FALSE);
         vm_setCurActiveApp(NULL);//destroyed success;
 
-		pByte = (uint8_t*)ackBuf;
-		writebeIU32(&pByte[0], sizeof(ackBuf));
-		writebeIU32(&pByte[4], ACK_RECV_AND_EXEC);
-		writebeIU32(&pByte[8], EVT_CMD_DESTROY);
-		writebeIU32(&pByte[12], (res ? 1 : 0));
+        pByte = (uint8_t*)ackBuf;
+        writebeIU32(&pByte[0], sizeof(ackBuf));
+        writebeIU32(&pByte[4], ACK_RECV_AND_EXEC);
+        writebeIU32(&pByte[8], EVT_CMD_DESTROY);
+        writebeIU32(&pByte[12], (res ? 1 : 0));
 
-		safeBuf = CreateSafeBufferByBin(ackBuf, sizeof(ackBuf));
-		newNormalEvent(EVT_CMD_DECLARE, DECLARE_FSM_WRITE, (void *)safeBuf, ams_remote_buildConnection, &newEvt);
-		ES_pushEvent(&newEvt);
-		break;
+        safeBuf = CreateSafeBufferByBin(ackBuf, sizeof(ackBuf));
+        newNormalEvent(EVT_CMD_DECLARE, DECLARE_FSM_WRITE, (void *)safeBuf, ams_remote_buildConnection, &newEvt);
+        ES_pushEvent(&newEvt);
+        break;
 
-	case RCMD_DELETE:
-		pByte = (uint8_t*)ackBuf;
-		writebeIU32(&pByte[0], sizeof(ackBuf));
-		writebeIU32(&pByte[4], ACK_RECV_AND_EXEC);
-		writebeIU32(&pByte[8], EVT_CMD_DELETE);
-		writebeIU32(&pByte[12], (res ? 1 : 0));
+    case RCMD_DELETE:
+        pByte = (uint8_t*)ackBuf;
+        writebeIU32(&pByte[0], sizeof(ackBuf));
+        writebeIU32(&pByte[4], ACK_RECV_AND_EXEC);
+        writebeIU32(&pByte[8], EVT_CMD_DELETE);
+        writebeIU32(&pByte[12], (res ? 1 : 0));
 
-		safeBuf = CreateSafeBufferByBin(ackBuf, sizeof(ackBuf));
-		newNormalEvent(EVT_CMD_DECLARE, DECLARE_FSM_WRITE, (void *)safeBuf, ams_remote_buildConnection, &newEvt);
-		ES_pushEvent(&newEvt);
-		break;
-	}
+        safeBuf = CreateSafeBufferByBin(ackBuf, sizeof(ackBuf));
+        newNormalEvent(EVT_CMD_DECLARE, DECLARE_FSM_WRITE, (void *)safeBuf, ams_remote_buildConnection, &newEvt);
+        ES_pushEvent(&newEvt);
+        break;
+    }
 }
