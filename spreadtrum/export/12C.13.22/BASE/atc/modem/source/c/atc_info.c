@@ -5758,9 +5758,23 @@ ATC_Func_Handle_F g_atc_handle_table[] =
     ATC_ProcessIPSEND,
     ATC_ProcessIPCLOSE,
     ATC_ProcessIPDEACT,
-#ifndef DAM_TEST
     ATC_ProcessSFSTEST,
-#endif     
+    ATC_ProcessAMS,
+    ATC_ProcessAMSOTA,
+    ATC_ProcessAMSINSTALL,
+    ATC_ProcessAMSDL,
+    ATC_ProcessAMSDELETE,
+    ATC_ProcessAMSDELETEALL,
+    ATC_ProcessAMSRUN,
+    ATC_ProcessAMSLIST,
+    ATC_ProcessAMSDESTROY,
+    ATC_ProcessAMSSTATUS,
+    ATC_ProcessAMSRESET,
+    ATC_ProcessAMSCFGINIT,
+    ATC_ProcessAMSCFGURL,
+    ATC_ProcessAMSCFGACCOUNT,
+    ATC_ProcessAMSCFGCANCEL,
+    ATC_ProcessAMSCFGCANCELALL,
 };
 
 

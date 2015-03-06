@@ -115,9 +115,9 @@ echo ==================== gen release over ========================
 echo Release files in %CURDIR%\gen\release\MS_Code\
 echo ==============================================================
 
-echo ########## update sdk atc module file ######################################
-cd %IDHDIR%\BASE\atc\modem\tools
-call atc_gen.bat
+rem echo ########## update sdk atc module file ######################################
+rem cd %IDHDIR%\BASE\atc\modem\tools
+rem call atc_gen.bat
 
 :END
 endlocal
