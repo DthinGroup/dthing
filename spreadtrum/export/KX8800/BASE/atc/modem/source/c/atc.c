@@ -3113,6 +3113,12 @@ void ATC_Task_Dispatch(xSignalHeaderRec *sig_ptr)
     uint8           link_id = 0;
 #endif
 
+    if ((ATC_isFileProtocolMode(link_id)) && (sig_ptr->SignalCode != ATC_MUX_RECV_NEW_AT))
+    {
+        ATC_TRACE_LOW("ATC: ATC_Task: File Transfer Mode. Thrown Signal Code (%d)!", sig_ptr->SignalCode);
+        return;
+    }
+
     switch(sig_ptr->SignalCode)
     {
 #ifdef _MUX_ENABLE_
