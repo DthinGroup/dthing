@@ -81,6 +81,7 @@ static jboolean ramsClient_readConfigFile(RMTConfig **pp_cfg);
 static void ramsClient_releaseConfigData(RMTConfig **pp_cfg);
 static void ramsClient_updateLocalOptions(void);
 static char* ramsClient_getAppletList(bool_t isRunning);
+static jboolean ramsClient_installJar(const char* path);
 
 /**
  * RAMS command actions.
@@ -1404,6 +1405,20 @@ static jboolean ramsClient_writeConfigFile(char *cfg)
     return ret;
 }
 
+#define APPDB_PATH "D:/dthing/"
+
+static jboolean ramsClient_installJar(const char* path)
+{
+  jboolean ret = TRUE;
+
+  //copy jar into appdb
+  if (0 > file_copy(path, APPDB_PATH))
+  {
+    ret = FALSE;
+  }
+  return ret;
+}
+
 static void ramsClient_updateLocalOptions(void)
 {
   RMTConfig *cfg = NULL;
@@ -1434,10 +1449,10 @@ unsigned char ramsClient_receiveRemoteCmdEx(int cmd, int suiteId, char *pData, c
   {
     case RCMD_INSTALL:
     {
-        uint16_t pathname[MAX_PATH_LENGTH];
-        convertAsciiToUcs2(pData, -1, pathname, MAX_PATH_LENGTH);
         DthingTraceD("=== ReceiveRemoteCmd CMD_INSTALL - url = %s", pData);
-        ret = ramsClient_install(pathname);
+        //FIXME: Workaround fix to copy jar file into appdb directory
+        //ret = ramsClient_install(pathname);
+        ret = ramsClient_installJar(pData);
         free(pData);
         break;
     }

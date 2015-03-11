@@ -78,6 +78,8 @@ int32_t file_read(int32_t handle, char * readBuf, int32_t bufSize);
 
 int32_t file_write(int32_t handle, char * writeBuf, int32_t bufSize);
 
+int32_t file_copy(const char* srcFile, const char*dstDir);
+
 int32_t file_truncate(int32_t handle, int32_t value);
 
 int32_t file_getsize(int32_t handle,int32_t * size);

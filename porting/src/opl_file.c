@@ -686,6 +686,127 @@ int32_t file_write(int32_t handle, char * writeBuf, int32_t bufSize)
     return 0;    
 }
 
+int32_t file_copy(const char* srcFile, const char* dstDir)
+{
+  int32_t ret = -1;
+  int32_t srcFilePathLen = 0;
+  uint16_t srcFilePath[255] = {0};
+  uint16_t dstFilePath[255] = {0};
+  int32_t dstFilePathLen = 0;
+  char dstFile[255] = {0};
+  char *tmp = NULL;
+  char *pos = NULL;
+  int32_t i = 0;
+  int32_t srcHandle = -1;
+  int32_t dstHandle = -1;
+  int32_t srcFileSize = 0;
+  int32_t size = 0;
+  char buf[1024] = {0};
+
+#ifdef ARCH_X86
+  //TODO:
+#elif defined(ARCH_ARM_SPD)
+  if ((srcFile == NULL) || (dstDir == NULL))
+  {
+    DVMTraceInf("file_copy with null pointers\n");
+    goto end;
+  }
+
+  convertAsciiToUcs2(srcFile, -1, srcFilePath, 255);
+  srcFilePathLen = CRTL_strlen(srcFile);
+
+  ret = file_exists(srcFilePath, srcFilePathLen);
+
+  if (ret < 0)
+  {
+    goto end;
+  }
+
+  //TODO: verify destination directory
+
+  //get filename
+  for (i = 0; i < srcFilePathLen; i++)
+  {
+    tmp = srcFile + i;
+
+    if ((*tmp == '/') || (*tmp == '\\'))
+    {
+      pos = tmp + 1;
+    }
+  }
+
+  //compose dst filename
+  CRTL_strcpy(dstFile, dstDir);
+  dstFilePathLen = CRTL_strlen(dstDir);
+  if ((*(dstDir + dstFilePathLen - 1) != '/')
+    || (*(dstDir + dstFilePathLen - 1) != '\\'))
+  {
+    dstFile[dstFilePathLen] = '/';
+    dstFilePathLen++;
+  }
+
+  CRTL_strcpy(dstFile + dstFilePathLen, pos);
+  dstFilePathLen += CRTL_strlen(pos);
+  convertAsciiToUcs2(dstFile, -1, dstFilePath, 255);
+
+  //open dst/src file and copy
+  ret = file_open(srcFilePath, srcFilePathLen, FILE_MODE_RD, &srcHandle);
+
+  if (ret < 0)
+  {
+    goto end;
+  }
+
+  ret = file_open(srcFilePath, srcFilePathLen, FILE_MODE_RDWR, &dstHandle);
+
+  if (ret < 0)
+  {
+    goto end;
+  }
+
+  ret = file_getsize(srcHandle, &srcFileSize);
+
+  if (ret < 0)
+  {
+    goto end;
+  }
+
+  while(srcFileSize > 0)
+  {
+    CRTL_memset(buf, 0x0, 1024);
+    size = (srcFileSize >= 1024)? 1024 : srcFileSize;
+    ret = file_read(srcHandle, buf, size);
+
+    if (ret < 0)
+    {
+      goto end;
+    }
+
+    ret = file_write(dstHandle, buf, size);
+
+    if (ret < 0)
+    {
+      goto end;
+    }
+
+    srcFileSize -= size;
+  }
+#endif
+
+end:
+  //close dst/src file
+  if (srcHandle >= 0)
+  {
+    file_close(srcHandle);
+  }
+
+  if (dstHandle >= 0)
+  {
+    file_close(dstHandle);
+  }
+  return ret;
+}
+
 int32_t file_truncate(int32_t handle, int32_t value)
 {
 #ifdef ARCH_X86
