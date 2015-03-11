@@ -183,6 +183,8 @@ void dvmCallInitMethod(const Method* method, Object* obj, ...)
     	JValue pResult;
         u4* ins;
 
+    	dthread_fill_ghost(method,obj);
+
         /* "ins" for new frame start at frame pointer plus locals */
         ins = ((u4*)ghostThread->interpSave.curFrame) +
                (method->registersSize - method->insSize);
@@ -228,7 +230,6 @@ void dvmCallInitMethod(const Method* method, Object* obj, ...)
 
         //dvmDumpThreadStack(dvmThreadSelf());
 
-    	dthread_fill_ghost(method,obj);
     	dvmInterpretEntry(ghostThread,&pResult);
     }
     va_end(args);

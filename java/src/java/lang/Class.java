@@ -88,6 +88,8 @@ package java.lang;
  * <li>{@code [[[C} representing the {@code char[][][]} type (three dimensions!)</li>
  * </ul>
  */
+import java.io.InputStream;
+
 public final class Class<T> {
 
     private static final long serialVersionUID = 3206093459760846163L;
@@ -242,6 +244,15 @@ public final class Class<T> {
     {
         return newInstance0();
     }
+
+    /**
+     * Returns a read-only stream for the contents of the given resource, or null if the resource
+     * is not found.
+     * The mapping between the resource name and the stream is managed by the class' class loader.
+     *
+     */
+    public native InputStream getResourceAsStream(String resourceName);
+
     
     /**
      * Returns the fully-qualified name of the entity (class, interface, array
