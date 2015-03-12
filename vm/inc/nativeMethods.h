@@ -55,7 +55,7 @@ KniNativeMethodInfo gJava_iot_oem_battery_BatteryManager[2] = {
 
 /* iot.oem.comm.CommConnectionImpl native APIs */
 KniNativeMethodInfo gJava_iot_oem_comm_CommConnectionImpl[6] = {
-    {"open0",        "(III)I",    (KniFunc)Java_iot_oem_comm_CommConnectionImpl_open0},
+    {"open0",        "(III)I",   (KniFunc)Java_iot_oem_comm_CommConnectionImpl_open0},
     {"getBaudRate0", "(I)I",     (KniFunc)Java_iot_oem_comm_CommConnectionImpl_getBaudRate0},
     {"setBaudRate0", "(II)I",    (KniFunc)Java_iot_oem_comm_CommConnectionImpl_setBaudRate0},
     {"close0",       "(I)I",     (KniFunc)Java_iot_oem_comm_CommConnectionImpl_close0},
@@ -209,14 +209,15 @@ KniNativeMethodInfo gJava_java_lang_AsyncIO[3] = {
 };
 
 /* java.lang.Class native APIs */
-KniNativeMethodInfo gJava_java_lang_Class[7] = {
-    {"forName",          "(Ljava/lang/String;)Ljava/lang/Class;", (KniFunc)Java_java_lang_Class_forName},
-    {"isInstance",       "(Ljava/lang/Object;)Z",                 (KniFunc)Java_java_lang_Class_isInstance},
-    {"isAssignableFrom", "(Ljava/lang/Class;)Z",                  (KniFunc)Java_java_lang_Class_isAssignableFrom},
-    {"isInterface",      "()Z",                                   (KniFunc)Java_java_lang_Class_isInterface},
-    {"isArray",          "()Z",                                   (KniFunc)Java_java_lang_Class_isArray},
-    {"newInstance0",     "()Ljava/lang/Object;",                  (KniFunc)Java_java_lang_Class_newInstance0},
-    {"getName",          "()Ljava/lang/String;",                  (KniFunc)Java_java_lang_Class_getName},
+KniNativeMethodInfo gJava_java_lang_Class[8] = {
+    {"forName",             "(Ljava/lang/String;)Ljava/lang/Class;",     (KniFunc)Java_java_lang_Class_forName},
+    {"isInstance",          "(Ljava/lang/Object;)Z",                     (KniFunc)Java_java_lang_Class_isInstance},
+    {"isAssignableFrom",    "(Ljava/lang/Class;)Z",                      (KniFunc)Java_java_lang_Class_isAssignableFrom},
+    {"isInterface",         "()Z",                                       (KniFunc)Java_java_lang_Class_isInterface},
+    {"isArray",             "()Z",                                       (KniFunc)Java_java_lang_Class_isArray},
+    {"newInstance0",        "()Ljava/lang/Object;",                      (KniFunc)Java_java_lang_Class_newInstance0},
+    {"getResourceAsStream", "(Ljava/lang/String;)Ljava/io/InputStream;", (KniFunc)Java_java_lang_Class_getResourceAsStream},
+    {"getName",             "()Ljava/lang/String;",                      (KniFunc)Java_java_lang_Class_getName},
 };
 
 /* java.lang.DThread native APIs */
@@ -371,7 +372,7 @@ KniClassNativeMethodInfo gNativeMthTab[NATIVE_CLASSES_COUNT] = {
     {"Ljava/io/FileInputStream;",                      gJava_java_io_FileInputStream,                      5},
     {"Ljava/io/FileOutputStream;",                     gJava_java_io_FileOutputStream,                     3},
     {"Ljava/lang/AsyncIO;",                            gJava_java_lang_AsyncIO,                            3},
-    {"Ljava/lang/Class;",                              gJava_java_lang_Class,                              7},
+    {"Ljava/lang/Class;",                              gJava_java_lang_Class,                              8},
     {"Ljava/lang/DThread;",                            gJava_java_lang_DThread,                            5},
     {"Ljava/lang/Double;",                             gJava_java_lang_Double,                             3},
     {"Ljava/lang/Float;",                              gJava_java_lang_Float,                              3},
