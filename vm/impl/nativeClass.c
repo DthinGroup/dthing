@@ -218,12 +218,13 @@ void Java_java_lang_Class_getResourceAsStream(const u4* args, JValue* pResult)
 	Object* isObj;
 	ArrayObject* baObj;
 	Method* init;
+    const u2* resName = NULL;
 
-	ClassesEntry* pClsEntry = gDvm.pClsEntry;
-	if (pClsEntry == NULL) {
-		RETURN_PTR(NULL);
-	}
-	const u2* resName = dvmGetStringData(resObj);
+    ClassesEntry* pClsEntry = gDvm.pClsEntry;
+    if (pClsEntry == NULL) {
+        RETURN_PTR(NULL);
+    }
+	resName = dvmGetStringData(resObj);
 	convertUcs2ToUtf8(resName, dvmGetStringLength(resObj), fUtf8Name, MAX_FILE_NAME_LEN);
 	fResName = fUtf8Name[0] == '/' ? fUtf8Name+1 : fUtf8Name;
 
