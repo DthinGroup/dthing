@@ -757,7 +757,7 @@ int32_t file_copy(const char* srcFile, const char* dstDir)
     goto end;
   }
 
-  ret = file_open(srcFilePath, srcFilePathLen, FILE_MODE_RDWR, &dstHandle);
+  ret = file_open(dstFilePath, dstFilePathLen, FILE_MODE_RDWR, &dstHandle);
 
   if (ret < 0)
   {
@@ -789,7 +789,7 @@ int32_t file_copy(const char* srcFile, const char* dstDir)
       goto end;
     }
 
-    srcFileSize -= size;
+    srcFileSize -= ret;
   }
 #endif
 
