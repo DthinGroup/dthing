@@ -5,6 +5,7 @@
 
 #ifdef ARCH_ARM_SPD
 #include "opl_net.h"
+#include "opl_file.h"
 #include "ams.h"
 
 typedef struct TPALRequestObject
@@ -46,6 +47,7 @@ static TPALRequestObject* processATComand(char* atcommand, char* instr, int para
 static int executeTPALCommand(TPALRequestObject *request, char **outstr);
 static void freeTPALRequestObject(TPALRequestObject *request);
 static int hasStartWith(char *str, char *searchStr, int *size);
+static int ams_installJar(const char* path);
 
 #endif //ARCH_ARM_SPD
 
@@ -198,6 +200,9 @@ static int executeTPALCommand(TPALRequestObject *request, char **outstr)
   case RCMD_STATUS:
     result = Ams_handleRemoteCmdSync(request->cmdId, ATYPE_AAMS, suiteId, dataPtr, outstr);
     break;
+  case RCMD_INSTALL:
+    result = ams_installJar(dataPtr);
+    break;
   case RCMD_OTA:
   case RCMD_OSGI:
     while(!Opl_net_isActivated())
@@ -238,6 +243,20 @@ static int executeTPALCommand(TPALRequestObject *request, char **outstr)
     }
   }
   return (result >= 0);
+}
+
+#define APPDB_PATH "D:/dthing/"
+
+static int ams_installJar(const char* path)
+{
+  int ret = 1;
+
+  //copy jar into appdb
+  if (0 > file_copy(path, APPDB_PATH))
+  {
+    ret = -1;
+  }
+  return ret;
 }
 #endif //ARCH_ARM_SPD
 
