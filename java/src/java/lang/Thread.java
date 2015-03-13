@@ -104,6 +104,8 @@ public class Thread implements Runnable {
      */
     public static final int NORM_PRIORITY = 5;
 
+    private static final byte[] MUTEX = new byte[0];
+
     volatile String name;
     volatile int priority;
     volatile long stackSize;
@@ -215,33 +217,32 @@ public class Thread implements Runnable {
      * @param runnable a java.lang.Runnable whose method <code>run</code> will
      *        be executed by the new Thread
      * @param threadName Name for the Thread being created
-     * @param stackSize Platform dependent stack size
+     * @param size Platform dependent stack size
      * @throws IllegalThreadStateException if <code>group.destroy()</code> has
      *         already been done
      * @see java.lang.ThreadGroup
      * @see java.lang.Runnable
      */
-    private void create(Runnable runnable, String threadName, long stackSize) {
+    private void create(Runnable runnable, String threadName, long size) {
         Thread currentThread = Thread.currentThread();
 
-        synchronized (Thread.class) {
+        synchronized (MUTEX) {
             id = ++Thread.count;
         }
         if (threadName == null) {
-            this.name = "Thread-" + id;
+            name = "Thread-" + id;
         } else {
-            this.name = threadName;
+            name = threadName;
         }
 
-        this.target = runnable;
-        this.stackSize = stackSize;
+        target = runnable;
+        stackSize = size;
 
         if (currentThread != null) {
-        	this.priority = currentThread.getPriority();
+            priority = currentThread.getPriority();
         } else {
-        	this.priority = NORM_PRIORITY;
+            priority = NORM_PRIORITY;
         }
-        
     }
 
     /**

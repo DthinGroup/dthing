@@ -44,7 +44,7 @@ public class FilterInputStream extends InputStream {
      *
      * @param in the input stream to filter reads on.
      */
-    protected FilterInputStream(InputStream in) {
+    public FilterInputStream(InputStream in) {
         this.in = in;
     }
 

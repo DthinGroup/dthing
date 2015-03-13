@@ -30,7 +30,7 @@ public class wmmp_protocol implements WMMPConnection {
 
     private static int link_flow_id =0;
 
-    private boolean support_sum = false;   //ÊÇ·ñÖ§³ÖÕªÒªÌå
+    private boolean support_sum = false;   //是否支持摘要体
     //use tcp as link protocol in default
     private String link_protocol;
     private String link_ip;
@@ -48,14 +48,14 @@ public class wmmp_protocol implements WMMPConnection {
     /*default:0 detail in wmmp spec*/
     private volatile int linger_val     = 0;
 
-    private volatile boolean isLongConnect = false;  //ÊÇ·ñ³¤Á¬½Ó
+    private volatile boolean isLongConnect = false;  //是否长连接
 
-    /*ÅÐ¶Ï³¤Á¬½Ó¼ä¸ô£º¼ÇÂ¼×îºóÓÐÊý¾ÝÊÕ·¢ÐÐÎªµ½1970-1-1 Á÷ÊÅµÄÃëÊý£¬Ö»ÒªÁ´Â·ÓÐÊý¾Ý£¬ÎÞÂÛÊÕ»¹ÊÇ·¢£¬¶¼¸üÐÂ¼ÇÂ¼£¬
-     *×¨ÃÅ¿ªÆôÒ»¸öHeartBeatWorker·þÎñÀ´²éÑ¯Õâ¸ö¼ÇÂ¼Ê±¼ä£¬´ïµ½heart_beat_intervalÃëÃ»ÓÐÊ±¼ä¸üÐÂÊ±£¬¾Í·¢ËÍÐÄÌø°ü
+    /*判断长连接间隔：记录最后有数据收发行为到1970-1-1 流逝的秒数，只要链路有数据，无论收还是发，都更新记录，
+     *专门开启一个HeartBeatWorker服务来查询这个记录时间，达到heart_beat_interval秒没有时间更新时，就发送心跳包
      */
-    private volatile int lastDataConnectTime = 0; //µ¥Î» ÎªÃë
+    private volatile int lastDataConnectTime = 0; //单位 为秒
 
-    /*ÉèÖÃµÄ¼¸¸öÍ¨ÐÅ×´Ì¬*/
+    /*设置的几个通信状态*/
     /* state flow:
      *
      *
@@ -69,7 +69,7 @@ public class wmmp_protocol implements WMMPConnection {
 
     private volatile int curLinkState ; /*link state*/
 
-    /*ÕâÀï¿ÉÒÔ¿¼ÂÇÊ¹ÓÃVector´æ´¢¼üÖµ¶Ô*/
+    /*这里可以考虑使用Vector存储键值对*/
     //seconds in unit
     private int heart_beat_interval = 5;
     //seconds in unit
@@ -113,12 +113,12 @@ public class wmmp_protocol implements WMMPConnection {
     protected boolean connectionOpen = false;
 
 
-    /*ÓÃ×÷Õû¸öÐ­ÒéµÄ»¥³â£ºÃ¿´Î·¢ÏûÏ¢µ½Æ½Ì¨µÄÊ±ºò£¬mutex.wait(),Æ½Ì¨»ØÏûÏ¢Ö®ºó£¬ÔÙnotify.
-     *ËùÓÐµÄwmmpÐ­Òé½Ó¿Ú¶¼ÊÇÐòÁÐ»¯µÄ£¬²»ÄÜ±»Í¬Ê±µ÷ÓÃ£¬±ØÐëÒ»¸ö½Ó¿ÚÓÐÁË·µ»Ø²ÅÄÜµ÷ÓÃÏÂÒ»¸ö½Ó¿Ú
+    /*用作整个协议的互斥：每次发消息到平台的时候，mutex.wait(),平台回消息之后，再notify.
+     *所有的wmmp协议接口都是序列化的，不能被同时调用，必须一个接口有了返回才能调用下一个接口
      */
-    private Object mutex = new Object();
+    private byte[] mutex = new byte[0];
 
-    /*ÓÃ×÷Ã¿´ÎµÄ²Ù×÷½á¹û·µ»ØÖµ£¬ËùÓÐ²Ù×÷¹²ÓÃÕâ¸ö±äÁ¿£¬ÀàËÆÓÚLinuxµÄerror±äÁ¿ÓÃ·¨*/
+    /*用作每次的操作结果返回值，所有操作共用这个变量，类似于Linux的error变量用法*/
     private int opRetVal = -1;
 
     private WMMPListener gwmmpListener ;
@@ -139,7 +139,7 @@ public class wmmp_protocol implements WMMPConnection {
         //default
         link_protocol = WMMPConnection.WMMP_BEARER_TCP;
         link_ip = ip;
-        link_port = port;    	
+        link_port = port;
         tcpOutStream = null;
         tcpInStream  = null;
 
@@ -154,7 +154,7 @@ public class wmmp_protocol implements WMMPConnection {
 
        // m2mCfgProperty = loadM2MCfgProperty();
 
-        //Ä¬ÈÏÖ§³Ö³¤Á¬½Ó
+        //默认支持长连接
         isLongConnect = true;
         setCurLinkState(STATE_NOTLINK);
 
@@ -199,7 +199,7 @@ public class wmmp_protocol implements WMMPConnection {
         return hashCfgTab;
     }
 
-    /*¼ÓÔØm2mÖÕ¶Ë¼°Æ½Ì¨Ò»Ð©Ä¬ÈÏÉèÖÃÊôÐÔ*/
+    /*加载m2m终端及平台一些默认设置属性*/
     //Key is TAG str(as "TAG_0x0001",x is lower case)
 /*
     private Hashtable loadM2MCfgProperty()
@@ -228,7 +228,7 @@ public class wmmp_protocol implements WMMPConnection {
         hashProperty.put("TAG_0x0013",new String("1111111"));
         hashProperty.put("TAG_0x0014",new String("1111111"));
 
-        //0025´æ·Å¶à¸öºËÐÄÅäÖÃTag£¬Ê¹ÓÃvector
+        //0025存放多个核心配置Tag，使用vector
         ivec = new Vector();
         ivec.addElement(new Integer(1));
         hashProperty.put("TAG_0x0025",ivec);   //import
@@ -369,7 +369,7 @@ public class wmmp_protocol implements WMMPConnection {
         cur_waitack_timeout = 0;
         continus_fail_times = 0;
     }
-    
+
     public InputStream getInputStream() throws IOException
     {
     	return tcpInStream;
@@ -380,8 +380,8 @@ public class wmmp_protocol implements WMMPConnection {
     	return tcpOutStream;
     }
 
-    
-    /*??·l?ìTCP??UDP*/
+
+    /*打开流连接，TCP或者UDP*/
     protected synchronized void doNetConnect() throws IOException
     {
 /* J2ME  GCF */
@@ -748,7 +748,7 @@ public class wmmp_protocol implements WMMPConnection {
         }
     }
 
-    /*½âÎöÊÕµ½µÄÊý¾Ý*/
+    /*解析收到的数据*/
     private synchronized void praseRecvData(byte[] rcvdata,int len) throws IOException
     {
         ByteArrayInputStream bArrIs = new ByteArrayInputStream(rcvdata,0,len);
@@ -888,7 +888,7 @@ public class wmmp_protocol implements WMMPConnection {
                 int i = 0;
                 int tlvlen = totalLen-28;
                 WMMPDataItem[] dstack =null;
-                
+
                 if(totalLen -28 > 0)
                 {
                     byte[] arr = new byte[totalLen -28];
@@ -896,9 +896,9 @@ public class wmmp_protocol implements WMMPConnection {
                     recvTlvDataStack = new DataItemStack(WMMPConnection.REMOTE_CTRL,arr);
                     dstack = recvTlvDataStack.getAllDataItem();
                 }
-                
+
                 sendRemoteControlACK(result,null,0,false,sequenceId);
-                
+
                 setCurLinkState(STATE_LINKING);
                 setContinusFailTimes(0);
                 if(dstack !=null)
@@ -1036,7 +1036,7 @@ public class wmmp_protocol implements WMMPConnection {
         }
     }
 
-    /*×¨ÓÃÓÚ½ÓÊÕÏûÏ¢/²¢´¦ÀíÊÕµ½ÏûÏ¢µÄÏß³Ì*/
+    /*专用于接收消息/并处理收到消息的线程*/
     private class TcpRecvWorker implements Runnable
     {
         private wmmp_protocol parent;
@@ -1144,7 +1144,7 @@ public class wmmp_protocol implements WMMPConnection {
 
                 /*prase data*/
                 try {
-                    parent.praseRecvData(rcvbuff,len);                    
+                    parent.praseRecvData(rcvbuff,len);
                 } catch(IOException e) {
                     e.printStackTrace();
                 }
@@ -1256,7 +1256,7 @@ public class wmmp_protocol implements WMMPConnection {
         }
     }
 
-    /*¿ªÆôÒ»¸öÐÄÌø·þÎñ×¨ÃÅÓÃÓÚ³¤Á¬½Ó¹ÜÀí*/
+    /*开启一个心跳服务专门用于长连接管理*/
     private class HeartBeatWorker implements Runnable
     {
         private wmmp_protocol parent;
@@ -1546,7 +1546,7 @@ public class wmmp_protocol implements WMMPConnection {
             e.printStackTrace();
         }
 
-        //??ip ?? ?Э?(TCP/UDP)
+        //解析ip 端口 和协议(TCP/UDP)
         wmmp_appip      = split[0];
         wmmp_appport    = split[1];
         wmmp_bearertype = split[2];
@@ -1557,7 +1557,7 @@ public class wmmp_protocol implements WMMPConnection {
 
         log("link protocol: " + link_protocol + ",ip: " + link_ip + ",port: " + link_port);
 
-        //ˇ???·
+        //是否打开流？
         try
         {
             doNetConnect();
@@ -1568,7 +1568,7 @@ public class wmmp_protocol implements WMMPConnection {
             return null;
         }
 
-        startNetService(link_protocol);   //????П?
+        startNetService(link_protocol);   //开启接受线程
 
         cur_waitack_timeout = 0;
         continus_fail_times = 0;
@@ -1704,10 +1704,10 @@ public class wmmp_protocol implements WMMPConnection {
 
 
 
-    /*¿¼ÂÇÊ¹ÓÃvectorÈÝÆ÷*/
+    /*考虑使用vector容器*/
     public void setHeartBeatVal(String key,int value) throws IOException
     {
-        /*ÊÇ·ñ¿¼ÂÇÔÚÄÄÐ©ÇéÐÎÏÂ²ÅÄÜÉèÖÃ?*/
+        /*是否考虑在哪些情形下才能设置?*/
 
         if(value <0)
         {
@@ -1757,7 +1757,7 @@ public class wmmp_protocol implements WMMPConnection {
         return getOpResult();
     }
 
-    //¼ì²éÊÇ·ñ×¢²á
+    //检查是否注册
     public boolean checkIfRegister()
     {
         String reg = WMMPRMS.getRmsVal(WMMPConnection.PARAM_REGISTERSTATE);
@@ -1833,7 +1833,7 @@ public class wmmp_protocol implements WMMPConnection {
                 /*op type*/
                 dataOs.writeByte(WMMPConnection.REG_TYPE_3);
 
-                valid_key_sec = getKeyValidDateInSec();                            /*ÃÜÔ¿ÓÐÐ§ÆÚ£¬Õâ¸öÖµ¿ÉÄÜÓÐÎÊÌâ!!!!!!!!!!*/
+                valid_key_sec = getKeyValidDateInSec();                            /*密钥有效期，这个值可能有问题!!!!!!!!!!*/
                 /*write 0xE026*/
                 tmpStr = new String(WMMPRMS.getRmsVal(PARAM_UPLINKPWD));
                 tmpStr.concat(intToByteArrayString(valid_key_sec));
@@ -1926,7 +1926,7 @@ public class wmmp_protocol implements WMMPConnection {
 
         /*first step: check register*/
 
-        /*ÏÈ²»Òª¿É±ä²¿·Ö,²»´øE03AºÍE020£¬Ö»´øE021*/
+        /*先不要可变部分,不带E03A和E020，只带E021*/
         /*length: 28+8+4+20 = 60*/
         gramlen = 60;
         if(encrypt_session) /*E03A*/
@@ -1947,7 +1947,7 @@ public class wmmp_protocol implements WMMPConnection {
         /*term software version,8 byte*/
         dataOs.write(WMMPRMS.getRmsVal(PARAM_TERMSOFTVER).getBytes(),0,WMMPRMS.getRmsVal(PARAM_TERMSOFTVER).length());
 
-        /*CRC32(E025),4 byte,ÔÝÊ±Ð´0*/
+        /*CRC32(E025),4 byte,暂时写0*/
         dataOs.writeInt(0x00);
         dataOs.flush();
 
@@ -2127,7 +2127,7 @@ public class wmmp_protocol implements WMMPConnection {
         setOpResult(0);
         setCurLinkState(STATE_LINKING);
         setContinusFailTimes(0);
-        
+
         log("login result :" + getOpResult());
 
         return getOpResult();
@@ -2239,15 +2239,15 @@ public class wmmp_protocol implements WMMPConnection {
         /*first step: check register*/
         ensureOpen();
 
-        /*datagram length: ±¨ÎÄÍ·+1+tlvs³¤¶È+°²È«ÕªÒªÌå */
-        //±¨ÎÄÍ· + ½á¹û
+        /*datagram length: 报文头+1+tlvs长度+安全摘要体 */
+        //报文头 + 结果
         gramlen = 28 + 1;
-        //tlvs³¤¶È
+        //tlvs长度
         if(tlvslen>0)
         {
             gramlen = gramlen + tlvslen;
         }
-        //°²È«ÕªÒªÌå
+        //安全摘要体
         if(safetag == true)
         {
             gramlen = gramlen + 20;
@@ -2279,7 +2279,7 @@ public class wmmp_protocol implements WMMPConnection {
             cur = (int)curTime;
             log("cur="+cur);
             log("link_timestamp="+link_timestamp);
-            //write 0xE021 MD5(±¨ÎÄ+Timestamp+IMEI+IMSI+ÉÏÐÐ½ÓÈëÃÜÂë)
+            //write 0xE021 MD5(报文+Timestamp+IMEI+IMSI+上行接入密码)
             log("======WMMPRMS.getRmsVal(PARAM_UPLINKPWD)=" + WMMPRMS.getRmsVal(PARAM_UPLINKPWD));
             buff = getTlvE021(buff,link_timestamp,WMMPRMS.getRmsVal(PARAM_UPLINKPWD).getBytes());
             dataOs.write(buff,0,buff.length);
@@ -2320,15 +2320,15 @@ public class wmmp_protocol implements WMMPConnection {
         /*first step: check register*/
         ensureOpen();
 
-        /*datagram length: ±¨ÎÄÍ·+1+tlvs³¤¶È+°²È«ÕªÒªÌå */
-        //±¨ÎÄÍ· + ½á¹û
+        /*datagram length: 报文头+1+tlvs长度+安全摘要体 */
+        //报文头 + 结果
         gramlen = 28 + 1;
-        //tlvs³¤¶È
+        //tlvs长度
         if(tlvslen>0)
         {
             gramlen = gramlen + tlvslen;
         }
-        //°²È«ÕªÒªÌå
+        //安全摘要体
         if(safetag == true)
         {
             gramlen = gramlen + 20;
@@ -2360,7 +2360,7 @@ public class wmmp_protocol implements WMMPConnection {
             cur = (int)curTime;
             log("cur="+cur);
             log("link_timestamp="+link_timestamp);
-            //write 0xE021 MD5(±¨ÎÄ+Timestamp+IMEI+IMSI+ÉÏÐÐ½ÓÈëÃÜÂë)
+            //write 0xE021 MD5(报文+Timestamp+IMEI+IMSI+上行接入密码)
             log("======WMMPRMS.getRmsVal(PARAM_UPLINKPWD)=" + WMMPRMS.getRmsVal(PARAM_UPLINKPWD));
             buff = getTlvE021(buff,link_timestamp,WMMPRMS.getRmsVal(PARAM_UPLINKPWD).getBytes());
             dataOs.write(buff,0,buff.length);
@@ -2411,7 +2411,7 @@ public class wmmp_protocol implements WMMPConnection {
             {
                 case WMMPConnection.RC_MAIN_COMMAND:
                 {
-                    //RC_MAIN_COMMAND Êý¾Ý³¤¶ÈÎª1
+                    //RC_MAIN_COMMAND 数据长度为1
                     dataLen = (tlvBuffer[pos]<<8) + tlvBuffer[pos+1];
                     pos = pos + 2;
                     log("remote control RC_MAIN_COMMAND fix=1 dataLen=" + dataLen);
@@ -2433,7 +2433,7 @@ public class wmmp_protocol implements WMMPConnection {
                 break;
                 case WMMPConnection.RC_LINK_TYPE:
                 {
-                    //RC_LINK_TYPE Êý¾Ý³¤¶ÈÎª1
+                    //RC_LINK_TYPE 数据长度为1
                     dataLen = (tlvBuffer[pos]<<8) + tlvBuffer[pos+1];
                     pos = pos + 2;
                     log("remote control RC_LINK_TYPE fix=1 dataLen=" + dataLen);
@@ -2444,7 +2444,7 @@ public class wmmp_protocol implements WMMPConnection {
                 break;
                 case WMMPConnection.RC_DATA_TRANSFER_TYPE:
                 {
-                    //RC_DATA_TRANSFER_TYPE Êý¾Ý³¤¶ÈÎª1
+                    //RC_DATA_TRANSFER_TYPE 数据长度为1
                     dataLen = (tlvBuffer[pos]<<8) + tlvBuffer[pos+1];
                     pos = pos + 2;
                     log("remote control RC_DATA_TRANSFER_TYPE fix=1 dataLen=" + dataLen);
@@ -2455,7 +2455,7 @@ public class wmmp_protocol implements WMMPConnection {
                 break;
                 case WMMPConnection.RC_HEART_BEAT:
                 {
-                    //RC_HEART_BEAT Êý¾Ý³¤¶ÈÎª2
+                    //RC_HEART_BEAT 数据长度为2
                     dataLen = (tlvBuffer[pos]<<8) + tlvBuffer[pos+1];
                     pos = pos + 2;
                     log("remote control RC_HEART_BEAT fix=2 dataLen=" + dataLen);
@@ -2466,7 +2466,7 @@ public class wmmp_protocol implements WMMPConnection {
                 break;
                 case WMMPConnection.RC_BUSINESS_DATA_TRANSFER_TYPE:
                 {
-                    //RC_BUSNIESS_DATA_TRANSFER_TYPE Êý¾Ý³¤¶ÈÎª1
+                    //RC_BUSNIESS_DATA_TRANSFER_TYPE 数据长度为1
                     dataLen = (tlvBuffer[pos]<<8) + tlvBuffer[pos+1];
                     pos = pos + 2;
                      log("remote control RC_BUSNIESS_DATA_TRANSFER_TYPE fix=1 dataLen:"+dataLen);
@@ -2477,7 +2477,7 @@ public class wmmp_protocol implements WMMPConnection {
                 break;
                 case WMMPConnection.RC_DATA_TRANSFER_MODE:
                 {
-                    //RC_DATA_TRANSFER_MODE Êý¾Ý³¤¶ÈÎª2
+                    //RC_DATA_TRANSFER_MODE 数据长度为2
                     dataLen = (tlvBuffer[pos]<<8) + tlvBuffer[pos+1];
                     pos = pos + 2;
                     log("remote control RC_DATA_TRANSFER_MODE fix=2 dataLen=" + dataLen);
@@ -2489,7 +2489,7 @@ public class wmmp_protocol implements WMMPConnection {
                 break;
                 case WMMPConnection.RC_USER_DATA_TAG:
                 {
-                    //RC_USER_DATA_TAG Êý¾Ý³¤¶È²»¶¨³¤,ÔòÎªdataLen
+                    //RC_USER_DATA_TAG 数据长度不定长,则为dataLen
                     dataLen = (tlvBuffer[pos]<<8) + tlvBuffer[pos+1];
                     pos = pos + 2;
                     log("remote control RC_USER_DATA_TAG dataLen=" + dataLen);
@@ -2504,7 +2504,7 @@ public class wmmp_protocol implements WMMPConnection {
                 break;
                 case WMMPConnection.RC_DATA_DISTRIBUTE_PARAMETER:
                 {
-                    //RC_DATA_DISTRIBUTE_PARAMETER Êý¾Ý³¤¶È²»¶¨³¤,ÔòÎªdataLen
+                    //RC_DATA_DISTRIBUTE_PARAMETER 数据长度不定长,则为dataLen
                     dataLen = (tlvBuffer[pos]<<8) + tlvBuffer[pos+1];
                     pos = pos + 2;
                     log("remote control RC_DATA_DISTRIBUTE_PARAMETER dataLen=" + dataLen);
@@ -2519,7 +2519,7 @@ public class wmmp_protocol implements WMMPConnection {
                 break;
                 case WMMPConnection.RC_SERVER_PLATFORM_SET_PARAMETER:
                 {
-                    //RC_SERVER_PLATFORM_SET_PARAMETER Êý¾Ý³¤¶ÈÎª1
+                    //RC_SERVER_PLATFORM_SET_PARAMETER 数据长度为1
                     dataLen = (tlvBuffer[pos]<<8) + tlvBuffer[pos+1];
                     pos = pos + 2;
                     log("remote control RC_SERVER_PLATFORM_SET_PARAMETER fix=1 dataLen=" + dataLen);
@@ -2530,7 +2530,7 @@ public class wmmp_protocol implements WMMPConnection {
                 break;
                 case WMMPConnection.RC_CLIENT_PLATFORM_SET_PARAMETER:
                 {
-                    //RC_CLIENT_PLATFORM_SET_PARAMETER Êý¾Ý³¤¶ÈÎª5
+                    //RC_CLIENT_PLATFORM_SET_PARAMETER 数据长度为5
                     dataLen = (tlvBuffer[pos]<<8) + tlvBuffer[pos+1];
                     pos = pos + 2;
                     log("remote control RC_CLIENT_PLATFORM_SET_PARAMETER received fix=5 dataLen:" + dataLen);
@@ -2546,13 +2546,13 @@ public class wmmp_protocol implements WMMPConnection {
                 break;
                 case WMMPConnection.RC_CLIENT_MANUAL_SET_APPLY_TAG:
                 {
-                    //RC_SERVER_PLATFORM_SET_PARAMETER Êý¾Ý³¤¶ÈÎª0
+                    //RC_SERVER_PLATFORM_SET_PARAMETER 数据长度为0
                     log("remote control RC_CLIENT_MANUAL_SET_APPLY_TAG fix=0 recevied dataLen is 0");
                 }
                 break;
                 case WMMPConnection.RC_TRANSPARENT_FROM_SERIAL_NUM:
                 {
-                    //RC_TRANSPARENT_FROM_SERIAL_NUM Êý¾Ý³¤¶ÈÎª16
+                    //RC_TRANSPARENT_FROM_SERIAL_NUM 数据长度为16
                     dataLen = (tlvBuffer[pos]<<8) + tlvBuffer[pos+1];
                     pos = pos + 2;
                     log("remote control RC_TRANSPARENT_FROM_SERIAL_NUM fix=16 dataLen:"+dataLen);
@@ -2567,7 +2567,7 @@ public class wmmp_protocol implements WMMPConnection {
                 break;
                 case WMMPConnection.RC_TRANSPARENT_TO_SERIAL_NUM:
                 {
-                    //RC_TRANSPARENT_TO_SERIAL_NUM Êý¾Ý³¤¶ÈÎª16
+                    //RC_TRANSPARENT_TO_SERIAL_NUM 数据长度为16
                     dataLen = (tlvBuffer[pos]<<8) + tlvBuffer[pos+1];
                     pos = pos + 2;
                     log("remote control RC_TRANSPARENT_TO_SERIAL_NUM fix=16 dataLen:"+dataLen);
@@ -2582,7 +2582,7 @@ public class wmmp_protocol implements WMMPConnection {
                 break;
                 case WMMPConnection.RC_TRANSPARENT_TO_EC:
                 {
-                    //RC_TRANSPARENT_TO_EC Êý¾Ý³¤¶ÈÎª²»¶¨³¤
+                    //RC_TRANSPARENT_TO_EC 数据长度为不定长
                     dataLen = (tlvBuffer[pos]<<8) + tlvBuffer[pos+1];
                     pos = pos + 2;
                     log("remote control RC_TRANSPARENT_TO_EC received dataLen:" + dataLen);
@@ -2597,7 +2597,7 @@ public class wmmp_protocol implements WMMPConnection {
                 break;
                 case WMMPConnection.RC_TRANSPARENT_FROM_EC:
                 {
-                    //RC_TRANSPARENT_FROM_EC Êý¾Ý³¤¶ÈÎª²»¶¨³¤
+                    //RC_TRANSPARENT_FROM_EC 数据长度为不定长
                     dataLen = (tlvBuffer[pos]<<8) + tlvBuffer[pos+1];
                     pos = pos + 2;
                     log("remote control RC_TRANSPARENT_FROM_EC received dataLen:" + dataLen);
@@ -2612,7 +2612,7 @@ public class wmmp_protocol implements WMMPConnection {
                 break;
                 case WMMPConnection.RC_TRANSPARENT_FIX_TAG:
                 {
-                    //RC_TRANSPARENT_FIX_TAG Êý¾Ý³¤¶ÈÎª²»¶¨³¤
+                    //RC_TRANSPARENT_FIX_TAG 数据长度为不定长
                     dataLen = (tlvBuffer[pos]<<8) + tlvBuffer[pos+1];
                     pos = pos + 2;
                     log("remote control RC_TRANSPARENT_FIX_TAG received dataLen:"+dataLen);
@@ -2627,7 +2627,7 @@ public class wmmp_protocol implements WMMPConnection {
                 break;
                 case WMMPConnection.RC_SAFE_CHECK_CRC32:
                 {
-                    //RC_SAFE_CHECK_CRC32 Êý¾Ý³¤¶ÈÎª4
+                    //RC_SAFE_CHECK_CRC32 数据长度为4
                     dataLen = (tlvBuffer[pos]<<8) + tlvBuffer[pos+1];
                     pos = pos + 2;
                     log("remote control RC_SAFE_CHECK_CRC32 fix=4 dataLen:" + dataLen);
@@ -2642,7 +2642,7 @@ public class wmmp_protocol implements WMMPConnection {
                 break;
                 case WMMPConnection.RC_CLEINT_EQUIPMENT_CONTROL:
                 {
-                    //RC_CLEINT_EQUIPMENT_CONTROL Êý¾Ý³¤¶ÈÎª²»¶¨³¤
+                    //RC_CLEINT_EQUIPMENT_CONTROL 数据长度为不定长
                     dataLen = (tlvBuffer[pos]<<8) + tlvBuffer[pos+1];
                     pos = pos + 2;
                     log("remote control RC_CLEINT_EQUIPMENT_CONTROL received dataLen:" +dataLen);
@@ -2657,7 +2657,7 @@ public class wmmp_protocol implements WMMPConnection {
                 break;
                 case WMMPConnection.MD5_CHECK_TAG:
                 {
-                    //MD5_CHECK_TAG Êý¾Ý³¤¶ÈÎª16
+                    //MD5_CHECK_TAG 数据长度为16
                     dataLen = (tlvBuffer[pos]<<8) + tlvBuffer[pos+1];
                     pos = pos + 2;
                     log("remote control MD5_CHECK_TAG fix=16 datalen:"+ dataLen);
@@ -2672,7 +2672,7 @@ public class wmmp_protocol implements WMMPConnection {
                 break;
                 default:
                 {
-                    //½âÎöÊ§°Ü£¬·µ»Ø´íÎó
+                    //解析失败，返回错误
                     log("remote control tlvs parse error");
                     return -1;
                 }
@@ -2863,7 +2863,7 @@ public class wmmp_protocol implements WMMPConnection {
         if(data == null || dest == null) {
             throw new NullPointerException("send data should not null");
         }
-        
+
         if(data.length == 0 || dest.length() == 0) {
             throw new WMMPException("send data should not null");
         }
@@ -2903,7 +2903,7 @@ public class wmmp_protocol implements WMMPConnection {
             }
             else
             {
-                
+
             }
             log("sendData == 11");
             dataOs.write(witem.getTlvRawData(),0,witem.getTlvRawData().length);
@@ -2998,7 +2998,7 @@ public class wmmp_protocol implements WMMPConnection {
             throw new WMMPException();
         }
         if(recvTlvDataStack != null && recvTlvDataStack.getCurStackCmd() == WMMPConnection.CONFIG_TRAP_ACK) {
-            
+
             return recvTlvDataStack.getTagsSet();
         } else {
             return null;
@@ -3066,7 +3066,7 @@ public class wmmp_protocol implements WMMPConnection {
 
         /*first step: check register*/
 
-        /*ÏÈ²»Òª¿É±ä²¿·Ö,²»´øE03AºÍE020£¬Ö»´øE021*/
+        /*先不要可变部分,不带E03A和E020，只带E021*/
         /*length: 28+8+4+20 = 60*/
         gramlen = 28 + 1;
         bArrOs = new ByteArrayOutputStream(gramlen);

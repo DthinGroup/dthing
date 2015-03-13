@@ -24,7 +24,7 @@ package java.lang;
  *
  * @see Error
  */
-public abstract class VirtualMachineError extends Error {
+public class VirtualMachineError extends Error {
 
     private static final long serialVersionUID = 4161983926571568670L;
 
