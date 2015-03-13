@@ -29,22 +29,21 @@
 
     <target name="buildJava">
         <mkdir dir="${output.dir}" />
-        <javac includeantruntime="no" includeJavaRuntime="yes" srcdir="${java.src}" destdir="${output.dir}" source="1.6" target="1.6">
+        <javac includeantruntime="no" includeJavaRuntime="no" srcdir="${java.src}" destdir="${output.dir}" source="1.6" target="1.6">
             <compilerarg line="-encoding UTF-8"/>
         </javac>
         <jar jarfile="${output.dir}/../df.jar" basedir="${output.dir}" excludes="*.h,*.dex,*.c"/>
     </target>
 
-
     <path id="core.framework.classpath">
         <fileset dir="${basedir}">  
             <include name="df.jar" />  
         </fileset> 
-    </path> 
+    </path>
 
     <target name="buildTPJava">
         <mkdir dir="${third.party.output.dir}" />
-        <javac includeantruntime="no" includeJavaRuntime="yes" srcdir="${third.party.src}" destdir="${third.party.output.dir}" source="1.6" target="1.6">
+        <javac includeantruntime="no" includeJavaRuntime="no" srcdir="${third.party.src}" destdir="${third.party.output.dir}" source="1.6" target="1.6">
             <compilerarg line="-encoding UTF-8"/>
             <classpath refid="core.framework.classpath" />
         </javac>
@@ -104,8 +103,9 @@
         </delete>
     </target>
 
-    <target name="clean">
+    <target name="clean" depends="cleantp">
         <delete file="${dex.out}" />
+        <delete file="${basedir}/df.jar" />
         <delete>
             <fileset dir="${output.dir}" includes="*.h,**/*.class" />
         </delete>
