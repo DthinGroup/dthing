@@ -203,6 +203,9 @@ void Java_java_lang_Class_newInstance0(const u4* args, JValue* pResult);
  */
 void Java_java_lang_Class_getName(const u4* args, JValue* pResult);
 
+
+void Java_java_lang_Class_getResourceAsStream(const u4* args, JValue* pResult);
+
 #ifdef __cplusplus
 }
 #endif

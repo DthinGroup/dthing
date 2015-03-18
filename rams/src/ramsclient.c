@@ -81,6 +81,7 @@ static jboolean ramsClient_readConfigFile(RMTConfig **pp_cfg);
 static void ramsClient_releaseConfigData(RMTConfig **pp_cfg);
 static void ramsClient_updateLocalOptions(void);
 static char* ramsClient_getAppletList(bool_t isRunning);
+static jboolean ramsClient_installJar(const char* path);
 
 /**
  * RAMS command actions.
@@ -1056,6 +1057,56 @@ bool_t ramsClient_destroyApplet(int32_t id)
     return TRUE;
 }
 
+bool_t ramsClient_install(char * url)
+{
+    bool_t res = TRUE;
+    uint8_t      ackBuf[16] = {0x0};
+    uint8_t     *pByte;
+    SafeBuffer  *safeBuf;
+    Event        newEvt;
+    static char* argv[3];
+    char * otaUrl = CRTL_malloc(CRTL_strlen(url)+1);  //memery leak
+    if(otaUrl ==NULL)
+    {}
+
+    if(!IsDvmRunning())
+    {
+        CRTL_memset(otaUrl,0,CRTL_strlen(url)+1);
+        CRTL_memcpy(otaUrl,url,CRTL_strlen(url));
+
+        argv[0] = "-install";
+        argv[1] = otaUrl;
+        argv[2] = NULL;
+        DVMTraceInf("argv=0x%x,argv-1:%s,argv-2:%s,argv-3:%s\n",(void*)argv,argv[0],argv[1],argv[2]);
+
+        if (Ams_createVMThread(VMThreadProc, 2, argv) < 0)
+        {
+            DVMTraceErr("lauch VM thread failure\n");
+            res = FALSE;
+        }
+
+        pByte = (uint8_t*)ackBuf;
+
+        writebeIU32(&pByte[0], sizeof(ackBuf));
+        writebeIU32(&pByte[4], ACK_RECV_WITHOUT_EXEC);
+        writebeIU32(&pByte[8], 0x1);
+        writebeIU32(&pByte[12], 0x0);
+    }else{
+        pByte = (uint8_t*)ackBuf;
+
+        writebeIU32(&pByte[0], sizeof(ackBuf));
+        writebeIU32(&pByte[4], ACK_RECV_AND_EXEC);
+        writebeIU32(&pByte[8], 0x0);
+        writebeIU32(&pByte[12], 0x0);
+    }
+
+    safeBuf = CreateSafeBufferByBin(ackBuf, sizeof(ackBuf));
+    newNormalEvent(EVT_CMD_DECLARE, DECLARE_FSM_WRITE, (void *)safeBuf, ramsClient_buildConnection, &newEvt);
+    ES_pushEvent(&newEvt);
+
+    return res;
+}
+
 bool_t ramsClient_ota(char * url)
 {
     bool_t res = TRUE;
@@ -1354,6 +1405,20 @@ static jboolean ramsClient_writeConfigFile(char *cfg)
     return ret;
 }
 
+#define APPDB_PATH "D:/dthing/"
+
+static jboolean ramsClient_installJar(const char* path)
+{
+  jboolean ret = TRUE;
+
+  //copy jar into appdb
+  if (0 > file_copy(path, APPDB_PATH))
+  {
+    ret = FALSE;
+  }
+  return ret;
+}
+
 static void ramsClient_updateLocalOptions(void)
 {
   RMTConfig *cfg = NULL;
@@ -1383,11 +1448,19 @@ unsigned char ramsClient_receiveRemoteCmdEx(int cmd, int suiteId, char *pData, c
   switch(cmd)
   {
     case RCMD_INSTALL:
+    {
+        DthingTraceD("=== ReceiveRemoteCmd CMD_INSTALL - url = %s", pData);
+        //FIXME: Workaround fix to copy jar file into appdb directory
+        //ret = ramsClient_install(pathname);
+        ret = ramsClient_installJar(pData);
+        free(pData);
+        break;
+    }
     case RCMD_OTA:
       {
         uint16_t pathname[MAX_PATH_LENGTH];
         convertAsciiToUcs2(pData, -1, pathname, MAX_PATH_LENGTH);
-        DthingTraceD("=== ReceiveRemoteCmd CMD_INSTALL/CMD_OTA - url = %s", pData);
+        DthingTraceD("=== ReceiveRemoteCmd CMD_OTA - url = %s", pData);
         ret = ramsClient_ota(pathname);
         free(pData);
         break;

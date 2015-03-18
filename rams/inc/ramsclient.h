@@ -143,6 +143,7 @@ bool_t ramsClient_runApplet(int32_t id);
 bool_t ramsClient_destroyApplet(int32_t id);
 
 bool_t ramsClient_ota(char * url);
+bool_t ramsClient_install(char * url);
 
 void sendOTAExeResult(int res);
 

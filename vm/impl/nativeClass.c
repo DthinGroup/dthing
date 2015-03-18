@@ -19,6 +19,8 @@
 #include <gc.h>
 #include <interpApi.h>
 #include <utfstring.h>
+#include <opl_file.h>
+#include <encoding.h>
 
 
 /* refer to nativeClass.h */
@@ -194,4 +196,81 @@ void Java_java_lang_Class_getName(const u4* args, JValue* pResult)
 
     //dvmReleaseTrackedAlloc((Object*) nameObj, NULL);
     RETURN_PTR(nameObj);
+}
+
+
+#include <jarparser.h>
+/* refer to nativeClass.h */
+void Java_java_lang_Class_getResourceAsStream(const u4* args, JValue* pResult)
+{
+    ClassObject*  clazz = (ClassObject*) args[0];
+    StringObject* resObj = (StringObject*)args[1];
+	s4  i;
+	s4  handle;
+    u2  fUcs2Name[MAX_FILE_NAME_LEN] = {0x0,};
+	u1  fUtf8Name[MAX_FILE_NAME_LEN] = {0x0,};
+	u1* fResName = NULL;
+    s4  srcBytes = 0;
+    s4  dstChars = 0;
+	u8* data = NULL;
+	s4  dataLen = 0;
+	ClassObject* isCls;
+	Object* isObj;
+	ArrayObject* baObj;
+	Method* init;
+    const u2* resName = NULL;
+
+    ClassesEntry* pClsEntry = gDvm.pClsEntry;
+    if (pClsEntry == NULL) {
+        RETURN_PTR(NULL);
+    }
+	resName = dvmGetStringData(resObj);
+	convertUcs2ToUtf8(resName, dvmGetStringLength(resObj), fUtf8Name, MAX_FILE_NAME_LEN);
+	fResName = fUtf8Name[0] == '/' ? fUtf8Name+1 : fUtf8Name;
+
+    for (i = 0; i < MAX_NUM_CLASSES_ENTRY; i++)
+    {
+        if (pClsEntry[i].kind == kCpeJar)
+        {
+        	CRTL_memset(fUcs2Name, 0x0, MAX_FILE_NAME_LEN);
+			srcBytes = (s4)CRTL_strlen(pClsEntry[i].fileName);
+		    dstChars = convertAsciiToUcs2(pClsEntry[i].fileName, srcBytes, fUcs2Name, MAX_FILE_NAME_LEN);
+			handle = openJar(fUcs2Name);
+			data = (u8 *)getJarContentByFileName(handle, fResName, &dataLen);
+			if (data != NULL) {
+				closeJar(handle);
+				break;
+			}
+			closeJar(handle);
+        }
+    }
+	if (data == NULL || dataLen == 0) {
+		RETURN_PTR(NULL);
+	}
+
+	baObj = dvmAllocPrimitiveArray('B', dataLen, ALLOC_DEFAULT);
+	if (baObj == NULL) {
+		RETURN_PTR(NULL);
+	}
+	CRTL_memcpy((u1 *)baObj->contents, data, dataLen);
+	CRTL_free(data);
+	
+	
+	isCls = dvmFindClass("Ljava/io/ByteArrayInputStream;");
+	if (isCls == NULL) {
+		RETURN_PTR(NULL);
+	}
+	isObj = dvmAllocObject(isCls, ALLOC_DEFAULT);
+
+    /* find the "nullary" constructor */
+    init = dvmFindDirectMethodByDescriptor(isCls, "<init>", "([B)V");
+    if (init == NULL) {
+        /* common cause: secret "this" arg on non-static inner class ctor */
+        DVMTraceDbg("newInstance failed: no <init>()");
+        dvmThrowInstantiationException(clazz, "no empty constructor");
+		RETURN_PTR(NULL);
+    }
+	dvmCallInitMethod(init, isObj, baObj);
+	
+	RETURN_PTR(isObj);
 }

@@ -9,7 +9,7 @@ import jp.co.cmcc.event.Applet;
  */
 public final class Scheduler {
 
-    protected static final Object MUTEX = new Object();
+    protected static final byte[] MUTEX = new byte[0];
 
     private static final String TAG = "Scheduler";
 

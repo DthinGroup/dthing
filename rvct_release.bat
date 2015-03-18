@@ -6,7 +6,7 @@ set RELEASE=%1
 :SELECT_RELEASE_VERSION
 
 if "0"=="%RELEASE%" (
-  set IDHDIR=
+  set IDHDIR=D:\JbedHome\fei_dev_main\sdk\KX8800B_1112
   set EXPORT_FILE=spreadtrum\movefile_board_kx8800.bat
 ) else if "1"=="%RELEASE%" (
   set IDHDIR=
@@ -15,7 +15,7 @@ if "0"=="%RELEASE%" (
   set IDHDIR=
   set EXPORT_FILE=spreadtrum\movefile_phone.bat
 ) else if "3"=="%RELEASE%" (
-  set IDHDIR=
+  set IDHDIR=D:\JbedHome\fei_dev_main\sdk\W1322_Dthing
   set EXPORT_FILE=spreadtrum\movefile_board_12C1322.bat
   ) else (
   echo ---------------------------
@@ -114,6 +114,10 @@ echo ==============================================================
 echo ==================== gen release over ========================
 echo Release files in %CURDIR%\gen\release\MS_Code\
 echo ==============================================================
+
+rem echo ########## update sdk atc module file ######################################
+rem cd %IDHDIR%\BASE\atc\modem\tools
+rem call atc_gen.bat
 
 :END
 endlocal

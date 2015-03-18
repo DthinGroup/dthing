@@ -2162,6 +2162,8 @@ static ClassObject* findClassNoInit(const char* descriptor, DvmDex* pDvmDex)
     ClassObject* clazz;
     DvmDex* lpDvmDex;
 
+    DVMTraceErr(" ~~~~~~ descriptor(%s) \n", descriptor);
+
     clazz = dvmLookupClass(descriptor);
     if (clazz == NULL)
     {

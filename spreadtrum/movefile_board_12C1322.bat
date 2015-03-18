@@ -45,6 +45,7 @@ XCOPY /R /Y %EXPORT_SOURCE_ROOT%\BASE\make\atc\atc.mk %DESDIR%\BASE\make\atc\
 XCOPY /R /Y %EXPORT_SOURCE_ROOT%\inc\cpl_atcontrol.h %DESDIR%\MS_Ref\export\inc\
 
 XCOPY /R /Y %EXPORT_SOURCE_ROOT%\MS_Ref\source\base\src\init.c %DESDIR%\MS_Ref\source\base\src\
+XCOPY /R /Y %EXPORT_SOURCE_ROOT%\MS_Ref\source\mux\src\mux_driver.c %DESDIR%\MS_Ref\source\mux\src\
 
 XCOPY /R /Y %EXPORT_SOURCE_ROOT%\MS_Customize\export\inc\gps_com.h %DESDIR%\MS_Customize\export\inc\
 
