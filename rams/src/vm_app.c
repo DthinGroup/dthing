@@ -390,8 +390,6 @@ static AppletProps* listInstalledApplets(const uint16_t* path)
                     len = CRTL_wcslen(p);
                     CRTL_memcpy(appList[index].fname, p, len*sizeof(uint16_t));
                     appList[index].fname[len] = '\0';
-                    CRTL_memset(appList[index].name, 0x0, MAX_APP_PROPS_LEN);
-                    CRTL_wstrtoutf8(appList[index].name, MAX_APP_PROPS_LEN, appList[index].fname, len);
                 }
                 parseAppletProps(data, dataBytes, &appList[index++]);
                 closeJar(handle);

@@ -39,8 +39,8 @@ XCOPY /R /Y %EXPORT_SOURCE_ROOT%\BASE\atc\modem\source\c\atc_lex.c %DESDIR%\BASE
 XCOPY /R /Y %EXPORT_SOURCE_ROOT%\BASE\atc\modem\source\c\atc_yacc.c %DESDIR%\BASE\atc\modem\source\c\
 XCOPY /R /Y %EXPORT_SOURCE_ROOT%\BASE\atc\modem\source\h\atc_basic_cmd.h %DESDIR%\BASE\atc\modem\source\h\
 XCOPY /R /Y %EXPORT_SOURCE_ROOT%\BASE\atc\modem\source\h\atc_def.h %DESDIR%\BASE\atc\modem\source\h\
-XCOPY /R /Y %EXPORT_SOURCE_ROOT%\BASE\atc\modem\source\c\modem_*.c %DESDIR%\BASE\atc\modem\source\c\
-XCOPY /R /Y %EXPORT_SOURCE_ROOT%\BASE\atc\modem\source\h\modem_*.h %DESDIR%\BASE\atc\modem\source\h\
+XCOPY /R /Y %EXPORT_SOURCE_ROOT%\BASE\atc\modem\source\c\modem*.c %DESDIR%\BASE\atc\modem\source\c\
+XCOPY /R /Y %EXPORT_SOURCE_ROOT%\BASE\atc\modem\source\h\modem*.h %DESDIR%\BASE\atc\modem\source\h\
 XCOPY /R /Y %EXPORT_SOURCE_ROOT%\BASE\make\atc\atc.mk %DESDIR%\BASE\make\atc\
 XCOPY /R /Y %EXPORT_SOURCE_ROOT%\inc\cpl_atcontrol.h %DESDIR%\MS_Ref\export\inc\
 

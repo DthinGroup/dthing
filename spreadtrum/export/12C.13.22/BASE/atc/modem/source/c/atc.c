@@ -1994,72 +1994,16 @@ void ATC_SendNewATInd(uint8 link_id, uint32 data_length, uint8 *data_ptr)
 #ifndef NO_MODEM_PROTOCOL
     if (ATC_isFileProtocolMode(link_id))
     {
-      if ((atc_cmd_buffer_len + data_length) > MAX_MODEM_FILE_BUFFER_SIZE)
-      {
-        int len = atc_cmd_buffer_len - atc_cmd_buffer_pos;
-        memcpy(&atc_cmd_buffer[0], &atc_cmd_buffer[atc_cmd_buffer_pos], len);
-        atc_cmd_buffer_len = len;
-        atc_cmd_buffer_pos = 0;
-        memset(&atc_cmd_buffer[atc_cmd_buffer_len], 0x0, (MAX_MODEM_FILE_BUFFER_SIZE - atc_cmd_buffer_len));
-      }
-      if (ATC_isFileReceivingMode(link_id))
+      //debug info
       {
         uint8 tchar[MAX_DEBUG_BUFFER_SIZE] = {0};
-        int startPos = atc_cmd_buffer_len;
-        for (ulen = 0; ulen < data_length; ulen++)
-        {
-          atc_cmd_buffer[startPos + ulen] = (uint8)data_ptr[ulen];
-          atc_cmd_buffer_len++;
-        }
-        ConvertBinToHex(&atc_cmd_buffer[atc_cmd_buffer_pos], ulen, tchar);
-        ATC_TRACE_LOW("[ModemFile] ATC_SendNewATInd: %s\n", tchar);
-        if (ulen > 0)
-        {
-          SCI_CREATE_SIGNAL((xSignalHeaderRec *)psig, ATC_MUX_RECV_NEW_AT, sizeof(ATC_MUX_RECV_NEW_AT_T), SCI_IdentifyThread());//lint !e63
-          psig->len       = ulen;//lint !e613
-          psig->link_id   = link_id;//lint !e613
-          s_atc_global_info.buffered_at_cmd_count++;
-          SCI_SEND_SIGNAL((xSignalHeaderRec *)psig, P_ATC);
-        }
-        return;
+        ConvertBinToHex(data_ptr, data_length, tchar);
+        ATC_TRACE_LOW("[ModemFile] ATC_RecNewLineSig[%d]: %s\n", data_length, tchar);
       }
-      else
-      {
-        uint8 tchar[MAX_DEBUG_BUFFER_SIZE] = {0};
-        int cur = ATC_CheckSOH(data_ptr, data_length);
-        int startPos = atc_cmd_buffer_len;
-        if (cur >= 0)
-        {
-          atc_cmd_buffer_len = 0;
-          atc_cmd_buffer_pos = 0;
-          memset(&atc_cmd_buffer[0], 0x0, MAX_MODEM_FILE_BUFFER_SIZE);
-          for (ulen = cur; ulen < data_length; ulen++)
-          {
-            atc_cmd_buffer[startPos + ulen] = (uint8)data_ptr[ulen];
-            atc_cmd_buffer_len++;
-          }
-          ConvertBinToHex(&atc_cmd_buffer[atc_cmd_buffer_pos], ulen, tchar);
-          ATC_TRACE_LOW("[ModemFile] ATC_SendNewATInd: %s\n", tchar);
-          if ((ulen - cur) > 0)
-          {
-            SCI_CREATE_SIGNAL((xSignalHeaderRec *)psig, ATC_MUX_RECV_NEW_AT, sizeof(ATC_MUX_RECV_NEW_AT_T), SCI_IdentifyThread());//lint !e63
-            psig->len       = ulen - cur;//lint !e613
-            psig->link_id   = link_id;//lint !e613
-            s_atc_global_info.buffered_at_cmd_count++;
-            SCI_SEND_SIGNAL((xSignalHeaderRec *)psig, P_ATC);
-          }
-          return;
-        }
-      }
-    }
-    else
-    {
-        if ((atc_cmd_buffer_len > 0) || (atc_cmd_buffer_pos > 0))
-        {
-            atc_cmd_buffer_len = 0;
-            atc_cmd_buffer_pos = 0;
-            memset(atc_cmd_buffer, 0x0, MAX_MODEM_FILE_BUFFER_SIZE);
-        }
+
+      ATC_ProcessModemFileProtocolEx(data_ptr, data_length, link_id);
+      //TODO: handle failed case
+      return;
     }
 #endif
     ATC_TRACE_LOW("ATC: N_ATInd,link_id:%d,data_len:%d ,%x, %x, close:%d,cnt:%d,discard:%d,ch1:%d,ch2:%d",
@@ -3113,12 +3057,13 @@ void ATC_Task_Dispatch(xSignalHeaderRec *sig_ptr)
     uint8           link_id = 0;
 #endif
 
+#ifdef OLD_MODEM_FILE_IMPL
     if ((ATC_isFileProtocolMode(link_id)) && (sig_ptr->SignalCode != ATC_MUX_RECV_NEW_AT))
     {
         ATC_TRACE_LOW("ATC: ATC_Task: File Transfer Mode. Thrown Signal Code (%d)!", sig_ptr->SignalCode);
         return;
     }
-
+#endif
     switch(sig_ptr->SignalCode)
     {
 #ifdef _MUX_ENABLE_
@@ -4536,11 +4481,13 @@ LOCAL ATC_STATUS ATC_RecNewLineSig(  // Return S_ATC_SUCCESS if success,
     dual_sys = ATC_GetSimIdFromLinkId(((ATC_MUX_RECV_NEW_AT_T *)sig_ptr)->link_id);
 
     ATC_TRACE_LOW("ATC: N_AT_L, link_id:%d, len:%d", atc_link_id, atc_line_length);
+#ifdef OLD_MODEM_FILE_IMPL
     {
         uint8 tchar[MAX_DEBUG_BUFFER_SIZE] = {0};
         ConvertBinToHex(&atc_cmd_buffer[atc_cmd_buffer_pos], (atc_cmd_buffer_len - atc_cmd_buffer_pos), tchar);
         ATC_TRACE_LOW("[ModemFile] ATC_RecNewLineSig: %s\n", tchar);
     }
+
     if (0 <= ATC_ProcessModemFileProtocol(atc_global_info_ptr->atc_config_ptr,
                                           &atc_cmd_buffer[atc_cmd_buffer_pos],
                                           (atc_cmd_buffer_len - atc_cmd_buffer_pos),
@@ -4551,6 +4498,7 @@ LOCAL ATC_STATUS ATC_RecNewLineSig(  // Return S_ATC_SUCCESS if success,
       ATC_TRACE_LOW("[ModemFile] modem file protocol response ok\n");
       return S_ATC_SUCCESS;
     }
+#endif
 
     if(0 == atc_line_length)
     {

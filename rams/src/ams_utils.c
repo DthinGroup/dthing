@@ -56,10 +56,10 @@ char* amsUtils_strappend(char **str, char *append)
   if ((*str != NULL) || (strlen(*str) != 0))
   {
     memcpy(newStr, (char *)*str, sLen);
+    free((char *)*str);
   }
 
   memcpy(newStr + sLen, append, aLen);
-  free((char *)*str);
   *str = newStr;
   return newStr;
 }
@@ -260,26 +260,41 @@ void amsUtils_releaseConfigData(RMTConfig **pp_cfg)
  *******************************************************/
 char* amsUtils_getAppletList(bool_t isRunning)
 {
-  char* list = NULL;
+  char app[255] = {0};
+  char *plist = NULL;
+  char *temp = NULL;
+  int alen = 0;
+  int llen = 0;
 
 #if defined(ARCH_ARM_SPD)
   AppletProps *curApp = vm_getCurApplist(TRUE);
 
   while(curApp != NULL)
   {
+    DthingTraceD("app[%d].name is %s\n", curApp->id, curApp->name);
     if ((curApp->isRunning == isRunning) && (curApp->id != PROPS_UNUSED))
     {
-      amsUtils_strconcat(&list, "%d %s\r\n", curApp->id, curApp->name);
+      memset(app, 0x0, 255);
+      sprintf(app, "%d %s\r\n", curApp->id, curApp->name);
+      alen = strlen(app);
+      llen = (plist == NULL)? 0 : strlen(plist);
+      temp = malloc(alen + llen + 1);
+      memset(temp, 0x0, alen + llen + 1);
+      memcpy(temp, plist, llen);
+      memcpy(temp + llen, app, alen);
+      free(plist);
+      plist = temp;
     }
     curApp = curApp->nextRunning;
   }
 
-  if (NULL == list)
+  if (NULL == plist)
   {
-    list = amsUtils_strdup(isRunning? "No Active Applet" : "No Applet");
+    plist = amsUtils_strdup(isRunning? "No Active Applet" : "No Applet");
   }
+
 #endif
-  return list;
+  return plist;
 }
 
 /**

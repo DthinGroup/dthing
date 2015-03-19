@@ -1,7 +1,5 @@
 #include "modem_private.h"
 
-#define MODEM_FS_ROOT "D:/dthing/" //D:/app/
-
 int modem_fs_open_file(const char* fname)
 {
   int i = 0;

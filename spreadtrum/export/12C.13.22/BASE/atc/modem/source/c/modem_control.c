@@ -53,28 +53,50 @@ void ATC_EnableModemFileProtocol(unsigned char linkid)
     ATC_StartFileListener();
   }
 }
+#define DEFAULT_SEND_FILE_NAME "demo.jar"
+void ATC_EnableDirectFileSend(unsigned char linkid, char* filename)
+{
+  int plen = 0;
+  int nlen = 0;
+  char* fname = NULL;
+
+  if (g_req.state < MSTATE_DIRECT)
+  {
+    g_req.linkid = linkid;
+    g_req.state = MSTATE_DIRECT;
+    fname = (filename != NULL)? filename : DEFAULT_SEND_FILE_NAME;
+    memset(g_req.filename, 0x0, MAX_FILENAME_LEN);
+    plen = strlen(MODEM_FS_ROOT);
+    memcpy(g_req.filename, MODEM_FS_ROOT, plen);
+    nlen = strlen(fname);
+    memcpy(g_req.filename + plen, fname, nlen);
+
+    ATC_StopFileListener();
+    modem_fs_delete_file(g_req.filename);
+  }
+}
 
 int modem_control_main(void* atc_config_ptr, const char* data, int datalen, int linkid, ATResponseCB cb)
 {
   static int eotCount = 0;
   int result = -1;
 
-  if ((atc_config_ptr == 0x0) || (data == 0x0) || (datalen <= 0))
+  if ((data == 0x0) || (datalen <= 0))
   {
     goto end;
   }
 
   //save data
-  if ((g_req.state > MSTATE_WAIT) && (linkid == g_req.linkid))
+  if ((g_req.state >= MSTATE_WAIT) && (linkid == g_req.linkid))
   {
     result = modem_control_available(datalen);
 
     if (result < 0)
     {
-      g_req.state = MSTATE_END;
+      g_req.state = MSTATE_ERROR;
       SCI_TRACE_LOW("[ModemFile] Not enough memory\n");
     }
-    
+
     result = modem_save_data(&g_req, data, datalen);
   }
 
@@ -87,32 +109,37 @@ int modem_control_main(void* atc_config_ptr, const char* data, int datalen, int 
       break;
 
     case MSTATE_WAIT:
-      //modem_control_waiting(atc_config_ptr, cb);
-
-      if (((*data == 'A') || (*data == 'a'))
-        && ((*(data + 1) == 'T') || (*(data + 1) == 't')))
-      {
-        SCI_TRACE_LOW("[ModemFile] AT cmd\n");
-        break;
-      }
-
-      result = modem_control_available(datalen);
-
-      if (result < 0)
-      {
-        g_req.state = MSTATE_END;
-        SCI_TRACE_LOW("[ModemFile] Not enough memory\n");
-        break;
-      }
-
       result = modem_check_header(&g_req, data, datalen);
 
       if (result >= 0)
       {
-        int offset = result;
         g_req.linkid = linkid;
         g_req.state = MSTATE_READY;
-        result = modem_save_data(&g_req, (data + offset), (datalen - offset));
+        g_req.bufpos += result;
+        continue;
+      }
+      else
+      {
+        ATC_EnableDirectFileSend(linkid, NULL);
+        continue;
+      }
+      break;
+
+    case MSTATE_DIRECT:
+      result = modem_write_file(&g_req);
+
+      if (result == MRESULT_EOF)
+      {
+        g_req.state = MSTATE_END;
+        continue;
+      }
+      else if (result == MRESULT_SUCCESS)
+      {
+        //continue
+      }
+      else
+      {
+        g_req.state = MSTATE_ERROR;
         continue;
       }
       break;
@@ -184,8 +211,6 @@ int modem_control_main(void* atc_config_ptr, const char* data, int datalen, int 
         modem_at_response(atc_config_ptr, XACK, cb);
         break;
       }
-
-      result = modem_check_header(&g_req, data, datalen);
 
       result = modem_parse_data(&g_req);
 
@@ -278,6 +303,26 @@ int modem_control_main(void* atc_config_ptr, const char* data, int datalen, int 
 
 end:
   SCI_TRACE_LOW("[ModemFile] modem_control_main with result %d\n", result);
+  return result;
+}
+
+//True: save all received data to file
+//False: do nothing
+int ATC_isDirectSendFileMode(int linkid)
+{
+  int result = 0;
+
+  if (g_req.linkid != linkid)
+  {
+    goto end;
+  }
+
+  if (g_req.state == MSTATE_DIRECT)
+  {
+    result = 1;
+  }
+
+end:
   return result;
 }
 
