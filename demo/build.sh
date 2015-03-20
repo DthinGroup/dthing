@@ -6,8 +6,8 @@ export WTK_ROOT=$ROOTDIR/tools/WTK2.5.2
 
 export PATH=$PATH:$ROOTDIR/sdk/build-tools/android-4.3
 export PATH=$PATH:$WTK_ROOT/bin
-export MIDPAPI=$DVMLIB_DIR/df.jar
-export DVMLIB=$DVMLIB_DIR/df.jar
+export MIDPAPI=$DVMLIB_DIR/df.jar:$DVMLIB_DIR/df_tp.jar
+export DVMLIB=$DVMLIB_DIR/df.jar:$DVMLIB_DIR/df_tp.jar
 
 export DEMO_NAME=$1
 export RELEASE_DIR=release
