@@ -7,15 +7,6 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import iot.oem.gpio.Gpio;
-import iot.oem.gpio.GpioInterruptListener;
-
-class MyListener implements GpioInterruptListener {
-
-    public void onInterrupt(Gpio arg0, int arg1, boolean arg2) {
-        // TODO Auto-generated method stub
-        System.out.println("Response to interrupt with Gpio:" + arg0 + " arg1:" + arg1 + " arg2:" + arg2);
-    }
-}
 
 public class BuzzerSensor extends Applet {
     private static final String REPORT_SERVER_FORMAT = "http://42.121.18.62:8080/dthing/ParmInfo.action?saveDataInfo&saveType=log&parmInfo=";
@@ -37,18 +28,32 @@ public class BuzzerSensor extends Applet {
             public void run()
             {
                 Gpio gpio = null;
-                MyListener listener = null;
-                String oldValue = null;
-                String newValue = null;
-                int count = 10000;
+                int count = 50;
 
                 try {
-                    log("open vibra gpio " + gpioId);
+                    reportBuzzerInfo("open buzzer gpio " + gpioId);
                     gpio = new Gpio(gpioId);
-                    Thread.sleep(2000);
-                    listener = new MyListener();
-                    startVibraTest(gpio, listener);
-                    Thread.sleep(2000);
+                    
+		                while(count > 0)
+		                {
+		                    Thread.sleep(1000);
+                        gpio.setCurrentMode(0);
+
+                        if ((count % 2) == 0)
+                        {
+                            gpio.write(false);
+                            reportBuzzerInfo("false");
+                        }
+                        else
+                        {
+                        	  gpio.write(true);
+                        	  reportBuzzerInfo("true");
+                        }
+                        count--;
+		                }
+
+                    gpio.destroy();
+                    reportBuzzerInfo("close buzzer gpio " + gpioId);
                 } catch (IllegalArgumentException e) {
                     log("IllegalArgumentException:" + e);
                 } catch (IOException e) {
@@ -56,60 +61,12 @@ public class BuzzerSensor extends Applet {
                 } catch (InterruptedException e) {
                     log("InterruptedException:" + e);
                 }
-
-                while(count > 0)
-                {
-                    newValue = System.getProperty("yarlung.vibra");
-
-                    if ((newValue != null) && (newValue != oldValue))
-                    {
-                        oldValue = newValue;
-                        log("Buzzer value is changed to " + newValue);
-                        try {
-                            reportBuzzerInfo(newValue);
-                        } catch (IOException e) {
-                            log("reportBuzzerInfo IOException:" + e);
-                        }
-                        count--;
-                    }
-                }
-
-                stopVibraTest(gpio, listener);
             }
-
         }.start();
     }
 
     private void log(String s) {
         System.out.println("[Gpio Test]" + s);
-    }
-
-    private void startVibraTest(Gpio gpio, GpioInterruptListener listener)
-    {
-        try {
-            log("set vibra gpio to wirte mode");
-            gpio.setCurrentMode(Gpio.READ_MODE);
-            gpio.registerInterruptListener(listener, Gpio.INTERRUPT_TYPE_LOW_TO_HIGH);
-            log("unRegisterInterruptListener");
-        } catch (IllegalArgumentException e) {
-            log("IllegalArgumentException:" + e);
-        } catch (IOException e) {
-            log("IOException:" + e);
-        }
-    }
-
-    private void stopVibraTest(Gpio gpio, GpioInterruptListener listener)
-    {
-        try {
-            log("unRegisterInterruptListener");
-            gpio.unRegisterInterruptListener(listener);
-            log("destroy vibra gpio");
-            gpio.destroy();
-        } catch (IllegalArgumentException e) {
-            log("IllegalArgumentException:" + e);
-        } catch (IOException e) {
-            log("IOException:" + e);
-        }
     }
 
     private void reportBuzzerInfo(String value) throws IOException
