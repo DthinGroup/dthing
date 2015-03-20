@@ -19,7 +19,7 @@ class MyListener implements GpioInterruptListener {
 
 public class BuzzerSensor extends Applet {
     private static final String REPORT_SERVER_FORMAT = "http://42.121.18.62:8080/dthing/ParmInfo.action?saveDataInfo&saveType=log&parmInfo=";
-    private int vibraId = 19;
+    private int gpioId = 19;
     private static boolean allowLogPrint = true;
 
     public BuzzerSensor() {
@@ -43,8 +43,8 @@ public class BuzzerSensor extends Applet {
                 int count = 10000;
 
                 try {
-                    log("open vibra gpio " + vibraId);
-                    gpio = new Gpio(vibraId);
+                    log("open vibra gpio " + gpioId);
+                    gpio = new Gpio(gpioId);
                     Thread.sleep(2000);
                     listener = new MyListener();
                     startVibraTest(gpio, listener);
