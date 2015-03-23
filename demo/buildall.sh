@@ -14,4 +14,7 @@
 . build.sh HelloDemo
 . build.sh ThreadDemo
 . build.sh BuzzerDemo
+. build.sh KeypadDemo
+
+
 
