@@ -31,11 +31,12 @@ class MyKpdListener implements RawKeyPdListener {
             log(msg);
         }
 
-        HttpConnection httpConn = (HttpConnection)Connector.open(reportInfo);
-        httpConn.setRequestMethod("POST");
-        DataInputStream dis = httpConn.openDataInputStream();
+        URL url = new URL(reportInfo);
+        HttpURLConnection httpConn = (HttpURLConnection)url.openConnection();
+        httpConn.setRequestMethod(HttpURLConnection.POST);
+        InputStream dis = httpConn.getInputStream();
         dis.close();
-        httpConn.close();
+        httpConn.disconnect();
     }
 
     private void log(String msg)
@@ -91,11 +92,12 @@ public class Keypad extends Applet {
                     log(msg);
                 }
 
-                HttpConnection httpConn = (HttpConnection)Connector.open(reportInfo);
-                httpConn.setRequestMethod("POST");
-                DataInputStream dis = httpConn.openDataInputStream();
+                URL url = new URL(reportInfo);
+                HttpURLConnection httpConn = (HttpURLConnection)url.openConnection();
+                httpConn.setRequestMethod(HttpURLConnection.POST);
+                InputStream dis = httpConn.getInputStream();
                 dis.close();
-                httpConn.close();
+                httpConn.disconnect();
             }
 
             private void log(String msg)
