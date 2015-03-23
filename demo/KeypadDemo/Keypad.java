@@ -44,7 +44,7 @@ class MyKpdListener implements RawKeyPdListener {
     }
 }
 
-public class ADCSensor extends Applet {
+public class Keypad extends Applet {
     private static boolean allowLogPrint = true;
     private static final String REPORT_SERVER_FORMAT = "http://42.121.18.62:8080/dthing/ParmInfo.action?saveDataInfo&saveType=log&parmInfo=";
     MyKpdListener listener = new MyKpdListener();
