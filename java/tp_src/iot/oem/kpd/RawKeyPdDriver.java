@@ -9,15 +9,22 @@ import java.lang.AsyncIO;
 public class RawKeyPdDriver extends Thread {
     private static boolean isEnabled = false;
     private static RawKeyPdListener kpdListener;
+	private static RawKeyPdDriver driver = null;
+
     private RawKeyPdDriver() {
     }
 
     public static void initialize() throws NanoDriverException {
-        if (init0() < 0)
+        if (driver == null)
         {
-            throw new NanoDriverException("failed to initialize native keypad drvier");
+            if (init0() < 0)
+            {
+                throw new NanoDriverException("failed to initialize native keypad drvier");
+            }
+            driver = new RawKeyPdDriver();
+            isEnabled = true;
+            driver.start();
         }
-        isEnabled = true;
     }
 
     private static native int init0();
@@ -36,7 +43,7 @@ public class RawKeyPdDriver extends Thread {
             {
                 kpdListener.keyStateChanged(detectedKey);
             }
-        };
+        }
     }
 
     private static native long getKey0();
@@ -52,6 +59,7 @@ public class RawKeyPdDriver extends Thread {
         }
         kpdListener = null;
         isEnabled = false;
+		driver = null;
     }
 
     private static native int close0();
