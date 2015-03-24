@@ -354,7 +354,7 @@ static AppletProps* listInstalledApplets(const uint16_t* path)
         {
             CRTL_memset(foundJarPath, 0x0, MAX_FILE_NAME_LEN);
             result = file_listNextEntry(ins_path, pathLen, foundJarPath, MAX_FILE_NAME_LEN<<1, &handle);
-
+            DVMTraceWar("vm_app.c: file_listNextEntry[%d] index[%d]\n", result, index);
             if (!(result > 0))
             {
                 if (result < 0) res = FALSE;
@@ -374,7 +374,10 @@ static AppletProps* listInstalledApplets(const uint16_t* path)
                 }
 
                 if ((handle = openJar(foundJarPath)) < 0)
+                {
+                    DVMTraceWar("vm_app.c: failed to openJar! continue\n");
                     continue;
+                }
                 data = getJarContentByFileName(handle, MANIFEST_MF, &dataBytes);
                 if (data == NULL)
                 {
@@ -383,6 +386,12 @@ static AppletProps* listInstalledApplets(const uint16_t* path)
                     continue;
                 }
                 appList[index].id = index; //set id to index
+
+                if (index > 0)
+                {
+                    appList[index - 1].nextRunning = &appList[index];
+                }
+
                 {
                     /* save file name for delete */
                     int32_t  len;
@@ -394,11 +403,9 @@ static AppletProps* listInstalledApplets(const uint16_t* path)
                 parseAppletProps(data, dataBytes, &appList[index++]);
                 closeJar(handle);
             }
-
         } while(foundJarPath[0] != '\0' && result > 0);
 
         file_listclose(&handle);
-
     } while(FALSE);
 
     CRTL_freeif(data);
