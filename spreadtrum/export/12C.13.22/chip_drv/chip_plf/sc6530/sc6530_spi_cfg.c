@@ -75,13 +75,6 @@ const SPI_PHY_CFG __spi_phy_cfg[SPI_ID_MAX] =
     {SPI0_1_CS1, SPI_BUS_ID_0, SPI_CS_ID_1, SPI_PIN_GID_1, &spi_phy_fun_v5}, /*hw spi controller1, cs 1*/
     {SPI0_2_CS0, SPI_BUS_ID_0, SPI_CS_ID_0, SPI_PIN_GID_2, &spi_phy_fun_v5}, /*hw spi controller1, cs 1*/
     {SPI0_2_CS1, SPI_BUS_ID_0, SPI_CS_ID_1, SPI_PIN_GID_2, &spi_phy_fun_v5}, /*hw spi controller1, cs 1*/
-#ifndef M2M_EVB_SUPPORT
-
-    //{SPI1_0_CS0, SPI_BUS_ID_1, SPI_CS_ID_0, SPI_PIN_GID_0, &spi_phy_fun_v5}, /*hw spi controller1, cs 1*/
-    {SPI1_0_CS1, SPI_BUS_ID_1, SPI_CS_ID_1, SPI_PIN_GID_0, &spi_phy_fun_v5}, /*hw spi controller1, cs 1*/
-    {SPI1_1_CS0, SPI_BUS_ID_1, SPI_CS_ID_0, SPI_PIN_GID_1, &spi_phy_fun_v5}, /*hw spi controller1, cs 1*/
-    {SPI1_1_CS1, SPI_BUS_ID_1, SPI_CS_ID_1, SPI_PIN_GID_1, &spi_phy_fun_v5}, /*hw spi controller1, cs 1*/
-#endif
     {SPI1_2_CS0, SPI_BUS_ID_1, SPI_CS_ID_0, SPI_PIN_GID_2, &spi_phy_fun_v5}, /*hw spi controller1, cs 1*/
     {SPI1_2_CS1, SPI_BUS_ID_1, SPI_CS_ID_1, SPI_PIN_GID_2, &spi_phy_fun_v5}, /*hw spi controller1, cs 1*/
     {SPI1_3_CS0, SPI_BUS_ID_1, SPI_CS_ID_0, SPI_PIN_GID_3, &spi_phy_fun_v5}, /*hw spi controller1, cs 1*/
