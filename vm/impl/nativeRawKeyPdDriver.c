@@ -56,11 +56,11 @@ void Java_iot_oem_kpd_RawKeyPdDriver_getKey0(const u4* args, JValue* pResult) {
     else
     {
         ret = g_keyEventNotifier->notified;
+        g_keyEventNotifier = NULL;
         DthingTraceD("keypad: get key code %d\n", ret);
     }
 
 end:
-    g_keyEventNotifier = NULL;
 
 #endif //ARCH_ARM_SPD
     RETURN_LONG(ret);
