@@ -150,14 +150,14 @@ THREAD_ENTRY(KPDSVR)/*lint -esym(765, thread_entry_KPDSVR)*/
 {
     uint16          key             = 0;
     KPDSVR_SIG_T    *key_sig_ptr    = SCI_NULL;	
-
-    SCI_CreateClientList(KEYPAD_SERVICE, (KPD_MSG_MAX_NUM & 0x0ff), 
-        (REG_CALLBACK) KPDSVR_SendKey);
+    //FIXME: If allow default KPDSVR callback. It may continously send key signal to service sometimes.
+    //SCI_CreateClientList(KEYPAD_SERVICE, (KPD_MSG_MAX_NUM & 0x0ff), 
+    //    (REG_CALLBACK) KPDSVR_SendKey);
  
     // Initialize
     Init();
 #ifdef M2M_EVB_SUPPORT
-    CUST_RegisterRefService();
+    //CUST_RegisterRefService();
 #endif 
 	//The more conventional form of
     //  infinite loop prefix is for(;;)
