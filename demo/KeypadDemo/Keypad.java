@@ -69,14 +69,9 @@ public class Keypad extends Applet {
         new Thread() {
             public void run() {
                 try {
-                    reportTestInfo("Start of keypad test");
                     RawKeyPdDriver.setListener(listener);
                     RawKeyPdDriver.initialize();
-                    Thread.sleep(60000);
-                    RawKeyPdDriver.close();
-                    reportTestInfo("End of keypad test");
-                } catch (InterruptedException e) {
-                    log("InterruptedException:" + e);
+                    reportTestInfo("Waiting for key event...");
                 } catch (IOException e) {
                     log("IOException:" + e);
                 } catch (NanoDriverException e) {

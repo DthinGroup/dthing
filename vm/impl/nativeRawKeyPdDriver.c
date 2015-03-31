@@ -11,8 +11,8 @@
 #include "sci_service.h"
 
 static ASYNC_Notifier *g_keyEventNotifier = NULL;
+static uint32 g_lastKeyCode = 0;
 void kpd_callback (uint32 id, uint32 argc, void *argv);
-static jlong convertNativeKeyToJava(KPDSVR_SIG_T *key_sig_ptr);
 #endif //ARCH_ARM_SPD
 
 /**
@@ -55,9 +55,9 @@ void Java_iot_oem_kpd_RawKeyPdDriver_getKey0(const u4* args, JValue* pResult) {
     }
     else
     {
-        ret = g_keyEventNotifier->notified;
+        ret = (jlong)g_lastKeyCode;
         g_keyEventNotifier = NULL;
-        DthingTraceD("keypad: get key code %d\n", ret);
+        DthingTraceD("keypad: get key code %d\n", g_lastKeyCode);
     }
 
 end:
@@ -104,7 +104,8 @@ void kpd_callback (uint32 id, uint32 argc, void *argv)
 
   if (g_keyEventNotifier != NULL)
   {
-    if (id == KEYPAD_SERVICE)
+    //FIXME: Just ignore the incorrect service id
+    //if (id == KEYPAD_SERVICE)
     {
       key_code = (uint32)(argv);
       event_code = (uint16)(argc & 0xFFFF);
@@ -112,47 +113,20 @@ void kpd_callback (uint32 id, uint32 argc, void *argv)
       switch(event_code)
       {
       case KPD_DOWN:
-        g_keyEventNotifier->notified = key_code;
+        g_lastKeyCode = key_code;
         DthingTraceD("keypad: KPD_DOWN %d\n", key_code);
         break;
       case KPD_UP:
-        g_keyEventNotifier->notified = key_code;
+        g_lastKeyCode = key_code;
         DthingTraceD("keypad: KPD_UP %d\n", key_code);
         break;
       default:
-        g_keyEventNotifier->notified = 0;
+        g_lastKeyCode = 0;
         DthingTraceD("keypad: Unknown key event %d\n", event_code);
         break;
       }
       AsyncIO_notify(g_keyEventNotifier);
     }
   }
-}
-
-static jlong convertNativeKeyToJava(KPDSVR_SIG_T *key_sig_ptr)
-{
-  jlong keyCode = 0;
-
-  if (key_sig_ptr == 0x0)
-  {
-    return keyCode;
-  }
-
-  switch(key_sig_ptr->SignalCode)
-  {
-  case KPD_DOWN:
-    keyCode = (jlong)key_sig_ptr->key;
-    DthingTraceD("[KeyPd] key %d down\n", keyCode);
-    break;
-  case KPD_UP:
-    keyCode = (jlong)key_sig_ptr->key;
-    DthingTraceD("[KeyPd] key %d down\n", keyCode);
-    break;
-  default:
-    keyCode = (jlong)key_sig_ptr->key;
-    DthingTraceD("[KeyPd] get key %d with unknown status %d\n", key_sig_ptr->key, key_sig_ptr->SignalCode);
-    break;
-  }
-  return keyCode;
 }
 #endif //ARCH_ARM_SPD
