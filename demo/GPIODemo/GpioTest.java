@@ -25,7 +25,6 @@ public class GpioTest extends Applet
 
 
     public void startup() {
-    {
         boolean test = false;
         int gpioid = 0;
         try
