@@ -71,8 +71,8 @@ public class CoTestDemo extends Applet {
             }
 
             private void log(String s)  {
-	          	  System.out.println("[CoTestDemo]" + s);
-	          }
+                System.out.println("[CoTestDemo]" + s);
+            }
         }.start();
     }
 }
