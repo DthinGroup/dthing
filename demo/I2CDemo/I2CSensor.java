@@ -9,7 +9,7 @@ import java.io.InputStream;
 import iot.oem.i2c.I2CManager;
 
 public class I2CSensor extends Applet {
-    private static final int I2CBusID = 2;
+    private static final int I2CBusID = 1;
     private static final int DevAddress = 0xB8;
     private static final int SubAddress = 0x00040003;
     private double Temperature;
