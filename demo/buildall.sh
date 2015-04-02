@@ -3,6 +3,7 @@
 . build.sh AudioDemo
 . build.sh BuzzerDemo
 . build.sh COMDemo
+. build.sh CoTestDemo
 . build.sh GPIODemo
 . build.sh HeartDemo
 . build.sh HelloDemo
