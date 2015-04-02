@@ -47,7 +47,7 @@ class MyKpdListener implements RawKeyPdListener {
 
 public class Keypad extends Applet {
     private static boolean allowLogPrint = true;
-	private static boolean allowWaiting = true;
+    private static boolean allowWaiting = true;
     private static final String REPORT_SERVER_FORMAT = "http://42.121.18.62:8080/dthing/ParmInfo.action?saveDataInfo&saveType=log&parmInfo=";
     MyKpdListener listener = new MyKpdListener();
 
@@ -57,7 +57,7 @@ public class Keypad extends Applet {
 
     public void cleanup() {
         try {
-			allowWaiting = false;
+            allowWaiting = false;
             RawKeyPdDriver.close();
         } catch (InterruptedException e) {
             e.printStackTrace();
@@ -91,6 +91,7 @@ public class Keypad extends Applet {
                 if (allowLogPrint)
                 {
                     log(msg);
+                    return;
                 }
 
                 URL url = new URL(reportInfo);
