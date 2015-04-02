@@ -54,13 +54,18 @@ public class CoTestDemo extends Applet {
 
             private void printLog(boolean isStart, String testName) throws IOException {
                 String msg = (isStart?"Start":"End") + " testing " + testName;
-                log(msg);
                 reportCoTestInfo("CoTestDemo", msg);
             }
 
             private void reportCoTestInfo(String name, String msg) throws IOException  {
                 String content = name + ":" + msg;
                 String reportInfo = REPORT_SERVER_FORMAT + content;
+
+                if(true)
+                {
+                    log(content);
+                    return;
+                }
 
                 URL url = new URL(reportInfo);
                 HttpURLConnection httpConn = (HttpURLConnection)url.openConnection();

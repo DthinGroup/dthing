@@ -121,6 +121,7 @@ public class JSDSensor extends Applet {
                 if (allowLogPrint)
                 {
                     System.out.println("[JSDSensor]" + content);
+                    return;
                 }
 
                 URL url = new URL(reportInfo);

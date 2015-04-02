@@ -72,6 +72,7 @@ public class COMTest extends Applet
                 if (allowLogPrint)
                 {
                   System.out.println("[" + name + "]" + content);
+                  return;
                 }
 
                 URL url = new URL(reportInfo);
