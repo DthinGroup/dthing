@@ -213,7 +213,7 @@ AppletProps* getAppletPropById(int32_t id)
     {
         if (pap[i].id == id)
         {
-            return pap;
+            return &pap[i];
         }
     }
     return NULL;
