@@ -13,12 +13,14 @@
 /**
  * Class:     iot_oem_spi_SPIManager
  * Method:    open0
- * Signature: (II)I
+ * Signature: (IIII)I
  */
 void Java_iot_oem_spi_SPIManager_open0(const u4* args, JValue* pResult) {
     ClassObject* thisObj = (ClassObject*) args[0];
     jint busId = (jint) args[1];
     jint rate = (jint) args[2];
+    jint mode = (jint) args[3];
+    jint bitlen = (jint) args[4];
     jint ret = 0;
 
 #if defined(ARCH_ARM_SPD)
@@ -26,8 +28,8 @@ void Java_iot_oem_spi_SPIManager_open0(const u4* args, JValue* pResult) {
   
     dev.id = busId;
     dev.freq = rate;
-    dev.mode = SPI_DEFAULT_MODE;
-    dev.tx_bit_length = SPI_DEFAULT_TX_BIT_LEN;
+    dev.mode = mode;
+    dev.tx_bit_length = bitlen;
     dev.spi_cs_cb = NULL;
     dev.spi_rx_cb = NULL;
     dev.spi_tx_cb = NULL;

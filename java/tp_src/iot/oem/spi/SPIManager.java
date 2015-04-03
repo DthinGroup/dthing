@@ -4,24 +4,29 @@ package iot.oem.spi;
 import java.io.IOException;
 
 public class SPIManager extends Object {
-
+	public static final int SPI_CPOL0_CPHA0 = 0; //sampling on rising edge, clk idle '0'
+    public static final int SPI_CPOL0_CPHA1 = 1; //sampling on falling edge, clk idle '0'
+    public static final int SPI_CPOL1_CPHA0 = 2; //sampling on falling edge, clk idle '1'
+    public static final int SPI_CPOL1_CPHA1 = 3; //sampling on rising edge, clk idle '1'
+    public static final int SPI_TX_BIT_LEN_DEFAULT = 8;
     private int handle = -1;
     private int busId = -1;
 
     /**
-     * 构造一个SPIManager对象，并打开总线标识参数指定的SPI总线，同时设置总线速率。
+     * construct the SPIManager instance by specified SPI bus id and rate
      *
-     * @param busId SPI总线标识
-     * @param rate 数据传输速率，以KHz为单位
-     * @throws IllegalArgumentException 参数非法时抛出
-     * @throws IOException 构造SPIManager失败时抛出
+     * @param spiBusId id of SPI bus
+     * @param rate value of rate by KHz
+     * @return the SPIManager instance
+     * @throws IllegalArgumentException when argument is illegal
+     * @throws IOException when failed to construct
      */
     public SPIManager(int busId, int rate) throws IllegalArgumentException, IOException {
         if (!isValidBusId(busId) || !isValidRate(rate)) {
             throw new IllegalArgumentException("Illegal arguments");
         }
 
-        handle = open0(busId, rate);
+        handle = open0(busId, rate, SPI_CPOL0_CPHA0, SPI_TX_BIT_LEN_DEFAULT);
         if (handle < 0) {
             throw new IOException("Failed to open busId " + busId + " with rate " + rate);
         }
@@ -29,13 +34,41 @@ public class SPIManager extends Object {
         this.busId = busId;
     }
 
-    private static native int open0(int busId, int rate);
+     /**
+     * construct the SPIManager instance by specified SPI bus id and rate
+     *
+     * @param spiBusId id of SPI bus
+     * @param rate value of rate by KHz
+     * @param mode CPOL and CPHA status
+     * @param bitlen tx bit length
+     * @return the SPIManager instance
+     * @throws IllegalArgumentException when argument is illegal
+     * @throws IOException when failed to construct
+     */
+    public SPIManager(int spiBusId, int rate, int mode, int bitlen) throws IllegalArgumentException, IOException
+    {
+        if (!isValidBusId(spiBusId) || !isValidRate(rate))
+        {
+            throw new IllegalArgumentException("Illegal arguments");
+        }
+
+        this.handle = open0(spiBusId, rate, mode, bitlen);
+
+        if (this.handle < 0)
+        {
+            throw new IOException("Failed to open busId " + spiBusId + " with rate " + rate);
+        }
+
+        this.busId = spiBusId;
+    }
+
+    private static native int open0(int busId, int rate, int mode, int bitlen);
 
     /**
-     * 获得数据传输速率，以KHz为单位
+     * do get rate of SPI
      *
-     * @return 数据传输速率
-     * @throws IOException 获取数据传输速率失败时抛出
+     * @return value of rate by KHz
+     * @throws IOException when failed to get SPI rate
      */
     public int getRate() throws IOException {
         int result = getRate0(busId);
@@ -48,11 +81,12 @@ public class SPIManager extends Object {
     private static native int getRate0(int busId);
 
     /**
-     * 设置数据传输速率， 以KHz为单位
+     * do set rate of SPI
      *
-     * @param rate 数据传输速率
-     * @throws IllegalArgumentException 参数非法时抛出
-     * @throws IOException 设置数据传输速率失败时抛出
+     * @param rate value of rate by KHz
+     * @return void
+     * @throws IllegalArgumentException when argument is illegal
+     * @throws IOException when failed to set SPI rate
      */
     public void setRate(int rate) throws IllegalArgumentException, IOException {
         if (!isValidRate(rate)) {
@@ -67,9 +101,9 @@ public class SPIManager extends Object {
     private static native int setRate0(int busId, int rate);
 
     /**
-     * 关闭SPIManager对象所打开的总线
+     * destroy SPI instance
      *
-     * @throws IOException 关闭总线失败时抛出
+     * @throws IOException when failed to destroy
      */
     public void destroy() throws IOException {
         if (close0(busId) < 0) {
@@ -83,13 +117,13 @@ public class SPIManager extends Object {
     private static native int close0(int busId);
 
     /**
-     * 读取来自目标设备的数据
+     * receive data from target SPI device
      *
-     * @param address 目的设备地址
-     * @param buff 接收数据的数组
-     * @return 实际读取的数据长度
-     * @throws NullPointerException 参数buff为空时抛出
-     * @throws IOException 读取数据失败时抛出
+     * @param address value of target device address
+     * @param buff byte array to receive data
+     * @return length of data had read
+     * @throws NullPointerException when data is null
+     * @throws IOException when failed to read data from SPI device
      */
     public int receive(int address, byte[] buff) throws NullPointerException, IOException {
         // TODO: Check illegal address
@@ -108,12 +142,13 @@ public class SPIManager extends Object {
     private static native int read0(int busId, int addr, byte[] buffer, int len);
 
     /**
-     * 向目标设备写入数据
+     * send data into SPI device
      *
-     * @param address 目的设备地址
-     * @param data 将被写入的数据
-     * @throws NullPointerException 参数data为空时抛出
-     * @throws IOException 写入数据失败时抛出
+     * @param address value of target device address
+     * @param data byte array of data to sent
+     * @return void
+     * @throws NullPointerException when data is null
+     * @throws IOException when failed to write data into SPI device
      */
     public void send(int address, byte[] data) throws NullPointerException, IOException {
         // TODO: Check illegal address
