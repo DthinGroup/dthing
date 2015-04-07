@@ -34,15 +34,15 @@ public class CoTestDemo extends Applet {
                     pwmSensor.startTest();
                     printLog(false, "PWMSensor");
 
-                    printLog(true, "WSDSensor");
-                    WSDSensor wsdSensor = new WSDSensor();
-                    wsdSensor.startTest();
-                    printLog(false, "WSDSensor");
+                    printLog(true, "LEDDemo");
+                    LEDDemo ledDemo = new LEDDemo();
+                    ledDemo.startTest();
+                    printLog(false, "LEDDemo");
 
-                    printLog(true, "BuzzerDemo");
-                    BuzzerDemo buzDemo = new BuzzerDemo();
-                    buzDemo.startTest();
-                    printLog(false, "BuzzerDemo");
+                    printLog(true, "BuzzerSensor");
+                    BuzzerSensor buzSensor = new BuzzerSensor();
+                    buzSensor.startTest();
+                    printLog(false, "BuzzerSensor");
 
                     log("End testing multi-demos.");
                 } catch (IOException e) {

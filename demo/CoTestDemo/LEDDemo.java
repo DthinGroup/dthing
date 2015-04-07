@@ -1,46 +1,47 @@
-// Decompiled by Jad v1.5.8e2. Copyright 2001 Pavel Kouznetsov.
-// Jad home page: http://kpdus.tripod.com/jad.html
-// Decompiler options: packimports(3) fieldsfirst ansi space
-// Source File Name:   BuzzerDemo.java
-
-import iot.oem.gpio.Gpio;
 
 import java.net.http.HttpURLConnection;
 import java.net.http.URL;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class BuzzerDemo {
-    private int vibraId;
+import iot.oem.gpio.Gpio;
 
-    public BuzzerDemo()
+public class LEDDemo {
+    private int vibraId = 20;
+
+    public LEDDemo()
     {
-        vibraId = 19;
+        vibraId = 20;
     }
 
-    public void startTest()
-    {
+    public void startTest() {
         boolean test = false;
         try
         {
             Gpio gpio = new Gpio(vibraId);
+            log("open led gpio " + gpioId);
             for (int i = 0; i < 16; i++)
             {
                 Thread.sleep(1000);
-                log("i = "+i);
                 gpio.setCurrentMode(0);
+                log("i = " + i);
+
                 if (test)
                 {
                     log("read true write false");
                     gpio.write(false);
                     test = false;
-                } else
+                }
+                else
                 {
                     log("read false write true");
                     gpio.write(true);
                     test = true;
                 }
             }
+
+            gpio.destroy();
+            log("close buzzer gpio " + gpioId);
         }
         catch (IllegalArgumentException illegalargumentexception)
         {
@@ -58,6 +59,6 @@ public class BuzzerDemo {
 
     private void log(String s)
     {
-        System.out.println("[Gpio Test] " + s);
+        System.out.println("[LEDDemo]" + s);
     }
 }
