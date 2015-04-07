@@ -223,7 +223,11 @@ int32_t rams_recvData(int32_t instance, uint8_t* buf, int32_t bufSize)
     }
 	#endif
 #endif
-	DVMTraceDbg("===rams_recvData,handle:0x%x,ret:%d\n",instance,ret);
+    //Too much log may lead to log missing. Just disable log when EWOULDBLOCK
+    if (RAMS_RES_WOULDBLOCK != ret)
+    {
+        DVMTraceDbg("===rams_recvData,handle:0x%x,ret:%d\n",instance,ret);
+    }
 
     return ret;
 }

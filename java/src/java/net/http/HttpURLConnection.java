@@ -236,33 +236,34 @@ public class HttpURLConnection extends URLConnection {
 
     // @Override
     public void connect() throws IOException {
-        Log.netLog(TAG, "connect() begin");
+        //Log.netLog(TAG, "connect() begin");
         if (connected) {
             Log.netLog(TAG, "connect() already connected, return");
             return;
         }
-        Log.netLog(TAG, "connect() start connect");
+        //Log.netLog(TAG, "connect() start connect");
         int port = getPort();
-        Log.netLog(TAG, "connect() port=" + port);
+        //Log.netLog(TAG, "connect() port=" + port);
+		Log.netLog(TAG, "connect() start connect with port=" + port);
         try {
-            Log.netLog(TAG, "connect() set socketAddress");
+            //Log.netLog(TAG, "connect() set socketAddress");
             socketAddress = new InetSocketAddress(url.getHost(), port);
             Log.netLog(TAG, "connect() socketAddress:" + socketAddress);
         } catch (Exception e) {
             Log.netLog(TAG, "connect() set socketAddress failed:" + e);
             throw new IOException("Create socket fail!");
         }
-        Log.netLog(TAG, "connect() set socket");
+        //Log.netLog(TAG, "connect() set socket");
         socket = new Socket();
         Log.netLog(TAG, "connect() socket:" + socket);
         // socket.setSoTimeout(connectTimeout);
-        Log.netLog(TAG, "connect() before socket.connect(socketAddress)");
+        //Log.netLog(TAG, "connect() before socket.connect(socketAddress)");
         socket.connect(socketAddress);
-        Log.netLog(TAG, "connect() after socket.connect(socketAddress)");
+        //Log.netLog(TAG, "connect() after socket.connect(socketAddress)");
         socketIn = socket.getInputStream();
-        Log.netLog(TAG, "connect() socketIn:" + socketIn);
+        //Log.netLog(TAG, "connect() socketIn:" + socketIn);
         socketOut = socket.getOutputStream();
-        Log.netLog(TAG, "connect() socketOut:" + socketOut);
+        //Log.netLog(TAG, "connect() socketOut:" + socketOut);
         connected = true;
         Log.netLog(TAG, "connect() end");
     }

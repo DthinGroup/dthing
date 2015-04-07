@@ -613,13 +613,14 @@ public abstract class URLConnection {
         if (connected) {
             throw new IllegalStateException("Already connected");
         }
-        Log.netLog(TAG, "setRequestProperty() check param key");
+		//Too much log which may lead to missing
+        //Log.netLog(TAG, "setRequestProperty() check param key");
         if (key == null) {
             throw new NullPointerException("key is null");
         }
-        Log.netLog(TAG, "setRequestProperty() store key-value pair");
+        //Log.netLog(TAG, "setRequestProperty() store key-value pair");
         requestProperties.put(key, value);
-        Log.netLog(TAG, "setRequestProperty() end");
+        //Log.netLog(TAG, "setRequestProperty() end");
     }
 
     /**

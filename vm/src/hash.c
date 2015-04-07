@@ -88,7 +88,8 @@ void* dvmHashTableLookup(HashTable* pHashTable, u4 itemHash, void* item, HashCom
     }
     else
     {
-        DVMTraceDbg("dvmHashTableLookup - Error. Not find the item!\n");
+        //FIXME: Too much log which may lead to missing
+        //DVMTraceDbg("dvmHashTableLookup - Error. Not find the item!\n");
     }
 
     return result;
