@@ -130,6 +130,7 @@ public class OTADownload {
                         break;
                     }
                 }
+                Log.amsLog(TAG, "End read " + bytesum + "in total");
                 fs.flush();
                 fs.close();
             } catch (FileNotFoundException e) {
