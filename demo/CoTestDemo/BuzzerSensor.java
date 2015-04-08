@@ -22,12 +22,12 @@ public class BuzzerSensor {
         try {
             reportBuzzerInfo("open buzzer gpio " + gpioId);
             gpio = new Gpio(gpioId);
-            
-		        while(count > 0)
-		        {
-		            Thread.sleep(1000);
+
+            while(count > 0)
+            {
+                Thread.sleep(1000);
                 gpio.setCurrentMode(0);
-                System.out.println("i = " + i);
+                System.out.println("count = " + count);
 
                 if ((count % 2) == 0)
                 {
@@ -36,11 +36,11 @@ public class BuzzerSensor {
                 }
                 else
                 {
-                	  gpio.write(true);
-                	  reportBuzzerInfo("true");
+                    gpio.write(true);
+                    reportBuzzerInfo("true");
                 }
                 count--;
-		        }
+            }
 
             gpio.destroy();
             reportBuzzerInfo("close buzzer gpio " + gpioId);
@@ -75,3 +75,4 @@ public class BuzzerSensor {
         httpConn.disconnect();
     }
 }
+

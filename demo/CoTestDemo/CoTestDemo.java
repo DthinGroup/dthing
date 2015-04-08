@@ -64,7 +64,7 @@ public class CoTestDemo extends Applet {
                 if(true)
                 {
                     log(content);
-                    return;
+                    //return;
                 }
 
                 URL url = new URL(reportInfo);

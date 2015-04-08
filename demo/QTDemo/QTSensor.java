@@ -111,7 +111,7 @@ public class QTSensor extends Applet {
                 if (allowLogPrint)
                 {
                     System.out.println("[QT][Test Result]" + content);
-                    return;
+                    //return;
                 }
 
                 URL url = new URL(reportInfo);

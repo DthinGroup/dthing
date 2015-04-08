@@ -19,7 +19,7 @@ public class LEDDemo {
         try
         {
             Gpio gpio = new Gpio(vibraId);
-            log("open led gpio " + gpioId);
+            log("open led gpio " + vibraId);
             for (int i = 0; i < 16; i++)
             {
                 Thread.sleep(1000);
@@ -41,7 +41,7 @@ public class LEDDemo {
             }
 
             gpio.destroy();
-            log("close buzzer gpio " + gpioId);
+            log("close led gpio " + vibraId);
         }
         catch (IllegalArgumentException illegalargumentexception)
         {
@@ -62,3 +62,4 @@ public class LEDDemo {
         System.out.println("[LEDDemo]" + s);
     }
 }
+
