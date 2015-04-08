@@ -36,6 +36,7 @@
 #include <nativeUSBConnection.h>
 #include <nativeCommConnectionImpl.h>
 #include <nativeRawKeyPdDriver.h>
+#include <nativeNativeAPIManager.h>
 #include <nativeMethods.h>
 
 

@@ -608,6 +608,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\vm\impl\nativeNativeAPIManager.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\vm\impl\nativeNativeAPIManager.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\vm\impl\nativeNetNativeBridge.c"
 				>
 			</File>

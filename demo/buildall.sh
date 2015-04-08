@@ -12,6 +12,8 @@
 . build.sh IRDistanceDemo
 . build.sh JSDDemo
 . build.sh KeypadDemo
+. build.sh KeyPadLed
+. build.sh Vibrate
 . build.sh LEDDemo
 . build.sh PWMDemo
 . build.sh QTDemo

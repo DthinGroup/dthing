@@ -95,7 +95,7 @@
 #elif defined(UMEM_PRTITION_LARGE)
 	#define  UMEM_SECTOR_NUM            7    //224KB
 #else
-	#define  UMEM_SECTOR_NUM            4   //128KB
+	#define  UMEM_SECTOR_NUM            15   //128KB
 #endif
 
 
