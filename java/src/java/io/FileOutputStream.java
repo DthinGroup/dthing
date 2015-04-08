@@ -147,20 +147,29 @@ public class FileOutputStream extends OutputStream {
 
     //@Override
     public void write(byte[] buffer, int byteOffset, int byteCount) throws IOException {
-    	if(byteCount<0){
-    		return;
-    	}
-    	if(byteOffset<0 || byteCount<0
-    	   || buffer.length < byteOffset+byteCount){
-    		throw new IOException("FileOutput write: out of bounds");
-    	}
-    	
-    	int ret = writeFile(fd.handle,buffer,byteOffset,byteCount);
-    	if(ret < 0){
-    		throw new IOException("FileOutput: write IO Exception");
-    	}
+        int byteWritten = 0;
+        int ret = 0;
+
+        if(byteCount < 0){
+            return;
+        }
+
+        if(byteOffset < 0 || byteCount < 0
+            || buffer.length < byteOffset + byteCount) {
+            throw new IOException("FileOutput write: out of bounds");
+        }
+
+        while(byteWritten < byteCount)
+        {
+            ret = writeFile(fd.handle, buffer, byteOffset + byteWritten, byteCount - byteWritten);
+
+            if(ret < 0) {
+                throw new IOException("FileOutput: write IO Exception");
+            }
+            byteWritten += ret;
+        }
     }
-    
+
     public void write(byte[] buffer) throws IOException {
     	write(buffer,0,buffer.length);
     }
