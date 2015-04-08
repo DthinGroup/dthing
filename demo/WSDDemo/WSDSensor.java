@@ -30,12 +30,14 @@ public class WSDSensor extends Applet {
     private static final String REPORT_SERVER_FORMAT = "http://42.121.18.62:8080/dthing/ParmInfo.action?saveDataInfo&saveType=wsd&parmInfo=";
     private static int count = 12;
     private static boolean allowLogPrint = true;
+    private static boolean allowRunning = true;
 
     public WSDSensor() {
       // TODO Auto-generated constructor stub
     }
 
     public void cleanup() {
+        allowRunning = false;
     }
 
     public void processEvent(Event paramEvent) {
@@ -108,8 +110,9 @@ public class WSDSensor extends Applet {
                     } catch (InterruptedException e) {
                         System.out.println("I2C InterruptedException: " + e);
                     }
-                }while(count > 0);
+                }while ((count > 0) && allowRunning);
                 System.out.println("Exiting WSD Demo Test ...");
+                notifyDestroyed();
             }
         }.start();
     }

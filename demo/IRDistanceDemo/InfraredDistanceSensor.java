@@ -24,12 +24,14 @@ public class InfraredDistanceSensor extends Applet {
     private static final String REPORT_SERVER_FORMAT = "http://42.121.18.62:8080/dthing/ParmInfo.action?saveDataInfo&saveType=log&parmInfo=";
     private static int count = MAX_TEST_COUNT;
     private static boolean allowLogPrint = true;
+    private static boolean allowRunning = true;
 
     public InfraredDistanceSensor() {
       // TODO Auto-generated constructor stub
     }
 
     public void cleanup() {
+        allowRunning = false;
     }
 
     public void processEvent(Event paramEvent) {
@@ -70,7 +72,7 @@ public class InfraredDistanceSensor extends Applet {
                     } catch (InterruptedException e) {
                         System.out.println("IRDistance InterruptedException: " + e);
                     }
-                }while(count > 0);
+                }while ((count > 0) && allowRunning);
                 //销毁红外测距传感器实例
                 try {
                     manager.destroy();
@@ -78,6 +80,7 @@ public class InfraredDistanceSensor extends Applet {
                     System.out.println("IRDistance IOException: " + e1);
                 }
                 System.out.println("Exiting IRDistance test ...");
+                notifyDestroyed();
             }
 
             /**

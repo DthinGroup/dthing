@@ -22,65 +22,67 @@ public class PWMSensor extends Applet {
     }
 
     public void startup() {
-         new Thread() {
-              private PWMManager manager = null;
-              private boolean allowLogPrint = true;
+        new Thread() {
+            private PWMManager manager = null;
+            private boolean allowLogPrint = true;
 
-              public void run() {
+            public void run() {
                 int i = 0;
                 int  hz = 1;
-                  System.out.println("[PWMDemo]Start PWM sensor test");
-                  manager = PWMManager.getInstance();
+                System.out.println("[PWMDemo]Start PWM sensor test");
+                manager = PWMManager.getInstance();
 
-                  try {
-                      manager.command(0, 0x30, 1);
-                      manager.command(0, 0x31, 1);
+                try {
+                    manager.command(0, 0x30, 1);
+                    manager.command(0, 0x31, 1);
 
-                      for (i = 0; i < 10; i++)
-                      {
-                            manager.config(0, hz, i*10);
+                    for (i = 0; i < 10; i++)
+                    {
+                        manager.config(0, hz, i*10);
 
-                            if (hz < 5)
-                            {
-                              hz++;
-                            }
-                            else
-                            {
-                              hz = 1;
-                            }
-                      }
-                      reportPWMInfo("Test success");
-                      manager.command(0, 0x30, 0);
-                  } catch (IOException e) {
-                        try {
-                            reportPWMInfo("IOException");
-                            manager.command(0, 0x30, 0);
-                        } catch (IOException e1) {
-                            e1.printStackTrace();
+                        if (hz < 5)
+                        {
+                            hz++;
                         }
-                        e.printStackTrace();
-                  }
+                        else
+                        {
+                            hz = 1;
+                        }
+                    }
+                    reportPWMInfo("Test success");
+                    manager.command(0, 0x30, 0);
+                } catch (IOException e) {
+                    try {
+                        reportPWMInfo("IOException");
+                        manager.command(0, 0x30, 0);
+                    } catch (IOException e1) {
+                        e1.printStackTrace();
+                    }
+                    e.printStackTrace();
+                }
 
-                  System.out.println("[PWMDemo] End PWM sensor test");
-              }
+                System.out.println("[PWMDemo] End PWM sensor test");
+				notifyDestroyed();
+            }
 
-              private void reportPWMInfo(String msg) throws IOException
-              {
-                  String content = "PWM:" + msg;
-                  String reportInfo = REPORT_SERVER_FORMAT + content;
+            private void reportPWMInfo(String msg) throws IOException
+            {
+                String content = "PWM:" + msg;
+                String reportInfo = REPORT_SERVER_FORMAT + content;
 
-                  if (allowLogPrint)
-                  {
-                      System.out.println("[PWMSensor]" + content);
-                  }
+                if (allowLogPrint)
+                {
+                    System.out.println("[PWMSensor]" + content);
+                }
 
-                  URL url = new URL(reportInfo);
-                  HttpURLConnection httpConn = (HttpURLConnection)url.openConnection();
-                  httpConn.setRequestMethod(HttpURLConnection.POST);
-                  InputStream dis = httpConn.getInputStream();
-                  dis.close();
-                  httpConn.disconnect();
-              }
-          }.start();
-  }
+                URL url = new URL(reportInfo);
+                HttpURLConnection httpConn = (HttpURLConnection)url.openConnection();
+                httpConn.setRequestMethod(HttpURLConnection.POST);
+                InputStream dis = httpConn.getInputStream();
+                dis.close();
+                httpConn.disconnect();
+            }
+        }.start();
+    }
 }
+

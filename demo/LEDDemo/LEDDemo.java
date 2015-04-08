@@ -59,6 +59,7 @@ public class LEDDemo extends Applet
         {
             interruptedexception.printStackTrace();
         }
+        notifyDestroyed();
     }
 
     private void log(String s)

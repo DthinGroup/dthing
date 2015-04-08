@@ -12,12 +12,14 @@ public class BuzzerSensor extends Applet {
     private static final String REPORT_SERVER_FORMAT = "http://42.121.18.62:8080/dthing/ParmInfo.action?saveDataInfo&saveType=log&parmInfo=";
     private int gpioId = 19;
     private static boolean allowLogPrint = true;
+    private static boolean allowRunning = true;
 
     public BuzzerSensor() {
       // TODO Auto-generated constructor stub
     }
 
     public void cleanup() {
+        allowRunning = false;
     }
 
     public void processEvent(Event paramEvent) {
@@ -33,10 +35,10 @@ public class BuzzerSensor extends Applet {
                 try {
                     reportBuzzerInfo("open buzzer gpio " + gpioId);
                     gpio = new Gpio(gpioId);
-                    
-		                while(count > 0)
-		                {
-		                    Thread.sleep(1000);
+
+                    while ((count > 0) && allowRunning)
+                    {
+                        Thread.sleep(1000);
                         gpio.setCurrentMode(0);
 
                         if ((count % 2) == 0)
@@ -46,11 +48,11 @@ public class BuzzerSensor extends Applet {
                         }
                         else
                         {
-                        	  gpio.write(true);
-                        	  reportBuzzerInfo("true");
+                            gpio.write(true);
+                            reportBuzzerInfo("true");
                         }
                         count--;
-		                }
+                    }
 
                     gpio.destroy();
                     reportBuzzerInfo("close buzzer gpio " + gpioId);
@@ -61,6 +63,7 @@ public class BuzzerSensor extends Applet {
                 } catch (InterruptedException e) {
                     log("InterruptedException:" + e);
                 }
+                notifyDestroyed();
             }
         }.start();
     }
@@ -87,3 +90,4 @@ public class BuzzerSensor extends Applet {
         httpConn.disconnect();
     }
 }
+

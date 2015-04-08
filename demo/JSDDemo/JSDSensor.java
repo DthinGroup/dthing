@@ -24,12 +24,14 @@ public class JSDSensor extends Applet {
     private static final String REPORT_SERVER_FORMAT = "http://42.121.18.62:8080/dthing/ParmInfo.action?saveDataInfo&saveType=jsd&parmInfo=";
     private static int count = MAX_TEST_COUNT;
     private static boolean allowLogPrint = true;
+    private static boolean allowRunning = true;
 
     public JSDSensor() {
       // TODO Auto-generated constructor stub
     }
 
     public void cleanup() {
+        allowRunning = false;
     }
 
     public void processEvent(Event paramEvent) {
@@ -81,7 +83,7 @@ public class JSDSensor extends Applet {
                     } catch (InterruptedException e) {
                         System.out.println("InterruptedException: " + e);
                     }
-                } while(count > 0);
+                } while((count > 0) && allowRunning);
                 //销毁传感器实例
                 try {
                     manager.destroy();
@@ -89,6 +91,7 @@ public class JSDSensor extends Applet {
                     System.out.println("IOException: " + e1);
                 }
                 System.out.println("[JSDDemo] End ADC sensor test");
+                notifyDestroyed();
             }
 
             /**

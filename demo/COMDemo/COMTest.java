@@ -12,8 +12,10 @@ public class COMTest extends Applet
 {
     private static final String REPORT_SERVER_FORMAT = "http://42.121.18.62:8080/dthing/ParmInfo.action?saveDataInfo&saveType=log&parmInfo=";
     private static boolean allowLogPrint = true;
+    private static boolean allowRunning = true;
 
     public void cleanup() {
+        allowRunning = false;
     }
 
     public void processEvent(Event paramEvent) {
@@ -36,12 +38,19 @@ public class COMTest extends Applet
                         }
 
                         readSize = is.read(buf, 0, 28);
+
+                        if (readSize < 0)
+                        {
+                            reportTestInfo("COM", "exit when readSize is less than 0");
+                            break;
+                        }
+
                         String readString = new String(buf);
 
                         reportTestInfo("COM", "read:" + convertEscapedChar(readString));
-                    }
-                    while (readSize >= 0);
+                    } while (allowRunning);
                     comm.close();
+                    notifyDestroyed();
                 } catch (IOException e) {
                     System.out.println("IOException:" + e);
                 }

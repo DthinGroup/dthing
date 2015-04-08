@@ -26,6 +26,7 @@ public class HeartSensor extends Applet {
     private static int reportDataIndex = 0;
     private static int readDataCount = 0;
     private static boolean allowLogPrint = true;
+    private static boolean allowRunning = true;
     private static int[] buffer = new int[MAX_BUFFER_COUNT];
 
     public HeartSensor() {
@@ -40,6 +41,7 @@ public class HeartSensor extends Applet {
     }
 
     public void cleanup() {
+        allowRunning = false;
     }
 
     public void processEvent(Event paramEvent) {
@@ -59,7 +61,8 @@ public class HeartSensor extends Applet {
                         lastScheduledTime = currentTime;
                         read();
                     }
-                } while(count > 0);
+                } while ((count > 0) && allowRunning);
+                notifyDestroyed();
             }
 
             public void read() {
@@ -120,7 +123,8 @@ public class HeartSensor extends Applet {
                             System.out.println("Heart IOException:" + e);
                         }
                     }
-                } while(count > 0);
+                } while ((count > 0) && allowRunning);
+                notifyDestroyed();
             }
             /**
              * @brief 上报心跳信息到指定服务器

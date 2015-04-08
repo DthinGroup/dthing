@@ -5,6 +5,7 @@ import jp.co.cmcc.event.Event;
 public class ThreadDemo extends Applet
 {
     private static int count = 1200;
+    private static boolean allowRunning = true;
 
     public ThreadDemo()
     {
@@ -13,6 +14,7 @@ public class ThreadDemo extends Applet
 
     public void cleanup()
     {
+        allowRunning = false;
         System.out.println("[ThreadDemo] cleanup is called!");
     }
 
@@ -34,7 +36,8 @@ public class ThreadDemo extends Applet
                         lastCount = count;
                         System.out.println("[Thread-1] === read native data ===");
                     }
-                } while(count > 0);
+                } while ((count > 0) && allowRunning);
+                notifyDestroyed();
             }
         }.start();
         //Thread-2
@@ -52,7 +55,8 @@ public class ThreadDemo extends Applet
                         lastScheduledTime = currentTime;
                         count--;
                     }
-                } while(count > 0);
+                } while ((count > 0) && allowRunning);
+				notifyDestroyed();
             }
         }.start();
     }

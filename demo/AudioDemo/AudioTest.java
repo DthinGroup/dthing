@@ -40,14 +40,14 @@ public class AudioTest extends Applet {
                         {
                             if(ear.getStatus() != true)
                             {
-                            ear.setStatus(true);
-                            reportTestInfo("Ear", "opened");
+                                ear.setStatus(true);
+                                reportTestInfo("Ear", "opened");
                             }
                         } else {
                             if(speaker.getStatus() != true)
                             {
-                            speaker.setStatus(true);
-                            reportTestInfo("Speaker", "opened");
+                                speaker.setStatus(true);
+                                reportTestInfo("Speaker", "opened");
                             }
                         }
 
@@ -73,6 +73,7 @@ public class AudioTest extends Applet {
                 }
 
                 System.out.println("[AudioDemo] End SPK/EAR test");
+                notifyDestroyed();
             }
 
             private void reportTestInfo(String name, String msg) throws IOException

@@ -11,6 +11,7 @@ import iot.oem.gpio.Gpio;
 public class GpioTest extends Applet
 {
     private int vibraId = 0;
+    private static boolean allowRunning = true;
 
     public GpioTest()
     {
@@ -18,6 +19,7 @@ public class GpioTest extends Applet
     }
 
     public void cleanup() {
+        allowRunning = false;
     }
 
     public void processEvent(Event paramEvent) {
@@ -29,7 +31,7 @@ public class GpioTest extends Applet
         int gpioid = 0;
         try
         {
-            while(gpioid < 61)
+            while ((gpioid < 61) && allowRunning)
             {
                 Gpio gpio = new Gpio(gpioid);
                 for (int i = 0; i < 5; i++)
@@ -48,8 +50,10 @@ public class GpioTest extends Applet
                         test = true;
                     }
                 }
+                //TODO: destroy gpio instance
                 gpioid++;
             }
+            notifyDestroyed();
         }
         catch (IllegalArgumentException illegalargumentexception)
         {
@@ -70,3 +74,4 @@ public class GpioTest extends Applet
         System.out.println("[Gpio Test]" + s);
     }
 }
+

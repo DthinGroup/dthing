@@ -78,6 +78,7 @@ public class Keypad extends Applet {
                     {
                         //Waiting for key event
                     }
+                    notifyDestroyed();
                 } catch (IOException e) {
                     log("IOException:" + e);
                 } catch (NanoDriverException e) {

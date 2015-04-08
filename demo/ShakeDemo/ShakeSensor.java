@@ -21,12 +21,14 @@ public class ShakeSensor extends Applet {
     private static final String REPORT_SERVER_FORMAT = "http://42.121.18.62:8080/dthing/ParmInfo.action?saveDataInfo&saveType=jsd&parmInfo=";
     private int vibraId = 8;
     private static boolean allowLogPrint = true;
+    private static boolean allowRunning = true;
 
     public ShakeSensor() {
       // TODO Auto-generated constructor stub
     }
 
     public void cleanup() {
+		allowRunning = false;
     }
 
     public void processEvent(Event paramEvent) {
@@ -57,7 +59,7 @@ public class ShakeSensor extends Applet {
                     log("InterruptedException:" + e);
                 }
 
-                while(count > 0)
+                while((count > 0) && allowRunning)
                 {
                     newValue = System.getProperty("yarlung.vibra");
 
@@ -75,6 +77,7 @@ public class ShakeSensor extends Applet {
                 }
 
                 stopVibraTest(gpio, listener);
+                notifyDestroyed();
             }
 
         }.start();

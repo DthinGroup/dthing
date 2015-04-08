@@ -58,6 +58,7 @@ public class ATCSensor extends Applet {
           // TODO Auto-generated catch block
           e.printStackTrace();
         }
+        notifyDestroyed();
     }
 
     private void reportI2CInfo(String cmd, String response) throws IOException

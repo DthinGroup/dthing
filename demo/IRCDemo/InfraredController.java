@@ -55,6 +55,7 @@ public class InfraredController extends Applet {
                     reportTestInfo("IRC", "write:" + CLOSE_CODE);
 
                     comm.close();
+                    notifyDestroyed();
                 } catch (IOException e) {
                     System.out.println("IOException:" + e);
                 }
@@ -88,3 +89,4 @@ public class InfraredController extends Applet {
         }.start();
     }
 }
+
