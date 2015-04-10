@@ -5,6 +5,7 @@
 . build.sh COMDemo
 . build.sh CoTestDemo
 . build.sh GPIODemo
+. build.sh GPSDemo
 . build.sh HeartDemo
 . build.sh HelloDemo
 . build.sh I2CDemo
