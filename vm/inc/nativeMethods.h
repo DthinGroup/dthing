@@ -21,7 +21,7 @@ typedef struct {
     int methodCount;
 } KniClassNativeMethodInfo;
 
-#define NATIVE_CLASSES_COUNT 39
+#define NATIVE_CLASSES_COUNT 40
 
 /* com.yarlungsoft.ams.Scheduler native APIs */
 KniNativeMethodInfo gJava_com_yarlungsoft_ams_Scheduler[2] = {
@@ -38,6 +38,13 @@ KniNativeMethodInfo gJava_com_yarlungsoft_util_SystemInputStream[1] = {
 KniNativeMethodInfo gJava_com_yarlungsoft_util_SystemPrintStream[2] = {
     {"flush", "()V",  (KniFunc)Java_com_yarlungsoft_util_SystemPrintStream_flush},
     {"write", "(I)V", (KniFunc)Java_com_yarlungsoft_util_SystemPrintStream_write},
+};
+
+/* iot.oem.NativeAPI.NativeAPIManager native APIs */
+KniNativeMethodInfo gJava_iot_oem_NativeAPI_NativeAPIManager[3] = {
+    {"init0",    "()I",   (KniFunc)Java_iot_oem_NativeAPI_NativeAPIManager_init0},
+    {"call0",    "(IZ)I", (KniFunc)Java_iot_oem_NativeAPI_NativeAPIManager_call0},
+    {"destroy0", "(I)I",  (KniFunc)Java_iot_oem_NativeAPI_NativeAPIManager_destroy0},
 };
 
 /* iot.oem.adc.ADCManager native APIs */
@@ -151,7 +158,7 @@ KniNativeMethodInfo gJava_iot_oem_sim_SimManager[5] = {
 
 /* iot.oem.spi.SPIManager native APIs */
 KniNativeMethodInfo gJava_iot_oem_spi_SPIManager[6] = {
-    {"open0",    "(II)I",    (KniFunc)Java_iot_oem_spi_SPIManager_open0},
+    {"open0",    "(IIII)I",  (KniFunc)Java_iot_oem_spi_SPIManager_open0},
     {"getRate0", "(I)I",     (KniFunc)Java_iot_oem_spi_SPIManager_getRate0},
     {"setRate0", "(II)I",    (KniFunc)Java_iot_oem_spi_SPIManager_setRate0},
     {"close0",   "(I)I",     (KniFunc)Java_iot_oem_spi_SPIManager_close0},
@@ -353,6 +360,7 @@ KniClassNativeMethodInfo gNativeMthTab[NATIVE_CLASSES_COUNT] = {
     {"Lcom/yarlungsoft/ams/Scheduler;",                gJava_com_yarlungsoft_ams_Scheduler,                2},
     {"Lcom/yarlungsoft/util/SystemInputStream;",       gJava_com_yarlungsoft_util_SystemInputStream,       1},
     {"Lcom/yarlungsoft/util/SystemPrintStream;",       gJava_com_yarlungsoft_util_SystemPrintStream,       2},
+    {"Liot/oem/NativeAPI/NativeAPIManager;",           gJava_iot_oem_NativeAPI_NativeAPIManager,           3},
     {"Liot/oem/adc/ADCManager;",                       gJava_iot_oem_adc_ADCManager,                       3},
     {"Liot/oem/battery/BatteryManager;",               gJava_iot_oem_battery_BatteryManager,               2},
     {"Liot/oem/comm/CommConnectionImpl;",              gJava_iot_oem_comm_CommConnectionImpl,              6},
