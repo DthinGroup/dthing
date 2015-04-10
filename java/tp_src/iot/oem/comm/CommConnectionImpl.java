@@ -14,8 +14,8 @@ public class CommConnectionImpl extends Object {
     public static final int READ_WRITE = 2;
     private static final int COM0 = 0;
     private static final int COM1 = 1;
-    private static final int DEVICE_NORMAL = 0;
-    private static final int DEVICE_GPS = 1;
+    public static final int DEVICE_NORMAL = 0;
+    public static final int DEVICE_GPS = 1;
 
     private static boolean isConnected = false;
     private static CommConnectionImpl connection = null;
