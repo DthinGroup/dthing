@@ -24,7 +24,7 @@ public class GPSSensor extends Applet
     public void startup() {
         new Thread() {
             public void run() {
-                CommConnectionImpl gpsComm = CommConnectionImpl.getComInstance(1, 9600, DEVICE_GPS);
+                CommConnectionImpl gpsComm = CommConnectionImpl.getComInstance(1, 9600, CommConnectionImpl.DEVICE_GPS);
                 try {
                     byte[] buf = new byte[128];
 
