@@ -1,4 +1,4 @@
-package iot.oem.comm;
+package iot.oem.util;
 
 /**
  * This class is used for calculating steps through acceleration data,

@@ -1,6 +1,6 @@
-package iot.oem.comm;
+package iot.oem.util;
 
-public class GpsParser {
+public class GPSParser {
     private String gpsTime;
     private String gpsDate;
     private String gpsLati;
@@ -24,7 +24,7 @@ public class GpsParser {
         "$GPZDA"
     };
 
-    public GpsParser(String rawInfo) {
+    public GPSParser(String rawInfo) {
         startParseNmea(rawInfo);
     }
 
@@ -47,6 +47,62 @@ public class GpsParser {
         gpsLati = null;
         gpsLongti = null;
         gpsAlti = null;
+    }
+    
+    private static String[] trimto(String s[],int i)
+    {
+        if(s.length==i) return s;
+        
+        String res[]=new String[i];
+        for(i--;i>=0;i--) res[i]=s[i];
+        return res;
+    }
+    
+    /**
+     * Splits a string into sections according to a separating character.
+     *
+     * @param st The string to split into multiple substrings.
+     * @param sep The character to use as a separation point.
+     * @param multiple True if we should combine multiple <code>sep</code>
+     * characters into a single separation token. If not, there will
+     * be blank strings between these characters.
+     *
+     * If sep = ';' the string ';this;is;;a;;test;' will be split into:
+     *
+     * multiple=true: "this", "is", "a", "test".
+     * multiple=false: "", "this", "is", "", "a", "", "test", "".
+     */
+    private String[] toSplit(String st,char sep,boolean multiple)
+    {
+        int i=0;
+        int start=0;
+        int pos=0;
+        String res[]=new String[10];
+        while(pos>=0)
+        {
+            if(multiple)
+            {
+                do{
+                  pos=st.indexOf(sep,start);
+                  if(pos==start) start++;
+                }
+                while(pos<start && pos>=0);
+                
+                if(pos<0 && start==st.length()) break;
+            }
+            else pos=st.indexOf(sep,start);
+            
+            if(i==res.length)
+            {
+                String r2[]=new String[res.length+10];
+                System.arraycopy(res,0,r2,0,res.length);
+                res=r2;
+            }
+            
+            res[i++]=st.substring(start,(pos<0?st.length():pos));
+            start=pos+1;
+        }
+        return trimto(res,i);
     }
 
     private NmeaInfo extractNmeaInfo(String rawInfo, String name, int start) {
@@ -76,7 +132,8 @@ public class GpsParser {
 
             log("rawInfo(begin:" + start + ", end:" + end + ") is "  + name +
                 " tag content: " + extInfo);
-            return new NmeaInfo(end, extInfo.split(","));
+
+            return new NmeaInfo(end, toSplit(extInfo, ',', true));
         } else {
             log("rawInfo(begin:" + start + ") doesn't contain " + name + " tag \n");
             return null;
