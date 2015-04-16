@@ -230,6 +230,10 @@ public class GSensor extends Applet {
 
     private void log(String msg)
     {
-        reportTestInfo(msg);
+        try {
+            reportTestInfo(msg);
+        } catch (IOException e) {
+            System.out.println("IOException:" + e);
+        }
     }
 }
