@@ -933,7 +933,7 @@ PUBLIC void PROD_Init(void)
 #endif	
 
 #ifdef GPS_SUPPORT
-    GPS_Init();
+    //GPS_Init();
 #endif
 
 #if defined (FM_SUPPORT_KT0812G) || defined(FM_SUPPORT_BK1080)
