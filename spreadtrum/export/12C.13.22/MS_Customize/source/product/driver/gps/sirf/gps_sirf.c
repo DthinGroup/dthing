@@ -25,8 +25,6 @@
 #include "sci_types.h"
 #include "gps_com.h"
 #include "gpio_prod_api.h"           //@David.Jia 2007.8.14
-#include "cpl_nmea.h"
-#include <cpl_remoteControl.h>
 
 /**---------------------------------------------------------------------------*
  **                         Compiler Flag                                     *
@@ -40,7 +38,7 @@
 #define SIRF_DEBUG
 
 #ifdef  SIRF_DEBUG
-#define GPS_LOG     Yarlung_log
+#define GPS_LOG     SCI_TRACE_LOW
 #endif
 
 #ifdef GPS_SUPPORT

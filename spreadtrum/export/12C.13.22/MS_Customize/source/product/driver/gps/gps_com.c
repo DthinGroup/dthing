@@ -274,12 +274,12 @@ PUBLIC void GPS_setReadable(int bol)
   if(bol)
   {
     UART_Rx_Int_Enable(s_gps_com_ins.port, FALSE);
-    Yarlung_log("===>>disable IRQ,to read.");
+    SCI_TRACE_LOW("===>>disable IRQ,to read.");
   }
   else
   {
     UART_Rx_Int_Enable(s_gps_com_ins.port, TRUE);
-    Yarlung_log("===>>enable IRQ,to recv.");
+    SCI_TRACE_LOW("===>>enable IRQ,to recv.");
   }
 }
 
@@ -304,7 +304,7 @@ PUBLIC void gps_uart_callback(uint32 event)
     COM_OBJ *pcom = &s_gps_com_ins;
 
     //SCI_ASSERT(event < COM_MAX_EVENT);
-    Yarlung_log("===>>event=%d \n",event);
+    SCI_TRACE_LOW("===>>event=%d \n",event);
     switch (event)
     {
         case EVENT_DATA_TO_READ:
@@ -315,8 +315,8 @@ PUBLIC void gps_uart_callback(uint32 event)
 
             QueueInsert(&Input_Q, tmp_buf, cnt);
 
-            Yarlung_log("===>>Read cnt_old:%d,size:%d,buff:%s \n",cnt_old,cnt,tmp_buf);
-            /*Yarlung_log("===>>buff:%c,%c,%c,%c,%c,%c,%c,%c,%c,%c,%c,%c,%c,%c,%c,%c,%c,%c",  \
+            SCI_TRACE_LOW("===>>Read cnt_old:%d,size:%d,buff:%s \n",cnt_old,cnt,tmp_buf);
+            /*SCI_TRACE_LOW("===>>buff:%c,%c,%c,%c,%c,%c,%c,%c,%c,%c,%c,%c,%c,%c,%c,%c,%c,%c",  \
               tmp_buf[0],tmp_buf[2],tmp_buf[3],tmp_buf[4],tmp_buf[5],tmp_buf[6],tmp_buf[7],tmp_buf[8],tmp_buf[9],tmp_buf[10], \
               tmp_buf[11],tmp_buf[12],tmp_buf[13],tmp_buf[14],tmp_buf[15],tmp_buf[16],tmp_buf[17]);
             */
@@ -341,7 +341,7 @@ PUBLIC void gps_uart_callback(uint32 event)
         }
 
         case EVENT_INIT_COMPLETE:
-            Yarlung_log("===>>EVENT_INIT_COMPLETE");
+            SCI_TRACE_LOW("===>>EVENT_INIT_COMPLETE");
             break;
 
         case EVENT_SHUTDOWN_COMPLETE:
@@ -376,7 +376,7 @@ int GPS_ComRead(uint8 *buf, uint32 len)
     UART_Rx_Int_Enable(pCom->port, FALSE);
     rec = QueueDelete(&Input_Q, buf, len);
     UART_Rx_Int_Enable(pCom->port, TRUE);
-    //Yarlung_log("[GPS_ComRead]:%d,%d,%d,%d",*buf,*(buf+1),*(buf+2),*(buf+3));
+    //SCI_TRACE_LOW("[GPS_ComRead]:%d,%d,%d,%d",*buf,*(buf+1),*(buf+2),*(buf+3));
     return rec;
 }
 
@@ -416,7 +416,7 @@ int GPS_ComInit(uint32 port, uint32 baudRate)
 
     UART_INIT_PARA_T    uart_st;
 
-    //Yarlung_log:"\r\nGPS_ComInit.BaudRate=%d"
+    //SCI_TRACE_LOW:"\r\nGPS_ComInit.BaudRate=%d"
     SCI_TRACE_ID(TRACE_TOOL_CONVERT,GPS_COM_351_112_2_18_0_33_6_1549,(uint8*)"d", baudRate);
 
     GPS_setReadable(0);
@@ -452,7 +452,7 @@ int GPS_ComInit(uint32 port, uint32 baudRate)
 
     s_gps_com_ins.port = port;
 
-    Yarlung_log("===>>gps_uart_callback addr:0x%x \n",(void *)gps_uart_callback);
+    SCI_TRACE_LOW("===>>gps_uart_callback addr:0x%x \n",(void *)gps_uart_callback);
     ret = UART_Initilize(s_gps_com_ins.port, &uart_st, gps_uart_callback);
     QueueClean(&Input_Q);
     QueueClean(&Output_Q);
@@ -497,7 +497,7 @@ int GPS_SetBaudRate(uint32 baudrate_bps)
 int GPS_ComClose(void)
 {
     int result = UART_Close(s_gps_com_ins.port);
-    //Yarlung_log:"\r\nGPS_ComClose."
+    //SCI_TRACE_LOW:"\r\nGPS_ComClose."
     SCI_TRACE_ID(TRACE_TOOL_CONVERT,GPS_COM_423_112_2_18_0_33_6_1550,(uint8*)"");
 
     if (result == 0)

@@ -29,12 +29,11 @@
 #include "os_api.h"
 #include "nv_item_id.h"
 #include "layer1_engineering.h"
-#include "cpl_nmea.h"
-#include <cpl_remoteControl.h>
+#include "gps_nmea.h"
 
 #define DEBUG_GPS_DRV
 #ifdef  DEBUG_GPS_DRV
-  #define GPS_TRACE   Yarlung_log
+  #define GPS_TRACE   SCI_TRACE_LOW
 #else
   #define GPS_TRACE( _format_string )
 #endif
