@@ -6,6 +6,7 @@
 . build.sh CoTestDemo
 . build.sh GPIODemo
 . build.sh GPSDemo
+. build sh GSensorDemo
 . build.sh HeartDemo
 . build.sh HelloDemo
 . build.sh I2CDemo
@@ -14,12 +15,12 @@
 . build.sh JSDDemo
 . build.sh KeypadDemo
 . build.sh KeyPadLed
-. build.sh Vibrate
 . build.sh LEDDemo
 . build.sh PWMDemo
 . build.sh QTDemo
 . build.sh ShakeDemo
 . build.sh ThreadDemo
+. build.sh Vibrate
 . build.sh WSDDemo
 
 
