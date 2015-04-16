@@ -104,7 +104,7 @@ int GPS_ComWrite(uint8 *buf, uint32 len);
 //  date:           2007.6.19
 //	Note:           call before using uart 1.
 /*****************************************************************************/
-int GPS_ComInit(uint32 BaudRate);
+int GPS_ComInit(uint32 port, uint32 baudRate);
 
 /*****************************************************************************/
 //  FUNCTION:     GPS_ComClose

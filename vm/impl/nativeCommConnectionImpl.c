@@ -47,7 +47,7 @@ void Java_iot_oem_comm_CommConnectionImpl_open0(const u4* args, JValue* pResult)
         for (i = 0; i < 10; i++)
         {
             SCI_Sleep(10000);
-            ret = GPS_Init();
+            ret = GPS_Init(port, bps);
 
             if(ret == 0)
                 break;
