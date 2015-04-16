@@ -24,7 +24,7 @@ public class GPSSensor extends Applet
     public void startup() {
         new Thread() {
             public void run() {
-                CommConnectionImpl gpsComm = CommConnectionImpl.getComInstance(1, 9600, CommConnectionImpl.DEVICE_GPS);
+                CommConnectionImpl gpsComm = CommConnectionImpl.getComInstance(0, 9600, CommConnectionImpl.DEVICE_GPS);
                 try {
                     byte[] buf = new byte[128];
 
@@ -37,7 +37,7 @@ public class GPSSensor extends Applet
                             System.out.println("InterruptedException:" + e);
                         }
 
-                        readSize = is.read(buf, 0, 64);
+                        readSize = is.read(buf, 0, 128);
 
                         if (readSize < 0)
                         {
