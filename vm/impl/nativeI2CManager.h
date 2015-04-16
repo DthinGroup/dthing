@@ -14,7 +14,7 @@ extern "C" {
 /**
  * Class:     iot_oem_i2c_I2CManager
  * Method:    open0
- * Signature: (II)I
+ * Signature: (IIII)I
  */
 void Java_iot_oem_i2c_I2CManager_open0(const u4* args, JValue* pResult);
 

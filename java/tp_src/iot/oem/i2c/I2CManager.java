@@ -19,37 +19,106 @@ public class I2CManager extends Object {
     private static boolean isEnabled = false;
 
     /**
-     * Construct I2CManager instance, open specified I2C bus and set rate
+     * construct I2CManager instance, open specified I2C bus and set rate
      *
-     * @param busId I2C bus id
-     * @param rate data transfer rate. {@link #DATA_RATE_STANDARD}, {@link #DATA_RATE_FAST},
-     * or {@link #DATA_RATE_HIGH}
-     * @exception IllegalArgumentException when has illegal arguments
-     * @exception IOException when failed to create instance
-     * @return I2C instance
+     * @param I2CBusId int I2C bus id
+     * @param rate int data transfer rate. DATA_RATE_STANDARD/DATA_RATE_FAST/DATA_RATE_HIGH
+     * @return I2CManager instance
+     * @throws IllegalArgumentException when has illegal arguments
+     * @throws IOException when failed to create instance
      */
-    public I2CManager(int busId, int rate) throws IllegalArgumentException, IOException {
-        // FIXME: As defined in TCK, invalid rate or bus id should throw IOException
-        if (!isValidBusId(busId)) {
-            throw new IOException("Illegal I2C busid " + busId);
+    public I2CManager(int I2CBusId, int rate, int slaveAddress, int regAddressNumber) throws IllegalArgumentException, IOException
+    {
+        //FIXME: As defined in tck, invalid rate or bus id should throw IOException
+        if(!isValidBusId(I2CBusId))
+        {
+            throw new IOException("Illegal i2c busid " + I2CBusId);
         }
 
-        if (!isValidRate(rate)) {
-            throw new IllegalArgumentException("Illegal I2C rate " + rate);
+        if(!isValidRate(rate))
+        {
+          throw new IllegalArgumentException("Illegal i2c rate " + rate);
         }
 
         this.rate = rate;
-        this.busId = busId;
+        this.busId = I2CBusId;
+        this.handle = open0(I2CBusId, rate, slaveAddress, regAddressNumber);
 
-        // TODO: To get destination address for workaround solution to meet platform's requirement
-        handle = open0(busId, rate);
-        if (handle < 0) {
-            throw new IOException("Failed to open I2C pin");
+        if (handle < 0)
+        {
+            throw new IOException("Failed to open gpio pin");
         }
-        isEnabled = true;
+        this.isEnabled = true;
     }
 
-    private static native int open0(int busId, int freq);
+    /**
+     * construct I2CManager instance, open specified I2C bus and set rate
+     *
+     * @param I2CBusId int I2C bus id
+     * @param rate int data transfer rate. DATA_RATE_STANDARD/DATA_RATE_FAST/DATA_RATE_HIGH
+     * @return I2CManager instance
+     * @throws IllegalArgumentException when has illegal arguments
+     * @throws IOException when failed to create instance
+     */
+    public I2CManager(int I2CBusId, int rate, int slaveAddress) throws IllegalArgumentException, IOException
+    {
+        //FIXME: As defined in tck, invalid rate or bus id should throw IOException
+        if(!isValidBusId(I2CBusId))
+        {
+            throw new IOException("Illegal i2c busid " + I2CBusId);
+        }
+
+        if(!isValidRate(rate))
+        {
+          throw new IllegalArgumentException("Illegal i2c rate " + rate);
+        }
+
+        this.rate = rate;
+        this.busId = I2CBusId;
+        this.handle = open0(I2CBusId, rate, slaveAddress, 0);
+
+        if (handle < 0)
+        {
+            throw new IOException("Failed to open gpio pin");
+        }
+        this.isEnabled = true;
+    }
+
+
+    /**
+     * construct I2CManager instance, open specified I2C bus and set rate
+     *
+     * @param I2CBusId int I2C bus id
+     * @param rate int data transfer rate. DATA_RATE_STANDARD/DATA_RATE_FAST/DATA_RATE_HIGH
+     * @return I2CManager instance
+     * @throws IllegalArgumentException when has illegal arguments
+     * @throws IOException when failed to create instance
+     */
+    public I2CManager(int I2CBusId, int rate) throws IllegalArgumentException, IOException
+    {
+        //FIXME: As defined in tck, invalid rate or bus id should throw IOException
+        if(!isValidBusId(I2CBusId))
+        {
+            throw new IOException("Illegal i2c busid " + I2CBusId);
+        }
+
+        if(!isValidRate(rate))
+        {
+          throw new IllegalArgumentException("Illegal i2c rate " + rate);
+        }
+
+        this.rate = rate;
+        this.busId = I2CBusId;
+        this.handle = open0(I2CBusId, rate, 0xB8, 0);
+
+        if (handle < 0)
+        {
+            throw new IOException("Failed to open gpio pin");
+        }
+        this.isEnabled = true;
+    }
+
+    private static native int open0(int busId, int freq, int slaveAddr, int regAddrNum);
 
     /**
      * Get data transfer rate
@@ -220,24 +289,12 @@ public class I2CManager extends Object {
         return type == ADDRESS_TYPE_7BIT || type == ADDRESS_TYPE_10BIT;
     }
 
-    private boolean verifyAddressBit(int destAddr, int addressType, int subAddr) {
-        int bit = 0;
-        int addr[] = {0, 0};
-        int expectedBit = 0;
+    private boolean verifyAddressBit(int destAddr, int addressType, int subAddr)
+    {
+        boolean result = true;
 
-        expectedBit = addressType == ADDRESS_TYPE_7BIT ? 7 : 10;
-        addr[0] = destAddr;
-        addr[1] = subAddr;
+        //TODO: verfiy address bit
 
-        for (int i = 0; i < addr.length; i++) {
-            while (addr[i] != 0) {
-                if ((addr[i] & 0x1) != 0) {
-                    bit++;
-                }
-                addr[i] = (addr[i] >> 1);
-            }
-        }
-
-        return bit == expectedBit;
+        return result;
     }
 }

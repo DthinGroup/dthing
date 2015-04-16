@@ -22,10 +22,11 @@
  * @param busId uint32 bus id or logic id
  * @param freq  uint32 frequency of bus to set
  * @param addr  uint8  slave address to set
+ * @param regAddrNum uint32 number of reg address, 0 as default
  *
  * @return negative if failed, i2c handle when success
  */
-static int cpl_i2c_open(uint32 busId, uint32 freq, uint8 addr);
+static int cpl_i2c_open(uint32 busId, uint32 freq, uint8 addr, uint32 regAddrNum);
 
 /*
  * @brief cpl_i2c_close(uint32 handle)
@@ -102,6 +103,8 @@ void Java_iot_oem_i2c_I2CManager_open0(const u4* args, JValue* pResult) {
     ClassObject* thisObj = (ClassObject*) args[0];
     jint busId = (jint) args[1];
     jint freq = (jint) args[2];
+    jint addr = (jint) args[3];
+    jint regAddrNum = (jint) args[4];
     jint ret = 0;
 
 #if defined(ARCH_ARM_SPD)
@@ -110,18 +113,18 @@ void Java_iot_oem_i2c_I2CManager_open0(const u4* args, JValue* pResult) {
     switch(freq)
     {
     case STATIC_iot_oem_i2c_I2CManager_DATA_RATE_STANDARD:
-  	    myRate = 100 * 1000;
-  	    break;
+        myRate = 100 * 1000;
+        break;
     case STATIC_iot_oem_i2c_I2CManager_DATA_RATE_FAST:
-  	    myRate = 400 * 1000;
-  	    break;
+        myRate = 400 * 1000;
+        break;
     case STATIC_iot_oem_i2c_I2CManager_DATA_RATE_HIGH:
-  	    myRate = 3.4 * 1000 * 1000;
-  	    break;
+        myRate = 3.4 * 1000 * 1000;
+        break;
     default:
-  	    break;
+        break;
     }
-	ret = cpl_i2c_open(busId, myRate, 0xB8);//FIXME: should not hard-code 0xB8
+  ret = cpl_i2c_open(busId, myRate, addr, regAddrNum);
 #endif
 
     RETURN_INT(ret);
@@ -143,17 +146,17 @@ void Java_iot_oem_i2c_I2CManager_getRate0(const u4* args, JValue* pResult) {
     switch(rate)
     {
     case 100000:
-  	    ret = STATIC_iot_oem_i2c_I2CManager_DATA_RATE_STANDARD;
-  	    break;
+        ret = STATIC_iot_oem_i2c_I2CManager_DATA_RATE_STANDARD;
+        break;
     case 400000:
-  	    ret = STATIC_iot_oem_i2c_I2CManager_DATA_RATE_FAST;
-  	    break;
+        ret = STATIC_iot_oem_i2c_I2CManager_DATA_RATE_FAST;
+        break;
     case 3400000:
-  	    ret = STATIC_iot_oem_i2c_I2CManager_DATA_RATE_HIGH;
-  	    break;
+        ret = STATIC_iot_oem_i2c_I2CManager_DATA_RATE_HIGH;
+        break;
     default:
         ret = -1;
-  	    break;
+        break;
     }
 #endif
 
@@ -216,14 +219,14 @@ void Java_iot_oem_i2c_I2CManager_read0(const u4* args, JValue* pResult) {
     ret = cpl_i2c_setSlaveAddress(handle, addr);
 
     if (ret >= 0)
-	{
+  {
         address[0] = (uint8)(subAddr & 0x000000FF);
         address[1] = (uint8)((subAddr & 0x0000FF00) >> 8);
         address[2] = (uint8)((subAddr & 0x00FF0000) >> 16);
         address[3] = (uint8)((subAddr & 0xFF000000) >> 24);
 
         ret = cpl_i2c_read(handle, address, (uint8_t *)bufferArrPtr, len);
-	}
+  }
 #endif
 
     RETURN_INT(ret);
@@ -257,14 +260,14 @@ void Java_iot_oem_i2c_I2CManager_write0(const u4* args, JValue* pResult) {
         address[3] = (uint8)((subAddr & 0xFF000000) >> 24);
 
         ret = cpl_i2c_write(handle, address, (uint8 *)dataArrPtr, len);
-	}
+  }
 #endif
 
     RETURN_INT(ret);
 }
 
 #if defined(ARCH_ARM_SPD)
-static int cpl_i2c_open(uint32 busId, uint32 freq, uint8 addr)
+static int cpl_i2c_open(uint32 busId, uint32 freq, uint8 addr, uint32 regAddrNum)
 {
   int result = -1;
   I2C_DEV dev = {0};
@@ -273,21 +276,15 @@ static int cpl_i2c_open(uint32 busId, uint32 freq, uint8 addr)
   {
     goto end;
   }
+
   //Workaround: hard-code the address for I2CDemo, because address
   //    need to be set when calling I2C_HAL_Open, as device act.
-  if (busId == I2C_DEFAULT_BUSID)
-  {
-    dev.slave_addr = 0xB8;
-  }
-  else
-  {
-    dev.slave_addr = addr;
-  }
+  dev.slave_addr = addr;
 
   //Since logic id is the same with bus id, we treat busId as logic id
   dev.id = busId;
   dev.freq = freq;
-  dev.reg_addr_num = 0;
+  dev.reg_addr_num = regAddrNum;
   dev.check_ack = 1;
   dev.no_stop = 1;
 
@@ -344,14 +341,14 @@ static int cpl_i2c_read(uint32 handle, uint8 *addr, char *buffer, uint32 len)
 
   result = I2C_HAL_Read(handle, addr, buffer, len);
   result = (result == 0)? -1 : result;
-  	
+
   //Log for demo
   {
-  	int i = 0;
-  	for (i = 0; i < len; i++)
-  	{
-  		DthingTraceD("[INFO][I2C] read tmp[%d] %x\n", i, buffer[i]);
-  	}
+    int i = 0;
+    for (i = 0; i < len; i++)
+    {
+      DthingTraceD("[INFO][I2C] read tmp[%d] %x\n", i, buffer[i]);
+    }
   }
 
 end:
