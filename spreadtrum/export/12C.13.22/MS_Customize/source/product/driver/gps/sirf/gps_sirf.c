@@ -207,7 +207,7 @@ LOCAL GPS_ERR_E Srf_Init(uint32 port, uint32 baudrate)
 
 int GpsDownloadSrf(uint32 a)
 {
-  Yarlung_log("GpsDownloadSrf\n");
+  SCI_TRACE_LOW("GpsDownloadSrf\n");
   return 0;
 }
 
