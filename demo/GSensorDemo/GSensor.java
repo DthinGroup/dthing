@@ -158,13 +158,16 @@ public class GSensor extends Applet {
         manager.send(slaveAddress, I2CManager.ADDRESS_TYPE_7BIT, reg[0], buff);
     }
 
-    public double getAccValue(int lsb, int msb)
+    //accValue = sign + valueHead + "." + valueTail
+    //sign = "-" or ""
+    public String getAccValue(int lsb, int msb)
     {
-        double accValue = 0;
+        String accValue = 0;
         int sign = (msb & 0x80) >> 7;
         int value = ((msb & 0x7f) << 2) + ((lsb & 0xc0) >> 6);
-        accValue = ((double)value) * accRange / 512;
-        accValue = accValue * ((sign > 0)? -1 : 1);
+        int valueHead = value * accRange / 512;
+        int valueTail = (value * accRange % 512) * 1000 / 512;
+        accValue = ((sign > 0)? "-" : "") + valueHead + "." + valueTail;
         return accValue;
     }
 
@@ -175,18 +178,18 @@ public class GSensor extends Applet {
         //data collector thread
         new Thread() {
             byte[] buf = new byte[6];
-            double x = 0;
-            double y = 0;
-            double z = 0;
+            String xStr = 0;
+            String yStr = 0;
+            String zStr = 0;
 
             public void run() {
                 while(allowRunning) {
                     try {
                         manager.receive(slaveAddress, I2CManager.ADDRESS_TYPE_7BIT, subAccAddress, buf);
-                        x = getAccValue(buf[0], buf[1]);
-                        y = getAccValue(buf[2], buf[3]);
-                        z = getAccValue(buf[4], buf[5]);
-                        log("accelerator x:" + x + " y:" + y + " z:" + z);
+                        xStr = getAccValue(buf[0], buf[1]);
+                        yStr = getAccValue(buf[2], buf[3]);
+                        zStr = getAccValue(buf[4], buf[5]);
+                        log("accelerator x:" + xStr + " y:" + yStr + " z:" + zStr);
                     } catch (IllegalArgumentException e) {
                         log("IllegalArgumentException:" + e);
                     } catch (NullPointerException e) {
