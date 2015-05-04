@@ -162,7 +162,7 @@ public class GSensor extends Applet {
     //sign = "-" or ""
     public String getAccValue(int lsb, int msb)
     {
-        String accValue = 0;
+        String accValue = null;
         int sign = (msb & 0x80) >> 7;
         int value = ((msb & 0x7f) << 2) + ((lsb & 0xc0) >> 6);
         int valueHead = value * accRange / 512;
@@ -178,9 +178,9 @@ public class GSensor extends Applet {
         //data collector thread
         new Thread() {
             byte[] buf = new byte[6];
-            String xStr = 0;
-            String yStr = 0;
-            String zStr = 0;
+            String xStr = null;
+            String yStr = null;
+            String zStr = null;
 
             public void run() {
                 while(allowRunning) {
