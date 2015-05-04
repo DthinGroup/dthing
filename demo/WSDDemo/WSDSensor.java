@@ -25,8 +25,8 @@ public class WSDSensor extends Applet {
     private static final int I2CBusID = 1; //1:8800 2:8500/8900
     private static final int DevAddress = 0xB8;
     private static final int SubAddress = 0x00040003;
-    private double Temperature;
-    private double Humidity;
+    private String Temperature;
+    private String Humidity;
     private static final String REPORT_SERVER_FORMAT = "http://42.121.18.62:8080/dthing/ParmInfo.action?saveDataInfo&saveType=wsd&parmInfo=";
     private static int count = 12;
     private static boolean allowLogPrint = true;
@@ -100,7 +100,7 @@ public class WSDSensor extends Applet {
                     }
                     //上报测试数据
                     try {
-                        reportI2CInfo(Humidity/10, Temperature/10);
+                        reportI2CInfo(Humidity, Temperature);
                     } catch (IOException e) {
                         System.out.println("I2C report exception " + e);
                     }
@@ -124,9 +124,13 @@ public class WSDSensor extends Applet {
      */
     private void parse(byte[] data)
     {
+        int hValue = 0;
+        int tValue = 0;
         //TODO: Check CRC
-        Humidity = convertByteToChar(data[2])*256 + convertByteToChar(data[3]);
-        Temperature = convertByteToChar(data[4])*256 + convertByteToChar(data[5]);
+        hValue = convertByteToChar(data[2])*256 + convertByteToChar(data[3]);
+        tValue = convertByteToChar(data[4])*256 + convertByteToChar(data[5]);
+        Humidity = (hValue / 10) + "." + (hValue % 10);
+        Temperature = (tValue / 10) + "." + (tValue % 10);
     }
 
     /**
@@ -146,7 +150,7 @@ public class WSDSensor extends Applet {
      * @param temperature 温度数值
      * @exception 当网络连接有问题时抛出IO异常
      */
-    private void reportI2CInfo(double humidity, double temperature) throws IOException
+    private void reportI2CInfo(String humidity, String temperature) throws IOException
     {
         String content = "Humidity:" + humidity + "%25;temperature:" + temperature + "C";
         String reportInfo = REPORT_SERVER_FORMAT + content;
