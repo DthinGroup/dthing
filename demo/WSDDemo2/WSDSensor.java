@@ -123,10 +123,14 @@ public class WSDSensor extends Applet {
      */
     private void parse(byte[] data)
     {
+    	int humidity =0;
+    	int temperature =0;
         //TODO: Check CRC
-        Humidity = convertByteToChar(data[2])*256 + convertByteToChar(data[3]);
-        Temperature = convertByteToChar(data[4])*256 + convertByteToChar(data[5]);
-        
+        humidity = convertByteToChar(data[2])*256 + convertByteToChar(data[3]);
+        temperature = convertByteToChar(data[4])*256 + convertByteToChar(data[5]);
+        Humidity = humidity;
+        Temperature = temperature;
+        System.out.println("humidity:" + humidity + ",temperature:" + temperature);
         System.out.println("Humidity:" + Humidity + ",Temperature:" + Temperature);
     }
 
