@@ -28,7 +28,7 @@ public class WSDSensor extends Applet {
     private double Temperature;
     private double Humidity;
     private static final String REPORT_SERVER_FORMAT = "http://42.121.18.62:8080/dthing/ParmInfo.action?saveDataInfo&saveType=wsd&parmInfo=";
-    private static int count = 12;
+    private static int count = 3;
     private static boolean allowLogPrint = true;
     private static boolean allowRunning = true;
 
@@ -135,9 +135,9 @@ public class WSDSensor extends Applet {
      * @param value 传感器返回的Byte数值
      * @return 转化后的char数值
      */
-    private char convertByteToChar(byte value)
+    private int convertByteToChar(byte value)
     {
-        char result = (char) ((value < 0)? (value + 256) : value);
+        char result = (int) ((value < 0)? (value + 256) : value);
         System.out.println("value:" + value + ", result:" + result);
         return result;
     }
