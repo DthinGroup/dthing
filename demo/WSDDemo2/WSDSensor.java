@@ -137,7 +137,7 @@ public class WSDSensor extends Applet {
      */
     private int convertByteToChar(byte value)
     {
-        char result = (int) ((value < 0)? (value + 256) : value);
+        int result = (int) ((value < 0)? (value + 256) : value);
         System.out.println("value:" + value + ", result:" + result);
         return result;
     }
