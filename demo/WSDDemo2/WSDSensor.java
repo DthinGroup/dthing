@@ -86,6 +86,8 @@ public class WSDSensor extends Applet {
             }
 
             //解析读取的数据
+            for(int i=0; i< 15; i++)
+            	System.out.println("rdata[" + i + "] = " + rdata[i]);
             parse(rdata);
             System.out.println("WSD data processing ...");
 
@@ -124,6 +126,8 @@ public class WSDSensor extends Applet {
         //TODO: Check CRC
         Humidity = convertByteToChar(data[2])*256 + convertByteToChar(data[3]);
         Temperature = convertByteToChar(data[4])*256 + convertByteToChar(data[5]);
+        
+        System.out.println("Humidity:" + Humidity + ",Temperature:" + Temperature);
     }
 
     /**
@@ -134,6 +138,7 @@ public class WSDSensor extends Applet {
     private char convertByteToChar(byte value)
     {
         char result = (char) ((value < 0)? (value + 256) : value);
+        System.out.println("value:" + value + ", result:" + result);
         return result;
     }
 
