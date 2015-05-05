@@ -128,8 +128,8 @@ public class WSDSensor extends Applet {
         //TODO: Check CRC
         humidity = convertByteToChar(data[2])*256 + convertByteToChar(data[3]);
         temperature = convertByteToChar(data[4])*256 + convertByteToChar(data[5]);
-        Humidity = humidity;
-        Temperature = temperature;
+        Humidity = Double.valueOf(String.valueOf(humidity));
+        Temperature = Double.valueOf(String.valueOf(temperature));
         System.out.println("humidity:" + humidity + ",temperature:" + temperature);
         System.out.println("Humidity:" + Humidity + ",Temperature:" + Temperature);
     }
@@ -142,7 +142,7 @@ public class WSDSensor extends Applet {
     private int convertByteToChar(byte value)
     {
         int result = (int) ((value < 0)? (value + 256) : value);
-        System.out.println("Tag 1 - value:" + value + ", result:" + String.valueOf(result));
+        System.out.println("Tag 2 - value:" + value + ", result:" + String.valueOf(result));
         return result;
     }
 
