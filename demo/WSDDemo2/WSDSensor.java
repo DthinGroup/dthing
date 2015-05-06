@@ -77,7 +77,7 @@ public class WSDSensor extends Applet {
             }
 
             //从传感器读取温湿度数据
-            byte[] rdata = new byte[15];
+            byte[] rdata = new byte[20];
             try {
                 manager.receive(DevAddress, I2CManager.ADDRESS_TYPE_7BIT, SubAddress, rdata);
                 System.out.println("Receiving WSD data ...");
@@ -101,12 +101,14 @@ public class WSDSensor extends Applet {
             } catch (IOException e) {
                 System.out.println("I2C report exception " + e);
             }
+            /*
             //休眠约10秒
             try {
                 Thread.sleep(10000L);
             } catch (InterruptedException e) {
                 System.out.println("I2C InterruptedException: " + e);
             }
+            */
         } while ((count > 0) && allowRunning);
 
         System.out.println("Exiting WSD Demo Test ...");
