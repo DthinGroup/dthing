@@ -30,7 +30,7 @@ public class WSDSensor extends Applet {
     private int TemperatureI;
     private int HumidityI;
     private static final String REPORT_SERVER_FORMAT = "http://42.121.18.62:8080/dthing/ParmInfo.action?saveDataInfo&saveType=wsd&parmInfo=";
-    private static int count = 3;
+    private static int count = 5;
     private static boolean allowLogPrint = true;
     private static boolean allowRunning = true;
 
@@ -109,7 +109,7 @@ public class WSDSensor extends Applet {
                 System.out.println("I2C InterruptedException: " + e);
             }
             */
-        } while ((count > 0) && allowRunning);
+        } while ((count > 1) && allowRunning);
 
         System.out.println("Exiting WSD Demo Test ...");
 
@@ -146,7 +146,7 @@ public class WSDSensor extends Applet {
     private int convertByteToChar(byte value)
     {
         int result = (int) ((value < 0)? (value + 256) : value);
-        System.out.println("Tag 3 - value:" + value + ", result:" + String.valueOf(result));
+        System.out.println("Tag 4 - value:" + value + ", result:" + String.valueOf(result));
         return result;
     }
 
