@@ -117,7 +117,7 @@ public class WSDSensor extends Applet {
                 System.out.println("I2C InterruptedException: " + e);
             }
             */
-        } while(0);
+        } while(false);
         //while ((count > 1) && allowRunning);
 
         System.out.println("Exiting WSD Demo Test ...");
