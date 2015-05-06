@@ -57,10 +57,12 @@ public class WSDSensor extends Applet {
         } catch (IOException e) {
             System.out.println("I2C IOException: " + e);
         }
-
+		
+		System.out.println("ready to loop.");
         do {
             count--;
-
+			
+			System.out.println("loop count:" + count);
             //向传感器请求温湿度数据
             byte[] wdata = {0x03, 0x00, 0x04};
             try {
