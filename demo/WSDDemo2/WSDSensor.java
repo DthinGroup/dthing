@@ -59,9 +59,17 @@ public class WSDSensor extends Applet {
         }
 		
 		System.out.println("ready to loop.");
+		System.out.println("ready to loop.");
+		System.out.println("ready to loop.");
+		System.out.println("ready to loop.");
+		System.out.println("ready to loop.");
         do {
             count--;
 			
+			System.out.println("loop count:" + count);
+			System.out.println("loop count:" + count);
+			System.out.println("loop count:" + count);
+			System.out.println("loop count:" + count);
 			System.out.println("loop count:" + count);
             //向传感器请求温湿度数据
             byte[] wdata = {0x03, 0x00, 0x04};
@@ -109,8 +117,13 @@ public class WSDSensor extends Applet {
                 System.out.println("I2C InterruptedException: " + e);
             }
             */
-        } while ((count > 1) && allowRunning);
+        } while(0);
+        //while ((count > 1) && allowRunning);
 
+        System.out.println("Exiting WSD Demo Test ...");
+        System.out.println("Exiting WSD Demo Test ...");
+        System.out.println("Exiting WSD Demo Test ...");
+        System.out.println("Exiting WSD Demo Test ...");
         System.out.println("Exiting WSD Demo Test ...");
 
         //关闭传感器访问实例
@@ -146,7 +159,7 @@ public class WSDSensor extends Applet {
     private int convertByteToChar(byte value)
     {
         int result = (int) ((value < 0)? (value + 256) : value);
-        System.out.println("Tag 4 - value:" + value + ", result:" + String.valueOf(result));
+        System.out.println("Tag 5 - value:" + value + ", result:" + String.valueOf(result));
         return result;
     }
 
