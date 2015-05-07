@@ -96,7 +96,13 @@ public class WSDSensor extends Applet {
             } catch (IOException e) {
                 System.out.println("I2C IOException: " + e);
             }
-
+			
+			System.out.println("Tag 6.1");
+			System.out.println("Tag 6.2");
+			System.out.println("Tag 6.3");
+			System.out.println("Tag 6.4");
+			System.out.println("Tag 6.5");
+			/*
             //解析读取的数据
             for(int i=0; i< 15; i++)
             	System.out.println("rdata[" + i + "] = " + rdata[i]);
@@ -109,7 +115,7 @@ public class WSDSensor extends Applet {
             } catch (IOException e) {
                 System.out.println("I2C report exception " + e);
             }
-            /*
+            
             //休眠约10秒
             try {
                 Thread.sleep(10000L);
