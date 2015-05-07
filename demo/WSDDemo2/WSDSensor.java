@@ -102,7 +102,7 @@ public class WSDSensor extends Applet {
 			System.out.println("Tag 6.3");
 			System.out.println("Tag 6.4");
 			System.out.println("Tag 6.5");
-			/*
+			
             //解析读取的数据
             for(int i=0; i< 15; i++)
             	System.out.println("rdata[" + i + "] = " + rdata[i]);
@@ -111,18 +111,20 @@ public class WSDSensor extends Applet {
 
             //上报测试数据
             try {
-                reportI2CInfo(Humidity/10, Temperature/10);
+                //reportI2CInfo(Humidity/10, Temperature/10);
+                reportI2CInfo(10.0, 20.0);
             } catch (IOException e) {
                 System.out.println("I2C report exception " + e);
             }
             
+            
             //休眠约10秒
             try {
-                Thread.sleep(10000L);
+                Thread.sleep(1000L);
             } catch (InterruptedException e) {
                 System.out.println("I2C InterruptedException: " + e);
             }
-            */
+            
         } while(false);
         //while ((count > 1) && allowRunning);
 
@@ -149,12 +151,15 @@ public class WSDSensor extends Applet {
     private void parse(byte[] data)
     {
         //TODO: Check CRC
+        /*
         HumidityI = convertByteToChar(data[2])*256 + convertByteToChar(data[3]);
         TemperatureI = convertByteToChar(data[4])*256 + convertByteToChar(data[5]);
         Humidity = Double.valueOf(String.valueOf(HumidityI));
         Temperature = Double.valueOf(String.valueOf(TemperatureI));
         System.out.println("humidity:" + HumidityI + ",temperature:" + TemperatureI);
         System.out.println("Humidity:" + Humidity + ",Temperature:" + Temperature);
+        */
+        
     }
 
     /**
