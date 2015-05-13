@@ -18,8 +18,8 @@ class MyListener implements GpioInterruptListener {
 }
 
 public class ShakeSensor extends Applet {
-    private static final String REPORT_SERVER_FORMAT = "http://42.121.18.62:8080/dthing/ParmInfo.action?saveDataInfo&saveType=jsd&parmInfo=";
-    private int vibraId = 8;
+    private static final String REPORT_SERVER_FORMAT = "http://42.121.18.62:8080/dthing/ParmInfo.action?saveDataInfo&saveType=log&parmInfo=";
+    private int vibraId = 21;
     private static boolean allowLogPrint = true;
     private static boolean allowRunning = true;
 
