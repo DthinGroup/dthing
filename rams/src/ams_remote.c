@@ -12,12 +12,13 @@
 #include <ams_remote.h>
 
 /* FSM state definitions of EVT_CMD_DECLARE */
-#define DECLARE_FSM_STARTUP  0x01
-#define DECLARE_FSM_CONNECT  0x02
-#define DECLARE_FSM_READ     0x03
-#define DECLARE_FSM_WRITE    0x04
-#define DECLARE_FSM_CLOSE    0x05
-#define DECLARE_FSM_SHUTDOWN 0x06
+#define DECLARE_FSM_STARTUP    0x01
+#define DECLARE_FSM_AUTOSTART  0x02
+#define DECLARE_FSM_CONNECT    0x03
+#define DECLARE_FSM_READ       0x04
+#define DECLARE_FSM_WRITE      0x05
+#define DECLARE_FSM_CLOSE      0x06
+#define DECLARE_FSM_SHUTDOWN   0x07
 
 #define DATA_BUF_SIZE (256)
 
@@ -201,7 +202,6 @@ static int32_t parseServerCommands(uint8_t* data, int32_t dataBytes)
     return res;
 }
 
-
 /**
  * It's a state machine for RAMS communication with server.
  * @param evt, current event.
@@ -222,6 +222,23 @@ static int32_t ams_remote_buildConnection(Event *evt, void *userData)
         case DECLARE_FSM_STARTUP:
             if (rams_startupNetwork() == RAMS_RES_SUCCESS)
             {
+                evt->fsm_state = DECLARE_FSM_AUTOSTART;
+                ES_pushEvent(evt);
+            }
+            break;
+
+        case DECLARE_FSM_AUTOSTART:
+            {
+                RMTConfig *pp_cfg;
+                if (amsUtils_readConfigData(&pp_cfg))
+                {
+                    int appId1 = -1, appId2 = -1;
+                    sscanf(pp_cfg->initData, "%*[s:]%i,%i", &appId1, &appId2);
+                    if (appId1 >= 0)
+                    {
+                        Ams_runApp(appId1, ATYPE_RAMS);
+                    }
+                }
                 evt->fsm_state = DECLARE_FSM_CONNECT;
                 ES_pushEvent(evt);
             }
@@ -234,6 +251,7 @@ static int32_t ams_remote_buildConnection(Event *evt, void *userData)
                 ES_pushEvent(evt);
             }
             break;
+
 
         case DECLARE_FSM_READ:
             {

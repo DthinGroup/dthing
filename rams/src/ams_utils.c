@@ -100,15 +100,15 @@ bool_t amsUtils_initConfigData(const char *pInitData)
 
   if (ret)
   {
-    sprintf(content, "%s|%s|%s%s|%s|%s", cfgData->addr, cfgData->port, needCleanInitData? "" : "s:",
-    needCleanInitData? "0" : pInitData, cfgData->user, cfgData->pwd);
+    sprintf(content, "%s|%s|s:%s|%s|%s", cfgData->addr, cfgData->port, needCleanInitData? "-" : pInitData,
+        cfgData->user, cfgData->pwd);
     ret = amsUtils_writeConfigData(content);
     amsUtils_releaseConfigData(&cfgData);
   }
   else
   {
-    sprintf(content, "%s|%s|%s%s|%s|%s", DEFAULT_SERVER, DEFAULT_PORT, needCleanInitData? "" : "s:",
-    needCleanInitData? "0" : pInitData, DEFAULT_USER_NAME, DEFAULT_PASSWORD);
+    sprintf(content, "%s|%s|s:%s|%s|%s", DEFAULT_SERVER, DEFAULT_PORT, needCleanInitData? "-" : pInitData, 
+        DEFAULT_USER_NAME, DEFAULT_PASSWORD);
     ret = amsUtils_writeConfigData(content);
   }
 #endif
@@ -323,7 +323,7 @@ bool_t amsUtils_cancelDefaultApp(const char* pData)
 
     if (ret)
     {
-        sscanf(cfgData->initData, "%[^,],%s", init1, init2);
+        sscanf(cfgData->initData, "%*[s:]%[^,],%s", init1, init2);
 
         if (init1 && (strcmp(init1, pData) != 0))
         {
@@ -378,7 +378,7 @@ bool_t amsUtils_configAccount(const char* pData)
     }
     else
     {
-        sprintf(content, "%s|%s|%s|%s", DEFAULT_SERVER, DEFAULT_PORT, "s:0", pData);
+        sprintf(content, "%s|%s|%s|%s", DEFAULT_SERVER, DEFAULT_PORT, "s:-", pData);
         ret = amsUtils_writeConfigData(content);
     }
 #endif
@@ -408,7 +408,7 @@ bool_t amsUtils_configAddress(const char* pData)
     }
     else
     {
-        sprintf(content, "%s|%s|%s|%s", pData, "s:0", DEFAULT_USER_NAME, DEFAULT_PASSWORD);
+        sprintf(content, "%s|%s|%s|%s", pData, "s:-", DEFAULT_USER_NAME, DEFAULT_PASSWORD);
         ret = amsUtils_writeConfigData(content);
     }
 #endif
