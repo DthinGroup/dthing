@@ -10,6 +10,7 @@
 #include <vm_app.h>
 #include <ams.h>
 #include <ams_remote.h>
+#include <ams_utils.h>
 
 /* FSM state definitions of EVT_CMD_DECLARE */
 #define DECLARE_FSM_STARTUP    0x01
