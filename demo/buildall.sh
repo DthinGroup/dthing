@@ -20,6 +20,7 @@
 . build.sh QTDemo
 . build.sh ShakeDemo
 . build.sh ThreadDemo
+. build.sh Ublox
 . build.sh Vibrate
 . build.sh WSDDemo
 . build.sh WSDDemo2
