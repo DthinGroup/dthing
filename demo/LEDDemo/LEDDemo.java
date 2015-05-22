@@ -11,6 +11,7 @@ import iot.oem.gpio.Gpio;
 public class LEDDemo extends Applet
 {
     private int vibraId = 20;
+    private static boolean allowRunning = true;
 
     public LEDDemo()
     {
@@ -18,6 +19,7 @@ public class LEDDemo extends Applet
     }
 
     public void cleanup() {
+        allowRunning = false;
     }
 
     public void processEvent(Event paramEvent) {
@@ -30,6 +32,10 @@ public class LEDDemo extends Applet
             Gpio gpio = new Gpio(vibraId);
             for (int i = 0; i < 1000; i++)
             {
+                if(allowRunning == false)
+                { 
+                    break;
+                }
                 Thread.sleep(1000);
                 gpio.setCurrentMode(0);
 
