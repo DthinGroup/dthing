@@ -6,9 +6,7 @@ import java.net.Socket;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import javax.microedition.midlet.MIDletStateChangeException;
-
-import jp.co.aplix.io.CommConnectionImpl;
+import iot.oem.comm.CommConnectionImpl;
 
 public class GetServerCommand implements Runnable {
 	private Timer mTimer;
@@ -171,7 +169,7 @@ public class GetServerCommand implements Runnable {
 	};
 	*/
 
-	public void destroyApp(boolean arg0) throws MIDletStateChangeException {
+	public void destroyApp(boolean arg0) {
 		// TODO Auto-generated method stub
 		mTimer.cancel();
 		if (mSerialPort != null) {

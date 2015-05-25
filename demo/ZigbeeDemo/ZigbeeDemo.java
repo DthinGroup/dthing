@@ -5,8 +5,6 @@ import java.io.InputStream;
 import java.net.http.HttpURLConnection;
 import java.net.http.URL;
 
-import javax.microedition.midlet.MIDletStateChangeException;
-
 import jp.co.cmcc.event.Applet;
 import jp.co.cmcc.event.Event;
 
@@ -24,12 +22,7 @@ public class ZigbeeDemo extends Applet {
 
 	public void cleanup() {
     	if (mGetServerCommand != null) {
-    		try {
-				mGetServerCommand.destroyApp(true);
-			} catch (MIDletStateChangeException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+		    mGetServerCommand.destroyApp(true);
     	}
 	}
 
