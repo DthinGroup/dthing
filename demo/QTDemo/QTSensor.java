@@ -41,7 +41,7 @@ public class QTSensor extends Applet {
         new Thread() {
             private ADCManager manager = null;
             private int result = -1;
-            private double valueOfPort0 = 0;
+            private String valueOfPort0 = null;
 
             public void run() {
                 System.out.println("Starting QT sensor test ...");
@@ -86,18 +86,22 @@ public class QTSensor extends Applet {
                     System.out.println("QT IOException: " + e1);
                 }
                 System.out.println("Exiting QT sensor test ...");
-				notifyDestroyed();
+                notifyDestroyed();
             }
 
             /**
              * @brief 传感器数据转化
              * @param value 传感器返回数据
-             * @return 输出的气体数据
+             * @return 输出的气体数据, 保留三位小数
              */
-            private double convert(int value)
+            private String convert(int value)
             {
-                double result = (double)value * 3 / 1000;
-                return result;
+                String hResult = value * 3 / 1000 + ".";
+                int tail = (value * 3) % 1000;
+                hResult = hResult + tail / 100;
+                hResult = hResult + (tail % 100) / 10;
+                hResult = hResult + (tail % 100) % 10;
+                return hResult;
             }
 
             /**
@@ -106,7 +110,7 @@ public class QTSensor extends Applet {
              * @param cid   端口ID
              * @exception   当网络连接有问题时抛出IO异常
              */
-            private void reportADCInfo(double value, int cid) throws IOException
+            private void reportADCInfo(String value, int cid) throws IOException
             {
                 String content = "QT:" + value + "v%20CID:%20" + cid;
                 String reportInfo = REPORT_SERVER_FORMAT + content;

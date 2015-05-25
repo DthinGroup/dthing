@@ -24,6 +24,6 @@
 . build.sh Vibrate
 . build.sh WSDDemo
 . build.sh WSDDemo2
-
+. build.sh ZigbeeDemo
 
 
