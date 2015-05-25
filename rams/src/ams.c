@@ -186,6 +186,88 @@ int Ams_deleteApp(int id,AMS_TYPE_E type)
     return 0;
 }
 
+int Ams_initApp(int id,AMS_TYPE_E type)
+{
+    uint8_t idBuf[4] = {0x0,};
+    uint8_t *pByte;
+    SafeBuffer  *safeBuf;
+    Event newEvt;
+    switch(type)
+    {
+        case ATYPE_RAMS:
+        case ATYPE_SAMS:
+        case ATYPE_AAMS:
+        {
+            pByte = (uint8_t*)idBuf;
+            writebeIU32(&pByte[0], id);
+            safeBuf = CreateSafeBufferByBin(idBuf, sizeof(idBuf));
+            newNormalEvent(AMS_MODULE_RAMS, AMS_FASM_STATE_GET_INIT, (void *)safeBuf, Ams_handleAmsEvent, &newEvt);
+            ES_pushEvent(&newEvt);
+        }
+        break;
+
+        case ATYPE_NAMS:
+        default:break;
+    }
+    Ams_setCurCrtlModule(type);
+    return 0;
+}
+
+int Ams_cancelInitApp(int id,AMS_TYPE_E type)
+{
+    uint8_t idBuf[4] = {0x0,};
+    uint8_t *pByte;
+    SafeBuffer  *safeBuf;
+    Event newEvt;
+    switch(type)
+    {
+        case ATYPE_RAMS:
+        case ATYPE_SAMS:
+        case ATYPE_AAMS:
+        {
+            pByte = (uint8_t*)idBuf;
+            writebeIU32(&pByte[0], id);
+            safeBuf = CreateSafeBufferByBin(idBuf, sizeof(idBuf));
+            newNormalEvent(AMS_MODULE_RAMS, AMS_FASM_STATE_GET_CANCEL, (void *)safeBuf, Ams_handleAmsEvent, &newEvt);
+            ES_pushEvent(&newEvt);
+        }
+        break;
+
+        case ATYPE_NAMS:
+        default:break;
+    }
+    Ams_setCurCrtlModule(type);
+    return 0;
+}
+
+void Ams_cancelAllApp(AMS_TYPE_E type)
+{
+    uint8_t idBuf[4] = {0x0,};
+    uint8_t *pByte;
+    SafeBuffer  *safeBuf;
+    Event newEvt;
+    switch(type)
+    {
+        case ATYPE_RAMS:
+        case ATYPE_SAMS:
+        case ATYPE_AAMS:
+        {
+            pByte = (uint8_t*)idBuf;
+            writebeIU32(&pByte[0], 0);
+            safeBuf = CreateSafeBufferByBin(idBuf, sizeof(idBuf));
+            newNormalEvent(AMS_MODULE_RAMS, AMS_FASM_STATE_GET_CANCEL, (void *)safeBuf, Ams_handleAmsEvent, &newEvt);
+            ES_pushEvent(&newEvt);
+        }
+        break;
+
+        case ATYPE_NAMS:
+        default:
+        break;
+    }
+    Ams_setCurCrtlModule(type);
+}
+
+
 int Ams_otaApp(uint8_t* url,AMS_TYPE_E type)
 {
     uint8_t idBuf[4] = {0x0,};
@@ -344,6 +426,7 @@ int32_t Ams_handleAmsEvent(Event *evt, void *userData)
 int32_t Ams_handleAllAmsEvent(Event *evt, void *userData)
 {
     int32_t     appId;
+    char buff[16]={0};
     SafeBuffer *data;
     int32_t fsm_state = FSM_UNMARK(evt->fsm_state);
     Event newEvt;
@@ -453,6 +536,120 @@ int32_t Ams_handleAllAmsEvent(Event *evt, void *userData)
             //ams_remote_sendBackExecResult(EVT_CMD_DELETE,(bool_t) res);
             break;
 
+        case AMS_FASM_STATE_GET_INIT:
+            if (userData != NULL)
+            {
+                data = (SafeBuffer *)userData;
+            }
+            else
+            {
+                data = (SafeBuffer *)evt->userData;
+            }
+            appId = readbeIU32(data->pBuf);
+            CRTL_memset(buff, 0x0, 16);
+            sprintf(buff,"%d",appId);
+            res = amsUtils_initConfigData(buff);
+            *((int32_t*)(data->pBuf)) = (int32_t) res;
+            newNormalEvent(AMS_MODULE_RAMS, AMS_FASM_STATE_ACK_INIT, userData, Ams_handleAmsEvent, &newEvt);
+            ES_pushEvent(&newEvt);
+            break;
+
+        case AMS_FASM_STATE_ACK_INIT:
+            if (userData != NULL)
+            {
+                data = (SafeBuffer *)userData;
+            }
+            else
+            {
+                data = (SafeBuffer *)evt->userData;
+            }
+            res = *((int32_t*)(data->pBuf));
+            data->buffer_free(data);
+            if(cbFunc !=NULL)
+            {
+                amsCbData.cmd = RCMD_INIT;
+                amsCbData.module = Ams_getCurCrtlModule();
+                amsCbData.result = res;
+                amsCbData.exptr = NULL;
+                cbFunc(&amsCbData);
+            }
+            break;
+
+        case AMS_FASM_STATE_GET_CANCEL:
+            if (userData != NULL)
+            {
+                data = (SafeBuffer *)userData;
+            }
+            else
+            {
+                data = (SafeBuffer *)evt->userData;
+            }
+            appId = readbeIU32(data->pBuf);
+            CRTL_memset(buff, 0x0, 16);
+            sprintf(buff,"%d",appId);
+            res = amsUtils_cancelDefaultApp(buff);
+            *((int32_t*)(data->pBuf)) = (int32_t) res;
+            newNormalEvent(AMS_MODULE_RAMS, AMS_FASM_STATE_ACK_CANCEL, userData, Ams_handleAmsEvent, &newEvt);
+            ES_pushEvent(&newEvt);
+            break;
+
+        case AMS_FASM_STATE_ACK_CANCEL:
+            if (userData != NULL)
+            {
+                data = (SafeBuffer *)userData;
+            }
+            else
+            {
+                data = (SafeBuffer *)evt->userData;
+            }
+            res = *((int32_t*)(data->pBuf));
+            data->buffer_free(data);
+            if(cbFunc !=NULL)
+            {
+                amsCbData.cmd = RCMD_CANCEL;
+                amsCbData.module = Ams_getCurCrtlModule();
+                amsCbData.result = res;
+                amsCbData.exptr = NULL;
+                cbFunc(&amsCbData);
+            }
+            break;
+
+        case AMS_FASM_STATE_GET_CANCELALL:
+            if (userData != NULL)
+            {
+                data = (SafeBuffer *)userData;
+            }
+            else
+            {
+                data = (SafeBuffer *)evt->userData;
+            }
+            res = amsUtils_initConfigData(NULL);
+            *((int32_t*)(data->pBuf)) = (int32_t) res;
+            newNormalEvent(AMS_MODULE_RAMS, AMS_FASM_STATE_ACK_CANCELALL, userData, Ams_handleAmsEvent, &newEvt);
+            ES_pushEvent(&newEvt);
+            break;
+
+        case AMS_FASM_STATE_ACK_CANCELALL:
+            if (userData != NULL)
+            {
+                data = (SafeBuffer *)userData;
+            }
+            else
+            {
+                data = (SafeBuffer *)evt->userData;
+            }
+            res = *((int32_t*)(data->pBuf));
+            data->buffer_free(data);
+            if(cbFunc !=NULL)
+            {
+                amsCbData.cmd = RCMD_CANCELALL;
+                amsCbData.module = Ams_getCurCrtlModule();
+                amsCbData.result = res;
+                amsCbData.exptr = NULL;
+                cbFunc(&amsCbData);
+            }
+            break;
+            
         case AMS_FASM_STATE_GET_DESTROY:
             if (userData != NULL)
             {

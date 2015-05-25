@@ -76,14 +76,14 @@ typedef struct APPLET_PROPS_T {
 /* The UNUSED ID definition: */
 #define PROPS_UNUSED (-1)
 
-typedef enum 
+typedef enum
 {
-	ATYPE_MIN =0,
-	ATYPE_NAMS=0,	//native ams,not support fro now
-	ATYPE_RAMS,		//remote ams,controlled by remote http server
-	ATYPE_SAMS,		//SMS ams,
-	ATYPE_AAMS,		//AT ams
-	ATYPE_MAX = ATYPE_AAMS
+    ATYPE_MIN =0,
+    ATYPE_NAMS=0,    //native ams,not support fro now
+    ATYPE_RAMS,        //remote ams,controlled by remote http server
+    ATYPE_SAMS,        //SMS ams,
+    ATYPE_AAMS,        //AT ams
+    ATYPE_MAX = ATYPE_AAMS
 }AMS_TYPE_E;
 
 #define AMS_MODULE_MARK (1<<9)
@@ -93,20 +93,26 @@ typedef enum
 #define AMS_MODULE_AAMS (AMS_MODULE_MARK | 3)
 
 enum {
-	AMS_FASM_STATE_GET_LIST =0x01,
-	AMS_FASM_STATE_GET_RUN,
-	AMS_FASM_STATE_GET_DELETE,
-	AMS_FASM_STATE_GET_DESTROY,
-	AMS_FASM_STATE_GET_OTA,
-	AMS_FASM_STATE_GET_TCK,
+    AMS_FASM_STATE_GET_LIST =0x01,
+    AMS_FASM_STATE_GET_RUN,
+    AMS_FASM_STATE_GET_DELETE,
+    AMS_FASM_STATE_GET_DESTROY,
+    AMS_FASM_STATE_GET_OTA,
+    AMS_FASM_STATE_GET_TCK,
+    AMS_FASM_STATE_GET_INIT,
+    AMS_FASM_STATE_GET_CANCEL,
+    AMS_FASM_STATE_GET_CANCELALL,
 
-	AMS_FASM_STATE_ACK_MASK = 0x80,//use for mask,not real state
-	AMS_FASM_STATE_ACK_LIST =0x81,
-	AMS_FASM_STATE_ACK_RUN,
-	AMS_FASM_STATE_ACK_DELETE,
-	AMS_FASM_STATE_ACK_DESTROY,
-	AMS_FASM_STATE_ACK_OTA,
-	AMS_FASM_STATE_ACK_TCK,
+    AMS_FASM_STATE_ACK_MASK = 0x80,//use for mask,not real state
+    AMS_FASM_STATE_ACK_LIST =0x81,
+    AMS_FASM_STATE_ACK_RUN,
+    AMS_FASM_STATE_ACK_DELETE,
+    AMS_FASM_STATE_ACK_DESTROY,
+    AMS_FASM_STATE_ACK_OTA,
+    AMS_FASM_STATE_ACK_TCK,
+    AMS_FASM_STATE_ACK_INIT,
+    AMS_FASM_STATE_ACK_CANCEL,
+    AMS_FASM_STATE_ACK_CANCELALL,
 };
 
 /* Remote Control Command for AMS Access */
@@ -124,7 +130,7 @@ typedef enum _RemoteCommandType
     RCMD_LOGIN,
     RCMD_CFGURL,
     RCMD_CFGACCOUNT,
-    RCMD_INIT,    
+    RCMD_INIT,
     RCMD_STATUS,
     RCMD_RESET,
     RCMD_OSGI,
@@ -135,11 +141,11 @@ typedef enum _RemoteCommandType
 
 typedef struct AmsCBData_s
 {
-	uint32_t module;			//
-	uint32_t step;				//reserved!
-	RemoteCommandType cmd;		//operate
-	uint32_t result;			//op result
-	void * exptr;				//extend data
+    uint32_t module;            //
+    uint32_t step;                //reserved!
+    RemoteCommandType cmd;        //operate
+    uint32_t result;            //op result
+    void * exptr;                //extend data
 }AmsCBData;
 /**
  * Thread process function defintion.
@@ -155,7 +161,7 @@ typedef int32_t (*DVMThreadFunc)(int argc, char* argv[]);
 typedef void(*AmsCrtlCBFunc)(AmsCBData *);
 
 /**
- * create dalvik VM thread to handle event. After this API is called, the new 
+ * create dalvik VM thread to handle event. After this API is called, the new
  * thread will start automatically without extra work.
  * @ramsThreadFunc, the new thread process funtion. refer to above definition of
                     RAMSThreadFunc.
@@ -186,6 +192,9 @@ int Ams_deleteApp(int id,AMS_TYPE_E type);
 int Ams_otaApp(uint8_t* url,AMS_TYPE_E type);
 int Ams_tckApp(uint8_t* url, AMS_TYPE_E type);
 int Ams_destoryApp(int id, AMS_TYPE_E type);
+int Ams_initApp(int id, AMS_TYPE_E type);
+int Ams_cancelInitApp(int id, AMS_TYPE_E type);
+void Ams_cancelAllApp(AMS_TYPE_E type);
 
 /**
  * AMS Remote Control API

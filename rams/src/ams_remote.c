@@ -116,6 +116,17 @@ static int32_t parseServerCommands(uint8_t* data, int32_t dataBytes)
         Ams_listApp(ATYPE_RAMS);
         break;
 
+    case EVT_CMD_CANCELALL:
+        if (len != 16)
+        {
+            DVMTraceErr("parseServerCommands: Error, wrong data length.\n");
+            res = EVT_RES_FAILURE;
+            break;
+        }
+        Ams_cancelAllApp(ATYPE_RAMS);
+        break;
+
+        
     case EVT_CMD_DELETE:
         {
             int32_t appId = parseAndVerifyAppId(p, len);
@@ -157,6 +168,36 @@ static int32_t parseServerCommands(uint8_t* data, int32_t dataBytes)
             else
             {
                 Ams_destoryApp(appId, ATYPE_RAMS);
+            }
+        }
+        break;
+
+        case EVT_CMD_INIT:
+        {
+            int32_t appId = parseAndVerifyAppId(p, len);
+
+            if (appId < 0)
+            {
+                res = EVT_RES_FAILURE;
+            }
+            else
+            {
+                  Ams_initApp(appId, ATYPE_RAMS);
+            }
+        }
+        break;
+
+        case EVT_CMD_CANCEL:
+        {
+            int32_t appId = parseAndVerifyAppId(p, len);
+
+            if (appId < 0)
+            {
+                res = EVT_RES_FAILURE;
+            }
+            else
+            {
+                Ams_cancelInitApp(appId, ATYPE_RAMS);
             }
         }
         break;
@@ -479,6 +520,42 @@ void ams_remote_callbackHandler(AmsCBData * cbdata)
         writebeIU32(&pByte[0], sizeof(ackBuf));
         writebeIU32(&pByte[4], ACK_RECV_AND_EXEC);
         writebeIU32(&pByte[8], EVT_CMD_RUN);
+        writebeIU32(&pByte[12], (res ? 1 : 0));
+
+        safeBuf = CreateSafeBufferByBin(ackBuf, sizeof(ackBuf));
+        newNormalEvent(EVT_CMD_DECLARE, DECLARE_FSM_WRITE, (void *)safeBuf, ams_remote_buildConnection, &newEvt);
+        ES_pushEvent(&newEvt);
+        break;
+
+    case RCMD_INIT:
+        pByte = (uint8_t*)ackBuf;
+        writebeIU32(&pByte[0], sizeof(ackBuf));
+        writebeIU32(&pByte[4], ACK_RECV_AND_EXEC);
+        writebeIU32(&pByte[8], EVT_CMD_INIT);
+        writebeIU32(&pByte[12], (res ? 1 : 0));
+
+        safeBuf = CreateSafeBufferByBin(ackBuf, sizeof(ackBuf));
+        newNormalEvent(EVT_CMD_DECLARE, DECLARE_FSM_WRITE, (void *)safeBuf, ams_remote_buildConnection, &newEvt);
+        ES_pushEvent(&newEvt);
+        break;
+
+    case RCMD_CANCEL:
+        pByte = (uint8_t*)ackBuf;
+        writebeIU32(&pByte[0], sizeof(ackBuf));
+        writebeIU32(&pByte[4], ACK_RECV_AND_EXEC);
+        writebeIU32(&pByte[8], EVT_CMD_CANCEL);
+        writebeIU32(&pByte[12], (res ? 1 : 0));
+
+        safeBuf = CreateSafeBufferByBin(ackBuf, sizeof(ackBuf));
+        newNormalEvent(EVT_CMD_DECLARE, DECLARE_FSM_WRITE, (void *)safeBuf, ams_remote_buildConnection, &newEvt);
+        ES_pushEvent(&newEvt);
+        break;
+
+    case RCMD_CANCELALL:
+        pByte = (uint8_t*)ackBuf;
+        writebeIU32(&pByte[0], sizeof(ackBuf));
+        writebeIU32(&pByte[4], ACK_RECV_AND_EXEC);
+        writebeIU32(&pByte[8], EVT_CMD_CANCELALL);
         writebeIU32(&pByte[12], (res ? 1 : 0));
 
         safeBuf = CreateSafeBufferByBin(ackBuf, sizeof(ackBuf));
