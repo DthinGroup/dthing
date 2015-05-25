@@ -3,14 +3,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import iot.oem.comm.CommConnectionImpl;
 
 public class GetServerCommand implements Runnable {
-	private Timer mTimer;
 	private CommConnectionImpl mSerialPort;
+	private static Thread mThread = null;
+	private static boolean mThreadIsRunning = true;
 	private final String REMOTE_SERVER_URL = "42.121.18.62";
 	//private final String REMOTE_SERVER_URL = "192.168.5.106";
 	private final int REMOTE_SERVER_PORT = 7777;
@@ -171,9 +170,9 @@ public class GetServerCommand implements Runnable {
 
 	public void destroyApp(boolean arg0) {
 		// TODO Auto-generated method stub
-		mTimer.cancel();
 		if (mSerialPort != null) {
 			try {
+				mThreadIsRunning = false;
 				mSerialPort.close();
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
@@ -182,15 +181,9 @@ public class GetServerCommand implements Runnable {
 		}
 	}
 
-	public void pauseApp() {
-		// TODO Auto-generated method stub
-		mTimer.cancel();
-	}
-
 	protected void startApp() {
 		// TODO Auto-generated method stub
 		System.out.println("GetServerCommand startApp");
-		mTimer = new Timer();
 		mSerialPort = CommConnectionImpl.getComInstance(COM_PORT, COM_BAUD);
 		getCommand();
 	}
@@ -533,15 +526,25 @@ public class GetServerCommand implements Runnable {
 				e.printStackTrace();
 			}
 		}
-		
+
+		mThreadIsRunning = false;
+
 		//set timer to get command continuously
-		mTimer.cancel();
-		mTimer = new Timer();
-		mTimer.schedule(new TimerTask() {
+		mThread = new Thread() {
 			public void run() {
-				// TODO Auto-generated method stub
-				getCommand();
+				while (mThreadIsRunning)
+				{
+				    try {
+                        getCommand();
+					    Thread.sleep(DEFAULT_TIME_INTERVAL);
+				    } catch (InterruptedException e) {
+					    // TODO Auto-generated catch block
+					    e.printStackTrace();
+				    }
+				}
 			}
-		}, DEFAULT_TIME_INTERVAL);
+		};
+		mThreadIsRunning = true;
+		mThread.start();
 	}	
 }
