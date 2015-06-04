@@ -27,5 +27,6 @@
 . build.sh ZigbeeDemo
 . build.sh ZigbeeDemoNoNet
 . build.sh ZigbeeDemoNoCom
+. build.sh ZigbeeDemoNoComModiNet
 
 
