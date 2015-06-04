@@ -1,12 +1,12 @@
-import iot.oem.comm.CommConnectionImpl;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.http.HttpURLConnection;
-import java.net.http.URL;
-
 import jp.co.cmcc.event.Applet;
 import jp.co.cmcc.event.Event;
+
+import java.net.http.HttpURLConnection;
+import java.net.http.URL;
+import java.io.IOException;
+import java.io.InputStream;
+
+import iot.oem.comm.CommConnectionImpl;
 
 
 public class ZigbeeDemo extends Applet {
@@ -15,10 +15,6 @@ public class ZigbeeDemo extends Applet {
     private GetServerCommand mGetServerCommand;
     private final int READ_BUFFER_LENGTH = 100;
     private final String REGEX = ",";
-
-	public ZigbeeDemo() {
-		// TODO Auto-generated constructor stub
-	}
 
 	public void cleanup() {
     	if (mGetServerCommand != null) {
@@ -36,13 +32,13 @@ public class ZigbeeDemo extends Applet {
         new Thread(){
     		public void run() {
     			// TODO Auto-generated method stub
+                CommConnectionImpl comm = CommConnectionImpl.getComInstance(1);
     	        try {
     	            byte[] buf = new byte[READ_BUFFER_LENGTH];
-
+                    InputStream is = comm.openInputStream();
     	            int readSize;
+                    
     	            do {
-    	                CommConnectionImpl comm = CommConnectionImpl.getComInstance(1);
-    	                InputStream is = comm.openInputStream();
     	                try {
     	                    Thread.sleep(1000L);
     	                } catch (InterruptedException e) {
@@ -50,6 +46,10 @@ public class ZigbeeDemo extends Applet {
     	                }
 
     	                readSize = is.read(buf, 0, READ_BUFFER_LENGTH);
+                        if (readSize < 0)  {
+                            reportTestInfo("COM", "exit when readSize is less than 0");
+                            break;
+                        }
     	                String readString = new String(buf);
     	                readString = readString.trim();
     	                //re-organize string
@@ -58,12 +58,13 @@ public class ZigbeeDemo extends Applet {
 
     	                if (readString.length() > 0) {
     	                	reportTestInfo("COM", "\"" + readString + "\"");
+                            //System.out.println("COM\"" + readString + "\"");
     	                }
-    	                comm.close();
-    	            } while (readSize >= 0);
+                    } while (true);
+                    comm.close();
     	        } catch (IOException e) {
     	            System.out.println("IOException:" + e);
-    	        }		
+    	        }
     		}
     	    
     	    private String convertEscapedChar(String original)
