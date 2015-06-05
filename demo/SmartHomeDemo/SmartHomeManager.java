@@ -163,7 +163,7 @@ public class SmartHomeManager extends Applet {
                         reportTestInfo("COM", "God bless dataCollectThread");
                         is = comm.openInputStream();
 
-                        Thread.sleep(2000L);
+                        Thread.sleep(10000L);
                         reportTestInfo("COM", "start to read data");
                         readSize = is.read(buf, 0, 28);
 
@@ -174,11 +174,12 @@ public class SmartHomeManager extends Applet {
                         }
 
                         String readString = new String(buf);
-
+                        reportTestInfo("COM", "read length is " + readString.length());
+                        Thread.sleep(2000L);
                         reportTestInfo("COM", "read:" + convertEscapedChar(readString));
                         Thread.sleep(2000L);
                         count++;
-                        is.close();
+                        //is.close();
                         endToUseComm();
                     } while ((allowRunning) && (count < 3));
                     destroyCommReference(comm);
