@@ -13,6 +13,7 @@ public class SmartHomeManager extends Applet {
     private static final String REPORT_SERVER_FORMAT = "http://42.121.18.62:8080/dthing/ParmInfo.action?saveDataInfo&saveType=log&parmInfo=";
     private static boolean allowLogPrint = true;
     private static boolean allowRunning = true;
+    private static boolean allowIRCRunning = true;
     private static Thread dataCollectThread = null;
     private static Thread irControllerThread = null;
     private static int commRefCount = 0; // Count of threads that is using comm instance
@@ -27,6 +28,7 @@ public class SmartHomeManager extends Applet {
 
     public void cleanup() {
         allowRunning = false;
+        allowIRCRunning = false;
     }
 
     public void processEvent(Event arg0) {
@@ -107,22 +109,17 @@ public class SmartHomeManager extends Applet {
                         {
                           //Waiting
                         }
-
+                        reportTestInfo("IRC", "God bless IRControllerThread");
                         OutputStream os = comm.openOutputStream();
 
                         os.write(hex2Bytes(OPEN_CODE));
                         reportTestInfo("IRC", "write:" + OPEN_CODE);
-                        Thread.sleep(5000L);
-
-                        os.write(hex2Bytes(CLOSE_CODE));
-                        Thread.sleep(5000L);
                         os.close();
                         endToUseComm();
-
-                        reportTestInfo("IRC", "write:" + CLOSE_CODE);
                         Thread.sleep(5000L);
-                    } while(allowRunning);
+                    } while(allowIRCRunning);
                     destroyCommReference(comm);
+                    reportTestInfo("IRC", "End of IRC");
                 } catch (IOException e) {
                       System.out.println("IOException:" + e);
                 } catch (InterruptedException e) {
@@ -147,6 +144,7 @@ public class SmartHomeManager extends Applet {
     {
         dataCollectThread = new Thread() {
             public void run() {
+            	  allowIRCRunning = false;
                 CommConnectionImpl comm = CommConnectionImpl.getComInstance(1);
                 registerCommReference(comm);
                 try {
@@ -160,7 +158,7 @@ public class SmartHomeManager extends Applet {
                         {
                             //Waiting
                         }
-
+                        reportTestInfo("COM", "God bless dataCollectThread");
                         is = comm.openInputStream();
 
                         try {
@@ -184,6 +182,7 @@ public class SmartHomeManager extends Applet {
                         reportTestInfo("COM", "read:" + convertEscapedChar(readString));
                     } while (allowRunning);
                     destroyCommReference(comm);
+                    reportTestInfo("COM", "End of data collect");
                 } catch (IOException e) {
                     System.out.println("IOException:" + e);
                 }
