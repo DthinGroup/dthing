@@ -102,8 +102,7 @@ public class SmartHomeManager extends Applet {
 
                 try {
                     do {
-                        System.out.println("[IRC]Current baudrate is " + comm.getBaudRate());
-
+                        reportTestInfo("IRC", "startIRControllerThread");
                         while(!allowToUseComm())
                         {
                           //Waiting
@@ -113,10 +112,10 @@ public class SmartHomeManager extends Applet {
 
                         os.write(hex2Bytes(OPEN_CODE));
                         reportTestInfo("IRC", "write:" + OPEN_CODE);
-                        Thread.sleep(1000L);
+                        Thread.sleep(5000L);
 
                         os.write(hex2Bytes(CLOSE_CODE));
-                        Thread.sleep(1000L);
+                        Thread.sleep(5000L);
                         os.close();
                         endToUseComm();
 
@@ -156,6 +155,7 @@ public class SmartHomeManager extends Applet {
                     InputStream is = null;
                     int readSize;
                     do {
+                    	  reportTestInfo("COM", "startDataCollectThread");
                         while(!allowToUseComm())
                         {
                             //Waiting
