@@ -13,9 +13,9 @@ extern "C" {
 
 /**
  * COMMAND TYPES:
- * The global definition of command types. 
+ * The global definition of command types.
  * Corresponding to server side definition.
- * In order to easily extend the commands, 
+ * In order to easily extend the commands,
  * use integer sequences as the value.
  */
 #define EVT_CMD_NONE     (0)
@@ -28,9 +28,10 @@ extern "C" {
 #define EVT_CMD_VIEW     (7)
 #define EVT_CMD_ACTIVATE (8)
 #define EVT_CMD_REMOVE   (9)
-#define EVT_CMD_OSGI	 (10)
-#define EVT_CMD_VIEWINFO (11)
-#define EVT_CMD_TCK      (12)
+#define EVT_CMD_INIT	 (10)
+#define EVT_CMD_CANCEL (11)
+#define EVT_CMD_CANCELALL (12)
+#define EVT_CMD_TCK      (13)
 
 /* internal eventy commands */
 #define EVT_CMD_DECLARE  (0|RAMS_INTERNAL_MARK)
@@ -50,12 +51,17 @@ extern "C" {
  * REMOTE SERVER INFORMATION DEFINTIONS:
  */
 /* remote server address */
-//#define RS_ADDRESS  0x2a79123e
+//42.121.18.62
+#define RS_ADDRESS  0x2a79123e
+//10.15.4.221
 //#define RS_ADDRESS  0x0a0f04dd
-#define RS_ADDRESS  0x7f000001
+//127.0.0.1
+//#define RS_ADDRESS  0x7f000001
+//218.206.176.236
+//#define RS_ADDRESS  0xDACEB0EC
 
 /* remote server port */
-#define RS_PORT     8888
+#define RS_PORT     7899
 
 
 /**

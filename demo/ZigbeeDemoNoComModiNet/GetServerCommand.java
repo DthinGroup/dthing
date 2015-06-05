@@ -185,7 +185,7 @@ public class GetServerCommand implements Runnable {
 	protected void startApp() {
 		// TODO Auto-generated method stub
 		System.out.println("GetServerCommand startApp");
-		mSerialPort = CommConnectionImpl.getComInstance(COM_PORT, COM_BAUD);
+		mSerialPort = CommConnectionImpl.getComInstance(1);
 		getCommand();
 	}
 

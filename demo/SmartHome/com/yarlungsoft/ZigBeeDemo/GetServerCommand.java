@@ -1,15 +1,20 @@
+package com.yarlungsoft.ZigBeeDemo;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.util.Timer;
+import java.util.TimerTask;
 
-import iot.oem.comm.CommConnectionImpl;
+import javax.microedition.midlet.MIDletStateChangeException;
+
+import jp.co.aplix.io.CommConnectionImpl;
 
 public class GetServerCommand implements Runnable {
+	private Timer mTimer;
 	private CommConnectionImpl mSerialPort;
-	private static Thread mThread = null;
-	private static boolean mThreadIsRunning = true;
 	private final String REMOTE_SERVER_URL = "42.121.18.62";
 	//private final String REMOTE_SERVER_URL = "192.168.5.106";
 	private final int REMOTE_SERVER_PORT = 7777;
@@ -168,12 +173,11 @@ public class GetServerCommand implements Runnable {
 	};
 	*/
 
-	public void destroyApp(boolean arg0) {
+	public void destroyApp(boolean arg0) throws MIDletStateChangeException {
 		// TODO Auto-generated method stub
-		System.out.println("GetServerCommand destroyApp");
-        if (mSerialPort != null) {
+		mTimer.cancel();
+		if (mSerialPort != null) {
 			try {
-				mThreadIsRunning = false;
 				mSerialPort.close();
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
@@ -182,15 +186,20 @@ public class GetServerCommand implements Runnable {
 		}
 	}
 
+	public void pauseApp() {
+		// TODO Auto-generated method stub
+		mTimer.cancel();
+	}
+
 	protected void startApp() {
 		// TODO Auto-generated method stub
 		System.out.println("GetServerCommand startApp");
+		mTimer = new Timer();
 		mSerialPort = CommConnectionImpl.getComInstance(COM_PORT, COM_BAUD);
 		getCommand();
 	}
 
 	public void getCommand() {
-        System.out.println("GetServerCommand getCommand()");
 		new Thread(this).start();
 	}
 
@@ -528,28 +537,15 @@ public class GetServerCommand implements Runnable {
 				e.printStackTrace();
 			}
 		}
-        System.out.println("start run 2");
-		mThreadIsRunning = false;
-        System.out.println("start run 3");
+		
 		//set timer to get command continuously
-		mThread = new Thread() {
+		mTimer.cancel();
+		mTimer = new Timer();
+		mTimer.schedule(new TimerTask() {
 			public void run() {
-                System.out.println("start run 3.5");
-				while (mThreadIsRunning)
-				{
-                    System.out.println("start run 4");
-				    try {
-                        getCommand();
-					    Thread.sleep(DEFAULT_TIME_INTERVAL);
-				    } catch (InterruptedException e) {
-					    // TODO Auto-generated catch block
-					    e.printStackTrace();
-				    }
-				}
+				// TODO Auto-generated method stub
+				getCommand();
 			}
-		};
-        System.out.println("start run 5");
-		mThreadIsRunning = true;
-		mThread.start();
+		}, DEFAULT_TIME_INTERVAL);
 	}	
 }

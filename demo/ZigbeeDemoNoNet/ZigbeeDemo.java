@@ -154,7 +154,7 @@ public class ZigbeeDemo extends Applet {
                 httpConn.disconnect();
     	    }
         }.start();
-        mGetServerCommand = new GetServerCommand();
-        mGetServerCommand.startApp();
+        //mGetServerCommand = new GetServerCommand();
+        //mGetServerCommand.startApp();
 	}
 }

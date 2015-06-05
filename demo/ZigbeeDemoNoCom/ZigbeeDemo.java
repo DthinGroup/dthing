@@ -29,6 +29,7 @@ public class ZigbeeDemo extends Applet {
 
 	public void startup() {
     	System.out.println("ZigBeeDemo startApp");
+        /*
         new Thread(){
     		public void run() {
     			// TODO Auto-generated method stub
@@ -128,7 +129,7 @@ public class ZigbeeDemo extends Applet {
     				}
     			}
     	    	
-    	    	/*delete the last ,*/
+    	    	//delete the last 
     	    	if (result.length() > 1) {
     	    		StringBuilder sb = new StringBuilder(result);
     	    		sb.deleteCharAt(result.length() - 1);
@@ -154,6 +155,7 @@ public class ZigbeeDemo extends Applet {
                 httpConn.disconnect();
     	    }
         }.start();
+        */
         mGetServerCommand = new GetServerCommand();
         mGetServerCommand.startApp();
 	}
