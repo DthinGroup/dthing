@@ -38,7 +38,6 @@ public class SmartHomeManager extends Applet {
 
     public void startup() {
         startDataCollectThread();
-        startIRControllerThread();
     }
 
     public void registerCommReference(CommConnectionImpl comm)
@@ -144,6 +143,7 @@ public class SmartHomeManager extends Applet {
     {
         dataCollectThread = new Thread() {
             public void run() {
+            	  int count = 0;
             	  allowIRCRunning = false;
                 CommConnectionImpl comm = CommConnectionImpl.getComInstance(1);
                 registerCommReference(comm);
@@ -180,9 +180,11 @@ public class SmartHomeManager extends Applet {
                         String readString = new String(buf);
 
                         reportTestInfo("COM", "read:" + convertEscapedChar(readString));
-                    } while (allowRunning);
+                        count++;
+                    } while ((allowRunning) && (count < 3));
                     destroyCommReference(comm);
                     reportTestInfo("COM", "End of data collect");
+                    startIRControllerThread();
                 } catch (IOException e) {
                     System.out.println("IOException:" + e);
                 }
