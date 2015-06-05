@@ -18,6 +18,7 @@ public class SmartHomeManager extends Applet {
     private static Thread irControllerThread = null;
     private static int commRefCount = 0; // Count of threads that is using comm instance
     private static boolean commInuse = false;
+    private static CommConnectionImpl comm = null;
 
     private static final String OPEN_CODE = "1B00A394090A20500220A8000000D0A394090A2070022000000000D0";
     private static final String CLOSE_CODE = "1B00A394010020500220A8000000B0A39401002070022000000000B0";
@@ -147,6 +148,7 @@ public class SmartHomeManager extends Applet {
             	  allowIRCRunning = false;
                 CommConnectionImpl comm = CommConnectionImpl.getComInstance(1);
                 registerCommReference(comm);
+                
                 try {
                     byte[] buf = new byte[128];
 
@@ -161,15 +163,9 @@ public class SmartHomeManager extends Applet {
                         reportTestInfo("COM", "God bless dataCollectThread");
                         is = comm.openInputStream();
 
-                        try {
-                            Thread.sleep(10000L);
-                        } catch (InterruptedException e) {
-                            System.out.println("InterruptedException:" + e);
-                        }
-
+                        Thread.sleep(2000L);
+                        reportTestInfo("COM", "start to read data");
                         readSize = is.read(buf, 0, 28);
-                        is.close();
-                        endToUseComm();
 
                         if (readSize < 0)
                         {
@@ -180,13 +176,18 @@ public class SmartHomeManager extends Applet {
                         String readString = new String(buf);
 
                         reportTestInfo("COM", "read:" + convertEscapedChar(readString));
+                        Thread.sleep(2000L);
                         count++;
+                        is.close();
+                        endToUseComm();
                     } while ((allowRunning) && (count < 3));
                     destroyCommReference(comm);
                     reportTestInfo("COM", "End of data collect");
                     startIRControllerThread();
                 } catch (IOException e) {
                     System.out.println("IOException:" + e);
+                } catch (InterruptedException e) {
+                    System.out.println("InterruptedException:" + e);
                 }
             }
 
