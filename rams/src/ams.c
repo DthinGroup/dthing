@@ -908,7 +908,7 @@ int Ams_handleRemoteCmdSync(int cmdId, AMS_TYPE_E cmdType, int suiteId, char *da
         }
         break;
     case RCMD_INIT:
-        DthingTraceD("=== RemoteCmd CMD_INIT - data = %s\n", data);
+        DVMTraceDbg("=== RemoteCmd CMD_INIT - data = %s\n", data);
         if (amsUtils_initConfigData(data))
         {
             result = 0;
@@ -921,7 +921,7 @@ int Ams_handleRemoteCmdSync(int cmdId, AMS_TYPE_E cmdType, int suiteId, char *da
         }
         break;
     case RCMD_CANCELALL:
-        DthingTraceD("=== RemoteCmd CMD_CANCELALL\n");
+        DVMTraceDbg("=== RemoteCmd CMD_CANCELALL\n");
         if (amsUtils_initConfigData(NULL))
         {
           result = 0;
@@ -931,7 +931,7 @@ int Ams_handleRemoteCmdSync(int cmdId, AMS_TYPE_E cmdType, int suiteId, char *da
         if (ppout)
         {
             *ppout = amsUtils_getAppletList(FALSE);
-            DthingTraceD("=== RemoteCmd RCMD_LIST - list = %s\n", *ppout);
+            DVMTraceDbg("=== RemoteCmd RCMD_LIST - list = %s\n", *ppout);
             result = 0;
         }
         break;
@@ -963,12 +963,12 @@ int Ams_handleRemoteCmdSync(int cmdId, AMS_TYPE_E cmdType, int suiteId, char *da
         if (ppout)
         {
           *ppout = amsUtils_getAppletList(TRUE);
-          DthingTraceD("=== RemoteCmd RCMD_STATUS - status = %s\n", *ppout);
+          DVMTraceDbg("=== RemoteCmd RCMD_STATUS - status = %s\n", *ppout);
           result = 0;
         }
         break;
     default:
-        DthingTraceD("=== Unknown RemoteCmd %d\n", cmdId);
+        DVMTraceDbg("=== Unknown RemoteCmd %d\n", cmdId);
         break;
     }
     return result;

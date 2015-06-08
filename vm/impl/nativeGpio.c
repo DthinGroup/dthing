@@ -287,7 +287,7 @@ static int cpl_gpio_open(uint32 gpio_id)
     result = -1;
   }
 end:
-  DthingTraceD("[INFO][GPIO] cpl_gpio_open with gpio_id[%d] and result[%d]\n", gpio_id, result);
+  DVMTraceDbg("[INFO][GPIO] cpl_gpio_open with gpio_id[%d] and result[%d]\n", gpio_id, result);
   return result;
 }
 
@@ -314,7 +314,7 @@ static int cpl_gpio_close(uint32 gpio_id)
     result = -1;
   }
 end:
-  DthingTraceD("[INFO][GPIO] cpl_gpio_close with gpio_id[%d] and result[%d]\n", gpio_id, result);
+  DVMTraceDbg("[INFO][GPIO] cpl_gpio_close with gpio_id[%d] and result[%d]\n", gpio_id, result);
   return result;
 
 }
@@ -344,7 +344,7 @@ static int cpl_gpio_setMode(uint32 gpio_id, uint32 mode)
       break;
   }
 end:
-  DthingTraceD("[INFO][GPIO] cpl_gpio_setMode with gpio_id[%d] mode[%d] and result[%d]\n", gpio_id, mode, result);
+  DVMTraceDbg("[INFO][GPIO] cpl_gpio_setMode with gpio_id[%d] mode[%d] and result[%d]\n", gpio_id, mode, result);
   return result;
 }
 
@@ -360,7 +360,7 @@ static int cpl_gpio_getMode(uint32 gpio_id)
   mode = GPIO_GetDirection(gpio_id)? GPIO_WRITE_MODE : GPIO_READ_MODE;
 
 end:
-  DthingTraceD("[INFO][GPIO] cpl_gpio_getMode with gpio_id[%d] and mode[%d]\n", gpio_id, mode);
+  DVMTraceDbg("[INFO][GPIO] cpl_gpio_getMode with gpio_id[%d] and mode[%d]\n", gpio_id, mode);
   return mode;
 }
 
@@ -376,7 +376,7 @@ static int cpl_gpio_read(uint32 gpio_id)
   result = (int)GPIO_GetValue(gpio_id);
 
 end:
-  DthingTraceD("[INFO][GPIO] cpl_gpio_read with gpio_id[%d] and result[%d]\n", gpio_id, result);
+  DVMTraceDbg("[INFO][GPIO] cpl_gpio_read with gpio_id[%d] and result[%d]\n", gpio_id, result);
   return result;
 }
 
@@ -393,7 +393,7 @@ static int cpl_gpio_write(uint32 gpio_id, bool_t value)
   GPIO_SetValue(gpio_id, value);
 
 end:
-  DthingTraceD("[INFO][GPIO] cpl_gpio_write with gpio_id[%d] value[%d] and result[%d]\n", gpio_id, value, result);
+  DVMTraceDbg("[INFO][GPIO] cpl_gpio_write with gpio_id[%d] value[%d] and result[%d]\n", gpio_id, value, result);
   return result;
 }
 
@@ -412,7 +412,7 @@ static int cpl_gpio_registerInt(uint32 gpio_id, GPIO_INT_TYPE type, GPIO_CALLBAC
   result = GPIO_AddCallbackToIntTable(gpio_id, GPIO_FALSE, 0, cb);
 
 end:
-  DthingTraceD("[INFO][GPIO] cpl_gpio_registerInt with gpio_id[%d] int_type[%d] and result[%d]\n", gpio_id, type, result);
+  DVMTraceDbg("[INFO][GPIO] cpl_gpio_registerInt with gpio_id[%d] int_type[%d] and result[%d]\n", gpio_id, type, result);
   return result;
 }
 
@@ -430,7 +430,7 @@ static int cpl_gpio_unregisterInt(uint32 gpio_id)
   result = GPIO_AddCallbackToIntTable(gpio_id, GPIO_FALSE, 0, (void *)0);
 
 end:
-  DthingTraceD("[INFO][GPIO] cpl_gpio_unregisterInt with gpio_id[%d] and result[%d]\n", gpio_id, result);
+  DVMTraceDbg("[INFO][GPIO] cpl_gpio_unregisterInt with gpio_id[%d] and result[%d]\n", gpio_id, result);
   return result;
 }
 
@@ -439,11 +439,11 @@ end:
 void vibra_gpio_callback(uint32 gpio_id, uint32 gpio_state)
 {
   int state = gpio_state;
-  DthingTraceD("[INFO][GPIO] gpio id:%d, gpio_state:%d\n", gpio_id, gpio_state);
+  DVMTraceDbg("[INFO][GPIO] gpio id:%d, gpio_state:%d\n", gpio_id, gpio_state);
 
   if (GPIO_VIBRA_ID == gpio_id)
   {
-    DthingTraceD("[INFO][GPIO] Enter callback for vibra gpio\n");
+    DVMTraceDbg("[INFO][GPIO] Enter callback for vibra gpio\n");
     GPIO_SetInterruptSense(GPIO_VIBRA_ID, GPIO_INT_EDGES_RISING);
     GPIO_ClearIntStatus(GPIO_VIBRA_ID);
     GPIO_EnableIntCtl(GPIO_VIBRA_ID);

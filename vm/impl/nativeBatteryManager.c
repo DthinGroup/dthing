@@ -50,7 +50,7 @@ void Java_iot_oem_battery_BatteryManager_getStatus0(const u4* args, JValue* pRes
     }
 #endif
 end:
-    DthingTraceD("[INFO][Battery] do get status %d", ret);
+    DVMTraceDbg("[INFO][Battery] do get status %d", ret);
     RETURN_INT(ret);
 }
 
@@ -64,7 +64,7 @@ void Java_iot_oem_battery_BatteryManager_getTemperature0(const u4* args, JValue*
     jint ret = 0;
 
     // TODO: implementation
-    DthingTraceD("[INFO][Battery] do get temperature %d", ret);
+    DVMTraceDbg("[INFO][Battery] do get temperature %d", ret);
     RETURN_INT(ret);
 }
 

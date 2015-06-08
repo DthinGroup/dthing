@@ -35,7 +35,7 @@ void Java_iot_oem_spi_SPIManager_open0(const u4* args, JValue* pResult) {
     dev.spi_tx_cb = NULL;
 
     ret = SPI_HAL_Open(&dev);
-    DthingTraceD("[INFO][SPI] do open bus %d with rate%d with result %d\n", busId, rate, ret);
+    DVMTraceDbg("[INFO][SPI] do open bus %d with rate%d with result %d\n", busId, rate, ret);
 #endif
 
     RETURN_INT(ret);
@@ -60,7 +60,7 @@ void Java_iot_oem_spi_SPIManager_getRate0(const u4* args, JValue* pResult) {
         ret = freq;
     }
 
-    DthingTraceD("[INFO][SPI] do get rate %d\n", ret);
+    DVMTraceDbg("[INFO][SPI] do get rate %d\n", ret);
 #endif
 
     RETURN_INT(ret);
@@ -81,7 +81,7 @@ void Java_iot_oem_spi_SPIManager_setRate0(const u4* args, JValue* pResult) {
     uint32 freq = rate;
 
     ret = SPI_HAL_Ioctl(busId, SPI_CTL_S_FREQ, &freq);
-    DthingTraceD("[INFO][SPI] do set rate %d with result %d\n", rate, ret);
+    DVMTraceDbg("[INFO][SPI] do set rate %d with result %d\n", rate, ret);
 #endif
 
     RETURN_INT(ret);
@@ -99,7 +99,7 @@ void Java_iot_oem_spi_SPIManager_close0(const u4* args, JValue* pResult) {
 
 #if defined(ARCH_ARM_SPD)
     ret = SPI_HAL_Close(busId);
-    DthingTraceD("[INFO][SPI] do close busId %d with result %d\n", busId, ret);
+    DVMTraceDbg("[INFO][SPI] do close busId %d with result %d\n", busId, ret);
 #endif
 
     RETURN_INT(ret);
@@ -126,7 +126,7 @@ void Java_iot_oem_spi_SPIManager_read0(const u4* args, JValue* pResult) {
     {
         ret = SPI_HAL_Read(busId, (uint8 *)bufferArrPtr, len);
     }
-    DthingTraceD("[INFO][SPI] do read data with result %d\n", ret);
+    DVMTraceDbg("[INFO][SPI] do read data with result %d\n", ret);
 #endif
 
     RETURN_INT(ret);
@@ -153,7 +153,7 @@ void Java_iot_oem_spi_SPIManager_write0(const u4* args, JValue* pResult) {
     {
         ret = SPI_HAL_Write(busId, (uint8 *)dataArrPtr, len);
     }
-    DthingTraceD("[INFO][SPI] do wirte data with result %d\n", ret);
+    DVMTraceDbg("[INFO][SPI] do wirte data with result %d\n", ret);
 #endif
 
     RETURN_INT(ret);

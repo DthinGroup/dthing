@@ -1327,7 +1327,7 @@ static jboolean ramsClient_readConfigFile(RMTConfig **pp_cfg)
 
     if(sfsHandle != INVALID_HANDLE_VALUE)
     {
-        DthingTraceD("==RMT== ramsClient_readConfigFile() get config file");
+        DVMTraceDbg("==RMT== ramsClient_readConfigFile() get config file");
         content = malloc(MAX_FILE_BUFF_LEN);
         memset(content, 0x0, MAX_FILE_BUFF_LEN);
         file_readLen = file_read(sfsHandle, content, MAX_FILE_BUFF_LEN);
@@ -1342,7 +1342,7 @@ static jboolean ramsClient_readConfigFile(RMTConfig **pp_cfg)
             //TODO: Check if initData is NULL, how much params would be returned by sscanf, 4 or 5
             if (sscanf(content, "%[^|]|%[^|]|%[^|]|%[^|]|%s", addr, port, initData, user, pwd) < 4)
             {
-                DthingTraceD("==RMT== ramsClient_readConfigFile() error data format %s in file", content);
+                DVMTraceDbg("==RMT== ramsClient_readConfigFile() error data format %s in file", content);
                 goto end;
             }
 
@@ -1354,7 +1354,7 @@ static jboolean ramsClient_readConfigFile(RMTConfig **pp_cfg)
             config->initData = ramsClient_strdup(initData);
             config->user = ramsClient_strdup(user);
             config->pwd = ramsClient_strdup(pwd);
-            DthingTraceD("==RMT== ramsClient_readConfigFile() read data: %s", content);
+            DVMTraceDbg("==RMT== ramsClient_readConfigFile() read data: %s", content);
             ret = TRUE;
         }
         free(content);
@@ -1375,7 +1375,7 @@ static jboolean ramsClient_writeConfigFile(char *cfg)
 
     if (!cfg)
     {
-        DthingTraceD("==RMT== ramsClient_writeConfigFile() write config file failed");
+        DVMTraceDbg("==RMT== ramsClient_writeConfigFile() write config file failed");
         return ret;
     }
 
@@ -1385,22 +1385,22 @@ static jboolean ramsClient_writeConfigFile(char *cfg)
     result = file_open(DEFAULT_RMT_CONFIG_FILE, DEFAULT_RMT_CONFIG_FILE_PATH_LEN, FILE_MODE_RDWR, &sfsHandle);
     if(sfsHandle != INVALID_HANDLE_VALUE)
     {
-        DthingTraceD("==RMT== ramsClient_writeConfigFile() write data: %s", cfg);
+        DVMTraceDbg("==RMT== ramsClient_writeConfigFile() write data: %s", cfg);
         file_writeLen = file_write(sfsHandle, cfg, strlen(cfg));
         if(file_writeLen > 0)
         {
-            DthingTraceD("==RMT== ramsClient_writeConfigFile() write config file success");
+            DVMTraceDbg("==RMT== ramsClient_writeConfigFile() write config file success");
             ret = TRUE;
         }
         else
         {
-            DthingTraceD("==RMT== ramsClient_writeConfigFile() write config file failed");
+            DVMTraceDbg("==RMT== ramsClient_writeConfigFile() write config file failed");
         }
         file_close(sfsHandle);
     }
     else
     {
-        DthingTraceD("==RMT== ramsClient_writeConfigFile() create config file failed");
+        DVMTraceDbg("==RMT== ramsClient_writeConfigFile() create config file failed");
     }
     return ret;
 }
@@ -1443,13 +1443,13 @@ unsigned char ramsClient_receiveRemoteCmdEx(int cmd, int suiteId, char *pData, c
 {
   int i = 0;
   bool_t ret = TRUE;
-  DthingTraceD("===ReceiveRemoteCmd cmd = %d, suiteId = %d, pData = %s ==", cmd, suiteId, pData);
+  DVMTraceDbg("===ReceiveRemoteCmd cmd = %d, suiteId = %d, pData = %s ==", cmd, suiteId, pData);
 
   switch(cmd)
   {
     case RCMD_INSTALL:
     {
-        DthingTraceD("=== ReceiveRemoteCmd CMD_INSTALL - url = %s", pData);
+        DVMTraceDbg("=== ReceiveRemoteCmd CMD_INSTALL - url = %s", pData);
         //FIXME: Workaround fix to copy jar file into appdb directory
         //ret = ramsClient_install(pathname);
         ret = ramsClient_installJar(pData);
@@ -1460,7 +1460,7 @@ unsigned char ramsClient_receiveRemoteCmdEx(int cmd, int suiteId, char *pData, c
       {
         uint16_t pathname[MAX_PATH_LENGTH];
         convertAsciiToUcs2(pData, -1, pathname, MAX_PATH_LENGTH);
-        DthingTraceD("=== ReceiveRemoteCmd CMD_OTA - url = %s", pData);
+        DVMTraceDbg("=== ReceiveRemoteCmd CMD_OTA - url = %s", pData);
         ret = ramsClient_ota(pathname);
         free(pData);
         break;
@@ -1472,7 +1472,7 @@ unsigned char ramsClient_receiveRemoteCmdEx(int cmd, int suiteId, char *pData, c
     }
     case RCMD_INIT:
     {
-        DthingTraceD("=== ReceiveRemoteCmd CMD_INIT - data = %s", pData);
+        DVMTraceDbg("=== ReceiveRemoteCmd CMD_INIT - data = %s", pData);
         ret = ramsClient_initConfigFile(pData);
         break;
     }
@@ -1483,7 +1483,7 @@ unsigned char ramsClient_receiveRemoteCmdEx(int cmd, int suiteId, char *pData, c
         RMTConfig *cfgData = NULL;
         char content[MAX_PATH_LENGTH] = {0};
         ret = FALSE;
-        DthingTraceD("=== ReceiveRemoteCmd CMD_CANCEL - data = %s", pData);
+        DVMTraceDbg("=== ReceiveRemoteCmd CMD_CANCEL - data = %s", pData);
 
         if ((pData != NULL) && (strlen(pData) != 0))
         {
@@ -1516,7 +1516,7 @@ unsigned char ramsClient_receiveRemoteCmdEx(int cmd, int suiteId, char *pData, c
     }
     case RCMD_CANCELALL:
     {
-        DthingTraceD("=== ReceiveRemoteCmd CMD_CANCELALL");
+        DVMTraceDbg("=== ReceiveRemoteCmd CMD_CANCELALL");
         ret = ramsClient_initConfigFile(NULL);
         break;
     }
@@ -1525,7 +1525,7 @@ unsigned char ramsClient_receiveRemoteCmdEx(int cmd, int suiteId, char *pData, c
         char content[MAX_PATH_LENGTH] = {0};
         RMTConfig *cfgData = NULL;
         memset(content, 0x0, MAX_PATH_LENGTH);
-        DthingTraceD("=== ReceiveRemoteCmd CMD_CFGURL - url = %s", pData);
+        DVMTraceDbg("=== ReceiveRemoteCmd CMD_CFGURL - url = %s", pData);
         ret = ramsClient_readConfigFile(&cfgData);
 
         if (ret)
@@ -1547,7 +1547,7 @@ unsigned char ramsClient_receiveRemoteCmdEx(int cmd, int suiteId, char *pData, c
     {
         char content[MAX_PATH_LENGTH] = {0};
         RMTConfig *cfgData = NULL;
-        DthingTraceD("=== ReceiveRemoteCmd CMD_CFGACCOUNT - account = %s", pData);
+        DVMTraceDbg("=== ReceiveRemoteCmd CMD_CFGACCOUNT - account = %s", pData);
         ret = ramsClient_readConfigFile(&cfgData);
 
         if (ret)
@@ -1623,7 +1623,7 @@ unsigned char ramsClient_receiveRemoteCmdEx(int cmd, int suiteId, char *pData, c
         break;
       }
     default:
-      DthingTraceD("=== unknown remote command cmd = %d ", cmd);
+      DVMTraceDbg("=== unknown remote command cmd = %d ", cmd);
       ret = FALSE;
       break;
   }

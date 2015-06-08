@@ -22,7 +22,7 @@ void Java_iot_oem_pwm_PWMManager_config0(const u4* args, JValue* pResult) {
 #if defined(ARCH_ARM_SPD)
     PWM_Config (id,  (uint)freq,  (uint16)dutyCycle);
     SCI_Sleep(1000);
-    DthingTraceD("[INFO][PWMManager] config with id[%d] freq[%d] dutyCycle[%d]\n", id, freq, dutyCycle);
+    DVMTraceDbg("[INFO][PWMManager] config with id[%d] freq[%d] dutyCycle[%d]\n", id, freq, dutyCycle);
 #endif
 
     RETURN_INT(ret);
@@ -44,7 +44,7 @@ void Java_iot_oem_pwm_PWMManager_command0(const u4* args, JValue* pResult) {
     uint32 myArg = (uint32)arg;
 
     PWM_Ioctl ((uint32)id, (uint32)cmd, &myArg);
-    DthingTraceD("[INFO][PWMManager] ioctl with id[%d] cmd[%d] arg[%d]\n", id, cmd, arg);
+    DVMTraceDbg("[INFO][PWMManager] ioctl with id[%d] cmd[%d] arg[%d]\n", id, cmd, arg);
 	ret = myArg;
 #endif
 

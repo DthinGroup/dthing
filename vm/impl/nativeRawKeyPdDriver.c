@@ -24,7 +24,7 @@ void Java_iot_oem_kpd_RawKeyPdDriver_init0(const u4* args, JValue* pResult) {
     ClassObject* thisObj = (ClassObject*) args[0];
     jint ret = 0;
 
-    DthingTraceD("keypad: init and register key message callback\n");
+    DVMTraceDbg("keypad: init and register key message callback\n");
 
 #if defined(ARCH_ARM_SPD)
     SCI_RegisterMsg(KEYPAD_SERVICE,
@@ -50,14 +50,14 @@ void Java_iot_oem_kpd_RawKeyPdDriver_getKey0(const u4* args, JValue* pResult) {
     if (AsyncIO_firstCall())
     {
         g_keyEventNotifier =  Async_getCurNotifier();
-        DthingTraceD("keypad: ask for key and waiting\n");
+        DVMTraceDbg("keypad: ask for key and waiting\n");
         AsyncIO_callAgainWhenSignalled();
     }
     else
     {
         ret = (jlong)g_lastKeyCode;
         g_keyEventNotifier = NULL;
-        DthingTraceD("keypad: get key code %d\n", g_lastKeyCode);
+        DVMTraceDbg("keypad: get key code %d\n", g_lastKeyCode);
     }
 
 end:
@@ -76,7 +76,7 @@ void Java_iot_oem_kpd_RawKeyPdDriver_close0(const u4* args, JValue* pResult) {
     ClassObject* thisObj = (ClassObject*) args[0];
     jint ret = 0;
 
-    DthingTraceD("keypad: init and unregister key message callback\n");
+    DVMTraceDbg("keypad: init and unregister key message callback\n");
 
 #if defined(ARCH_ARM_SPD)
     SCI_UnregisterMsg(KEYPAD_SERVICE,
@@ -100,7 +100,7 @@ void kpd_callback (uint32 id, uint32 argc, void *argv)
   uint32  key_code = 0;
   uint16  event_code = 0;
 
-  DthingTraceD("keypad: kpd_callback\n");
+  DVMTraceDbg("keypad: kpd_callback\n");
 
   if (g_keyEventNotifier != NULL)
   {
@@ -114,15 +114,15 @@ void kpd_callback (uint32 id, uint32 argc, void *argv)
       {
       case KPD_DOWN:
         g_lastKeyCode = key_code;
-        DthingTraceD("keypad: KPD_DOWN %d\n", key_code);
+        DVMTraceDbg("keypad: KPD_DOWN %d\n", key_code);
         break;
       case KPD_UP:
         g_lastKeyCode = key_code;
-        DthingTraceD("keypad: KPD_UP %d\n", key_code);
+        DVMTraceDbg("keypad: KPD_UP %d\n", key_code);
         break;
       default:
         g_lastKeyCode = 0;
-        DthingTraceD("keypad: Unknown key event %d\n", event_code);
+        DVMTraceDbg("keypad: Unknown key event %d\n", event_code);
         break;
       }
       AsyncIO_notify(g_keyEventNotifier);
