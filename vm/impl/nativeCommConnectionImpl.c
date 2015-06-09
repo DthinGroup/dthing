@@ -52,9 +52,9 @@ void Java_iot_oem_comm_CommConnectionImpl_open0(const u4* args, JValue* pResult)
             if(ret == 0)
                 break;
         }
-        DthingTraceD("[GPS] do init with result %d and gps status %d\n", ret, GPS_GetStatus());
+        DVMTraceDbg("[GPS] do init with result %d and gps status %d\n", ret, GPS_GetStatus());
         ret = GPS_Open(GPS_MODE_NORMAL);
-        DthingTraceD("[GPS] do open with result %d and gps status %d\n", ret, GPS_GetStatus());
+        DVMTraceDbg("[GPS] do open with result %d and gps status %d\n", ret, GPS_GetStatus());
     }
     else
     {
@@ -63,7 +63,7 @@ void Java_iot_oem_comm_CommConnectionImpl_open0(const u4* args, JValue* pResult)
         ret = cpl_com_default_init(port, bps);
         SCI_Sleep(1000);
         cpl_com_default_open(port);
-        DthingTraceD("[COM] open COM%d with baudrate %d\n", port, bps);
+        DVMTraceDbg("[COM] open COM%d with baudrate %d\n", port, bps);
     }
 #endif
 
@@ -103,7 +103,7 @@ void Java_iot_oem_comm_CommConnectionImpl_getBaudRate0(const u4* args, JValue* p
     default:
       break;
     }
-    DthingTraceD("[COM] COM%d baudrate is %d\n", port, speed);
+    DVMTraceDbg("[COM] COM%d baudrate is %d\n", port, speed);
  #endif
     RETURN_INT(ret);
 }
@@ -128,7 +128,7 @@ void Java_iot_oem_comm_CommConnectionImpl_setBaudRate0(const u4* args, JValue* p
     {
         UART_SetBaudSpeed(port, bps);
     }
-    DthingTraceD("[COM] set COM%d baudrate to %d\n", port, bps);
+    DVMTraceDbg("[COM] set COM%d baudrate to %d\n", port, bps);
  #endif
 
     RETURN_INT(ret);
@@ -156,7 +156,7 @@ void Java_iot_oem_comm_CommConnectionImpl_close0(const u4* args, JValue* pResult
     {
         cpl_com_default_close(port);
     }
-    DthingTraceD("[COM] close COM%d\n", port);
+    DVMTraceDbg("[COM] close COM%d\n", port);
  #endif
 
     RETURN_INT(ret);
@@ -304,7 +304,7 @@ static int QueueInsert(CycleQueue *Q_ptr, uint8 *data, uint32 len, QueueOverwrit
     else
     {
       //TODO: need more memory
-      DthingTraceD("jpl_comm.c: out of queue error\n");
+      DVMTraceDbg("jpl_comm.c: out of queue error\n");
     }
 
     if ((1 == Q_ptr->empty) && (ret > 0))
@@ -529,7 +529,7 @@ void default_uart_callback(uint32 event)
     cnt = UART_ReadData(pcom->port, tmp_buf, MAX_UART_BUFFER_SIZE);
     pcom->rec_len_done += cnt;
     pcom->rec_len += cnt;
-    DthingTraceD("[COM%d] EVENT_DATA_TO_READ data[%d]:%s\n", pcom->port, cnt, tmp_buf);
+    DVMTraceDbg("[COM%d] EVENT_DATA_TO_READ data[%d]:%s\n", pcom->port, cnt, tmp_buf);
     QueueInsert(&COM_Input_Q, tmp_buf, cnt, NOT_OVERWIRTE_QUEUE);
     break;
 
@@ -537,7 +537,7 @@ void default_uart_callback(uint32 event)
     cnt = UART_GetTxFifoCnt(pcom->port);
     cnt = QueueDelete(&COM_Output_Q, tmp_buf, cnt);
 
-    DthingTraceD("[COM%d] EVENT_WRITE_COMPLETE data[%d]:%s\n", pcom->port, cnt, tmp_buf);
+    DVMTraceDbg("[COM%d] EVENT_WRITE_COMPLETE data[%d]:%s\n", pcom->port, cnt, tmp_buf);
 
     if (cnt > 0)
     {
@@ -550,15 +550,15 @@ void default_uart_callback(uint32 event)
     break;
 
   case EVENT_INIT_COMPLETE:
-    DthingTraceD("[COM%d] EVENT_INIT_COMPLETE\n", pcom->port);
+    DVMTraceDbg("[COM%d] EVENT_INIT_COMPLETE\n", pcom->port);
     break;
 
   case EVENT_SHUTDOWN_COMPLETE:
-    DthingTraceD("[COM%d] EVENT_SHUTDOWN_COMPLETE\n", pcom->port);
+    DVMTraceDbg("[COM%d] EVENT_SHUTDOWN_COMPLETE\n", pcom->port);
     break;
 
   default:
-    DthingTraceD("jpl_comm.c: UNKNOWN UART EVENT\n");
+    DVMTraceDbg("jpl_comm.c: UNKNOWN UART EVENT\n");
     break;
   }
 }
@@ -588,13 +588,13 @@ void Java_iot_oem_comm_CommConnectionImpl_writeBytes0(const u4*args, JValue* pRe
         if (s_deviceType == DEVICE_GPS)
         {
             ret = GPS_WriteData(data, len);
-            DthingTraceD("[GPS] write gps data with result[%d]\n", ret);
+            DVMTraceDbg("[GPS] write gps data with result[%d]\n", ret);
         }
         else
         {
             ret = cpl_com_write(port, data, len);
         }
-        DthingTraceD("[COM%d] write data with result[%d]\n", port, ret);
+        DVMTraceDbg("[COM%d] write data with result[%d]\n", port, ret);
         //FIXME: Implement async write function
         writeDoneNotifier = NULL;
     }
@@ -627,14 +627,14 @@ void Java_iot_oem_comm_CommConnectionImpl_readBytes0(const u4*args, JValue* pRes
         if (s_deviceType == DEVICE_GPS)
         {
             ret = GPS_ReadData(buf, len);
-            DthingTraceD("[GPS] read gps data with result[%d]\n", ret);
+            DVMTraceDbg("[GPS] read gps data with result[%d]\n", ret);
         }
         else
         {
             if (uart_object.rec_len > 0)
             {
                 ret = cpl_com_read(port, buf, len);
-                DthingTraceD("[COM%d] read data with result[%d]\n", port, ret);
+                DVMTraceDbg("[COM%d] read data with result[%d]\n", port, ret);
             }
         }
         //FIXME: Implement async read function

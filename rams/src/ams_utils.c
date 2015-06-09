@@ -135,7 +135,7 @@ bool_t amsUtils_readConfigData(RMTConfig **pp_cfg)
 
   if(sfsHandle != INVALID_HANDLE_VALUE)
   {
-    DthingTraceD("==RMT== amsUtils_readConfigData() get config file");
+    DVMTraceDbg("==RMT== amsUtils_readConfigData() get config file");
     content = malloc(MAX_FILE_BUFF_LEN);
     memset(content, 0x0, MAX_FILE_BUFF_LEN);
     file_readLen = file_read(sfsHandle, content, MAX_FILE_BUFF_LEN);
@@ -150,7 +150,7 @@ bool_t amsUtils_readConfigData(RMTConfig **pp_cfg)
       //TODO: Check if initData is NULL, how much params would be returned by sscanf, 4 or 5
       if (sscanf(content, "%[^|]|%[^|]|%[^|]|%[^|]|%s", addr, port, initData, user, pwd) < 4)
       {
-        DthingTraceD("==RMT== amsUtils_readConfigData() error data format %s in file", content);
+        DVMTraceDbg("==RMT== amsUtils_readConfigData() error data format %s in file", content);
         goto end;
       }
 
@@ -162,7 +162,7 @@ bool_t amsUtils_readConfigData(RMTConfig **pp_cfg)
       config->initData = amsUtils_strdup(initData);
       config->user = amsUtils_strdup(user);
       config->pwd = amsUtils_strdup(pwd);
-      DthingTraceD("==RMT== amsUtils_readConfigData() read data: %s", content);
+      DVMTraceDbg("==RMT== amsUtils_readConfigData() read data: %s", content);
       ret = TRUE;
     }
     free(content);
@@ -186,7 +186,7 @@ bool_t amsUtils_writeConfigData(char *cfg)
 
   if (!cfg)
   {
-    DthingTraceD("==RMT== amsUtils_writeConfigData() write config file failed");
+    DVMTraceDbg("==RMT== amsUtils_writeConfigData() write config file failed");
     return ret;
   }
 
@@ -196,22 +196,22 @@ bool_t amsUtils_writeConfigData(char *cfg)
   result = file_open(DEFAULT_RMT_CONFIG_FILE, DEFAULT_RMT_CONFIG_FILE_PATH_LEN, FILE_MODE_RDWR, &sfsHandle);
   if(sfsHandle != INVALID_HANDLE_VALUE)
   {
-    DthingTraceD("==RMT== amsUtils_writeConfigData() write data: %s", cfg);
+    DVMTraceDbg("==RMT== amsUtils_writeConfigData() write data: %s", cfg);
     file_writeLen = file_write(sfsHandle, cfg, strlen(cfg));
     if(file_writeLen > 0)
     {
-      DthingTraceD("==RMT== amsUtils_writeConfigData() write config file success");
+      DVMTraceDbg("==RMT== amsUtils_writeConfigData() write config file success");
       ret = TRUE;
     }
     else
     {
-      DthingTraceD("==RMT== amsUtils_writeConfigData() write config file failed");
+      DVMTraceDbg("==RMT== amsUtils_writeConfigData() write config file failed");
     }
     file_close(sfsHandle);
   }
   else
   {
-    DthingTraceD("==RMT== amsUtils_writeConfigData() create config file failed");
+    DVMTraceDbg("==RMT== amsUtils_writeConfigData() create config file failed");
   }
 #endif
 
@@ -271,7 +271,7 @@ char* amsUtils_getAppletList(bool_t isRunning)
 
   while(curApp != NULL)
   {
-    DthingTraceD("app[%d].name is %s\n", curApp->id, curApp->name);
+    DVMTraceDbg("app[%d].name is %s\n", curApp->id, curApp->name);
     if ((curApp->isRunning == isRunning) && (curApp->id != PROPS_UNUSED))
     {
       memset(app, 0x0, 255);
@@ -312,7 +312,7 @@ bool_t amsUtils_cancelDefaultApp(const char* pData)
     RMTConfig *cfgData = NULL;
     char content[MAX_PATH_LENGTH] = {0};
 
-    DthingTraceD("=== RemoteCmd CMD_CANCEL - data = %s\n", pData);
+    DVMTraceDbg("=== RemoteCmd CMD_CANCEL - data = %s\n", pData);
 
     if ((pData == NULL) || (strlen(pData) == 0))
     {
@@ -361,7 +361,7 @@ bool_t amsUtils_configAccount(const char* pData)
     char content[MAX_PATH_LENGTH] = {0};
     RMTConfig *cfgData = NULL;
 
-    DthingTraceD("=== ReceiveRemoteCmd CMD_CFGACCOUNT - url = %s\n", pData);
+    DVMTraceDbg("=== ReceiveRemoteCmd CMD_CFGACCOUNT - url = %s\n", pData);
 
     if ((pData == NULL) || (strlen(pData) == 0))
     {
@@ -397,7 +397,7 @@ bool_t amsUtils_configAddress(const char* pData)
 #if defined(ARCH_ARM_SPD)
     char content[MAX_PATH_LENGTH] = {0};
     RMTConfig *cfgData = NULL;
-    DthingTraceD("=== ReceiveRemoteCmd CMD_CFGURL - account = %s", pData);
+    DVMTraceDbg("=== ReceiveRemoteCmd CMD_CFGURL - account = %s", pData);
     ret = amsUtils_readConfigData(&cfgData);
 
     if (ret)

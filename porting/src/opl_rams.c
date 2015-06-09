@@ -158,7 +158,6 @@ int32_t rams_connectServer(int32_t address, uint16_t port, int32_t *instance)
 	if (sci_sock_connect(fInst, &ssa, sizeof(struct sci_sockaddr)) == TCPIP_SOCKET_ERROR)
 	{
 		int32_t errCode = sci_sock_errno(fInst);
-		DVMTraceErr("sci_sock_connect error,code:%d\n",errCode);
 
 		if(errCode == EWOULDBLOCK || errCode == EINPROGRESS)
 		{
@@ -171,7 +170,7 @@ int32_t rams_connectServer(int32_t address, uint16_t port, int32_t *instance)
 		}
 		else
 		{			
-			DVMTraceErr("sci_sock_connect fail,bad luck\n");
+			DVMTraceErr("sci_sock_connect fail,bad luck error code=%d\n",errCode);
 			sci_sock_socketclose(fInst);
             return RAMS_RES_FAILURE;
 		}

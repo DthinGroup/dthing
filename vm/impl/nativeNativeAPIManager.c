@@ -22,7 +22,7 @@
 void Java_iot_oem_NativeAPI_NativeAPIManager_init0(const u4* args, JValue* pResult) {
     ClassObject* thisObj = (ClassObject*) args[0];
     jint ret = 0;
-    DthingTraceD("[INFO][NAPI] init0");
+    DVMTraceDbg("[INFO][NAPI] init0");
     // TODO: implementation
     RETURN_INT(ret);
 }
@@ -37,7 +37,7 @@ void Java_iot_oem_NativeAPI_NativeAPIManager_call0(const u4* args, JValue* pResu
     jint cid = (jint) args[1];
     jboolean swt = (jboolean) args[2];
     jint ret = 0;
-    DthingTraceD("[INFO][NAPI] call0");
+    DVMTraceDbg("[INFO][NAPI] call0");
     // TODO: implementation
   switch(cid)
   {
@@ -66,7 +66,7 @@ void Java_iot_oem_NativeAPI_NativeAPIManager_destroy0(const u4* args, JValue* pR
     ClassObject* thisObj = (ClassObject*) args[0];
     jint channelID = (jint) args[1];
     jint ret = 0;
-    DthingTraceD("[INFO][NAPI] destroy0");
+    DVMTraceDbg("[INFO][NAPI] destroy0");
     // TODO: implementation
   switch(channelID)
   {

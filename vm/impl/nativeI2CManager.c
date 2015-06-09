@@ -291,7 +291,7 @@ static int cpl_i2c_open(uint32 busId, uint32 freq, uint8 addr, uint32 regAddrNum
   result = I2C_HAL_Open(&dev);
 
 end:
-  DthingTraceD("[INFO][I2C] cpl_i2c_open %s with busId[%d] freq[%d] addr[%d] and result\n",
+  DVMTraceDbg("[INFO][I2C] cpl_i2c_open %s with busId[%d] freq[%d] addr[%d] and result\n",
              (result < 0)? "failed" : "success", busId, freq, addr, result);
   return result;
 }
@@ -300,7 +300,7 @@ static int cpl_i2c_close(uint32 handle)
 {
   int result = 0;
   result = I2C_HAL_Close(handle);
-  DthingTraceD("[INFO][I2C] cpl_i2c_close handle %d with result %d\n", handle, result);
+  DVMTraceDbg("[INFO][I2C] cpl_i2c_close handle %d with result %d\n", handle, result);
   return result;
 }
 
@@ -310,7 +310,7 @@ static int cpl_i2c_setRate(uint32 handle, uint32 rate)
   uint32 freq = rate;
 
   result = I2C_HAL_Ioctl(handle, I2C_CTL_S_FREQ, &freq);
-  //DthingTraceD("[INFO][I2C] cpl_i2c_setRate %d with handle %d and result %d\n", rate, handle, result);
+  //DVMTraceDbg("[INFO][I2C] cpl_i2c_setRate %d with handle %d and result %d\n", rate, handle, result);
   return result;
 }
 
@@ -326,7 +326,7 @@ static int cpl_i2c_getRate(uint32 handle)
     result = freq;
   }
 
-  //DthingTraceD("[INFO][I2C] cpl_i2c_getRate with handle %d and result %d\n", handle, result);
+  //DVMTraceDbg("[INFO][I2C] cpl_i2c_getRate with handle %d and result %d\n", handle, result);
   return result;
 }
 
@@ -347,12 +347,12 @@ static int cpl_i2c_read(uint32 handle, uint8 *addr, char *buffer, uint32 len)
     int i = 0;
     for (i = 0; i < len; i++)
     {
-      DthingTraceD("[INFO][I2C] read tmp[%d] %x\n", i, buffer[i]);
+      DVMTraceDbg("[INFO][I2C] read tmp[%d] %x\n", i, buffer[i]);
     }
   }
 
 end:
-  DthingTraceD("[INFO][I2C] cpl_i2c_read with handle[%d] addr[%s] buffer[%s] and result %d\n", handle, addr, buffer, result);
+  DVMTraceDbg("[INFO][I2C] cpl_i2c_read with handle[%d] addr[%s] buffer[%s] and result %d\n", handle, addr, buffer, result);
   return result;
 }
 
@@ -372,7 +372,7 @@ static int cpl_i2c_write(uint32 handle, uint8 *addr, char *data, uint32 len)
   result = (result == 0)? -1 : result;
 
 end:
-  //DthingTraceD("[INFO][I2C] cpl_i2c_write with handle[%d] addr[%s] data[%s] and result %d\n", handle, addr, data, result);
+  //DVMTraceDbg("[INFO][I2C] cpl_i2c_write with handle[%d] addr[%s] data[%s] and result %d\n", handle, addr, data, result);
   return result;
 }
 
@@ -385,7 +385,7 @@ static int cpl_i2c_setSlaveAddress(uint32 handle, uint8 addr)
   //result = cpl_i2c_Wakeup(handle);
 
   result = I2C_HAL_Ioctl(handle, I2C_CTL_S_SLAVE_ADDR, &slave_addr);
-  //DthingTraceD("[INFO][I2C] cpl_i2c_setSlaveAddress with handle[%d] addr[%s] and result %d\n", handle, addr, result);
+  //DVMTraceDbg("[INFO][I2C] cpl_i2c_setSlaveAddress with handle[%d] addr[%s] and result %d\n", handle, addr, result);
   return result;
 }
 
@@ -398,7 +398,7 @@ static int cpl_i2c_Wakeup(uint32 handle)
 {
   int result = -1;
 
-  DthingTraceD("[INFO][I2C] cpl_i2c_Wakeup with handle[%d]", handle);
+  DVMTraceDbg("[INFO][I2C] cpl_i2c_Wakeup with handle[%d]", handle);
   result = I2C_HAL_Wakeup(handle);
   return result;
 }

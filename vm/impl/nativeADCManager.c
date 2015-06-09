@@ -19,7 +19,7 @@ void Java_iot_oem_adc_ADCManager_init0(const u4* args, JValue* pResult) {
 #if defined(ARCH_ARM_SPD)
     ret = ADC_Init();
 #endif
-    DthingTraceD("[INFO][ADCManager] do init with result %d\n", ret);
+    DVMTraceDbg("[INFO][ADCManager] do init with result %d\n", ret);
     RETURN_INT(ret);
 }
 
@@ -39,7 +39,7 @@ void Java_iot_oem_adc_ADCManager_read0(const u4* args, JValue* pResult) {
         ret = ADC_GetResultDirectly(cid, ADC_SCALE_3V);  	
     }
 #endif
-    DthingTraceD("[INFO][ADCManager] do read %d with result %d\n", cid, ret);
+    DVMTraceDbg("[INFO][ADCManager] do read %d with result %d\n", cid, ret);
     RETURN_INT(ret);
 }
 
@@ -53,7 +53,7 @@ void Java_iot_oem_adc_ADCManager_destroy0(const u4* args, JValue* pResult) {
     jint ret = 0;
 
     // TODO: Nothing need to do 
-    DthingTraceD("[INFO][ADCManager] do destroy");
+    DVMTraceDbg("[INFO][ADCManager] do destroy");
     RETURN_INT(ret);
 }
 

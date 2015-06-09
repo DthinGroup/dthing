@@ -51,7 +51,7 @@ void Java_iot_oem_sim_SimManager_enablePinLock0(const u4* args, JValue* pResult)
     {
         ret = -1;
     }
-    DthingTraceD("[INFO][SIM] do enable pin lock with result %u\n", ret);
+    DVMTraceDbg("[INFO][SIM] do enable pin lock with result %u\n", ret);
 #endif
 
     RETURN_INT(ret);
@@ -87,7 +87,7 @@ void Java_iot_oem_sim_SimManager_disablePinLock0(const u4* args, JValue* pResult
         ret = -1;
     }
 
-    DthingTraceD("[INFO][SIM] do disable pin lock with result %u\n", ret);
+    DVMTraceDbg("[INFO][SIM] do disable pin lock with result %u\n", ret);
 #endif
 
     RETURN_INT(ret);
@@ -131,7 +131,7 @@ void Java_iot_oem_sim_SimManager_unlockPin0(const u4* args, JValue* pResult) {
         ret = -1;
     }
 
-    DthingTraceD("[INFO][SIM] do unlock pin with result %u\n", ret);
+    DVMTraceDbg("[INFO][SIM] do unlock pin with result %u\n", ret);
 #endif
 
     RETURN_INT(ret);
@@ -190,7 +190,7 @@ void Java_iot_oem_sim_SimManager_changePin0(const u4* args, JValue* pResult) {
         ret = -1;
     }
 
-    DthingTraceD("[INFO][SIM] do change pin with result %u\n", ret);
+    DVMTraceDbg("[INFO][SIM] do change pin with result %u\n", ret);
 #endif
 
     RETURN_INT(ret);

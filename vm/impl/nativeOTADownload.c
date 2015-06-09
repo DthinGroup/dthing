@@ -34,7 +34,7 @@ void Java_java_net_ota_OTADownload_notifyOTAResult0(const u4* args, JValue* pRes
 	safeBuf = CreateSafeBufferByBin(retBuf, sizeof(retBuf));
 
     // TODO: implementation
-	DthingTraceD("OTA result: %d\n",result);
+	DVMTraceDbg("OTA result: %d\n",result);
 //	ams_remote_sendOTAExeResult(result);
 	Ams_handleAck(Ams_getCurCrtlModule(),AMS_FASM_STATE_ACK_OTA,(void*)safeBuf);
 
