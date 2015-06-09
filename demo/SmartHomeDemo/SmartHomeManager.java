@@ -43,6 +43,7 @@ public class SmartHomeManager extends Applet {
 
     public void registerCommReference(CommConnectionImpl comm)
     {
+        System.out.println("registerCommReference");
         if (comm != null)
         {
             commRefCount += 1;
@@ -51,6 +52,7 @@ public class SmartHomeManager extends Applet {
 
     public void destroyCommReference(CommConnectionImpl comm) throws IOException
     {
+        System.out.println("destroyCommReference");
         if (commRefCount > 0)
         {
             commRefCount--;
@@ -174,14 +176,12 @@ public class SmartHomeManager extends Applet {
                         }
 
                         String readString = new String(buf);
-                        reportTestInfo("COM", "read length is " + readString.length());
-                        Thread.sleep(2000L);
                         reportTestInfo("COM", "read:" + convertEscapedChar(readString));
                         Thread.sleep(2000L);
                         count++;
                         //is.close();
                         endToUseComm();
-                    } while ((allowRunning) && (count < 3));
+                    } while ((allowRunning) && (count < 1));
                     destroyCommReference(comm);
                     reportTestInfo("COM", "End of data collect");
                     startIRControllerThread();
