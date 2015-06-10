@@ -5035,6 +5035,7 @@ const ATC_PARAM_STRING_T    atc_cmd_name_SFSTEST[1] =
 {
     { 8, (const uint8 *)"+SFSTEST" }
 };
+
 const ATC_PARAM_STRING_T    atc_cmd_name_AMS[1] = 
 {
     { 3, (const uint8 *)"AMS" }
@@ -5178,6 +5179,21 @@ const ATC_PARAM_INFO_T      atc_param_info_AMSCFGCANCEL[ 1] =
 const ATC_PARAM_STRING_T    atc_cmd_name_AMSCFGCANCELALL[1] = 
 {
     { 15, (const uint8 *)"AMSCFGCANCELALL" }
+};
+
+const ATC_PARAM_STRING_T    atc_cmd_name_AMSDEBUG[1] = 
+{
+    { 8, (const uint8 *)"AMSDEBUG" }
+};
+
+const ATC_PARAM_NUMERIC_T   atc_param_numeric_AMSDEBUG1[1] = 
+{
+    {    0, 65535 }
+};
+
+const ATC_PARAM_INFO_T      atc_param_info_AMSDEBUG[ 1] = 
+{
+    {  1,  1, (const ATC_PARAM_STRING_T *)atc_param_numeric_AMSDEBUG1 }
 };
 
 
@@ -5474,7 +5490,8 @@ const ATC_INFO_T            g_atc_info_table[] =
     { 288,   3, atc_cmd_name_AMSCFGURL,  1, atc_param_info_AMSCFGURL },
     { 289,   3, atc_cmd_name_AMSCFGACCOUNT,  1, atc_param_info_AMSCFGACCOUNT },
     { 290,   3, atc_cmd_name_AMSCFGCANCEL,  1, atc_param_info_AMSCFGCANCEL },
-    { 291,   1, atc_cmd_name_AMSCFGCANCELALL,  0, NULL }
+    { 291,   1, atc_cmd_name_AMSCFGCANCELALL,  0, NULL },
+    { 292,   3, atc_cmd_name_AMSDEBUG,  1, atc_param_info_AMSDEBUG }
 
 };
 /*lint +e651*/
@@ -5775,6 +5792,7 @@ ATC_Func_Handle_F g_atc_handle_table[] =
     ATC_ProcessAMSCFGACCOUNT,
     ATC_ProcessAMSCFGCANCEL,
     ATC_ProcessAMSCFGCANCELALL,
+    ATC_ProcessAMSDEBUG,
 };
 
 

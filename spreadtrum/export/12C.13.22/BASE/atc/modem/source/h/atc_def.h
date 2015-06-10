@@ -310,5 +310,6 @@
 #define AT_CMD_AMSCFGACCOUNT     289
 #define AT_CMD_AMSCFGCANCEL     290
 #define AT_CMD_AMSCFGCANCELALL     291
+#define AT_CMD_AMSDEBUG     292
 
 #endif /* End of #ifndef _ATC_DEF_H */
