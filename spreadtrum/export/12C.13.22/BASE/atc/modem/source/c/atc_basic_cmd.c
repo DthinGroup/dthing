@@ -1152,7 +1152,6 @@ AT_CMD_FUNC(ATC_ProcessAMSDEBUG)
             if ((PARAM1_FLAG) && (PARAM1_TYPE == ATC_CMD_PARAM_TYPE_NUMERIC))
             {
                 result = SetDthingTraceLevel(PARA1.num);
-                result = 1;
             }
 
             if (result > 0)
