@@ -39,6 +39,7 @@ extern "C" {
 #define DVMTraceDbg (TRACE_LEV < 3) ? (void) 0 : (void)DthingTraceD
 #define DVMTraceInf (TRACE_LEV < 4) ? (void) 0 : (void)DthingTraceI
 
+int SetDthingTraceLevel(unsigned int level);
 void DthingTraceD(const char * fmt,...);
 void DthingTraceI(const char * fmt,...);
 void DthingTraceW(const char * fmt,...);

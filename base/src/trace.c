@@ -4,8 +4,32 @@
 #include "vm_common.h"
 #include "trace.h"
 #include "crtl.h"
+//#include "os_api.h"
 
 #define MSG_BUFFER_LEN  255
+
+int SetDthingTraceLevel(unsigned int level)
+{
+  int result = 1; // 0 or negative means failure, others success
+
+  //TODO:
+  switch(level)
+  {
+  case 0:
+    break;
+  case 1:
+    break;
+  case 2:
+    break;
+  case 3:
+    break;
+  case 4:
+  default:
+    break;
+  }
+  
+  return result;
+}
 
 void DthingTrace(const char* tag, const char* fmt, va_list argList)
 {
@@ -23,6 +47,7 @@ void DthingTrace(const char* tag, const char* fmt, va_list argList)
 	#if defined(WIN32)
 		SCI_Trace(msgBuf);
 	#else
+		//SCI_TRACE_LOW(msgBuf);
 		Dthing_log(msgBuf);
 	#endif    
 #else

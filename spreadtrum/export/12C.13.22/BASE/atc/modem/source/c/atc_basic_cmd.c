@@ -85,7 +85,8 @@
 #include "aud_enha_exp.h"
 #endif
 
-#include "lvve_ctrl_param_nv.h"
+#include "lvve_ctrl_param_nv.h"\
+#include "trace.h"
 #include "cpl_atcontrol.h"
 #include "modem_public.h"
 
@@ -1145,26 +1146,18 @@ AT_CMD_FUNC(ATC_ProcessAMSDEBUG)
     switch(ATC_GET_CMD_TYPE)
     {
         case ATC_CMD_TYPE_EXECUTE:
-            //ATC_TRACE_LOW("ATC_ProcessAMS:ATC_CMD_TYPE_EXECUTE");
             ATC_BuildInfoRsp(atc_config_ptr, ATAMS_USAGE);
             break;
         case ATC_CMD_TYPE_SET:
-            //ATC_TRACE_LOW("ATC_ProcessAMS:ATC_CMD_TYPE_SET");
             if ((PARAM1_FLAG) && (PARAM1_TYPE == ATC_CMD_PARAM_TYPE_NUMERIC))
             {
-                //ATC_TRACE_LOW("[Param] %d", PARA1.num);
-                //result = cpl_handleATRequestWithNumericParam("DEBUG", PARA1.num, &outStr);
-                //TODO: Add api to set debug level
+                result = SetDthingTraceLevel(PARA1.num);
                 result = 1;
             }
 
             if (result > 0)
             {
-                //if (outStr != NULL)
-                //{
                 ATC_BuildInfoRsp(atc_config_ptr, "OK");
-                //  cpl_freeOutStr(&outStr);
-                //}
             }
             else
             {
