@@ -21,7 +21,12 @@ typedef struct {
     int methodCount;
 } KniClassNativeMethodInfo;
 
-#define NATIVE_CLASSES_COUNT 40
+#define NATIVE_CLASSES_COUNT 41
+
+/* com.yarlungsoft.ams.Main native APIs */
+KniNativeMethodInfo gJava_com_yarlungsoft_ams_Main[1] = {
+    {"loadClassByPath0", "(Ljava/lang/String;)V", (KniFunc)Java_com_yarlungsoft_ams_Main_loadClassByPath0},
+};
 
 /* com.yarlungsoft.ams.Scheduler native APIs */
 KniNativeMethodInfo gJava_com_yarlungsoft_ams_Scheduler[2] = {
@@ -92,7 +97,7 @@ KniNativeMethodInfo gJava_iot_oem_gpio_Gpio[8] = {
 
 /* iot.oem.i2c.I2CManager native APIs */
 KniNativeMethodInfo gJava_iot_oem_i2c_I2CManager[6] = {
-    {"open0",    "(II)I",     (KniFunc)Java_iot_oem_i2c_I2CManager_open0},
+    {"open0",    "(IIII)I",   (KniFunc)Java_iot_oem_i2c_I2CManager_open0},
     {"getRate0", "(I)I",      (KniFunc)Java_iot_oem_i2c_I2CManager_getRate0},
     {"setRate0", "(II)I",     (KniFunc)Java_iot_oem_i2c_I2CManager_setRate0},
     {"close0",   "(I)I",      (KniFunc)Java_iot_oem_i2c_I2CManager_close0},
@@ -357,6 +362,7 @@ KniNativeMethodInfo gJava_jp_co_cmcc_message_sms_MySmsConnectionThread[4] = {
 };
 
 KniClassNativeMethodInfo gNativeMthTab[NATIVE_CLASSES_COUNT] = {
+    {"Lcom/yarlungsoft/ams/Main;",                     gJava_com_yarlungsoft_ams_Main,                     1},
     {"Lcom/yarlungsoft/ams/Scheduler;",                gJava_com_yarlungsoft_ams_Scheduler,                2},
     {"Lcom/yarlungsoft/util/SystemInputStream;",       gJava_com_yarlungsoft_util_SystemInputStream,       1},
     {"Lcom/yarlungsoft/util/SystemPrintStream;",       gJava_com_yarlungsoft_util_SystemPrintStream,       2},

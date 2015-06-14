@@ -576,6 +576,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\vm\impl\nativeMain.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\vm\impl\nativeMain.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\vm\impl\nativeMath.c"
 				>
 			</File>

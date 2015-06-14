@@ -14,6 +14,7 @@
 #include <nativeGpio.h>
 #include <nativeI2CManager.h>
 #include <nativeLCD.h>
+#include <nativeMain.h>
 #include <nativeMath.h>
 #include <nativeMicophone.h>
 #include <nativeMyMessageSender.h>

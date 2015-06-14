@@ -277,6 +277,7 @@ bool_t dvmInitClass(ClassObject* clazz);
  */
 ClassObject* dvmFindSystemClassNoInit(const char* descriptor);
 
+void loadClassByPath(const char * path);
 
 #ifdef __cplusplus
 }
