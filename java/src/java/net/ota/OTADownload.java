@@ -1,5 +1,6 @@
 package java.net.ota;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -78,6 +79,14 @@ public class OTADownload {
         }
         notifyOTAResult0(result);
     }
+    
+    private void deleteExistFiles(String file){
+    	File f = new File(file);
+    	if(f.exists()){
+    		Log.amsLog(TAG, "delete exist ota file name:" + file);
+    		f.delete();
+    	}
+    }
 
     class OTAThread implements Runnable {
 
@@ -118,7 +127,8 @@ public class OTADownload {
 
                 String file = getStorageFilename();
                 Log.amsLog(TAG, "file name:" + file);
-
+                deleteExistFiles(file);
+                
                 fs = new FileOutputStream(file, true);
                 Log.amsLog(TAG, "Start read");
                 byte[] buffer = new byte[3072];
