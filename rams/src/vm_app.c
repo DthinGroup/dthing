@@ -545,7 +545,7 @@ bool_t vm_destroyApp(int id)
     if ((pap = getAppletPropById(id)) == NULL || !pap->isRunning)
     {
         DVMTraceErr("destroyApplet, wrong app id(%d) or this app is not running\n");
-        return FALSE;
+        return TRUE;
     }
     CRTL_freeif(pap->fpath);
     upcallDestroyApplet(pap);
