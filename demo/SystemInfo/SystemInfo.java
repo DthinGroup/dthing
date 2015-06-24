@@ -1,11 +1,9 @@
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.http.HttpURLConnection;
 import java.net.http.URL;
 import java.util.Random;
-
-import javax.microedition.io.Connector;
-import javax.microedition.io.file.FileConnection;
 
 import jp.co.cmcc.event.Applet;
 import jp.co.cmcc.event.Event;
