@@ -496,11 +496,6 @@ static bool_t processBootstrapClasses(const uint8_t* rawData, int32_t length)
     return TRUE;
 }
 
-void loadClassByPath(const char * path)
-{
-    processClassPath(path);
-}
-
 /*
  * Convert a colon-separated list of directories, Zip files, and DEX files
  * into an array of ClassPathEntry structs.
@@ -618,6 +613,10 @@ bail:
     return TRUE;
 }
 
+void loadClassByPath(const char * path)
+{
+    processClassPath(path);
+}
 
 static bool_t initClassReference(ClassObject** pClass, const char* name)
 {
