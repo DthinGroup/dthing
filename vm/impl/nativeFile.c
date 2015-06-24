@@ -14,7 +14,8 @@
  * Signature: (Ljava/lang/String;)Z
  */
 void Java_java_io_File_createFile0(const u4* args, JValue* pResult) {
-    StringObject* pathObj = (StringObject*) args[0];
+	ClassObject* thisObj = (ClassObject*) args[0];
+    StringObject * pathObj = (StringObject *) args[1];
 	const jchar* path = dvmGetStringData(pathObj);
 	int pathLen = dvmGetStringLength(pathObj);
 	int32_t fioRes = FILE_RES_FAILURE;
@@ -40,7 +41,8 @@ void Java_java_io_File_createFile0(const u4* args, JValue* pResult) {
  * Signature: (Ljava/lang/String;)Z
  */
 void Java_java_io_File_delete0(const u4* args, JValue* pResult) {
-	StringObject* pathObj = (StringObject*) args[0];
+	ClassObject* thisObj = (ClassObject*) args[0];
+    StringObject * pathObj = (StringObject *) args[1];
 	const jchar* path = dvmGetStringData(pathObj);
 	int pathLen = dvmGetStringLength(pathObj);
 	int32_t fioRes = FILE_RES_FAILURE;
@@ -60,7 +62,8 @@ void Java_java_io_File_delete0(const u4* args, JValue* pResult) {
  * Signature: (Ljava/lang/String;)Z
  */
 void Java_java_io_File_exists0(const u4* args, JValue* pResult) {
-	StringObject* pathObj = (StringObject*) args[0];
+	ClassObject* thisObj = (ClassObject*) args[0];
+    StringObject * pathObj = (StringObject *) args[1];
 	const jchar* path = dvmGetStringData(pathObj);
 	int pathLen = dvmGetStringLength(pathObj);
 	int32_t fioRes = FILE_RES_FAILURE;
@@ -80,7 +83,8 @@ void Java_java_io_File_exists0(const u4* args, JValue* pResult) {
  * Signature: (Ljava/lang/String;)Z
  */
 void Java_java_io_File_isDirectory0(const u4* args, JValue* pResult) {
-	StringObject* pathObj = (StringObject*) args[0];
+	ClassObject* thisObj = (ClassObject*) args[0];
+    StringObject * pathObj = (StringObject *) args[1];
 	const jchar* path = dvmGetStringData(pathObj);
 	int pathLen = dvmGetStringLength(pathObj);
 	int32_t fioRes = FILE_RES_FAILURE;
@@ -100,7 +104,8 @@ void Java_java_io_File_isDirectory0(const u4* args, JValue* pResult) {
  * Signature: (Ljava/lang/String;)Z
  */
 void Java_java_io_File_isFile0(const u4* args, JValue* pResult) {
-	StringObject* pathObj = (StringObject*) args[0];
+	ClassObject* thisObj = (ClassObject*) args[0];
+    StringObject * pathObj = (StringObject *) args[1];
 	const jchar* path = dvmGetStringData(pathObj);
 	int pathLen = dvmGetStringLength(pathObj);
 	int32_t fioRes = FILE_RES_FAILURE;
@@ -120,7 +125,8 @@ void Java_java_io_File_isFile0(const u4* args, JValue* pResult) {
  * Signature: (Ljava/lang/String;)J
  */
 void Java_java_io_File_lastModified0(const u4* args, JValue* pResult) {
-    StringObject* pathObj = (StringObject*) args[0];
+    ClassObject* thisObj = (ClassObject*) args[0];
+    StringObject * pathObj = (StringObject *) args[1];
 	const jchar* path = dvmGetStringData(pathObj);
 	int pathLen = dvmGetStringLength(pathObj);
     jlong ret = 0;
@@ -136,7 +142,8 @@ void Java_java_io_File_lastModified0(const u4* args, JValue* pResult) {
  * Signature: (Ljava/lang/String;)J
  */
 void Java_java_io_File_length0(const u4* args, JValue* pResult) {
-    StringObject* pathObj = (StringObject*) args[0];
+    ClassObject* thisObj = (ClassObject*) args[0];
+    StringObject * pathObj = (StringObject *) args[1];
 	const jchar* path = dvmGetStringData(pathObj);
 	int pathLen = dvmGetStringLength(pathObj);
 	int32_t fioRes = FILE_RES_FAILURE;
@@ -164,7 +171,8 @@ void Java_java_io_File_length0(const u4* args, JValue* pResult) {
  * Signature: (Ljava/lang/String;)[Ljava/lang/String;
  */
 void Java_java_io_File_list0(const u4* args, JValue* pResult) {
-    StringObject* pathObj = (StringObject*) args[0];
+    ClassObject* thisObj = (ClassObject*) args[0];
+    StringObject * pathObj = (StringObject *) args[1];
     StringObject* subPathObj = NULL;
     char* path = dvmCreateCstrFromString(pathObj);
     ClassObject* classArrayString = NULL;

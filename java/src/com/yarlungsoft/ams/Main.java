@@ -92,4 +92,23 @@ public class Main {
             Log.amsLog(TAG, "launch APP failure!");
         }
     }
+    
+    public static void launchApp(String mClsName, String mClsPath) {
+        AppletContent ac = null;
+        /* how to get App Name in java side? */
+        loadClassByPath(mClsPath);
+        ac = new AppletContent("test", mClsName);
+        try {
+            Scheduler.schedule(ac);
+        } catch (Throwable t) {
+            Log.amsLog(TAG, "launch APP failure!");
+        }
+    }
+    
+    private static void loadClassByPath(String path){
+    	Log.amsLog(TAG, "load APP path: " + path + "\n");
+    	loadClassByPath0(path);    	
+    }
+    
+    private static native void loadClassByPath0(String path);
 }
