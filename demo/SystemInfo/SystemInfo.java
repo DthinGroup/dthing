@@ -56,10 +56,30 @@ public class SystemInfo extends Applet {
         }
     }
 
+    long getDirectorySize(String path)
+    {
+        long used = 0;
+        File root = new File(path);
+        File[] fileArray = root.listFiles();
+        for (int i = 0; i < fileArray.length; i++)
+        {
+            if (fileArray[i].isFile())
+            {
+                used += fileArray[i].length();
+            }
+            else
+            {
+                used += getDirectorySize(fileArray[i].getPath());
+            }
+        }
+        return used;
+    }
+
     void getSystemInfo() {
         long free = 0;
         long total = 0;
         long used = 0;
+        long totalFS = 85 * 1024; //初始化文件系统大小
         String msg = null;
 
         /* memory usage */
@@ -75,17 +95,9 @@ public class SystemInfo extends Applet {
         postMessageToServer(msg);
 
         /* file system(device storage) usage */
-        FileConnection fconn;
-        try {
-            fconn = (FileConnection) Connector.open("file:///D:/");
-            used = fconn.usedSize();
-            free = fconn.availableSize();
-        } catch (IOException e) {
-            if (debug) {
-              System.out.println("File Connetion open failure!");
-            }
-            e.printStackTrace();
-        }
+        used = getDirectorySize("D:/");
+        free = totalFS - used;
+
         if (debug) {
             System.out.println("FS Flash used(" + (used >> 10) + "K), " +
                 "free(" + (free >> 10) + "K)");
