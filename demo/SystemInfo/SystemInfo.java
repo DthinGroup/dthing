@@ -54,11 +54,10 @@ public class SystemInfo extends Applet {
         }
     }
 
-    long getDirectorySize(String path)
+    long getDirectorySize(File directory)
     {
         long used = 0;
-        File root = new File(path);
-        File[] fileArray = root.listFiles();
+        File[] fileArray = directory.listFiles();
         for (int i = 0; i < fileArray.length; i++)
         {
             if (fileArray[i].isFile())
@@ -69,7 +68,7 @@ public class SystemInfo extends Applet {
             else
             {
                 System.out.println("list Directory: " + fileArray[i].getPath());
-                used += getDirectorySize(fileArray[i].getPath());
+                used += getDirectorySize(fileArray[i]);
             }
         }
         return used;
@@ -107,7 +106,17 @@ public class SystemInfo extends Applet {
         postMessageToServer(msg);
 
         /* file system(device storage) usage */
-        used = getDirectorySize("D:/");
+        File rootPath = new File("D:/");
+
+        if (rootPath != null)
+        {
+            used = getDirectorySize(rootPath);
+        }
+        else
+        {
+        	  used = 0;
+        }
+
         free = totalFS - used;
 
         msg = "FS%20Flash%20used(" + (used >> 10) + "K),%20" +
