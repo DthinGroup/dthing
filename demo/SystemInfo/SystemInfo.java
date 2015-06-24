@@ -11,6 +11,8 @@ import jp.co.cmcc.event.Event;
 
 public class SystemInfo extends Applet {
     private static boolean debug = true;
+    private static boolean allowMemoryInfo = true;
+    private static boolean allowFSInfo = false;
     private final static String SERVER_PREFIX =
     "http://42.121.18.62:8080/dthing" +
     "/ParmInfo.action?saveDataInfo&saveType=log&parmInfo=";
@@ -82,13 +84,16 @@ public class SystemInfo extends Applet {
         String msg = null;
 
         /* memory usage */
-        total = Runtime.getRuntime().totalMemory();
-        free = Runtime.getRuntime().freeMemory();
-        used = total - free;
+        if (allowMemoryInfo)
+        {
+            total = Runtime.getRuntime().totalMemory();
+            free = Runtime.getRuntime().freeMemory();
+            used = total - free;
 
-        msg = "Memory%20used(" + (used >> 10) + "K),%20" +
-            "free(" + (free >> 10) + "K)";
-        postMessageToServer(msg);
+            msg = "Memory%20used(" + (used >> 10) + "K),%20" +
+                "free(" + (free >> 10) + "K)";
+            postMessageToServer(msg);
+        }
 
         /* count used time while cycle 100 times of add operation. */
         long startpoint = 0; //unit is ms
@@ -105,19 +110,48 @@ public class SystemInfo extends Applet {
         msg = "Cycle%20100%20times%20takes%20" + (endpoint - startpoint) + "ms";
         postMessageToServer(msg);
 
-        /* file system(device storage) usage */
-        try {
-            File rootPath = new File("D:/");
-            used = getDirectorySize(rootPath);
-        } catch (NullPointerException e) {
-            System.out.println("rootPath[D:/]:" + e);
-            used = 0;
+        /* count used time while cycle 1000 times of add operation. */
+        random = new Random(0xCAFE);
+
+        total = 0;
+        startpoint = System.currentTimeMillis();
+        for (int i = 0; i < 1000; i++) {
+            total += random.nextInt(0xFFFFF);
         }
+        endpoint = System.currentTimeMillis();
 
-        free = totalFS - used;
-
-        msg = "FS%20Flash%20used(" + (used >> 10) + "K),%20" +
-            "free(" + (free >> 10) + "K)";
+        msg = "Cycle%201000%20times%20takes%20" + (endpoint - startpoint) + "ms";
         postMessageToServer(msg);
+
+        /* count used time while cycle 10000 times of add operation. */
+        random = new Random(0xCAFE);
+
+        total = 0;
+        startpoint = System.currentTimeMillis();
+        for (int i = 0; i < 10000; i++) {
+            total += random.nextInt(0xFFFFF);
+        }
+        endpoint = System.currentTimeMillis();
+
+        msg = "Cycle%2010000%20times%20takes%20" + (endpoint - startpoint) + "ms";
+        postMessageToServer(msg);
+
+        /* file system(device storage) usage */
+        if (allowFSInfo)
+        {
+            try {
+                File rootPath = new File("D:/");
+                used = getDirectorySize(rootPath);
+            } catch (NullPointerException e) {
+                System.out.println("rootPath[D:/]:" + e);
+                used = 0;
+            }
+
+            free = totalFS - used;
+
+            msg = "FS%20Flash%20used(" + (used >> 10) + "K),%20" +
+                "free(" + (free >> 10) + "K)";
+            postMessageToServer(msg);
+        }
     }
 }
