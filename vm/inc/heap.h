@@ -66,6 +66,8 @@ bool_t heapIsValid(void* ptr);
  */
 void heapSweep();
 
+void heapStatus(int32_t *freeSize, int32_t usedSize);
+
 #ifdef __cplusplus
 }
 #endif

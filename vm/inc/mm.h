@@ -90,7 +90,7 @@ void * dmalloc(uint32_t size);
 void * dcalloc(uint32_t num, uint32_t size);
 void * drealloc(void* ptr, uint32_t size);
 void   dfree(void* ptr);
-
+void   dmmstatus(int32_t *freesize, int32_t *usedsize);
 
 /**
  * memory allocation from end of memory pool.
