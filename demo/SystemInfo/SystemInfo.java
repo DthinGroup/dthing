@@ -63,10 +63,12 @@ public class SystemInfo extends Applet {
         {
             if (fileArray[i].isFile())
             {
+                System.out.println("list file:" + fileArray[i].getPath());
                 used += fileArray[i].length();
             }
             else
             {
+                System.out.println("list Directory: " + fileArray[i].getPath());
                 used += getDirectorySize(fileArray[i].getPath());
             }
         }
@@ -92,18 +94,6 @@ public class SystemInfo extends Applet {
             "free(" + (free >> 10) + "K)";
         postMessageToServer(msg);
 
-        /* file system(device storage) usage */
-        used = getDirectorySize("D:/");
-        free = totalFS - used;
-
-        if (debug) {
-            System.out.println("FS Flash used(" + (used >> 10) + "K), " +
-                "free(" + (free >> 10) + "K)");
-        }
-        msg = "FS%20Flash%20used(" + (used >> 10) + "K),%20" +
-            "free(" + (free >> 10) + "K)";
-        postMessageToServer(msg);
-
         /* count used time while cycle 100 times of add operation. */
         long startpoint = 0; //unit is ms
         long endpoint = 0; //unit is ms
@@ -119,6 +109,18 @@ public class SystemInfo extends Applet {
             System.out.println("Cycle 100 times takes " + (startpoint-endpoint) + "ms");
         }
         msg = "Cycle%20100%20times%20takes%20" + (startpoint - endpoint) + "ms";
+        postMessageToServer(msg);
+
+        /* file system(device storage) usage */
+        used = getDirectorySize("D:/");
+        free = totalFS - used;
+
+        if (debug) {
+            System.out.println("FS Flash used(" + (used >> 10) + "K), " +
+                "free(" + (free >> 10) + "K)");
+        }
+        msg = "FS%20Flash%20used(" + (used >> 10) + "K),%20" +
+            "free(" + (free >> 10) + "K)";
         postMessageToServer(msg);
     }
 }
