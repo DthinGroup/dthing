@@ -150,14 +150,49 @@ LOCAL const char *getAsciiName(const uint16_t *strData, int32_t strLength)
 
 int64_t file_storageSize(const uint16_t* name, int32_t nameLen)
 {
-    //TODO: to implement
-    return 0;
+    int64_t totalSize = 0;
+
+#if defined(ARCH_ARM_SPD)
+    uint32_t  fsHSize = 0, fsLSize = 0;
+    uint32_t  usHSize = 0, usLSize = 0;
+    uint16_t diskType[2] = {0x00,};
+
+    diskType[0] = name[0];
+
+    if ((SFS_GetDeviceFreeSpace(diskType, (uint32_t *)&fsHSize, (uint32_t *)&fsLSize) != SFS_NO_ERROR) ||
+        (SFS_GetDeviceUsedSpace(diskType, (uint32_t *)&usHSize, (uint32_t *)&usLSize) != SFS_NO_ERROR))
+    {
+        DVMTraceErr("file_storageSize - ERROR: get size error.");
+    }
+    else
+    {
+        totalSize = (int64_t)((((int64_t)fsHSize<<32) | fsLSize) + (((int64_t)usHSize<<32) | usLSize));
+    }
+
+#endif
+    return totalSize;
 }
 
 int64_t file_freeSize(const uint16_t* name, int32_t nameLen)
 {
-    //TODO: to implement
-    return 0;
+    int64_t freeSize = 0;
+
+#if defined(ARCH_ARM_SPD)
+    uint32_t fsHSize = 0;
+    uint32_t fsLSize = 0;
+    uint16_t diskType[2] = {0x00,};
+
+    if (SFS_GetDeviceFreeSpace(diskType, (uint32_t *)&fsHSize, (uint32_t *)&fsLSize) != SFS_NO_ERROR)
+    {
+        DVMTraceErr("file_freeSize - ERROR: get size error.");
+    }
+    else
+    {
+        freeSize = ((int64_t)fsHSize << 32) | fsLSize;
+    }
+#endif
+
+    return freeSize;
 }
 
 
