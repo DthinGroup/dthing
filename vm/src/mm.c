@@ -1026,6 +1026,35 @@ void * endmalloc(uint32_t size)
 	return mem;
 }
 
+void dmmstatus(int32_t *freesize, int32_t *usedsize)
+{
+	mpglobal* _mg = NULL;
+
+    int32_t fSize = 0;
+    int32_t uSize = 0;
+
+    for (_mg = mg; _mg != NULL; _mg = _mg->next)
+    {
+        mchunk *mem = _mg->mem_start;
+        for (; mem < _mg->mem_end; mem = (void *)next_chunk(mem))
+        {
+            if (cinuse(mem))
+            {
+                uSize += (chunksize(mem));
+            }
+            else
+            {
+                fSize += (chunksize(mem));
+            }
+        }
+        fSize += ((int32_t)_mg->free_size);
+        uSize += ((int32_t)((char*)(_mg->perm_end) - (char*)(_mg->perm_start)));
+    }
+
+    if (freesize != NULL) *freesize = fSize;
+    if (usedsize != NULL) *usedsize = uSize;
+    
+}
 
 
 static bool_t isDynamicMem(void* mem)

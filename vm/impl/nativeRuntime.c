@@ -9,6 +9,7 @@
  */
 
 #include <nativeRuntime.h>
+#include <heap.h>
 #include <gc.h>
 
 /**
@@ -17,8 +18,17 @@
  * Signature: ()J
  */
 void Java_java_lang_Runtime_freeMemory(const u4* args, JValue* pResult) {
-    // TODO : implement
-    DVMTraceInf("Java_java_lang_Runtime_freeMemory is not implemented..\n");
+    jlong ret = 0;
+    jint freeSize = 0;
+
+    DVMTraceInf("Java_java_lang_Runtime_freeMemory is called...\n");
+
+    heapStatus(&freeSize, NULL);
+
+    ret = freeSize;
+
+    RETURN_LONG(ret);
+    
 }
 
 /**
@@ -27,8 +37,16 @@ void Java_java_lang_Runtime_freeMemory(const u4* args, JValue* pResult) {
  * Signature: ()J
  */
 void Java_java_lang_Runtime_totalMemory(const u4* args, JValue* pResult) {
-    // TODO : implement
+    jlong ret = 0;
+    jint usedSize = 0;
+    jint freeSize = 0;
+
     DVMTraceInf("Java_java_lang_Runtime_totalMemory is not implemented..\n");
+
+    heapStatus(&freeSize, &usedSize);
+    ret = freeSize + usedSize;
+
+    RETURN_LONG(ret);
 }
 
 /**
