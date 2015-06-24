@@ -106,15 +106,12 @@ public class SystemInfo extends Applet {
         postMessageToServer(msg);
 
         /* file system(device storage) usage */
-        File rootPath = new File("D:/");
-
-        if (rootPath != null)
-        {
+        try {
+            File rootPath = new File("D:/");
             used = getDirectorySize(rootPath);
-        }
-        else
-        {
-        	  used = 0;
+        } catch (NullPointerException e) {
+            System.out.println("rootPath[D:/]:" + e);
+            used = 0;
         }
 
         free = totalFS - used;
