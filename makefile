@@ -237,7 +237,8 @@ VM_SOURCES += \
     vm/impl/nativeSystemPrintStream.c \
     vm/impl/nativeThread.c \
     vm/impl/nativeThrowable.c \
-    vm/impl/nativeTimeZone.c
+    vm/impl/nativeTimeZone.c \
+    vm/impl/nativeMain.c \
 
 #vm/impl/nativeDouble.c \
 #vm/impl/nativeDthread.c \

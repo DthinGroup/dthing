@@ -2,7 +2,7 @@
  * Copyright (C) 2015 YarlungSoft. All Rights Reserved.
  * 
  * Created:         $Date: 2015/02/03 $
- * Last modified:	$Date: 2015/02/03 $
+ * Last modified:    $Date: 2015/02/03 $
  * Version:         $ID: opl_trace.c#1
  */
 

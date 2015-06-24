@@ -23,11 +23,11 @@ static bool_t  networkStarted = FALSE;
     } while(0)
 #elif defined(ARCH_ARM_SPD)
 #define SET_NON_BLOCKING(sock) \
-	do { \
-		int ret =0; \
-		ret = sci_sock_setsockopt(sock, SO_NBIO, NULL); \
-		SCI_TRACE_LOW("===RMT==set opt ret:%d",ret); \
-	} while(0)
+    do { \
+        int ret =0; \
+        ret = sci_sock_setsockopt(sock, SO_NBIO, NULL); \
+        SCI_TRACE_LOW("===RMT==set opt ret:%d",ret); \
+    } while(0)
 
 #endif
 
@@ -37,29 +37,29 @@ int32_t rams_startupNetwork()
 {
     int32_t res = RAMS_RES_FAILURE;
 #ifdef ARCH_X86
-	WSADATA wsaData;
-	if(Opl_net_isActivated() != TRUE)
-	{
-		if (!networkStarted && (WSAStartup(MAKEWORD(2,2), &wsaData) != NO_ERROR))
-	    {
-	        DVMTraceErr("WSAStartup failure, error code(%d)\n", WSAGetLastError());
-	        return FALSE;
-	    }
-	    networkStarted = TRUE;
-	    res = RAMS_RES_SUCCESS;
-	}
-	else
-	{
-		networkStarted = TRUE;
-	    res = RAMS_RES_SUCCESS;
-	}
+    WSADATA wsaData;
+    if(Opl_net_isActivated() != TRUE)
+    {
+        if (!networkStarted && (WSAStartup(MAKEWORD(2,2), &wsaData) != NO_ERROR))
+        {
+            DVMTraceErr("WSAStartup failure, error code(%d)\n", WSAGetLastError());
+            return FALSE;
+        }
+        networkStarted = TRUE;
+        res = RAMS_RES_SUCCESS;
+    }
+    else
+    {
+        networkStarted = TRUE;
+        res = RAMS_RES_SUCCESS;
+    }
     
-#elif defined(ARCH_ARM_SPD)	
-	if(Opl_net_isActivated() ==TRUE)
-	{
-		networkStarted = TRUE;
-		res = RAMS_RES_SUCCESS;
-	}
+#elif defined(ARCH_ARM_SPD)    
+    if(Opl_net_isActivated() ==TRUE)
+    {
+        networkStarted = TRUE;
+        res = RAMS_RES_SUCCESS;
+    }
 #endif
     return res;
 }
@@ -71,7 +71,7 @@ int32_t rams_connectServer(int32_t address, uint16_t port, int32_t *instance)
 #ifdef ARCH_X86
     struct sockaddr_in sa;
 
-	DVMTraceDbg("rams_connectServer to 0x%x:%d\n",address,port);
+    DVMTraceDbg("rams_connectServer to 0x%x:%d\n",address,port);
     if (ES_firstScheduled())
     {
         if (!networkStarted)
@@ -123,7 +123,7 @@ int32_t rams_connectServer(int32_t address, uint16_t port, int32_t *instance)
 
 #elif defined(ARCH_ARM_SPD)
 
-	struct sci_sockaddr ssa;
+    struct sci_sockaddr ssa;
 
     DVMTraceDbg("rams_connectServer to 0x%x:%d\n",address,port);
 
@@ -139,8 +139,8 @@ int32_t rams_connectServer(int32_t address, uint16_t port, int32_t *instance)
 
         if(fInst <= 0)
         {
-    	    DVMTraceErr("socket init error\n");
-    	    return RAMS_RES_FAILURE;
+            DVMTraceErr("socket init error\n");
+            return RAMS_RES_FAILURE;
         }
         SET_NON_BLOCKING(fInst);
 
@@ -155,28 +155,29 @@ int32_t rams_connectServer(int32_t address, uint16_t port, int32_t *instance)
         fInst = *instance;
     }
 
-	if (sci_sock_connect(fInst, &ssa, sizeof(struct sci_sockaddr)) == TCPIP_SOCKET_ERROR)
-	{
-		int32_t errCode = sci_sock_errno(fInst);
+    if (sci_sock_connect(fInst, &ssa, sizeof(struct sci_sockaddr)) == TCPIP_SOCKET_ERROR)
+    {
+        int32_t errCode = sci_sock_errno(fInst);
 
-		if(errCode == EWOULDBLOCK || errCode == EINPROGRESS)
-		{
+        if(errCode == EWOULDBLOCK || errCode == EINPROGRESS)
+        {
             ES_scheduleAgainWithTimeout(1000);
-			return RAMS_RES_WOULDBLOCK;
-		}
-		else if(errCode == EISCONN)
-		{
+            return RAMS_RES_WOULDBLOCK;
+        }
+        else if(errCode == EISCONN)
+        {
             //already connected.
-		}
-		else
-		{			
-			DVMTraceErr("sci_sock_connect fail,bad luck error code=%d\n",errCode);
-			sci_sock_socketclose(fInst);
+            DVMTraceErr("sci_sock_connect success,good luck success code=%d\n",errCode);
+        }
+        else
+        {            
+            DVMTraceErr("sci_sock_connect fail,bad luck error code=%d\n",errCode);
+            sci_sock_socketclose(fInst);
             return RAMS_RES_FAILURE;
-		}
-	}
+        }
+    }
 
-	//connect success;
+    //connect success;
     DVMTraceErr("socket connect success~ sock=%d,netId=%d\n",fInst, Opl_net_getNetId());
 #endif
     return RAMS_RES_SUCCESS;
@@ -196,7 +197,7 @@ int32_t rams_recvData(int32_t instance, uint8_t* buf, int32_t bufSize)
         if (errCode == WSAEWOULDBLOCK)
         {
             ES_scheduleAgainWithTimeout(2000);
-			ret = RAMS_RES_WOULDBLOCK;
+            ret = RAMS_RES_WOULDBLOCK;
         }
         else
         {
@@ -213,14 +214,14 @@ int32_t rams_recvData(int32_t instance, uint8_t* buf, int32_t bufSize)
         if (errCode == EWOULDBLOCK || errCode == EINPROGRESS)
         {
             ES_scheduleAgainWithTimeout(1000);
-			ret = RAMS_RES_WOULDBLOCK;
+            ret = RAMS_RES_WOULDBLOCK;
         }
         else
         {
             ret = RAMS_RES_FAILURE;
         }
     }
-	#endif
+    #endif
 #endif
     //Too much log may lead to log missing. Just disable log when EWOULDBLOCK
     if (RAMS_RES_WOULDBLOCK != ret)
@@ -245,7 +246,7 @@ int32_t rams_sendData(int32_t instance, uint8_t* buf, int32_t bufSize)
         if (errCode == WSAEWOULDBLOCK)
         {
             ES_scheduleAgainWithTimeout(500);
-			ret = RAMS_RES_WOULDBLOCK;
+            ret = RAMS_RES_WOULDBLOCK;
         }
         else
         {
@@ -262,23 +263,23 @@ int32_t rams_sendData(int32_t instance, uint8_t* buf, int32_t bufSize)
         if (errCode == EWOULDBLOCK || errCode == EINPROGRESS)
         {
             ES_scheduleAgainWithTimeout(1000);
-			ret = RAMS_RES_WOULDBLOCK;
+            ret = RAMS_RES_WOULDBLOCK;
         }
         else
         {
             ret = RAMS_RES_FAILURE;
         }
     }
-#endif	
+#endif    
 #endif
-	DVMTraceDbg("===rams_sendData,handle:0x%x,ret:%d\n",instance,ret);
+    DVMTraceDbg("===rams_sendData,handle:0x%x,ret:%d\n",instance,ret);
     return ret;
 }
 
 /* refer to opl_rams.h */
 int32_t rams_closeConnection(int32_t instance)
 {
-	DVMTraceDbg("===rams_closeConnection,handle:0x%x\n",instance);
+    DVMTraceDbg("===rams_closeConnection,handle:0x%x\n",instance);
 #ifdef ARCH_X86
     closesocket(instance);
 #elif defined(ARCH_ARM_SPD)

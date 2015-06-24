@@ -23,27 +23,27 @@
 extern "C" {
 #endif
 
-/**
+ /**
  * TRACE_LEV value definitions:
- * 1 - debug
- * 2 - info
- * 3 - warning
- * 4 - error
+ * 1 - error
+ * 2 - warning
+ * 3 - info
+ * 4 - debug
  */
 #ifndef TRACE_LEV 
-#define TRACE_LEV 3
+#define TRACE_LEV 1
 #endif
-
-#define DVMTraceErr (TRACE_LEV < 1) ? (void) 0 : (void)DthingTraceE
-#define DVMTraceWar (TRACE_LEV < 2) ? (void) 0 : (void)DthingTraceW
-#define DVMTraceDbg (TRACE_LEV < 3) ? (void) 0 : (void)DthingTraceD
-#define DVMTraceInf (TRACE_LEV < 4) ? (void) 0 : (void)DthingTraceI
+#define LEVEL_0 0
+#define LEVEL_1 1
+#define LEVEL_2 2
+#define LEVEL_3 3
+#define LEVEL_4 4
 
 int SetDthingTraceLevel(unsigned int level);
-void DthingTraceD(const char * fmt,...);
-void DthingTraceI(const char * fmt,...);
-void DthingTraceW(const char * fmt,...);
-void DthingTraceE(const char * fmt,...);
+void DVMTraceDbg(const char * fmt,...);
+void DVMTraceInf(const char * fmt,...);
+void DVMTraceWar(const char * fmt,...);
+void DVMTraceErr(const char * fmt,...);
 
 #ifdef __cplusplus
 }

@@ -42,6 +42,7 @@ int main(int argc, char *argv[])
 	file_startup();
 	Opl_net_activate();
 	Ams_init();
+    DVMTraceErr("===AT module OK===");
 	//DVM_main(argc, argv);
 #ifdef    NOT_LAUNCH_NET_TASK	
     ramsClient_runApplet(0);
@@ -74,6 +75,7 @@ static void Dthing_IThreadProc(int argc, void * argv)
 	Ams_regModuleCallBackHandler(ATYPE_SAMS,smsc_callBack);
     Opl_net_activate();
     Ams_init();
+    DVMTraceErr("===AT module OK===");
     //DVM_main(arg,arga);
 //    launchRemoteAMSClient(FALSE, arg, arga);
     launchESSchdule();

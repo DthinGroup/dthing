@@ -2192,7 +2192,7 @@ static ClassObject* findClassNoInit(const char* descriptor, DvmDex* pDvmDex)
         if (pClassDef == NULL)
         {
             //TODO: should throw exception here?
-            DVMTraceErr("findClassNoInit - doesn't find dvm class\n");
+            //DVMTraceErr("findClassNoInit - doesn't find dvm class\n");
             goto bail;
         }
 
