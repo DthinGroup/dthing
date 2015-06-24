@@ -20,6 +20,7 @@
 . build.sh QTDemo
 . build.sh ShakeDemo
 . build.sh SmartHomeDemo
+. build.sh SystemInfo
 . build.sh ThreadDemo
 . build.sh Ublox
 . build.sh Vibrate
