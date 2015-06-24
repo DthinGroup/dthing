@@ -204,3 +204,25 @@ void Java_java_io_File_list0(const u4* args, JValue* pResult) {
     CRTL_free(path);
     RETURN_PTR(ret);
 }
+
+/**
+ * Class:     java_io_File
+ * Method:    totalSize0
+ * Signature: (Ljava/lang/String;)J
+ */
+void Java_java_io_File_totalSize0(const u4* args, JValue* pResult) {
+    jlong ret = 0;
+    ret = file_storageSize(0x0, 0);
+    RETURN_PTR(ret);
+}
+
+/**
+ * Class:     java_io_File
+ * Method:    availableSize0
+ * Signature: (Ljava/lang/String;)J
+ */
+void Java_java_io_File_availableSize0(const u4* args, JValue* pResult) {
+    jlong ret = 0;
+    ret = file_freeSize(0x0, 0);
+    RETURN_PTR(ret);
+}

@@ -194,6 +194,18 @@ public class File implements Serializable {
 
     private static native String[] list0(String path);
 
+    public long totalSize() {
+        return totalSize0(path);
+	}
+
+    private static native long totalSize0(String path);
+
+    public long availableSize() {
+		return availableSize0(path);
+    }
+
+    private static native long availableSize0(String path);
+
     /**
      * Returns the pathname string of this absolute pathname. This is just the string returned by
      * the <code>{@link #getPath}</code> method.

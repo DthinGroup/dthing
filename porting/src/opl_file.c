@@ -157,7 +157,10 @@ int64_t file_storageSize(const uint16_t* name, int32_t nameLen)
     uint32_t  usHSize = 0, usLSize = 0;
     uint16_t diskType[2] = {0x00,};
 
-    diskType[0] = name[0];
+    if (name != NULL)
+    {
+        diskType[0] = name[0];
+    }
 
     if ((SFS_GetDeviceFreeSpace(diskType, (uint32_t *)&fsHSize, (uint32_t *)&fsLSize) != SFS_NO_ERROR) ||
         (SFS_GetDeviceUsedSpace(diskType, (uint32_t *)&usHSize, (uint32_t *)&usLSize) != SFS_NO_ERROR))
@@ -181,6 +184,11 @@ int64_t file_freeSize(const uint16_t* name, int32_t nameLen)
     uint32_t fsHSize = 0;
     uint32_t fsLSize = 0;
     uint16_t diskType[2] = {0x00,};
+
+    if (name != NULL)
+    {
+        diskType[0] = name[0];
+    }
 
     if (SFS_GetDeviceFreeSpace(diskType, (uint32_t *)&fsHSize, (uint32_t *)&fsLSize) != SFS_NO_ERROR)
     {

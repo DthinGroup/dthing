@@ -12,10 +12,10 @@ import jp.co.cmcc.event.Event;
 public class SystemInfo extends Applet {
     private static boolean debug = true;
     private static boolean allowMemoryInfo = true;
-    private static boolean allowFSInfo = false;
+    private static boolean allowFileList = false;
     private final static String SERVER_PREFIX =
-    "http://42.121.18.62:8080/dthing" +
-    "/ParmInfo.action?saveDataInfo&saveType=log&parmInfo=";
+        "http://42.121.18.62:8080/dthing" +
+        "/ParmInfo.action?saveDataInfo&saveType=log&parmInfo=";
 
     public SystemInfo() {
       // TODO Auto-generated constructor stub
@@ -32,8 +32,8 @@ public class SystemInfo extends Applet {
     }
 
     public void startup() {
-      // TODO Auto-generated method stub
-      getSystemInfo();
+        // TODO Auto-generated method stub
+        getSystemInfo();
     }
 
     private void postMessageToServer(String msg) {
@@ -137,21 +137,26 @@ public class SystemInfo extends Applet {
         postMessageToServer(msg);
 
         /* file system(device storage) usage */
-        if (allowFSInfo)
-        {
-            try {
-                File rootPath = new File("D:/");
+        try {
+            File rootPath = new File("D:/");
+            if (allowFileList)
+            {
                 used = getDirectorySize(rootPath);
-            } catch (NullPointerException e) {
-                System.out.println("rootPath[D:/]:" + e);
-                used = 0;
+                free = totalFS - used;
             }
-
-            free = totalFS - used;
-
-            msg = "FS%20Flash%20used(" + (used >> 10) + "K),%20" +
-                "free(" + (free >> 10) + "K)";
-            postMessageToServer(msg);
+            else
+            {
+                free = rootPath.availableSize();
+                used = rootPath.totalSize() - free;
+            }
+        } catch (NullPointerException e) {
+            System.out.println("rootPath[D:/]:" + e);
+            used = 0;
+            free = totalFS;
         }
+
+        msg = "FS%20Flash%20used(" + (used >> 10) + "K),%20" +
+                "free(" + (free >> 10) + "K)";
+        postMessageToServer(msg);
     }
 }

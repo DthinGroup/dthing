@@ -186,15 +186,17 @@ KniNativeMethodInfo gJava_iot_oem_usb_USBConnection[2] = {
 };
 
 /* java.io.File native APIs */
-KniNativeMethodInfo gJava_java_io_File[8] = {
-    {"createFile0",   "(Ljava/lang/String;)Z",                   (KniFunc)Java_java_io_File_createFile0},
-    {"delete0",       "(Ljava/lang/String;)Z",                   (KniFunc)Java_java_io_File_delete0},
-    {"exists0",       "(Ljava/lang/String;)Z",                   (KniFunc)Java_java_io_File_exists0},
-    {"isDirectory0",  "(Ljava/lang/String;)Z",                   (KniFunc)Java_java_io_File_isDirectory0},
-    {"isFile0",       "(Ljava/lang/String;)Z",                   (KniFunc)Java_java_io_File_isFile0},
-    {"lastModified0", "(Ljava/lang/String;)J",                   (KniFunc)Java_java_io_File_lastModified0},
-    {"length0",       "(Ljava/lang/String;)J",                   (KniFunc)Java_java_io_File_length0},
-    {"list0",         "(Ljava/lang/String;)[Ljava/lang/String;", (KniFunc)Java_java_io_File_list0},
+KniNativeMethodInfo gJava_java_io_File[10] = {
+    {"createFile0",    "(Ljava/lang/String;)Z",                   (KniFunc)Java_java_io_File_createFile0},
+    {"delete0",        "(Ljava/lang/String;)Z",                   (KniFunc)Java_java_io_File_delete0},
+    {"exists0",        "(Ljava/lang/String;)Z",                   (KniFunc)Java_java_io_File_exists0},
+    {"isDirectory0",   "(Ljava/lang/String;)Z",                   (KniFunc)Java_java_io_File_isDirectory0},
+    {"isFile0",        "(Ljava/lang/String;)Z",                   (KniFunc)Java_java_io_File_isFile0},
+    {"lastModified0",  "(Ljava/lang/String;)J",                   (KniFunc)Java_java_io_File_lastModified0},
+    {"length0",        "(Ljava/lang/String;)J",                   (KniFunc)Java_java_io_File_length0},
+    {"list0",          "(Ljava/lang/String;)[Ljava/lang/String;", (KniFunc)Java_java_io_File_list0},
+    {"totalSize0",     "(Ljava/lang/String;)J",                   (KniFunc)Java_java_io_File_totalSize0},
+    {"availableSize0", "(Ljava/lang/String;)J",                   (KniFunc)Java_java_io_File_availableSize0},
 };
 
 /* java.io.FileInputStream native APIs */
@@ -382,7 +384,7 @@ KniClassNativeMethodInfo gNativeMthTab[NATIVE_CLASSES_COUNT] = {
     {"Liot/oem/spi/SPIManager;",                       gJava_iot_oem_spi_SPIManager,                       6},
     {"Liot/oem/spk/SpeakerManager;",                   gJava_iot_oem_spk_SpeakerManager,                   4},
     {"Liot/oem/usb/USBConnection;",                    gJava_iot_oem_usb_USBConnection,                    2},
-    {"Ljava/io/File;",                                 gJava_java_io_File,                                 8},
+    {"Ljava/io/File;",                                 gJava_java_io_File,                                 10},
     {"Ljava/io/FileInputStream;",                      gJava_java_io_FileInputStream,                      5},
     {"Ljava/io/FileOutputStream;",                     gJava_java_io_FileOutputStream,                     3},
     {"Ljava/lang/AsyncIO;",                            gJava_java_lang_AsyncIO,                            3},

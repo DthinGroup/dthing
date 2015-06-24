@@ -67,6 +67,20 @@ void Java_java_io_File_length0(const u4* args, JValue* pResult);
  */
 void Java_java_io_File_list0(const u4* args, JValue* pResult);
 
+/**
+ * Class:     java_io_File
+ * Method:    totalSize0
+ * Signature: (Ljava/lang/String;)J
+ */
+void Java_java_io_File_totalSize0(const u4* args, JValue* pResult);
+
+/**
+ * Class:     java_io_File
+ * Method:    availableSize0
+ * Signature: (Ljava/lang/String;)J
+ */
+void Java_java_io_File_availableSize0(const u4* args, JValue* pResult);
+
 #ifdef __cplusplus
 }
 #endif
