@@ -161,7 +161,7 @@ static ReadStream* createFileReadStream(uint16_t* fn, int32_t len)
 
         if (file_open(fn, len, FILE_MODE_RD, &readStream->handle) != FILE_RES_SUCCESS)
         {
-            DVMTraceErr("createFileReadStream - open file fail!\n");
+            //DVMTraceErr("createFileReadStream - open file fail!\n");
             res = FALSE;
             break;
         }
