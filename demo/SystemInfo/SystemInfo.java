@@ -86,10 +86,7 @@ public class SystemInfo extends Applet {
         total = Runtime.getRuntime().totalMemory();
         free = Runtime.getRuntime().freeMemory();
         used = total - free;
-        if (debug) {
-            System.out.println("Memory used(" + (used >> 10) + "K), " +
-                "free(" + (free >> 10) + "K)");
-        }
+
         msg = "Memory%20used(" + (used >> 10) + "K),%20" +
             "free(" + (free >> 10) + "K)";
         postMessageToServer(msg);
@@ -105,20 +102,14 @@ public class SystemInfo extends Applet {
             total += random.nextInt(0xFFFFF);
         }
         endpoint = System.currentTimeMillis();
-        if (debug) {
-            System.out.println("Cycle 100 times takes " + (startpoint-endpoint) + "ms");
-        }
-        msg = "Cycle%20100%20times%20takes%20" + (startpoint - endpoint) + "ms";
+
+        msg = "Cycle%20100%20times%20takes%20" + (endpoint - startpoint) + "ms";
         postMessageToServer(msg);
 
         /* file system(device storage) usage */
         used = getDirectorySize("D:/");
         free = totalFS - used;
 
-        if (debug) {
-            System.out.println("FS Flash used(" + (used >> 10) + "K), " +
-                "free(" + (free >> 10) + "K)");
-        }
         msg = "FS%20Flash%20used(" + (used >> 10) + "K),%20" +
             "free(" + (free >> 10) + "K)";
         postMessageToServer(msg);
