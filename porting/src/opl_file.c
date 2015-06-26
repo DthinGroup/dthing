@@ -155,7 +155,7 @@ int64_t file_storageSize(const uint16_t* name, int32_t nameLen)
 #if defined(ARCH_ARM_SPD)
     uint32_t  fsHSize = 0, fsLSize = 0;
     uint32_t  usHSize = 0, usLSize = 0;
-    uint16_t diskType[2] = {0x00,};
+    uint16_t diskType[2] = {L"D",};
 
     if (name != NULL)
     {
@@ -183,7 +183,7 @@ int64_t file_freeSize(const uint16_t* name, int32_t nameLen)
 #if defined(ARCH_ARM_SPD)
     uint32_t fsHSize = 0;
     uint32_t fsLSize = 0;
-    uint16_t diskType[2] = {0x00,};
+    uint16_t diskType[2] = {L"D",};
 
     if (name != NULL)
     {
