@@ -20,6 +20,7 @@
 #include "dal_lcd.h"
 #include "lcd_cfg.h"
 #include "spi_drvapi.h"
+#include "spi_drvapi_old.h"
 #include "gpio_drvapi.h"
 
 /**---------------------------------------------------------------------------*
@@ -364,6 +365,7 @@ int spiConfig(int DevHandle, spi_config_t* pConfig)
   uint8 spiNo = 0;
   MDP_SPI_CFG_S devCfg = {0};
   SPI_DEV dev = {0};
+  SPI_CONFIG_T spiCfg = {0};
 
   ret = getSpiNo(DevHandle, &spiNo);
 
@@ -377,7 +379,9 @@ int spiConfig(int DevHandle, spi_config_t* pConfig)
   }
 
   dev.id = spiNo;
-  dev.mode = CPOL1_CPHA1;
+  dev.mode = CPOL0_CPHA0;
+  spiCfg.cs_id = SPI_CS_ID0;
+  spiCfg.dev_type = SPI_SDCARD;
 
   //参数转换
   if((pConfig->ioctrlMode == SPI_IOCTL_DMA) || (pConfig->modeSel == SPI_SLAVER))
@@ -389,56 +393,71 @@ int spiConfig(int DevHandle, spi_config_t* pConfig)
   {
     dev.freq = 6500000 / (2 * (pConfig->divider - 1));
     devCfg.freq = 6500000 / (2 * (pConfig->divider - 1));
+    spiCfg.freq = 6500000 / (2 * (pConfig->divider - 1));
   }
   else
   {
     dev.freq = 6500000;
     devCfg.freq = 6500000;
+    spiCfg.freq = 6500000;
   }
 
   if(pConfig->bitPri == SPI_LSB_FIRST)
   {
     devCfg.lsb_first = SCI_TRUE;
+    spiCfg.lsb_first = SCI_TRUE;
   }
   else
   {
     devCfg.lsb_first = SCI_FALSE;
+    spiCfg.lsb_first = SCI_FALSE;
   }
 
   if(pConfig->bitLen == SPI_BL_16BIT)
   {
     dev.tx_bit_length = 16;
     devCfg.tx_bit_length = 16;
+    spiCfg.tx_bit_length = 16;
   }
   else
   {
     dev.tx_bit_length = 8;
     devCfg.tx_bit_length = 8;
+    spiCfg.tx_bit_length = 8;
   }
 
   if(pConfig->datatrans == SPI_DATA_HH)
   {
     devCfg.sck_reverse = SCI_TRUE;
+    spiCfg.sck_reverse = SCI_TRUE;
     devCfg.rx_shift_edge = SCI_TRUE;
+    spiCfg.rx_shift_edge = SCI_TRUE;
   }
   else if(pConfig->datatrans == SPI_DATA_HL)
   {
     devCfg.sck_reverse = SCI_TRUE;
+    spiCfg.sck_reverse = SCI_TRUE;
     devCfg.rx_shift_edge = SCI_FALSE;
+    spiCfg.rx_shift_edge = SCI_FALSE;
   }
   else if(pConfig->datatrans == SPI_DATA_LH)
   {
     devCfg.sck_reverse = SCI_FALSE;
+    spiCfg.sck_reverse = SCI_FALSE;
     devCfg.rx_shift_edge = SCI_TRUE;
+    spiCfg.rx_shift_edge = SCI_TRUE;
   }
   else
   {
     devCfg.sck_reverse = SCI_FALSE;
+    spiCfg.sck_reverse = SCI_FALSE;
     devCfg.rx_shift_edge = SCI_FALSE;
+    spiCfg.rx_shift_edge = SCI_FALSE;
   }
 
   //执行配置
-  ret = SPI_HAL_Open(&dev);
+  //ret = SPI_HAL_Open(&dev);
+  ret = SPI_Open(spiNo, &spiCfg);
 
   if(0 == ret)
   {
@@ -494,7 +513,7 @@ int spiWrite(int DevHandle, uint8* pchUserBuf, uint32 length)
     return ret;
   }
 
-  ret = SPI_HAL_LCDWrite(spiNo, pchUserBuf, length, 0);
+  ret = SPI_Write(spiNo, pchUserBuf, length);
   return ret;
 }
 
@@ -510,7 +529,7 @@ int spiWrite0(int DevHandle, uint8* pchUserBuf, uint32 length)
     return ret;
   }
 
-  ret = SPI_HAL_Write(spiNo, pchUserBuf, length);
+  ret = SPI_Write(spiNo, pchUserBuf, length);
   return ret;
 }
 
