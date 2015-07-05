@@ -175,6 +175,9 @@ public class SmartHomeManager extends Applet {
                         Thread.sleep(2000);
                         System.out.println("startDataCollectThread sleep 2s over A");
                         reportTestInfo("COM", "start to read data");
+                        System.out.println("Ready to read 1");
+                        System.out.println("Ready to read is:" + is);
+                        System.out.println("Ready to read 2");                        
                         readSize = is.read(buf, 0, 28);
 						System.out.println("startDataCollectThread Read Size:" + readSize);
                         if (readSize < 0)
