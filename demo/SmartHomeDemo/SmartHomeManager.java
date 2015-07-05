@@ -52,11 +52,12 @@ public class SmartHomeManager extends Applet {
 
     public void destroyCommReference(CommConnectionImpl comm) throws IOException
     {
-        System.out.println("destroyCommReference");
+        System.out.println("destroyCommReference, commRefCount:" + commRefCount);
         if (commRefCount > 0)
         {
-            commRefCount--;
+            commRefCount = commRefCount - 1;
         }
+        
         if (commRefCount == 0)
         {
             comm.close();
@@ -188,7 +189,8 @@ public class SmartHomeManager extends Applet {
 
                         String readString = new String(buf);
                         System.out.println("startDataCollectThread readString:" + readString);
-                        reportTestInfo("COM", "read:" + convertEscapedChar(readString));
+                        reportTestInfo("COM", "read:" + readString);
+                        //reportTestInfo("COM", "read:" + convertEscapedChar(readString));
                         Thread.sleep(2000L);
                         count = count +1;
                         //is.close();
@@ -209,7 +211,7 @@ public class SmartHomeManager extends Applet {
             	System.out.println("convertEscapedChar,original:" + original);
                 String escaped = "";
                 char[] ctest = original.toCharArray();
-                for (int i = 0; i < ctest.length; i++)
+                for (int i = 0; i < ctest.length; i=i+1)
                 {
                     if ((ctest[i] != '\r') && (ctest[i] != '\n'))
                     {
