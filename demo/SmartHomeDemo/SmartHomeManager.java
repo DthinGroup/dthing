@@ -80,7 +80,7 @@ public class SmartHomeManager extends Applet {
         commInuse = false;
     }
 
-    public void reportTestInfo(String name, String msg) throws IOException {
+    public void reportTestInfo(String name, String msg){
         String content = name + ":" + msg.replace(' ', '.');
         String reportInfo = REPORT_SERVER_FORMAT + content;
 
@@ -89,12 +89,16 @@ public class SmartHomeManager extends Applet {
             System.out.println("[" + name + "]" + content);
         }
 
-        URL url = new URL(reportInfo);
-        HttpURLConnection httpConn = (HttpURLConnection)url.openConnection();
-        httpConn.setRequestMethod(HttpURLConnection.POST);
-        InputStream dis = httpConn.getInputStream();
-        dis.close();
-        httpConn.disconnect();
+		try{
+        	URL url = new URL(reportInfo);
+        	HttpURLConnection httpConn = (HttpURLConnection)url.openConnection();
+        	httpConn.setRequestMethod(HttpURLConnection.POST);
+        	InputStream dis = httpConn.getInputStream();
+        	dis.close();
+        	httpConn.disconnect();
+    	} catch (Exception e){
+    		System.out.println("reportTestInfo Exception <not throw>: " + e);
+    	}
     }
 
     public void startIRControllerThread()
@@ -163,8 +167,10 @@ public class SmartHomeManager extends Applet {
                         {
                             //Waiting
                         }
+                        System.out.println("God bless dataCollectThread");
                         reportTestInfo("COM", "God bless dataCollectThread");
                         is = comm.openInputStream();
+                        System.out.println("god is:" + is);
                         System.out.println("startDataCollectThread openInputStream, to sleep");
                         Thread.sleep(2000);
                         System.out.println("startDataCollectThread sleep 2s over A");
