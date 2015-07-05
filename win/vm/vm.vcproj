@@ -283,6 +283,10 @@
 				RelativePath="..\..\vm\init.c"
 				>
 			</File>
+			<File
+				RelativePath="..\..\vm\init.h"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="intepret"

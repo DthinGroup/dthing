@@ -99,7 +99,7 @@ void Java_jp_co_cmcc_atcommand_ATCommandConnection_send0(const u4* args, JValue*
     else
     {
         //Waiting response
-        ATC_GetResultRsp(linkId, &response, &responseLen);
+        //ATC_GetResultRsp(linkId, &response, &responseLen);
         g_sendNotifier = NULL;
         ATC_RegisterCallback(NULL);
     }
@@ -200,7 +200,7 @@ void Java_jp_co_cmcc_atcommand_ATCommandConnection_get0(const u4* args, JValue* 
 #endif
     )
     {
-        ATC_GetResultRsp(g_async_linkId, &response, &responseLen);
+        //ATC_GetResultRsp(g_async_linkId, &response, &responseLen);
 
 #ifdef ASYNCIO_SUPPORT
         if (response == NULL)
@@ -213,7 +213,7 @@ void Java_jp_co_cmcc_atcommand_ATCommandConnection_get0(const u4* args, JValue* 
 #ifdef ASYNCIO_SUPPORT
     else
     {
-        ATC_GetResultRsp(g_async_linkId, &response, &responseLen);
+        //ATC_GetResultRsp(g_async_linkId, &response, &responseLen);
         //clear flags for next async call
         g_async_linkId = -1;
         g_sendNotifier = NULL;

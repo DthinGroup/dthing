@@ -24,6 +24,9 @@ import com.yarlungsoft.util.Log;
  * One extra duty for this class is to reset the VM in a callback.
  */
 public class Main {
+	
+	public static final int NATIVE_NEXT_SCDH_STATE_NULL = 0x00;
+	public static final int NATIVE_NEXT_SCDH_STATE_TCK  = 0x01;
 
     private static final String AMS_NAME = "AppletsManager";
     private static final String TAG = "Main";
@@ -57,6 +60,7 @@ public class Main {
             case CommandProcessor.CMD_TCK:
                 TCKRunner tckrunner = new TCKRunner(sCmdState.getInstallURL());
                 tckrunner.start();
+                Log.amsLog(TAG, "launch tck runner!");
                 break;
 
             default:
@@ -66,6 +70,7 @@ public class Main {
         } catch (Exception e) {
 
         }
+        Log.amsLog(TAG, "dvm main over!");
     }
 
     protected static CommandProcessor getCmdState() {
@@ -105,10 +110,16 @@ public class Main {
         }
     }
     
+    public static void setNextSchedulerState(int state){
+    	Log.amsLog(TAG, "set next state: " + state + "\n");
+    	setNextSchedulerState0(state);
+    }
+    
     private static void loadClassByPath(String path){
     	Log.amsLog(TAG, "load APP path: " + path + "\n");
     	loadClassByPath0(path);    	
     }
     
     private static native void loadClassByPath0(String path);
+    private static native void setNextSchedulerState0(int state);
 }

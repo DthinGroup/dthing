@@ -3,6 +3,7 @@
 #include "nativeMain.h"
 #include "class.h"
 #include "crtl.h"
+#include "init.h"
 
 
 //just support ascii convert
@@ -49,4 +50,17 @@ void Java_com_yarlungsoft_ams_Main_loadClassByPath0(const u4* args, JValue* pRes
     // return type : void
 }
 
+/**
+ * Class:     com_yarlungsoft_ams_Main
+ * Method:    setNextSchedulerState0
+ * Signature: (I)V
+ */
+void Java_com_yarlungsoft_ams_Main_setNextSchedulerState0(const u4* args, JValue* pResult) {
+    ClassObject* thisObj = (ClassObject*) args[0];
+    jint state = (jint) args[1];
 
+    // TODO: implementation
+	setNextSchedulerState(state);
+
+    RETURN_VOID();
+}

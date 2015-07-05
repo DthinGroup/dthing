@@ -56,6 +56,7 @@ public class TCKRunner extends Thread implements OTAListener {
     public void onResult(int result) {
         synchronized (lock) {
             otaResult = result;
+            Log.amsLog(TAG, "ota result " + result + "\n");
             lock.notifyAll();
         }
     }
@@ -94,13 +95,15 @@ public class TCKRunner extends Thread implements OTAListener {
             ota = new OTADownload(url);
             ota.setListener(this);
 
-            synchronized (lock) {
+            do {
                 otaResult = OTAConfig.OTA_UNKNOWN;
                 ota.OTAStart();
 
                 while (otaResult == OTAConfig.OTA_UNKNOWN) {
                     try {
-                        lock.wait(CHECK_INTERVAL);
+                    	Log.amsLog(TAG, "sleep 1000 ms to wait ota result \n");
+                    	sleep(1000);
+                        //lock.wait(CHECK_INTERVAL);
                     } catch (InterruptedException ie) {
                         // ignore
                     }
@@ -131,7 +134,7 @@ public class TCKRunner extends Thread implements OTAListener {
                     tries++;
                     break;
                 }
-            }
+            } while(false);
 
             if (!isDownloaded) {
                 Log.amsLog(TAG, "waiting for " + (RETRY_DELAY / 1000) + " seconds");
@@ -173,7 +176,7 @@ public class TCKRunner extends Thread implements OTAListener {
         Log.amsLog(TAG, "started!");
         boolean downloaded = false;
 
-        for (;;) {
+        do {
             downloaded = downloadUrl(jadUrl);
             Log.amsLog(TAG, "downloaded=" + downloaded);
             if (!downloaded) {
@@ -197,11 +200,15 @@ public class TCKRunner extends Thread implements OTAListener {
             } catch (IOException e) {
                 Log.amsLog(TAG, "parseJad exception:" + e);
             }
+            
+            Log.amsLog(TAG, "restartRunner :" + restartRunner);
             if (jadInfo == null || jadInfo.jarUrl == null || jadInfo.jarUrl.length() == 0
-                    || jadInfo.appClass == null || jadInfo.appClass.length() == 0) {
+                    /*|| jadInfo.appClass == null || jadInfo.appClass.length() == 0*/) {
                 if (restartRunner) {
+                	Log.amsLog(TAG, "restartRunner : continue");
                     continue;
                 } else {
+                	Log.amsLog(TAG, "restartRunner : break");
                     break;
                 }
             }
@@ -209,6 +216,7 @@ public class TCKRunner extends Thread implements OTAListener {
             // delete downloaded jad file
             removeCurDownloadedFile();
 
+            Log.amsLog(TAG, "ready to doanload :" + jadInfo.jarUrl);
             downloaded = downloadUrl(jadInfo.jarUrl);
             if (!downloaded) {
                 if (restartRunner) {
@@ -217,14 +225,18 @@ public class TCKRunner extends Thread implements OTAListener {
                     break;
                 }
             }
+            Log.amsLog(TAG, "file to doanload : " + otaStorageFilename);
+            Log.amsLog(TAG, "final to doanload : " + jadInfo.jarUrl);
 
-            Main.launchApp(jadInfo.appClass);
+            Main.launchApp(jadInfo.appClass, otaStorageFilename);
 
+            Log.amsLog(TAG, "launch " + jadInfo.appClass + "over!");
             /* waiting for the applet finishing */
             while (Scheduler.getCurrentRunningApp() != null) {
+            	Log.amsLog(TAG, "wait " + jadInfo.appClass + "over!");
                 sleep0(CHECK_INTERVAL);
             }
-
+            Log.amsLog(TAG, "run " + jadInfo.appClass + "over!");
             /*
              * The sleep is to allow tracing to come out on slow machines, and to prevent spinning
              * if something goes wrong.
@@ -233,7 +245,9 @@ public class TCKRunner extends Thread implements OTAListener {
 
             // delete downloaded jar file
             removeCurDownloadedFile();
-        }
+            Log.amsLog(TAG, "ready to run next tck !");
+        } while(false);
+        Main.setNextSchedulerState(Main.NATIVE_NEXT_SCDH_STATE_TCK);
         Log.amsLog(TAG, "ended!");
     }
 }

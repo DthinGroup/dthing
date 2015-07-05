@@ -200,6 +200,8 @@ int32_t DVM_main(int32_t argc, char * argv[])
     ClassObject* dummyThreadCls = NULL;
     Object*      dummyThreadObj = NULL;
 
+L_RESCHD:
+	setNextSchedulerState(NEXT_STATE_NULL);
 	DVMTraceInf("Call DVM_Main,argc:%d\n",argc);
 	DVMTraceInf("argv-1:%s,argv-2:%s,argv-3:%s\n",argv[0],argv[1],argv[2]);
     DVM_native_init();
@@ -280,5 +282,30 @@ int32_t DVM_main(int32_t argc, char * argv[])
 
     DVM_lifecycle_final();
     DVM_native_final();
+
+	if(getNextSchedulerState() > NEXT_STATE_NULL)
+		goto L_RESCHD;
+
 	return 0;
 }
+
+static int32_t g_next_state = NEXT_STATE_NULL;
+
+void setNextSchedulerState(int32_t state)
+{
+	switch(state) {
+		case NEXT_STATE_TCK:
+			g_next_state = NEXT_STATE_TCK;
+			break;
+
+		case NEXT_STATE_NULL:
+		default:
+			g_next_state = NEXT_STATE_NULL;
+			break;
+	}
+}
+
+int32_t getNextSchedulerState(void){
+	return g_next_state;
+}
+

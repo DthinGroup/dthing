@@ -24,8 +24,9 @@ typedef struct {
 #define NATIVE_CLASSES_COUNT 41
 
 /* com.yarlungsoft.ams.Main native APIs */
-KniNativeMethodInfo gJava_com_yarlungsoft_ams_Main[1] = {
+KniNativeMethodInfo gJava_com_yarlungsoft_ams_Main[2] = {
     {"loadClassByPath0", "(Ljava/lang/String;)V", (KniFunc)Java_com_yarlungsoft_ams_Main_loadClassByPath0},
+    {"setNextSchedulerState0", "(I)V",                  (KniFunc)Java_com_yarlungsoft_ams_Main_setNextSchedulerState0},
 };
 
 /* com.yarlungsoft.ams.Scheduler native APIs */
@@ -364,7 +365,7 @@ KniNativeMethodInfo gJava_jp_co_cmcc_message_sms_MySmsConnectionThread[4] = {
 };
 
 KniClassNativeMethodInfo gNativeMthTab[NATIVE_CLASSES_COUNT] = {
-    {"Lcom/yarlungsoft/ams/Main;",                     gJava_com_yarlungsoft_ams_Main,                     1},
+    {"Lcom/yarlungsoft/ams/Main;",                     gJava_com_yarlungsoft_ams_Main,                     2},
     {"Lcom/yarlungsoft/ams/Scheduler;",                gJava_com_yarlungsoft_ams_Scheduler,                2},
     {"Lcom/yarlungsoft/util/SystemInputStream;",       gJava_com_yarlungsoft_util_SystemInputStream,       1},
     {"Lcom/yarlungsoft/util/SystemPrintStream;",       gJava_com_yarlungsoft_util_SystemPrintStream,       2},

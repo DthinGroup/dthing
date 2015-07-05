@@ -140,9 +140,16 @@ public class OTADownload {
                         break;
                     }
                 }
-                Log.amsLog(TAG, "End read " + bytesum + "in total");
+                Log.amsLog(TAG, "End read " + bytesum + " in total");
                 fs.flush();
                 fs.close();
+                
+                if(leng != bytesum){
+                	Log.amsLog(TAG, "not enough read data!");
+                	notifyOTAResult(OTAConfig.OTA_IO_ERROR);
+                    uConn.disconnect();
+                    return;
+                }
             } catch (FileNotFoundException e) {
                 notifyOTAResult(OTAConfig.OTA_FILE_ERROR);
                 uConn.disconnect();
