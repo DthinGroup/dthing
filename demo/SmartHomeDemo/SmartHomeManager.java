@@ -98,8 +98,7 @@ public class SmartHomeManager extends Applet {
     }
 
     public void startIRControllerThread()
-    {
-    	byte[] HardCode = {0x33,0x32,0x32,0x35};
+    {    	
         irControllerThread = new Thread() {
             public void run() {
                 CommConnectionImpl comm = CommConnectionImpl.getComInstance(1);
@@ -115,6 +114,7 @@ public class SmartHomeManager extends Applet {
                         reportTestInfo("IRC", "God bless IRControllerThread");
                         OutputStream os = comm.openOutputStream();
 
+						byte[] HardCode = {0x33,0x32,0x32,0x35};
                         os.write(HardCode/*hex2Bytes(OPEN_CODE)*/);
                         reportTestInfo("IRC", "write:" + OPEN_CODE);
                         os.close();
