@@ -100,8 +100,6 @@ public class SmartHomeManager extends Applet {
     public void startIRControllerThread()
     {
     	byte[] HardCode = {0x33,0x32,0x32,0x35};
-    	
-    	aujdfhufh
         irControllerThread = new Thread() {
             public void run() {
                 CommConnectionImpl comm = CommConnectionImpl.getComInstance(1);
