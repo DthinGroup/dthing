@@ -248,7 +248,7 @@ public class CommConnectionImpl extends Object {
         isConnected = false;
     }
 
-    private static native int close0(int port);
+    private static synchronized native int close0(int port);
 
     /**
      * Input stream for the connection
@@ -284,7 +284,7 @@ public class CommConnectionImpl extends Object {
          */
         void ensureOpen() throws IOException
         {
-            if (!parent.isConnected) {
+            if (!CommConnectionImpl.isConnected) {
                 throw new IOException("Stream closed");
             }
         }
@@ -336,7 +336,7 @@ public class CommConnectionImpl extends Object {
                 throw new IndexOutOfBoundsException();
 
             for(;;) {
-                int count = read1(parent.hPort, b, off, len);
+                int count = read1(CommConnectionImpl.hPort, b, off, len);
                 if (count != 0)
                 {
                     if (count > len) { // Is this really needed?
@@ -374,7 +374,7 @@ public class CommConnectionImpl extends Object {
          */
         public synchronized void close() throws IOException
         {
-            if (parent.isConnected) {
+            if (CommConnectionImpl.isConnected) {
                 parent.close();
                 parent = null;
             }
@@ -414,7 +414,7 @@ public class CommConnectionImpl extends Object {
          */
         void ensureOpen() throws IOException
         {
-            if (!parent.isConnected)
+            if (!CommConnectionImpl.isConnected)
             {
                 throw new IOException("Stream closed");
             }
@@ -471,7 +471,7 @@ public class CommConnectionImpl extends Object {
 
             while (AsyncIO.loop())
             {
-                result = writeBytes0(parent.hPort, b, off, len);
+                result = writeBytes0(CommConnectionImpl.hPort, b, off, len);
             }
 
             if(result < 0)
@@ -487,7 +487,7 @@ public class CommConnectionImpl extends Object {
          */
         public synchronized void close() throws IOException
         {
-            if (parent.isConnected)
+            if (CommConnectionImpl.isConnected)
             {
                 parent.close();
                 parent = null;
