@@ -99,6 +99,7 @@ public class SmartHomeManager extends Applet {
 
     public void startIRControllerThread()
     {
+    	byte[] HardCode = {0x33,0x32,0x32,0x35};
         irControllerThread = new Thread() {
             public void run() {
                 CommConnectionImpl comm = CommConnectionImpl.getComInstance(1);
@@ -114,7 +115,7 @@ public class SmartHomeManager extends Applet {
                         reportTestInfo("IRC", "God bless IRControllerThread");
                         OutputStream os = comm.openOutputStream();
 
-                        os.write(hex2Bytes(OPEN_CODE));
+                        os.write(HardCode/*hex2Bytes(OPEN_CODE)*/);
                         reportTestInfo("IRC", "write:" + OPEN_CODE);
                         os.close();
                         endToUseComm();
@@ -146,8 +147,8 @@ public class SmartHomeManager extends Applet {
     {
         dataCollectThread = new Thread() {
             public void run() {
-            	  int count = 0;
-            	  allowIRCRunning = false;
+				int count = 0;
+            	allowIRCRunning = false;
                 CommConnectionImpl comm = CommConnectionImpl.getComInstance(1);
                 registerCommReference(comm);
                 
@@ -164,11 +165,12 @@ public class SmartHomeManager extends Applet {
                         }
                         reportTestInfo("COM", "God bless dataCollectThread");
                         is = comm.openInputStream();
-
-                        Thread.sleep(10000L);
+                        System.out.println("startDataCollectThread openInputStream, to sleep");
+                        Thread.sleep(2000);
+                        System.out.println("startDataCollectThread sleep 2s over A");
                         reportTestInfo("COM", "start to read data");
                         readSize = is.read(buf, 0, 28);
-
+						System.out.println("startDataCollectThread Read Size:" + readSize);
                         if (readSize < 0)
                         {
                             reportTestInfo("COM", "exit when readSize is less than 0");
@@ -176,9 +178,10 @@ public class SmartHomeManager extends Applet {
                         }
 
                         String readString = new String(buf);
+                        System.out.println("startDataCollectThread readString:" + readString);
                         reportTestInfo("COM", "read:" + convertEscapedChar(readString));
                         Thread.sleep(2000L);
-                        count++;
+                        count = count +1;
                         //is.close();
                         endToUseComm();
                     } while ((allowRunning) && (count < 1));
@@ -186,9 +189,9 @@ public class SmartHomeManager extends Applet {
                     reportTestInfo("COM", "End of data collect");
                     startIRControllerThread();
                 } catch (IOException e) {
-                    System.out.println("IOException:" + e);
+                    System.out.println("aa IOException:" + e);
                 } catch (InterruptedException e) {
-                    System.out.println("InterruptedException:" + e);
+                    System.out.println("bb InterruptedException:" + e);
                 }
             }
 
