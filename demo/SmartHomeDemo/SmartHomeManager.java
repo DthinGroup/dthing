@@ -105,7 +105,7 @@ public class SmartHomeManager extends Applet {
     {    	
         irControllerThread = new Thread() {
             public void run() {
-                CommConnectionImpl comm = CommConnectionImpl.getComInstance(1);
+                CommConnectionImpl comm = CommConnectionImpl.getComInstance(0);
                 registerCommReference(comm);
 
                 try {
@@ -123,14 +123,14 @@ public class SmartHomeManager extends Applet {
                         reportTestInfo("IRC", "write:" + OPEN_CODE);
                         os.close();
                         endToUseComm();
-                        Thread.sleep(5000L);
+                        Thread.sleep(1000);
                     } while(allowIRCRunning);
                     destroyCommReference(comm);
                     reportTestInfo("IRC", "End of IRC");
                 } catch (IOException e) {
-                      System.out.println("IOException:" + e);
+                      System.out.println("cc IOException:" + e);
                 } catch (InterruptedException e) {
-                      System.out.println("InterruptedException:" + e);
+                      System.out.println("cc InterruptedException:" + e);
                 }
             }
 
@@ -153,7 +153,7 @@ public class SmartHomeManager extends Applet {
             public void run() {
 				int count = 0;
             	allowIRCRunning = false;
-                CommConnectionImpl comm = CommConnectionImpl.getComInstance(1);
+                CommConnectionImpl comm = CommConnectionImpl.getComInstance(0);
                 registerCommReference(comm);
                 
                 try {
@@ -206,6 +206,7 @@ public class SmartHomeManager extends Applet {
 
             private String convertEscapedChar(String original)
             {
+            	System.out.println("convertEscapedChar,original:" + original);
                 String escaped = "";
                 char[] ctest = original.toCharArray();
                 for (int i = 0; i < ctest.length; i++)
