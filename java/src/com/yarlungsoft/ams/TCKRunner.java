@@ -175,6 +175,7 @@ public class TCKRunner extends Thread implements OTAListener {
     public void run() {
         Log.amsLog(TAG, "started!");
         boolean downloaded = false;
+        boolean bRestart = true;
 
         do {
             downloaded = downloadUrl(jadUrl);
@@ -183,6 +184,7 @@ public class TCKRunner extends Thread implements OTAListener {
                 if (restartRunner) {
                     continue;
                 } else {
+                	bRestart = false;
                     break;
                 }
             }
@@ -209,6 +211,7 @@ public class TCKRunner extends Thread implements OTAListener {
                     continue;
                 } else {
                 	Log.amsLog(TAG, "restartRunner : break");
+                	bRestart = false;
                     break;
                 }
             }
@@ -222,6 +225,7 @@ public class TCKRunner extends Thread implements OTAListener {
                 if (restartRunner) {
                     continue;
                 } else {
+                	bRestart = false;
                     break;
                 }
             }
@@ -247,7 +251,11 @@ public class TCKRunner extends Thread implements OTAListener {
             removeCurDownloadedFile();
             Log.amsLog(TAG, "ready to run next tck !");
         } while(false);
-        Main.setNextSchedulerState(Main.NATIVE_NEXT_SCDH_STATE_TCK);
+        if(!bRestart){
+        	Main.setNextSchedulerState(Main.NATIVE_NEXT_SCDH_STATE_NULL);
+        } else {
+        	Main.setNextSchedulerState(Main.NATIVE_NEXT_SCDH_STATE_TCK);
+        }
         Log.amsLog(TAG, "ended!");
     }
 }

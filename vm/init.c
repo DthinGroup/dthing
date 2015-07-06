@@ -200,6 +200,7 @@ int32_t DVM_main(int32_t argc, char * argv[])
     ClassObject* dummyThreadCls = NULL;
     Object*      dummyThreadObj = NULL;
 
+	DVMTraceWar("==========DVM_main starts ====\n");
 L_RESCHD:
 	setNextSchedulerState(NEXT_STATE_NULL);
 	DVMTraceInf("Call DVM_Main,argc:%d\n",argc);
@@ -283,9 +284,12 @@ L_RESCHD:
     DVM_lifecycle_final();
     DVM_native_final();
 
-	if(getNextSchedulerState() > NEXT_STATE_NULL)
+	if(getNextSchedulerState() > NEXT_STATE_NULL){
+		DVMTraceWar("==========DVM_main re-sehedule ====\n");
 		goto L_RESCHD;
+	}	
 
+	DVMTraceWar("==========DVM_main ends ====\n");
 	return 0;
 }
 

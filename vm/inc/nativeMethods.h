@@ -25,7 +25,7 @@ typedef struct {
 
 /* com.yarlungsoft.ams.Main native APIs */
 KniNativeMethodInfo gJava_com_yarlungsoft_ams_Main[2] = {
-    {"loadClassByPath0", "(Ljava/lang/String;)V", (KniFunc)Java_com_yarlungsoft_ams_Main_loadClassByPath0},
+    {"loadClassByPath0",       "(Ljava/lang/String;)V", (KniFunc)Java_com_yarlungsoft_ams_Main_loadClassByPath0},
     {"setNextSchedulerState0", "(I)V",                  (KniFunc)Java_com_yarlungsoft_ams_Main_setNextSchedulerState0},
 };
 
