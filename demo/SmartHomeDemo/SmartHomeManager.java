@@ -125,7 +125,7 @@ public class SmartHomeManager extends Applet {
                         os.close();
                         endToUseComm();
                         Thread.sleep(1000);
-                    } while(allowIRCRunning);
+                    } while(false);
                     destroyCommReference(comm);
                     reportTestInfo("IRC", "End of IRC");
                 } catch (IOException e) {
@@ -164,10 +164,7 @@ public class SmartHomeManager extends Applet {
                     int readSize;
                     do {
                     	  reportTestInfo("COM", "startDataCollectThread");
-                        while(!allowToUseComm())
-                        {
-                            //Waiting
-                        }
+                        
                         System.out.println("God bless dataCollectThread");
                         reportTestInfo("COM", "God bless dataCollectThread");
                         is = comm.openInputStream();
@@ -191,19 +188,20 @@ public class SmartHomeManager extends Applet {
                         System.out.println("startDataCollectThread readString:" + readString);
                         reportTestInfo("COM", "read:" + readString);
                         //reportTestInfo("COM", "read:" + convertEscapedChar(readString));
-                        Thread.sleep(1000L);
-                        count = count +1;
+                        Thread.sleep(1000);
                         //is.close();
-                        endToUseComm();
-                    } while ((allowRunning) && (count < 1));
+                        //endToUseComm();
+                    } while (false);
                     destroyCommReference(comm);
                     reportTestInfo("COM", "End of data collect");
-                    startIRControllerThread();
+                    System.out.println("1st thread over!");                    
                 } catch (IOException e) {
                     System.out.println("aa IOException:" + e);
                 } catch (InterruptedException e) {
                     System.out.println("bb InterruptedException:" + e);
                 }
+                System.out.println("To start 2th thread!");
+                startIRControllerThread();
             }
 
             private String convertEscapedChar(String original)
