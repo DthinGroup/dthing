@@ -18,7 +18,7 @@ public class SmartHomeManager extends Applet {
     private static Thread irControllerThread = null;
     private static int commRefCount = 0; // Count of threads that is using comm instance
     private static boolean commInuse = false;
-    private static CommConnectionImpl comm = null;
+    private  CommConnectionImpl mComm = null;
 
     private static final String OPEN_CODE = "1B00A394090A20500220A8000000D0A394090A2070022000000000D0";
     private static final String CLOSE_CODE = "1B00A394010020500220A8000000B0A39401002070022000000000B0";
@@ -38,6 +38,8 @@ public class SmartHomeManager extends Applet {
     }
 
     public void startup() {
+    	mComm = CommConnectionImpl.getComInstance(0);
+        registerCommReference(mComm);
         startDataCollectThread();
     }
 
@@ -106,27 +108,26 @@ public class SmartHomeManager extends Applet {
     {    	
         irControllerThread = new Thread() {
             public void run() {
-                CommConnectionImpl comm = CommConnectionImpl.getComInstance(0);
-                registerCommReference(comm);
+                
 
                 try {
                     do {
                         reportTestInfo("IRC", "startIRControllerThread");
-                        while(!allowToUseComm())
+                        //while(!allowToUseComm())
                         {
                           //Waiting
                         }
                         reportTestInfo("IRC", "God bless IRControllerThread");
-                        OutputStream os = comm.openOutputStream();
+                        OutputStream os = mComm.openOutputStream();
 
 						byte[] HardCode = {0x33,0x32,0x32,0x35};
                         os.write(HardCode/*hex2Bytes(OPEN_CODE)*/);
                         reportTestInfo("IRC", "write:" + OPEN_CODE);
                         os.close();
-                        endToUseComm();
+                        //endToUseComm();
                         Thread.sleep(1000);
                     } while(false);
-                    destroyCommReference(comm);
+                    //destroyCommReference(comm);
                     reportTestInfo("IRC", "End of IRC");
                 } catch (IOException e) {
                       System.out.println("cc IOException:" + e);
@@ -154,8 +155,6 @@ public class SmartHomeManager extends Applet {
             public void run() {
 				int count = 0;
             	allowIRCRunning = false;
-                CommConnectionImpl comm = CommConnectionImpl.getComInstance(0);
-                registerCommReference(comm);
                 
                 try {
                     byte[] buf = new byte[128];
@@ -167,7 +166,7 @@ public class SmartHomeManager extends Applet {
                         
                         System.out.println("God bless dataCollectThread");
                         reportTestInfo("COM", "God bless dataCollectThread");
-                        is = comm.openInputStream();
+                        is = mComm.openInputStream();
                         System.out.println("god is:" + is);
                         System.out.println("startDataCollectThread openInputStream, to sleep");
                         Thread.sleep(2000);
@@ -192,7 +191,7 @@ public class SmartHomeManager extends Applet {
                         //is.close();
                         //endToUseComm();
                     } while (false);
-                    destroyCommReference(comm);
+                    //destroyCommReference(comm);
                     reportTestInfo("COM", "End of data collect");
                     System.out.println("1st thread over!");                    
                 } catch (IOException e) {
