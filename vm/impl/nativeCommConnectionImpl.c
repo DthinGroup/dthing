@@ -145,6 +145,7 @@ void Java_iot_oem_comm_CommConnectionImpl_close0(const u4* args, JValue* pResult
     jint ret = 0;
 
 #if defined(ARCH_ARM_SPD)
+    DVMTraceDbg("[COM] to close COM%d\n", port);
     if (s_deviceType == DEVICE_GPS)
     {
         if (GPS_ERR_NONE != GPS_Close())

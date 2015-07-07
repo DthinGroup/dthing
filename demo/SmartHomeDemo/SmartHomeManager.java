@@ -50,12 +50,15 @@ public class SmartHomeManager extends Applet {
         }
     }
 
-    private void destroyCommReference(CommConnectionImpl comm) throws IOException
+    private void destroyCommReference(CommConnectionImpl comm)
     {
         System.out.println("destroyCommReference, start commRefCount:" + commRefCount);
         //if (commRefCount > 0)
         {
-        	comm.close();        	
+        	try{
+        		comm.close();        	
+        	} catch(Exception e)
+        	{}
             commRefCount = 0;
         }
         System.out.println("destroyCommReference, end commRefCount:" + commRefCount);
