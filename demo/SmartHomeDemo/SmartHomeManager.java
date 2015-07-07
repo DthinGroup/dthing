@@ -123,7 +123,7 @@ public class SmartHomeManager extends Applet {
 						byte[] HardCode = {0x33,0x32,0x32,0x35};
                         os.write(HardCode/*hex2Bytes(OPEN_CODE)*/);
                         reportTestInfo("IRC", "write:" + OPEN_CODE);
-                        os.close();
+                        //os.close();  ---- Problem Here
                         //endToUseComm();
                         Thread.sleep(1000);
                     } while(false);
