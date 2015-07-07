@@ -32,7 +32,7 @@ public class ZigbeeDemo extends Applet {
         new Thread(){
     		public void run() {
     			// TODO Auto-generated method stub
-                CommConnectionImpl comm = CommConnectionImpl.getComInstance(1);
+                CommConnectionImpl comm = CommConnectionImpl.getComInstance(0);
     	        try {
     	            byte[] buf = new byte[READ_BUFFER_LENGTH];
                     InputStream is = comm.openInputStream();
@@ -61,7 +61,7 @@ public class ZigbeeDemo extends Applet {
                             //System.out.println("COM\"" + readString + "\"");
     	                }
                     } while (true);
-                    comm.close();
+                    //comm.close();
     	        } catch (IOException e) {
     	            System.out.println("IOException:" + e);
     	        }
