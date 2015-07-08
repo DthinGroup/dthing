@@ -171,10 +171,11 @@ public class GetServerCommand implements Runnable {
 	public void destroyApp(boolean arg0) {
 		// TODO Auto-generated method stub
 		System.out.println("GetServerCommand destroyApp");
+		mThreadIsRunning = false;
         if (mSerialPort != null) {
 			try {
-				mThreadIsRunning = false;
-				mSerialPort.close();
+				
+				//mSerialPort.close();
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -182,11 +183,17 @@ public class GetServerCommand implements Runnable {
 		}
 	}
 
+	public GetServerCommand()
+	{
+		System.out.println("GetServerCommand cons");
+		mSerialPort = CommConnectionImpl.getComInstance(COM_PORT, COM_BAUD);
+	}
+
 	protected void startApp() {
 		// TODO Auto-generated method stub
 		System.out.println("GetServerCommand startApp");
-		mSerialPort = CommConnectionImpl.getComInstance(COM_PORT, COM_BAUD);
-		getCommand();
+		//mSerialPort = CommConnectionImpl.getComInstance(COM_PORT, COM_BAUD);
+		//getCommand();
 	}
 
 	public void getCommand() {
@@ -478,7 +485,7 @@ public class GetServerCommand implements Runnable {
 	private void parseReceivedContent(byte[] content) {
 		int cmd = byteArrayToInt(content, DEFAULT_SIZE_LENGTH);
 		int cmdLength = byteArrayToInt(content, DEFAULT_HEADER_LENGTH);
-		System.out.println("cmd = " + CMD_NAMES[cmd] + ", cmdlen = " + cmdLength);
+		System.out.println("parseReceivedContent: cmd = " + CMD_NAMES[cmd] + ", cmdlen = " + cmdLength);
 		switch (cmd)
 		{
 		case CMD_NULL:
@@ -497,20 +504,31 @@ public class GetServerCommand implements Runnable {
 
 	public void run() {
 		// TODO Auto-generated method stub
+		do{
 		System.out.println("start run");
-		Socket socket = null;
+		Socket socket = null;		
 		try {
 			byte[] receivedContent = new byte[100];
+			System.out.println("run point 1");
 			socket = new Socket(REMOTE_SERVER_URL, REMOTE_SERVER_PORT);
+			System.out.println("run point 2");
 			for (int i = CMD_AIR_CONDITIONER; i < CMD_COUNT; i++) {
+				System.out.println("get i:" + i);
 				byte[] sendContent = getSendContent(i);
 				System.out.println("get " + CMD_NAMES[i] + " content");
 				OutputStream socketOutputStream = socket.getOutputStream();
+				System.out.println("run point 3.1");
 				socketOutputStream.write(sendContent);
+				System.out.println("run point 3.2");
 				socketOutputStream.flush();
+				System.out.println("run point 3.3");
 				InputStream socketInputStream = socket.getInputStream();
+				System.out.println("run point 3.4");
 				socketInputStream.read(receivedContent);
+				System.out.println("run point 3.5");
+				System.out.println("run point content:" + new String(receivedContent));
 				parseReceivedContent(receivedContent);
+				System.out.println("run point 3.6");
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -529,6 +547,8 @@ public class GetServerCommand implements Runnable {
 			}
 		}
         System.out.println("start run 2");
+    	}while(mThreadIsRunning);
+        /*
 		mThreadIsRunning = false;
         System.out.println("start run 3");
 		//set timer to get command continuously
@@ -551,5 +571,6 @@ public class GetServerCommand implements Runnable {
         System.out.println("start run 5");
 		mThreadIsRunning = true;
 		mThread.start();
+		*/
 	}	
 }
