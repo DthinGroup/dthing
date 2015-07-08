@@ -333,7 +333,9 @@ public class GetServerCommand implements Runnable {
 		if (arraysEqual(mOldStatus, status)) {
 			System.out.println("status not change");
 			/*if status not change, do not send command*/
-			return;
+			//return;
+		} else {
+			System.out.println("status  changed");
 		}
 		/*record last status*/
 		System.arraycopy(status, 0, mOldStatus, 0, mOldStatus.length);
@@ -346,12 +348,18 @@ public class GetServerCommand implements Runnable {
 			} else if (status[STATUS_HEATING] == 1) {
 				type = STATUS_HEATING;
 			}
+			
+			System.out.println("type:" + type);
+			
 			if (type < STATUS_COUNT) {
+				System.out.println("send to comm");
 				OutputStream outputStream = mSerialPort.openOutputStream();
 				System.out.println("openOutputStream done");
 				String command = getRemoteControllerCommand(type, status[STATUS_TEMPERATURE]);
+				System.out.println("Remote Cmd:" + command);
 				outputStream.write(hexStringToByteArray(command));
 				outputStream.flush();
+				System.out.println("send to comm over");
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -469,6 +477,7 @@ public class GetServerCommand implements Runnable {
 			throw new IllegalArgumentException("Command length illegal, it should be 1 but now is " + length);
 		}
 		int pressedButton = content[DEFAULT_CONTENT_START_POSITION];
+		System.out.println("pressedButton: " + pressedButton);
 		if (pressedButton >= BUTTON_WIND_FORCE && pressedButton < BUTTON_COUNT) {
 			System.out.println(BUTTON_NAMES[pressedButton] + " is pressed");
 			sendFanCommandToPort(pressedButton);
