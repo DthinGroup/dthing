@@ -172,6 +172,7 @@ public class GetServerCommand implements Runnable {
 		// TODO Auto-generated method stub
 		System.out.println("GetServerCommand destroyApp");
 		mThreadIsRunning = false;
+		/*
         if (mSerialPort != null) {
 			try {
 				
@@ -180,7 +181,7 @@ public class GetServerCommand implements Runnable {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-		}
+		}*/
 	}
 
 	public GetServerCommand()
