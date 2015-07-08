@@ -39,8 +39,9 @@ public class ZigbeeDemo extends Applet {
     	            int readSize;
                     
     	            do {
+    	            	System.out.println("loop start");
     	                try {
-    	                    Thread.sleep(1000L);
+    	                    Thread.sleep(1000);
     	                } catch (InterruptedException e) {
     	                     System.out.println("InterruptedException:" + e);
     	                }
@@ -51,11 +52,16 @@ public class ZigbeeDemo extends Applet {
                             break;
                         }
     	                String readString = new String(buf);
+    	                System.out.println("readString 1:" + readString);
     	                readString = readString.trim();
+    	                System.out.println("readString 2:" + readString);
     	                //re-organize string
     	                readString = convertEscapedChar(readString);
+    	                System.out.println("readString 3:" + readString);
+    	                
     	                readString = join(split(readString, REGEX), REGEX);
-
+						System.out.println("readString 4:" + readString);
+						
     	                if (readString.length() > 0) {
     	                	reportTestInfo("COM", "\"" + readString + "\"");
                             //System.out.println("COM\"" + readString + "\"");
@@ -154,7 +160,7 @@ public class ZigbeeDemo extends Applet {
                 httpConn.disconnect();
     	    }
         }.start();
-        mGetServerCommand = new GetServerCommand();
-        mGetServerCommand.startApp();
+        //mGetServerCommand = new GetServerCommand();
+        //mGetServerCommand.startApp();
 	}
 }
