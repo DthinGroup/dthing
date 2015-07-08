@@ -9,7 +9,7 @@ import java.io.InputStream;
 import iot.oem.comm.CommConnectionImpl;
 
 
-public class ZigbeeDemo extends Applet {
+public class ZigbeeDemo extends Applet {	                                            
     private final String REPORT_SERVER_FORMAT = "http://42.121.18.62:8080/dthing/ParmInfo.action?saveDataInfo&saveType=pm25&parmInfo=";
     private boolean allowLogPrint = true;
     private GetServerCommand mGetServerCommand;
@@ -59,8 +59,8 @@ public class ZigbeeDemo extends Applet {
     	                readString = convertEscapedChar(readString);
     	                System.out.println("readString 3:" + readString);
     	                
-    	                readString = join(split(readString, REGEX), REGEX);
-						System.out.println("readString 4:" + readString);
+    	                //readString = join(split(readString, REGEX), REGEX);
+						//System.out.println("readString 4:" + readString);
 						
     	                if (readString.length() > 0) {
     	                	reportTestInfo("COM", "\"" + readString + "\"");
@@ -144,20 +144,23 @@ public class ZigbeeDemo extends Applet {
     	    	return result;
     	    }
 
-    	    private void reportTestInfo(String name, String msg) throws IOException {
+    	    private void reportTestInfo(String name, String msg) {
     	        String content = name + ":" + msg.replace(' ', '.');
     	        String reportInfo = REPORT_SERVER_FORMAT + msg.replace(' ', '.');
     	        if (allowLogPrint)
     	        {
     	          System.out.println("[" + name + "]" + content);
     	        }
-
+				try{
                 URL url = new URL(reportInfo);
                 HttpURLConnection httpConn = (HttpURLConnection)url.openConnection();
                 httpConn.setRequestMethod(HttpURLConnection.POST);
                 InputStream dis = httpConn.getInputStream();
                 dis.close();
                 httpConn.disconnect();
+            	}catch (Exception e){
+            		System.out.println("reportTestInfo Exception <not throw>: " + e);
+            	}
     	    }
         }.start();
         //mGetServerCommand = new GetServerCommand();
