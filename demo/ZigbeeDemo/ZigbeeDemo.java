@@ -15,8 +15,10 @@ public class ZigbeeDemo extends Applet {
     private GetServerCommand mGetServerCommand;
     private final int READ_BUFFER_LENGTH = 100;
     private final String REGEX = ",";
+    private boolean bExit = false;
 
 	public void cleanup() {
+		bExit = true;
     	if (mGetServerCommand != null) {
 		    mGetServerCommand.destroyApp(true);
     	}
@@ -166,5 +168,13 @@ public class ZigbeeDemo extends Applet {
         }.start();*/
         mGetServerCommand = new GetServerCommand();
         mGetServerCommand.startApp();
+        
+        while(!bExit){
+        	System.out.println("main thread: sleep 1s to wait end");        	
+        	try{
+        		Thread.sleep(1000);
+        	} catch(Exception e){
+        	}
+        }
 	}
 }

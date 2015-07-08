@@ -184,17 +184,11 @@ public class GetServerCommand implements Runnable {
 		}*/
 	}
 
-	public GetServerCommand()
-	{
-		System.out.println("GetServerCommand cons");
-		mSerialPort = CommConnectionImpl.getComInstance(COM_PORT, COM_BAUD);
-	}
-
-	protected void startApp() {
+	public void startApp() {
 		// TODO Auto-generated method stub
 		System.out.println("GetServerCommand startApp");
-		//mSerialPort = CommConnectionImpl.getComInstance(COM_PORT, COM_BAUD);
-		//getCommand();
+		mSerialPort = CommConnectionImpl.getComInstance(COM_PORT, COM_BAUD);
+		getCommand();
 	}
 
 	public void getCommand() {
