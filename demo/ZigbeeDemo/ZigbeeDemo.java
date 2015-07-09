@@ -15,7 +15,7 @@ public class ZigbeeDemo extends Applet {
     private GetServerCommand mGetServerCommand;
     private final int READ_BUFFER_LENGTH = 100;
     private final String REGEX = ",";
-    private boolean bExit = false;
+    private volatile boolean bExit = false;
 
 	public void cleanup() {
 		bExit = true;
@@ -31,7 +31,7 @@ public class ZigbeeDemo extends Applet {
 
 	public void startup() {
     	System.out.println("ZigBeeDemo startApp");
-    	/*
+    	
         new Thread(){
     		public void run() {
     			// TODO Auto-generated method stub
@@ -69,7 +69,7 @@ public class ZigbeeDemo extends Applet {
     	                	reportTestInfo("COM", "\"" + readString + "\"");
                             //System.out.println("COM\"" + readString + "\"");
     	                }
-                    } while (true);
+                    } while (!bExit);
                     //comm.close();
     	        } catch (IOException e) {
     	            System.out.println("IOException:" + e);
@@ -165,7 +165,7 @@ public class ZigbeeDemo extends Applet {
             		System.out.println("reportTestInfo Exception <not throw>: " + e);
             	}
     	    }
-        }.start();*/
+        }.start();
         mGetServerCommand = new GetServerCommand();
         mGetServerCommand.startApp();
         

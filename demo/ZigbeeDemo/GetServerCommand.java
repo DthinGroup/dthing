@@ -9,7 +9,7 @@ import iot.oem.comm.CommConnectionImpl;
 public class GetServerCommand implements Runnable {
 	private CommConnectionImpl mSerialPort;
 	private static Thread mThread = null;
-	private static boolean mThreadIsRunning = true;
+	private volatile boolean mThreadIsRunning = true;
 	private final String REMOTE_SERVER_URL = "42.121.18.62";
 	//private final String REMOTE_SERVER_URL = "192.168.5.106";
 	private final int REMOTE_SERVER_PORT = 7777;
