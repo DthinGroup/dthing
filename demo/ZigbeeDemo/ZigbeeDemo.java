@@ -35,7 +35,7 @@ public class ZigbeeDemo extends Applet {
         new Thread(){
     		public void run() {
     			// TODO Auto-generated method stub
-                CommConnectionImpl comm = CommConnectionImpl.getComInstance(0);
+                CommConnectionImpl comm = CommConnectionImpl.getComInstance(1);
     	        try {
     	            byte[] buf = new byte[READ_BUFFER_LENGTH];
                     InputStream is = comm.openInputStream();
