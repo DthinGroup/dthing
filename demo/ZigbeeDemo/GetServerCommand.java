@@ -93,7 +93,7 @@ public class GetServerCommand implements Runnable {
 	private final int CONTENT_MIN_LENGTH = 2;
 	
 	private final int DEFAULT_TIME_INTERVAL = 1000;
-	private final int COM_PORT = 0;
+	private final int COM_PORT = 1;
 	private final int COM_BAUD = 115200;
 	private final int AIR_CONDITIONER_MIN_TEMPERATURE = 16;
 	private final int AIR_CONDITIONER_MIN_WIND_FORCE = 1;
