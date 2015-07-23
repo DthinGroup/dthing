@@ -223,7 +223,7 @@ public class PlainSocketImpl extends SocketImpl {
         int readCount = NetNativeBridge.recv(sockHandle, buffer, offset, byteCount, 0);
         // Return of zero bytes for a blocking socket means a timeout occurred
         if (readCount == 0) {
-            throw new SocketTimeoutException();
+            //throw new SocketTimeoutException();
         }
         // Return of -1 indicates the peer was closed
         if (readCount == -1) {
