@@ -93,7 +93,7 @@ public class GPSSensor extends Applet
                 if (allowLogPrint)
                 {
                   System.out.println("[" + name + "]" + content);
-                  //return;
+                  return;
                 }
 
                 URL url = new URL(reportInfo);
