@@ -36,7 +36,7 @@ public class GPSSensor extends Applet
                     System.out.println("IOException:" + e1);
                 }
 
-                CommConnectionImpl gpsComm = CommConnectionImpl.getComInstance(0, 9600);
+                CommConnectionImpl gpsComm = CommConnectionImpl.getComInstance(1, 9600);
                 try {
                     byte[] buf = new byte[128];
 

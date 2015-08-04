@@ -23,6 +23,7 @@
 . build.sh SystemInfo
 . build.sh ThreadDemo
 . build.sh Ublox
+. build.sh Ublox1
 . build.sh Vibrate
 . build.sh WSDDemo
 . build.sh WSDDemo2
