@@ -12,7 +12,6 @@ import iot.oem.comm.CommConnectionImpl;
 
 
 public class SmartShoe extends Applet {
-
     private static final String REPORT_SERVER_FORMAT = "http://42.121.18.62:8080/dthing/ParmInfo.action?saveDataInfo&saveType=log&parmInfo=";
     private static boolean allowLogPrint = true;
     private static boolean allowRunning = true;
@@ -27,6 +26,15 @@ public class SmartShoe extends Applet {
     private static int regAddressNumber = 1;
     private static int subAccAddress = 0x02; //sub address for accelerator data read
     private static int accRange = 0;
+    private static boolean isUpdated = true;
+
+    private CommConnectionImpl gpsComm = null;
+    private GPSParser parser = null;
+    private InputStream gis = null;
+    private StepCounter counter = null;
+    private byte[] accBuf = null;
+    private byte[] gpsBuf = null;
+    private Gpio ldo = null;
 
     public void cleanup() {
         allowRunning = false;
@@ -34,73 +42,127 @@ public class SmartShoe extends Applet {
 
     public void processEvent(Event paramEvent) {
     }
-    
-    public void startup() {
-    	startupGPSThread();
-    	startupGSensorThread();
 
-    	while(allowRunning) {
-            try {
-            	netlog("lo:" + longitude + ",la:" + latitude + ",step:" + stepcount + ",date:" + gpsdate + ",time:" + gpstime);
-				Thread.sleep(10000);
-			} catch (InterruptedException e) {
-				log("Exception:" + e);
-			}
-    	}
+    public void startup() {
+        openGPSModule();
+        openGSensorModule();
+
+        while(allowRunning) {
+            readGPSModule();
+            readGSensorModule();
+            if (isUpdated) {
+                isUpdated = false;
+                netlog("lo:" + longitude + ",la:" + latitude + ",step:" + stepcount + ",date:" + gpsdate + ",time:" + gpstime);
+           }
+       }
+
+       closeGPSModule();
+       closeGSensorModule();
+       notifyDestroyed();
     }
 
-    public void startupGPSThread() {
-        new Thread() {
-            public void run() {
-                try {
-                    Gpio ldo = new Gpio(60); //60 for board, 7 for shoe
-                    ldo.setCurrentMode(Gpio.WRITE_MODE);
-                    ldo.write(true);
-                    log("pull GPIO 60 to high");
-                } catch (IllegalArgumentException e1) {
-                    log("Gpio IllegalArgumentException:" + e1);
-                } catch (IOException e1) {
-                    log("Gpio IOException:" + e1);
-                }
+    public void openGPSModule() {
+        try {
+            ldo = new Gpio(60); //60 for board, 7 for shoe
+            ldo.setCurrentMode(Gpio.WRITE_MODE);
+            ldo.write(true);
 
-                CommConnectionImpl gpsComm = CommConnectionImpl.getComInstance(0, 9600);
-                try {
-                    byte[] buf = new byte[128];
+            gpsComm = CommConnectionImpl.getComInstance(0, 9600);
+            parser = new GPSParser();
+            gis = gpsComm.openInputStream();
+            gpsBuf = new byte[128];
+        } catch (IllegalArgumentException e1) {
+            log("Gpio IllegalArgumentException:" + e1);
+        } catch (IOException e1) {
+            log("Gpio IOException:" + e1);
+        }
+    }
 
-                    InputStream is = gpsComm.openInputStream();
-                    int readSize = 0;
-                    GPSParser parser = new GPSParser();
+    public void readGPSModule() {
+        try {
+            int readSize = gis.read(gpsBuf, 0, 128);
 
-                    do {
-                        try {
-                            Thread.sleep(10000L);
-                        } catch (InterruptedException e) {
-                        	log("InterruptedException:" + e);
-                        }
-
-                        readSize = is.read(buf, 0, 128);
-
-                        if (readSize < 0)
-                        {
-                        	log("exit when readSize is less than 0");
-                            break;
-                        }
-
-                        String readString = new String(buf);
-                        parser.save(readString);
-                        longitude = parser.getLongtiInfo();
-                        latitude = parser.getLatiInfo();
-                        gpstime = parser.getTimeInfo();
-                        gpsdate = parser.getDateInfo();
-                        log("read:" + convertEscapedChar(readString));
-                    } while (allowRunning);
-                    gpsComm.close();
-                    notifyDestroyed();
-                } catch (IOException e) {
-                	log("GPS IOException:" + e);
-                }
+            if (readSize < 0)
+            {
+                log("exit when readSize is less than 0");
+                return;
             }
-        }.start();
+
+            String readString = new String(gpsBuf).trim();
+            parser.save(readString);
+            longitude = parser.getLongtiInfo();
+            latitude = parser.getLatiInfo();
+            gpstime = parser.getTimeInfo();
+            gpsdate = parser.getDateInfo();
+            log("read:" + convertEscapedChar(readString));
+        } catch (IOException e) {
+            log("GPS IOException:" + e);
+        }
+    }
+
+    public void closeGPSModule() {
+        try {
+            ldo.setCurrentMode(Gpio.WRITE_MODE);
+            ldo.write(false);
+            gpsComm.close();
+            gpsComm = null;
+            gis = null;
+            parser = null;
+            gpsBuf = null;
+        } catch (IOException e) {
+            log("GPS IOException:" + e);
+        }
+    }
+
+
+    public void openGSensorModule() {
+        try {
+            manager = new I2CManager(busId, I2CManager.DATA_RATE_FAST, slaveAddress, regAddressNumber);
+            initGSensor();
+            initAccelerator();
+            enableAccelerator();
+            accBuf = new byte[6];
+            counter = new StepCounter();
+        } catch (IOException e) {
+            log("GSensor IOException:" + e);
+        }
+    }
+
+    public void readGSensorModule() {
+        int xAc = 0;
+        int yAc = 0;
+        int zAc = 0;
+        try {
+            manager.receive(slaveAddress, I2CManager.ADDRESS_TYPE_7BIT, subAccAddress, accBuf);
+            xAc = getAccIntValue(accBuf[0], accBuf[1]);
+            yAc = getAccIntValue(accBuf[2], accBuf[3]);
+            zAc = getAccIntValue(accBuf[4], accBuf[5]);
+            counter.saveAccValue(xAc, yAc, zAc);
+            log(xAc + ":" + yAc + ":" + zAc);
+
+            if (counter.available()) {
+                stepcount += counter.fetchStepCount();
+                log("update stepcount to " + stepcount);
+                isUpdated = true;
+            }
+        } catch (IllegalArgumentException e) {
+            log("GSensor IllegalArgumentException:" + e);
+        } catch (NullPointerException e) {
+            log("GSensor NullPointerException:" + e);
+        } catch (IOException e) {
+            log("GSensor IOException" + e);
+        }
+    }
+
+    public void closeGSensorModule() {
+        try {
+            manager.destroy();
+            manager = null;
+            counter = null;
+            accBuf = null;
+        } catch (IOException e) {
+            log("GSensor IOException:" + e);
+        }
     }
 
     private String convertEscapedChar(String original)
@@ -119,32 +181,6 @@ public class SmartShoe extends Applet {
             }
         }
         return escaped;
-    }
-    
-    public void startupGSensorThread() {
-        try {
-			startGSensor();
-	        AcceleratorTest();
-		} catch (IOException e) {
-			log("IOException:" + e);
-		}
-    }
-    
-    private void startGSensor() throws IOException
-    {
-        manager = new I2CManager(busId, I2CManager.DATA_RATE_FAST, slaveAddress, regAddressNumber);
-        initGSensor();
-    }
-
-    private void resetGSensor()
-    {
-        //TODO:
-    }
-
-    private void stopGSensor() throws IOException
-    {
-        manager.destroy();
-        manager = null;
     }
 
     private void initGSensor() throws IOException
@@ -231,20 +267,8 @@ public class SmartShoe extends Applet {
         manager.send(slaveAddress, I2CManager.ADDRESS_TYPE_7BIT, reg[0], buff);
     }
 
-    //accValue = sign + valueHead + "." + valueTail
-    //sign = "-" or ""
-    public String getAccValue(int lsb, int msb)
-    {
-        String accValue = null;
-        int sign = (msb & 0x80) >> 7;
-        int value = ((msb & 0x7f) << 2) + ((lsb & 0xc0) >> 6);
-        int valueHead = value * accRange / 512;
-        int valueTail = (value * accRange % 512) * 1000 / 512;
-        accValue = ((sign > 0)? "-" : "") + valueHead + "." + valueTail;
-        return accValue;
-    }
-
-    //accValue = sign + valueHead + "." + valueTail
+    //accStringValue = sign + valueHead + "." + valueTail
+    //accValue = sign * (valueHead * 100 + valueTail)
     //sign = "-" or ""
     public int getAccIntValue(int lsb, int msb)
     {
@@ -254,106 +278,34 @@ public class SmartShoe extends Applet {
         int valueHead = value * accRange / 512;
         int valueTail = (value * accRange % 512) * 1000 / 512;
         accValue = valueHead * 100 + valueTail;
-  
+
         if (sign > 0) {
-        	accValue = -accValue;
+            accValue = -accValue;
         }
         return accValue;
-    }
-    
-    private void AcceleratorTest() throws IOException
-    {
-        initAccelerator();
-        enableAccelerator();
-        //data collector thread
-        new Thread() {
-            byte[] buf = new byte[6];
-            /*
-            String xStr = null;
-            String yStr = null;
-            String zStr = null;
-            */
-            int xAc = 0;
-            int yAc = 0;
-            int zAc = 0;
-
-            public void run() {
-            	StepCounter counter = new StepCounter();
-
-                while(allowRunning) {
-                    try {
-                        manager.receive(slaveAddress, I2CManager.ADDRESS_TYPE_7BIT, subAccAddress, buf);
-                        /*
-                        xStr = getAccValue(buf[0], buf[1]);
-                        yStr = getAccValue(buf[2], buf[3]);
-                        zStr = getAccValue(buf[4], buf[5]);
-                        */
-                        xAc = getAccIntValue(buf[0], buf[1]);
-                        yAc = getAccIntValue(buf[2], buf[3]);
-                        zAc = getAccIntValue(buf[4], buf[5]);
-                        counter.saveAccValue(xAc, yAc, zAc);
-                        log(xAc + ":" + yAc + ":" + zAc);
-
-                        if (counter.available()) {
-                        	stepcount += counter.fetchStepCount();
-                        	log("update stepcount to " + stepcount);
-                        }
-
-                    } catch (IllegalArgumentException e) {
-                        log("IllegalArgumentException:" + e);
-                    } catch (NullPointerException e) {
-                        log("NullPointerException:" + e);
-                    } catch (IOException e) {
-                        log("IOException" + e);
-                    }
-                }
-                try {
-					stopGSensor();
-				} catch (IOException e) {
-					log("IOException:" + e);
-				}
-                notifyDestroyed();
-            }
-        }.start();
-    }
-    
-    private void reportTestInfo(String msg, boolean upload) throws IOException
-    {
-        String content = "SmartShoe:" + msg.replace(' ', '.');
-        String reportInfo = REPORT_SERVER_FORMAT + content;
-
-        if (allowLogPrint)
-        {
-            System.out.println(content);
-            if (!upload)
-            {
-                return;
-            }
-        }
-
-        URL url = new URL(reportInfo);
-        HttpURLConnection httpConn = (HttpURLConnection)url.openConnection();
-        httpConn.setRequestMethod(HttpURLConnection.POST);
-        InputStream dis = httpConn.getInputStream();
-        dis.close();
-        httpConn.disconnect();
     }
 
     private void netlog(String msg)
     {
+        String content = "SmartShoe:" + msg.replace(' ', '.');
+        String reportInfo = REPORT_SERVER_FORMAT + content;
+
         try {
-            reportTestInfo(msg, true);
+            System.out.println(content);
+            URL url = new URL(reportInfo);
+            HttpURLConnection httpConn = (HttpURLConnection)url.openConnection();
+            httpConn.setRequestMethod(HttpURLConnection.POST);
+            InputStream dis = httpConn.getInputStream();
+            dis.close();
+            httpConn.disconnect();
         } catch (IOException e) {
             System.out.println("IOException:" + e);
         }
     }
-    
+
     private void log(String msg)
     {
-        try {
-            reportTestInfo(msg, false);
-        } catch (IOException e) {
-            System.out.println("IOException:" + e);
-        }
+        System.out.println("SmartShoe:" + msg);
     }
 }
+
