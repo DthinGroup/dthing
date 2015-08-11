@@ -26,7 +26,7 @@ public class GPSSensor extends Applet
         new Thread() {
             public void run() {
                 try {
-                    Gpio ldo = new Gpio(60);
+                    Gpio ldo = new Gpio(60); //60 for board, 7 for shoe
                     ldo.setCurrentMode(Gpio.WRITE_MODE);
                     ldo.write(true);
                     reportTestInfo("GPSCOM", "pull GPIO 7 to high");
@@ -93,7 +93,7 @@ public class GPSSensor extends Applet
                 if (allowLogPrint)
                 {
                   System.out.println("[" + name + "]" + content);
-                  return;
+                  //return;
                 }
 
                 URL url = new URL(reportInfo);
