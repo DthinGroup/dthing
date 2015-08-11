@@ -26,7 +26,7 @@ public class GPSSensor extends Applet
         new Thread() {
             public void run() {
                 try {
-                    Gpio ldo = new Gpio(7);
+                    Gpio ldo = new Gpio(60);
                     ldo.setCurrentMode(Gpio.WRITE_MODE);
                     ldo.write(true);
                     reportTestInfo("GPSCOM", "pull GPIO 7 to high");
