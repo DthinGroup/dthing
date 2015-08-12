@@ -92,7 +92,7 @@ public class SmartShoe extends Applet {
                         latitude = parser.getLatiInfo();
                         gpstime = parser.getTimeInfo();
                         gpsdate = parser.getDateInfo();
-                        //log("read:" + convertEscapedChar(readString));
+                        log("read:" + convertEscapedChar(readString));
                     } while (allowRunning);
                     gpsComm.close();
                     notifyDestroyed();
@@ -100,25 +100,25 @@ public class SmartShoe extends Applet {
                 	log("GPS IOException:" + e);
                 }
             }
-
-            private String convertEscapedChar(String original)
-            {
-                String escaped = "";
-                char[] ctest = original.toCharArray();
-                for (int i = 0; i < ctest.length; i++)
-                {
-                    if ((ctest[i] != '\r') && (ctest[i] != '\n'))
-                    {
-                        escaped = escaped + ctest[i];
-                    }
-                    else
-                    {
-                        escaped = escaped + '.';
-                    }
-                }
-                return escaped;
-            }
         }.start();
+    }
+
+    private String convertEscapedChar(String original)
+    {
+        String escaped = "";
+        char[] ctest = original.toCharArray();
+        for (int i = 0; i < ctest.length; i++)
+        {
+            if ((ctest[i] != '\r') && (ctest[i] != '\n'))
+            {
+                escaped = escaped + ctest[i];
+            }
+            else
+            {
+                escaped = escaped + '.';
+            }
+        }
+        return escaped;
     }
     
     public void startupGSensorThread() {
