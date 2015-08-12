@@ -18,6 +18,8 @@ public class SmartShoe extends Applet {
     private static boolean allowRunning = true;
     protected static String longitude = "100.000001";
     protected static String latitude = "36.000001";
+    protected static String gpstime = "";
+    protected static String gpsdate = "";
     protected static int stepcount = 0;
     private static I2CManager manager = null;
     private static int busId = 2;
@@ -39,7 +41,7 @@ public class SmartShoe extends Applet {
 
     	while(allowRunning) {
             try {
-            	log("longitude:" + longitude + ";latitude:" + latitude + ";stepcount:" + stepcount);
+            	log("longitude:" + longitude + ";latitude:" + latitude + ";stepcount:" + stepcount + ";date:" + gpsdate + ";time:" + gpstime);
 				Thread.sleep(5000);
 			} catch (InterruptedException e) {
 				log("Exception:" + e);
@@ -66,7 +68,9 @@ public class SmartShoe extends Applet {
                     byte[] buf = new byte[128];
 
                     InputStream is = gpsComm.openInputStream();
-                    int readSize;
+                    int readSize = 0;
+                    GPSParser parser = new GPSParser();
+
                     do {
                         try {
                             Thread.sleep(10000L);
@@ -83,7 +87,11 @@ public class SmartShoe extends Applet {
                         }
 
                         String readString = new String(buf);
-
+                        parser.save(readString);
+                        longitude = parser.getLongtiInfo();
+                        latitude = parser.getLatiInfo();
+                        gpstime = parser.getTimeInfo();
+                        gpsdate = parser.getDateInfo();
                         //log("read:" + convertEscapedChar(readString));
                     } while (allowRunning);
                     gpsComm.close();
