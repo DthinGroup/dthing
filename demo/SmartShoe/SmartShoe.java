@@ -18,8 +18,8 @@ public class SmartShoe extends Applet {
     private static boolean allowRunning = true;
     protected static String longitude = "100.000001";
     protected static String latitude = "36.000001";
-    protected static String gpstime = "";
-    protected static String gpsdate = "";
+    protected static String gpstime = "0";
+    protected static String gpsdate = "0";
     protected static int stepcount = 0;
     private static I2CManager manager = null;
     private static int busId = 2;
@@ -41,14 +41,14 @@ public class SmartShoe extends Applet {
 
     	while(allowRunning) {
             try {
-            	log("longitude:" + longitude + ";latitude:" + latitude + ";stepcount:" + stepcount + ";date:" + gpsdate + ";time:" + gpstime);
+            	log("longitude:" + longitude + ",latitude:" + latitude + ",stepcount:" + stepcount + ",date:" + gpsdate + ",time:" + gpstime);
 				Thread.sleep(5000);
 			} catch (InterruptedException e) {
 				log("Exception:" + e);
 			}
     	}
     }
-    
+
     public void startupGPSThread() {
         new Thread() {
             public void run() {
@@ -58,9 +58,9 @@ public class SmartShoe extends Applet {
                     ldo.write(true);
                     log("pull GPIO 60 to high");
                 } catch (IllegalArgumentException e1) {
-                    log("IllegalArgumentException:" + e1);
+                    log("Gpio IllegalArgumentException:" + e1);
                 } catch (IOException e1) {
-                    log("IOException:" + e1);
+                    log("Gpio IOException:" + e1);
                 }
 
                 CommConnectionImpl gpsComm = CommConnectionImpl.getComInstance(0, 9600);
@@ -97,7 +97,7 @@ public class SmartShoe extends Applet {
                     gpsComm.close();
                     notifyDestroyed();
                 } catch (IOException e) {
-                	log("IOException:" + e);
+                	log("GPS IOException:" + e);
                 }
             }
 
@@ -292,9 +292,11 @@ public class SmartShoe extends Applet {
                         yAc = getAccIntValue(buf[2], buf[3]);
                         zAc = getAccIntValue(buf[4], buf[5]);
                         counter.saveAccValue(xAc, yAc, zAc);
+                        log(xAc + ":" + yAc + ":" + zAc);
 
                         if (counter.available()) {
                         	stepcount += counter.fetchStepCount();
+                        	log("update stepcount to " + stepcount);
                         }
 
                     } catch (IllegalArgumentException e) {
@@ -317,7 +319,7 @@ public class SmartShoe extends Applet {
     
     private void reportTestInfo(String msg) throws IOException
     {
-        String content = "GSensor:" + msg.replace(' ', '.');
+        String content = "SmartShoe:" + msg.replace(' ', '.');
         String reportInfo = REPORT_SERVER_FORMAT + content;
 
         if (allowLogPrint)
