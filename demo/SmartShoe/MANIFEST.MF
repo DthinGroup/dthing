@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Manifest-Version: 1.0
+Applet-Vendor: Yarlung Software
+Applet-Version: 1.0.0
+Applet-Name: SmartShoe Applet Suite
+Dex-Location: classes.dex
+Created-By: dx 1.7
+Main-Class: SmartShoe
+
+
+
