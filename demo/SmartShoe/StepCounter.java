@@ -12,7 +12,7 @@ public class StepCounter {
     private boolean DEBUG = false;
     private boolean isBadStep = false;
 
-    private static final int UNDEFINED_VALUE = -10;
+    private static final int UNDEFINED_VALUE = -1000;
     private static final int X_AXIS_MAX = 0;
     private static final int Y_AXIS_MAX = 100;
     private static final int Z_AXIS_MAX = 200;
@@ -219,6 +219,7 @@ public class StepCounter {
     }
 
     private static final int maxArraySize = 50;
+    private static final int minCaculatedCount = 10;
     private int[] xArray = new int[maxArraySize];
     private int[] yArray = new int[maxArraySize];
     private int[] zArray = new int[maxArraySize];
@@ -233,9 +234,11 @@ public class StepCounter {
     }
     
     public void saveAccValue(int xAc, int yAc, int zAc) {
-    	if (cursor >= maxArraySize) {
-    		caculatedStepCount = caculateSteps(xArray, yArray, zArray);
-    		resetArray();
+    	if (cursor >= minCaculatedCount) {
+    		caculatedStepCount += caculateSteps(xArray, yArray, zArray);
+    		if (caculatedStepCount > 0) {
+    		    resetArray();
+    		}
     	}
 
     	xArray[cursor] = xAc;
@@ -250,10 +253,14 @@ public class StepCounter {
     
     public int fetchStepCount() {
     	int result = caculatedStepCount;
-    	if (cursor >= maxArraySize) {
-    		result += caculateSteps(xArray, yArray, zArray);
+    	int size = 0;
+    	if (cursor >= minCaculatedCount) {
+    		size = caculateSteps(xArray, yArray, zArray);
+    		if (size > 0) {
+        		resetArray();
+    		}
+    		result += size;
     		caculatedStepCount = 0;
-    		resetArray();
     	}
     	return result;
     }

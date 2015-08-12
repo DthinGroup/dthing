@@ -41,8 +41,8 @@ public class SmartShoe extends Applet {
 
     	while(allowRunning) {
             try {
-            	log("longitude:" + longitude + ",latitude:" + latitude + ",stepcount:" + stepcount + ",date:" + gpsdate + ",time:" + gpstime);
-				Thread.sleep(5000);
+            	netlog("lo:" + longitude + ",la:" + latitude + ",step:" + stepcount + ",date:" + gpsdate + ",time:" + gpstime);
+				Thread.sleep(10000);
 			} catch (InterruptedException e) {
 				log("Exception:" + e);
 			}
@@ -317,7 +317,7 @@ public class SmartShoe extends Applet {
         }.start();
     }
     
-    private void reportTestInfo(String msg) throws IOException
+    private void reportTestInfo(String msg, boolean upload) throws IOException
     {
         String content = "SmartShoe:" + msg.replace(' ', '.');
         String reportInfo = REPORT_SERVER_FORMAT + content;
@@ -325,6 +325,10 @@ public class SmartShoe extends Applet {
         if (allowLogPrint)
         {
             System.out.println(content);
+            if (!upload)
+            {
+                return;
+            }
         }
 
         URL url = new URL(reportInfo);
@@ -335,10 +339,19 @@ public class SmartShoe extends Applet {
         httpConn.disconnect();
     }
 
+    private void netlog(String msg)
+    {
+        try {
+            reportTestInfo(msg, true);
+        } catch (IOException e) {
+            System.out.println("IOException:" + e);
+        }
+    }
+    
     private void log(String msg)
     {
         try {
-            reportTestInfo(msg);
+            reportTestInfo(msg, false);
         } catch (IOException e) {
             System.out.println("IOException:" + e);
         }
