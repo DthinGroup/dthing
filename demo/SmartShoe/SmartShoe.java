@@ -52,9 +52,10 @@ public class SmartShoe extends Applet {
 
         while(allowRunning) {
 			log("check - 3 -");
-            readGPSModule();
-			log("check - 4 -");
             readGSensorModule();
+			log("check - 4 -");
+            readGPSModule();
+
             if (isUpdated) {
                 isUpdated = false;
                 netlog("lo:" + longitude + ",la:" + latitude + ",step:" + stepcount + ",date:" + gpsdate + ",time:" + gpstime);
@@ -80,16 +81,20 @@ public class SmartShoe extends Applet {
             gis = gpsComm.openInputStream();
 			log("check - 0.3 -");
             gpsBuf = new byte[128];
+			Thread.sleep(3000);
         } catch (IllegalArgumentException e1) {
             log("Gpio IllegalArgumentException:" + e1);
         } catch (IOException e1) {
             log("Gpio IOException:" + e1);
-        }
+        } catch (InterruptedException e) {
+        	log("Gpio InterruptedException:" + e);
+		}
     }
 
     public void readGPSModule() {
         try {
 			log("check - 3.1 -");
+			Thread.sleep(1000);
             int readSize = gis.read(gpsBuf, 0, 128);
             log("check - 3.2 - readSize:" + readSize);
             if (readSize < 0)
@@ -107,7 +112,9 @@ public class SmartShoe extends Applet {
             log("read:" + convertEscapedChar(readString));
         } catch (IOException e) {
             log("GPS IOException:" + e);
-        }
+        } catch (InterruptedException e) {
+        	log("Gpio InterruptedException:" + e);
+		}
     }
 
     public void closeGPSModule() {
@@ -282,7 +289,7 @@ public class SmartShoe extends Applet {
     }
 
     //accStringValue = sign + valueHead + "." + valueTail
-    //accValue = sign * (valueHead * 100 + valueTail)
+    //accValue = sign * (valueHead * 100 + valueTail/10)
     //sign = "-" or ""
     public int getAccIntValue(int lsb, int msb)
     {
@@ -291,7 +298,7 @@ public class SmartShoe extends Applet {
         int value = ((msb & 0x7f) << 2) + ((lsb & 0xc0) >> 6);
         int valueHead = value * accRange / 512;
         int valueTail = (value * accRange % 512) * 1000 / 512;
-        accValue = valueHead * 100 + valueTail;
+        accValue = valueHead * 100 + valueTail/10;
 
         if (sign > 0) {
             accValue = -accValue;
