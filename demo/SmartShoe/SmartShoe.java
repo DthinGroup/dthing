@@ -44,17 +44,14 @@ public class SmartShoe extends Applet {
     }
 
     public void startup() {
-		log("check - 0 -");
-        openGPSModule();
-		log("check - 1 -");
+        log("check - 1 -");
         openGSensorModule();
-		log("check - 2 -");
-
+        log("check - 2 -");
+        startGPSThread();
         while(allowRunning) {
-			log("check - 3 -");
+            log("check - 3 -");
             readGSensorModule();
-			log("check - 4 -");
-            readGPSModule();
+            log("check - 4 -");
 
             if (isUpdated) {
                 isUpdated = false;
@@ -62,10 +59,8 @@ public class SmartShoe extends Applet {
            }
        }
        log("check - 5 -");
-       closeGPSModule();
-	   log("check - 6 -");
        closeGSensorModule();
-	   log("check - 7 -");
+       log("check - 6 -");
        notifyDestroyed();
     }
 
@@ -76,25 +71,25 @@ public class SmartShoe extends Applet {
             ldo.write(true);
             log("check - 0.1 -");
             gpsComm = CommConnectionImpl.getComInstance(0, 9600);
-			log("check - 0.2 -");
+            log("check - 0.2 -");
             parser = new GPSParser();
             gis = gpsComm.openInputStream();
-			log("check - 0.3 -");
+            log("check - 0.3 -");
             gpsBuf = new byte[128];
-			Thread.sleep(3000);
+            Thread.sleep(3000);
         } catch (IllegalArgumentException e1) {
             log("Gpio IllegalArgumentException:" + e1);
         } catch (IOException e1) {
             log("Gpio IOException:" + e1);
         } catch (InterruptedException e) {
-        	log("Gpio InterruptedException:" + e);
-		}
+          log("Gpio InterruptedException:" + e);
+    }
     }
 
     public void readGPSModule() {
         try {
-			log("check - 3.1 -");
-			Thread.sleep(1000);
+            log("check - 3.1 -");
+            Thread.sleep(1000);
             int readSize = gis.read(gpsBuf, 0, 128);
             log("check - 3.2 - readSize:" + readSize);
             if (readSize < 0)
@@ -113,8 +108,8 @@ public class SmartShoe extends Applet {
         } catch (IOException e) {
             log("GPS IOException:" + e);
         } catch (InterruptedException e) {
-        	log("Gpio InterruptedException:" + e);
-		}
+          log("Gpio InterruptedException:" + e);
+    }
     }
 
     public void closeGPSModule() {
@@ -131,17 +126,32 @@ public class SmartShoe extends Applet {
         }
     }
 
+    public void startGPSThread() {
+        new Thread() {
+            public void run() {
+                log("check - 0 -");
+                openGPSModule();
+
+                while(allowRunning) {
+                  readGPSModule();
+                }
+
+                closeGPSModule();
+                notifyDestroyed();
+            }
+        }.start();
+    }
 
     public void openGSensorModule() {
         try {
             manager = new I2CManager(busId, I2CManager.DATA_RATE_FAST, slaveAddress, regAddressNumber);
             log("check - 1.1 -");
-			initGSensor();
-			log("check - 1.2 -");
+            initGSensor();
+            log("check - 1.2 -");
             initAccelerator();
-			log("check - 1.3 -");
+            log("check - 1.3 -");
             enableAccelerator();
-			log("check - 1.4 -");
+            log("check - 1.4 -");
             accBuf = new byte[6];
             counter = new StepCounter();
         } catch (IOException e) {
@@ -329,4 +339,5 @@ public class SmartShoe extends Applet {
         System.out.println("SmartShoe:" + msg);
     }
 }
+
 
