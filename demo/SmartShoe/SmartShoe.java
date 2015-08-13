@@ -44,20 +44,27 @@ public class SmartShoe extends Applet {
     }
 
     public void startup() {
+		log("check - 0 -");
         openGPSModule();
+		log("check - 1 -");
         openGSensorModule();
+		log("check - 2 -");
 
         while(allowRunning) {
+			log("check - 3 -");
             readGPSModule();
+			log("check - 4 -");
             readGSensorModule();
             if (isUpdated) {
                 isUpdated = false;
                 netlog("lo:" + longitude + ",la:" + latitude + ",step:" + stepcount + ",date:" + gpsdate + ",time:" + gpstime);
            }
        }
-
+       log("check - 5 -");
        closeGPSModule();
+	   log("check - 6 -");
        closeGSensorModule();
+	   log("check - 7 -");
        notifyDestroyed();
     }
 
@@ -66,10 +73,12 @@ public class SmartShoe extends Applet {
             ldo = new Gpio(60); //60 for board, 7 for shoe
             ldo.setCurrentMode(Gpio.WRITE_MODE);
             ldo.write(true);
-
+            log("check - 0.1 -");
             gpsComm = CommConnectionImpl.getComInstance(0, 9600);
+			log("check - 0.2 -");
             parser = new GPSParser();
             gis = gpsComm.openInputStream();
+			log("check - 0.3 -");
             gpsBuf = new byte[128];
         } catch (IllegalArgumentException e1) {
             log("Gpio IllegalArgumentException:" + e1);
@@ -80,8 +89,9 @@ public class SmartShoe extends Applet {
 
     public void readGPSModule() {
         try {
+			log("check - 3.1 -");
             int readSize = gis.read(gpsBuf, 0, 128);
-
+            log("check - 3.2 - readSize:" + readSize);
             if (readSize < 0)
             {
                 log("exit when readSize is less than 0");
@@ -118,9 +128,13 @@ public class SmartShoe extends Applet {
     public void openGSensorModule() {
         try {
             manager = new I2CManager(busId, I2CManager.DATA_RATE_FAST, slaveAddress, regAddressNumber);
-            initGSensor();
+            log("check - 1.1 -");
+			initGSensor();
+			log("check - 1.2 -");
             initAccelerator();
+			log("check - 1.3 -");
             enableAccelerator();
+			log("check - 1.4 -");
             accBuf = new byte[6];
             counter = new StepCounter();
         } catch (IOException e) {
