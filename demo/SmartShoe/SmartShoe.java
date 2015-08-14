@@ -351,10 +351,12 @@ public class SmartShoe extends Applet {
 	
     private void reportTestInfo(String msg) {
 	
-	        new Thread() {
+		String reportInfo = REPORT_SERVER_FORMAT + msg.replace(' ', '.');
+			
+	    new Thread() {
             public void run() {
 
-				String reportInfo = REPORT_SERVER_FORMAT + msg.replace(' ', '.');
+				
 				log("reportTestInfo sending.................");
 				log(reportInfo);
 				
