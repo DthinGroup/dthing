@@ -209,7 +209,9 @@ public class SmartShoe extends Applet {
                 stepcount += counter.fetchStepCount();
                 log("update stepcount to " + stepcount);
                 isUpdated = true;
+				Thread.sleep(1000);
             }
+			
         } catch (IllegalArgumentException e) {
             log("GSensor IllegalArgumentException:" + e);
         } catch (NullPointerException e) {
