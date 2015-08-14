@@ -81,7 +81,7 @@ public class SmartShoe extends Applet {
 				//reportTestInfo(info);
 				log (info);
 				try {
-					Thread.sleep(10000);
+					Thread.sleep(1000);
 				}catch (InterruptedException e) {
 					log("InterruptedException:" + e);
 				}
