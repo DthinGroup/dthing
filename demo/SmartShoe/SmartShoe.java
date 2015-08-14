@@ -64,7 +64,7 @@ public class SmartShoe extends Applet {
         log("check - 1 -");
         openGSensorModule();
         log("check - 2 -");
-        startGPSThread();
+        //startGPSThread();
         while(allowRunning) {
             log("check - 3 -");
             readGSensorModule();
@@ -122,14 +122,14 @@ public class SmartShoe extends Applet {
         try {
             log("check - 3.1 -");
             int readSize = gis.read(gpsBuf, 0, 128);
-			/*
+			
             log("check - 3.2 - readSize:" + readSize);
             if (readSize < 0)
             {
                 log("exit when readSize is less than 0");
                 return;
             }
-
+			/*
             String readString = new String(gpsBuf).trim();
             parser.save(readString);
             longitude = parser.getLongtiInfo();
@@ -138,7 +138,7 @@ public class SmartShoe extends Applet {
             gpsdate = parser.getDateInfo();
             log("read:" + convertEscapedChar(readString));
 			*/
-			log ("check - 3.3 - read buffer:" + gpsBuf);
+			
             Thread.sleep(1000);
         } catch (IOException e) {
             log("GPS IOException:" + e);
@@ -165,14 +165,12 @@ public class SmartShoe extends Applet {
         new Thread() {
             public void run() {
                 log("check - 0 -");
-                //openGPSModule();
+                openGPSModule();
 
                 while(allowRunning) {
 				    
-						openGPSModule();
 						readGPSModule();
-						closeGPSModule();
-					
+						
 					//try {
 					//	Thread.sleep(10000);
 					//}catch (InterruptedException e) {
@@ -181,7 +179,7 @@ public class SmartShoe extends Applet {
 
                 }
 
-                //closeGPSModule();
+                closeGPSModule();
                 notifyDestroyed();
             }
         }.start();
