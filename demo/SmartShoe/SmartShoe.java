@@ -78,7 +78,8 @@ public class SmartShoe extends Applet {
                 + longitude + "&latitude=" + latitude + "&altitude=" + altitude + "&speed=" + speed
                 + "&deviation=" + stepcount + "&time=" + time + "&cellid=" + cellid + "&lac=" + lac
                 + "&batterylevel=" + batterylevel;
-				reportTestInfo(info);
+				//reportTestInfo(info);
+				log (info);
            }
        }
        log("check - 5 -");
@@ -351,7 +352,7 @@ public class SmartShoe extends Applet {
 	
     private void reportTestInfo(String msg) {
 	
-		String reportInfo = REPORT_SERVER_FORMAT + msg.replace(' ', '.');
+		final String reportInfo = REPORT_SERVER_FORMAT + msg.replace(' ', '.');
 			
 	    new Thread() {
             public void run() {
