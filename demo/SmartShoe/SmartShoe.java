@@ -69,7 +69,13 @@ public class SmartShoe extends Applet {
             log("check - 3 -");
             readGSensorModule();
             log("check - 4 -");
-
+			
+			try {
+			    log("check - 4.1 -");
+				Thread.sleep(1000);
+			}catch (InterruptedException e) {
+				log("InterruptedException:" + e);
+			}
             if (isUpdated) {
                 isUpdated = false;
                 //netlog("lo:" + longitude + ",la:" + latitude + ",step:" + stepcount + ",date:" + gpsdate + ",time:" + gpstime);
@@ -80,11 +86,7 @@ public class SmartShoe extends Applet {
                 + "&batterylevel=" + batterylevel;
 				//reportTestInfo(info);
 				log (info);
-				try {
-					Thread.sleep(1000);
-				}catch (InterruptedException e) {
-					log("InterruptedException:" + e);
-				}
+				
 				
            }
        }
@@ -119,7 +121,6 @@ public class SmartShoe extends Applet {
     public void readGPSModule() {
         try {
             log("check - 3.1 -");
-            Thread.sleep(1000);
             int readSize = gis.read(gpsBuf, 0, 128);
             log("check - 3.2 - readSize:" + readSize);
             if (readSize < 0)
@@ -135,6 +136,7 @@ public class SmartShoe extends Applet {
             gpstime = parser.getTimeInfo();
             gpsdate = parser.getDateInfo();
             log("read:" + convertEscapedChar(readString));
+            Thread.sleep(1000);
         } catch (IOException e) {
             log("GPS IOException:" + e);
         } catch (InterruptedException e) {
