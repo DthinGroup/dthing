@@ -129,7 +129,7 @@ public class SmartShoe extends Applet {
                 log("exit when readSize is less than 0");
                 return;
             }
-			/*
+			
             String readString = new String(gpsBuf).trim();
             parser.save(readString);
             longitude = parser.getLongtiInfo();
@@ -137,7 +137,7 @@ public class SmartShoe extends Applet {
             gpstime = parser.getTimeInfo();
             gpsdate = parser.getDateInfo();
             log("read:" + convertEscapedChar(readString));
-			*/
+			
 			
             Thread.sleep(1000);
         } catch (IOException e) {
@@ -213,12 +213,13 @@ public class SmartShoe extends Applet {
             zAc = getAccIntValue(accBuf[4], accBuf[5]);
             counter.saveAccValue(xAc, yAc, zAc);
             log(xAc + ":" + yAc + ":" + zAc);
-
+			/*
             if (counter.available()) {
                 stepcount += counter.fetchStepCount();
                 log("update stepcount to " + stepcount);
                 isUpdated = true;
             }
+			*/
 			
         } catch (IllegalArgumentException e) {
             log("GSensor IllegalArgumentException:" + e);
