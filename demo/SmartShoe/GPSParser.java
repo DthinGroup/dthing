@@ -234,6 +234,80 @@ public class GPSParser {
         }
     }
 
+	private String formatlatitude(String value)
+	{
+		//获取本地纬度数据后，先保留符号位数据，剩余数据处理后交formateDegreeString格式化
+		int signPos = value.indexOf('-');
+		String sign = (signPos < 0)? "" : "-";
+		/**
+		 * 无法保证本地纬度数据一定按照ddmm.mmmm的字符格式上传
+		 * 对于度未补0的情况, 例如dmm.mmmm或者mm.mmmm格式，也要能正常处理
+		 * 为避免formatDegreeString里面做额外的判定，增加代码量，我们为纬度数据
+		 * 手动补0, 再经formatDegreeString格式化。
+		 */
+		String target = "00" + value.substring(signPos + 1); //Avoid dmm.mmmm or mm.mmmm
+		//返回服务器的数据为符号位+格式化后的纬度数据
+		return sign + formatDegreeString(target, "36010203", 2);
+	}
+
+	private String formatlongitude(String value)
+	{
+		//获取本地经度数据后，先保留符号位数据，剩余数据处理后交formateDegreeString格式化
+		int signPos = value.indexOf('-');
+		String sign = (signPos < 0)? "" : "-";
+		/**
+		 * 无法保证本地经度数据一定按照dddmm.mmmm的字符格式上传
+		 * 对于度未补0的情况, 例如ddmm.mmmm或者dmm.mmmm或者mm.mmmm格式，也要能正常处理
+		 * 为避免formatDegreeString里面做额外的判定，增加代码量，我们为经度数据
+		 * 手动补0, 再经formatDegreeString格式化。
+		 */
+		String target = "000" + value.substring(signPos + 1); //Avoid dmm.mmmm or mm.mmmm
+		//返回服务器的数据为符号位+格式化后的经度数据
+		return sign + formatDegreeString(target, "100999897", 3);
+	}
+
+	/**
+	 * @description format gps data like longitude or latitude
+	 *     longitude: dddmm.mmmm -> (ddd + mm.mmmm / 60) * 1000000
+	 *     latitude: ddmm.mmmm -> (dd + mm.mmmm / 60) * 1000000
+	 * @param value String gps data with degree-minute format
+	 * @param defaultValue String default value when failed to format
+	 * @param degLen int length of degree
+	 * @return formatted degree string without sign
+	 */
+	private String formatDegreeString(String value, String defaultValue, int degLen)
+	{
+		//先找到".", 即可确认度分字符串的位置
+		int separator = value.indexOf('.');
+
+		//异常数据检查
+		if (separator < (2 + degLen))
+		{
+			if (separator < 0)
+			{
+				//比0小表明数据不包含".", 可能是ddmm或dddmm格式, 故分隔符位置在最后
+				//ddmm or dddmm
+				separator = value.length();
+			}
+			else
+			{
+				//其他异常情况, 返回默认值
+				//other illegal data
+				return defaultValue;
+			}
+		}
+
+		//度的数据为分数据前degLen位到分数据之间的字符串
+		String deg = value.substring(separator - 2 - degLen, separator - 2);
+		//分的数据为分隔符前两位到分隔符之间的字符串
+		String min = value.substring(separator - 2);
+		//数据化分字符串数据并保留小数点后6位
+		double dmin = Double.valueOf(min).doubleValue() * 1000000D / 60D;
+		min = new Double(dmin).toString().substring(0, 6);
+		//合并度数据和分数据并返回
+		return deg + min;
+	}
+
     public String getTimeInfo() {
         return gpsTime;
     }
@@ -247,11 +321,11 @@ public class GPSParser {
     }
 
     public String getLongtiInfo() {
-        return gpsLongti;
+        return formatlongitude(gpsLongti);
     }
 
     public String getAltiInfo() {
-        return gpsAlti;
+        return formatlatitude(gpsAlti);
     }
 
     class NmeaInfo{

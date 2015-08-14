@@ -13,10 +13,27 @@ import iot.oem.comm.CommConnectionImpl;
 
 public class SmartShoe extends Applet {
     private static final String REPORT_SERVER_FORMAT = "http://42.121.18.62:8080/dthing/ParmInfo.action?saveDataInfo&saveType=log&parmInfo=";
+	private static final String REPORT_SERVER_FORMAT_DATA = "http://42.121.18.62:8080/dthing/ParmInfo.action?uploadData";
+	//定义上传到服务器的属性和默认值
+    private static String imei = "1234";
+    private static String imsi = "1234";
+    private static String password = "111";
+    private static String longitude = "100999897"; //上报格式: 符号位 + 度(3位) + 分(换算后保留6位)
+    private static String latitude = "36010203"; //上报格式：符号位 + 度(2位) + 分(换算后保留6位)
+    private static String altitude = "210";
+    private static String speed = "50";
+    private static String deviation = "100";
+    private static int deviation_int = 0;
+    private static String time= "20150814130101";
+    private static String cellid = "0";
+    private static String lac = "0";
+    private static String batterylevel = "0";
+
+	
     private static boolean allowLogPrint = true;
     private static boolean allowRunning = true;
-    protected static String longitude = "100.000001";
-    protected static String latitude = "36.000001";
+    //protected static String longitude = "100.000001";
+   // protected static String latitude = "36.000001";
     protected static String gpstime = "0";
     protected static String gpsdate = "0";
     protected static int stepcount = 0;
@@ -55,7 +72,13 @@ public class SmartShoe extends Applet {
 
             if (isUpdated) {
                 isUpdated = false;
-                netlog("lo:" + longitude + ",la:" + latitude + ",step:" + stepcount + ",date:" + gpsdate + ",time:" + gpstime);
+                //netlog("lo:" + longitude + ",la:" + latitude + ",step:" + stepcount + ",date:" + gpsdate + ",time:" + gpstime);
+				//按照服务器要求上报指定格式数据，没有获取属性的使用默认属性数据
+				String info = "&imei=" + imei + "&imsi=" + imsi + "&password=" + password + "&longitude="
+                + longitude + "&latitude=" + latitude + "&altitude=" + altitude + "&speed=" + speed
+                + "&deviation=" + stepcount + "&time=" + time + "&cellid=" + cellid + "&lac=" + lac
+                + "&batterylevel=" + batterylevel;
+				reportTestInfo(info);
            }
        }
        log("check - 5 -");
@@ -133,7 +156,11 @@ public class SmartShoe extends Applet {
                 openGPSModule();
 
                 while(allowRunning) {
-                  readGPSModule();
+				    int maxTimeToReadGPS = 5;
+					for (int i = 0; i < maxTimeToReadGPS; i++) {
+						readGPSModule();
+					}
+					Thread.sleep(10000);
                 }
 
                 closeGPSModule();
@@ -314,6 +341,25 @@ public class SmartShoe extends Applet {
             accValue = -accValue;
         }
         return accValue;
+    }
+	
+    private void reportTestInfo(String msg) {
+	
+        String reportInfo = REPORT_SERVER_FORMAT + msg.replace(' ', '.');
+
+		log(reportInfo);
+		
+        try {
+            System.out.println(content);
+            URL url = new URL(reportInfo);
+            HttpURLConnection httpConn = (HttpURLConnection)url.openConnection();
+            httpConn.setRequestMethod(HttpURLConnection.POST);
+            InputStream dis = httpConn.getInputStream();
+            dis.close();
+            httpConn.disconnect();
+        } catch (IOException e) {
+            System.out.println("IOException:" + e);
+        }
     }
 
     private void netlog(String msg)

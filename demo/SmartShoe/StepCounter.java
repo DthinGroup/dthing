@@ -228,9 +228,14 @@ public class StepCounter {
     
     private void resetArray() {
     	cursor = 0;
-		xArray = new int[maxArraySize];
-		yArray = new int[maxArraySize];
-		zArray = new int[maxArraySize];	
+		//xArray = new int[maxArraySize];
+		//yArray = new int[maxArraySize];
+		//zArray = new int[maxArraySize];	
+        for (int i = 0; i < maxArraySize; i++) {
+            xArray[i] = 0x0;
+            yArray[i] = 0x0;
+            zArray[i] = 0x0;
+        }
     }
     
     public void saveAccValue(int xAc, int yAc, int zAc) {
