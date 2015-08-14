@@ -52,6 +52,7 @@ public class SmartShoe extends Applet {
     private byte[] accBuf = null;
     private byte[] gpsBuf = null;
     private Gpio ldo = null;
+	HttpURLConnection httpConn = null;
 
     public void cleanup() {
         allowRunning = false;
@@ -156,16 +157,16 @@ public class SmartShoe extends Applet {
                 openGPSModule();
 
                 while(allowRunning) {
-				    int maxTimeToReadGPS = 5;
-					for (int i = 0; i < maxTimeToReadGPS; i++) {
+				    //int maxTimeToReadGPS = 5;
+					//for (int i = 0; i < maxTimeToReadGPS; i++) {
 						readGPSModule();
-					}
+					//}
 					
-					try {
-						Thread.sleep(10000);
-					}catch (InterruptedException e) {
-						log("InterruptedException:" + e);
-					}
+					//try {
+					//	Thread.sleep(10000);
+					//}catch (InterruptedException e) {
+					//	log("InterruptedException:" + e);
+					//}
 
                 }
 
@@ -357,7 +358,8 @@ public class SmartShoe extends Applet {
 		
         try {
             URL url = new URL(reportInfo);
-            HttpURLConnection httpConn = (HttpURLConnection)url.openConnection();
+            //HttpURLConnection httpConn = (HttpURLConnection)url.openConnection();
+			httpConn = (HttpURLConnection)url.openConnection();
             httpConn.setRequestMethod(HttpURLConnection.POST);
             InputStream dis = httpConn.getInputStream();
             dis.close();
