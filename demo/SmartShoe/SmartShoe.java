@@ -12,8 +12,8 @@ import iot.oem.comm.CommConnectionImpl;
 
 
 public class SmartShoe extends Applet {
-    private static final String REPORT_SERVER_FORMAT = "http://42.121.18.62:8080/dthing/ParmInfo.action?saveDataInfo&saveType=log&parmInfo=";
-	private static final String REPORT_SERVER_FORMAT_DATA = "http://42.121.18.62:8080/dthing/ParmInfo.action?uploadData";
+    //private static final String REPORT_SERVER_FORMAT = "http://42.121.18.62:8080/dthing/ParmInfo.action?saveDataInfo&saveType=log&parmInfo=";
+	private static final String REPORT_SERVER_FORMAT = "http://42.121.18.62:8080/dthing/ParmInfo.action?uploadData";
 	//定义上传到服务器的属性和默认值
     private static String imei = "1234";
     private static String imsi = "1234";
@@ -350,7 +350,6 @@ public class SmartShoe extends Applet {
 		log(reportInfo);
 		
         try {
-            System.out.println(content);
             URL url = new URL(reportInfo);
             HttpURLConnection httpConn = (HttpURLConnection)url.openConnection();
             httpConn.setRequestMethod(HttpURLConnection.POST);
