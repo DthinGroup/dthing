@@ -80,6 +80,12 @@ public class SmartShoe extends Applet {
                 + "&batterylevel=" + batterylevel;
 				//reportTestInfo(info);
 				log (info);
+				try {
+					Thread.sleep(10000);
+				}catch (InterruptedException e) {
+					log("InterruptedException:" + e);
+				}
+				
            }
        }
        log("check - 5 -");
@@ -209,7 +215,6 @@ public class SmartShoe extends Applet {
                 stepcount += counter.fetchStepCount();
                 log("update stepcount to " + stepcount);
                 isUpdated = true;
-				Thread.sleep(1000);
             }
 			
         } catch (IllegalArgumentException e) {
