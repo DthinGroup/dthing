@@ -161,11 +161,11 @@ public class SmartShoe extends Applet {
 						readGPSModule();
 					}
 					
-					//try {
-						Thread.sleep(20000);
-					//}catch (InterruptedException e) {
-					//	log("InterruptedException:" + e);
-					//}
+					try {
+						Thread.sleep(10000);
+					}catch (InterruptedException e) {
+						log("InterruptedException:" + e);
+					}
 
                 }
 
