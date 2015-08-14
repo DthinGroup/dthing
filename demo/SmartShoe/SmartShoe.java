@@ -160,7 +160,13 @@ public class SmartShoe extends Applet {
 					for (int i = 0; i < maxTimeToReadGPS; i++) {
 						readGPSModule();
 					}
-					Thread.sleep(10000);
+					
+					try {
+						Thread.sleep(10000);
+					}catch (InterruptedException e) {
+						log("InterruptedException:" + e);
+					}
+
                 }
 
                 closeGPSModule();
