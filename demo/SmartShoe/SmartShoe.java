@@ -52,7 +52,6 @@ public class SmartShoe extends Applet {
     private byte[] accBuf = null;
     private byte[] gpsBuf = null;
     private Gpio ldo = null;
-	HttpURLConnection httpConn = null;
 
     public void cleanup() {
         allowRunning = false;
@@ -352,21 +351,27 @@ public class SmartShoe extends Applet {
 	
     private void reportTestInfo(String msg) {
 	
-        String reportInfo = REPORT_SERVER_FORMAT + msg.replace(' ', '.');
+	        new Thread() {
+            public void run() {
 
-		log(reportInfo);
-		
-        try {
-            URL url = new URL(reportInfo);
-            //HttpURLConnection httpConn = (HttpURLConnection)url.openConnection();
-			httpConn = (HttpURLConnection)url.openConnection();
-            httpConn.setRequestMethod(HttpURLConnection.POST);
-            InputStream dis = httpConn.getInputStream();
-            dis.close();
-            httpConn.disconnect();
-        } catch (IOException e) {
-            System.out.println("IOException:" + e);
-        }
+				String reportInfo = REPORT_SERVER_FORMAT + msg.replace(' ', '.');
+				log("reportTestInfo sending.................");
+				log(reportInfo);
+				
+				try {
+					URL url = new URL(reportInfo);
+					HttpURLConnection httpConn = (HttpURLConnection)url.openConnection();
+					//httpConn = (HttpURLConnection)url.openConnection();
+					httpConn.setRequestMethod(HttpURLConnection.POST);
+					InputStream dis = httpConn.getInputStream();
+					dis.close();
+					httpConn.disconnect();
+				} catch (IOException e) {
+					System.out.println("IOException:" + e);
+				}
+				notifyDestroyed();
+			}
+		}.start();
     }
 
     private void netlog(String msg)
