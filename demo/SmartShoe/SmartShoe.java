@@ -67,18 +67,16 @@ public class SmartShoe extends Applet {
         log("check - 2 -");
         //startGPSThread();
         while(allowRunning) {
-            log("check - 3 -");
+            log("check - reading Gsensor data -");
             readGSensorModule();
-            log("check - 4 -");
 			
-			/*
 			try {
 			    log("Gsensor Sleep");
 				Thread.sleep(100);
 			}catch (InterruptedException e) {
 				log("InterruptedException:" + e);
 			}
-			*/
+			
             if (isUpdated) {
                 isUpdated = false;
                 //netlog("lo:" + longitude + ",la:" + latitude + ",step:" + stepcount + ",date:" + gpsdate + ",time:" + gpstime);
@@ -211,7 +209,7 @@ public class SmartShoe extends Applet {
             xAc = getAccIntValue(accBuf[0], accBuf[1]);
             yAc = getAccIntValue(accBuf[2], accBuf[3]);
             zAc = getAccIntValue(accBuf[4], accBuf[5]);
-            log("9 save value:" + xAc + ":" + yAc + ":" + zAc);
+            log("10 save value:" + xAc + ":" + yAc + ":" + zAc);
 			
             counter.saveAccValue(xAc, yAc, zAc);
             if (counter.available()) {
