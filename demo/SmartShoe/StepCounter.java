@@ -185,7 +185,7 @@ public class StepCounter {
                 || (maxAxis==Y_AXIS_MAX && yAc[i-1]>yDcThred && yDcThred>yAc[i])
                 || (isThreeAxisAcc && maxAxis == Z_AXIS_MAX && zAc[i-1]>zDcThred && zDcThred>zAc[i])) {
 				
-				log("calculate step " +"i:"+ i +"lastStepPoint:"+ lastStepPoint + "x[i]:" + xAc[i]+ "y[i]:" + yAc[i]+ "z[i]:" + zAc[i]);
+				log("calculate step " +"i:"+ i +" lastStepPoint:"+ lastStepPoint + "x[i]: " + xAc[i]+ "y[i]: " + yAc[i]+ "z[i]: " + zAc[i]);
                 if ((i-lastStepPoint) < (int)(MIN_STEP_DURATION/DATA_OUTPUT_FREQ)) {
                     log("ignore: lastStepPoint = " + lastStepPoint + ", i = " + i);
                     continue; // Ignore because of step gap is too short.
@@ -241,15 +241,17 @@ public class StepCounter {
     }
     
     public void saveAccValue(int xAc, int yAc, int zAc) {
-
+		int size = 0;
+		
     	xArray[cursor] = xAc;
     	yArray[cursor] = yAc;
     	zArray[cursor] = zAc;
     	cursor++;
 		
     	if (cursor >= minCaculatedCount) {
-    		caculatedStepCount += caculateSteps(xArray, yArray, zArray);
-    		if ((caculatedStepCount > 0)||(cursor >= maxArraySize) ) {
+			size = caculateSteps(xArray, yArray, zArray);
+    		caculatedStepCount += size;
+    		if ((size > 0)||(cursor >= maxArraySize) ) {
     		    resetArray();
     		}
     	}
@@ -268,8 +270,8 @@ public class StepCounter {
         		resetArray();
     		}
     		result += size;
-    		caculatedStepCount = 0;
     	}
+		caculatedStepCount = 0;
     	return result;
     }
 }
