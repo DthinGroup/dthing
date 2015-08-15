@@ -239,17 +239,18 @@ public class StepCounter {
     }
     
     public void saveAccValue(int xAc, int yAc, int zAc) {
-    	if (cursor >= minCaculatedCount) {
-    		caculatedStepCount += caculateSteps(xArray, yArray, zArray);
-    		if (caculatedStepCount >= 0) {
-    		    resetArray();
-    		}
-    	}
 
     	xArray[cursor] = xAc;
     	yArray[cursor] = yAc;
     	zArray[cursor] = zAc;
     	cursor++;
+		
+    	if (cursor >= minCaculatedCount) {
+    		caculatedStepCount += caculateSteps(xArray, yArray, zArray);
+    		if ((caculatedStepCount > 0)||(cursor >= maxArraySize) ) {
+    		    resetArray();
+    		}
+    	}
     }
     
     public boolean available() {
@@ -261,7 +262,7 @@ public class StepCounter {
     	int size = 0;
     	if (cursor >= minCaculatedCount) {
     		size = caculateSteps(xArray, yArray, zArray);
-    		if (size >= 0) {
+    		if ((size > 0)||(cursor >= maxArraySize) ) {
         		resetArray();
     		}
     		result += size;

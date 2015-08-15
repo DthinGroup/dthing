@@ -43,7 +43,7 @@ public class SmartShoe extends Applet {
     private static int regAddressNumber = 1;
     private static int subAccAddress = 0x02; //sub address for accelerator data read
     private static int accRange = 0;
-    private static boolean isUpdated = true;
+    private static boolean isUpdated = false;
 
     private CommConnectionImpl gpsComm = null;
     private GPSParser parser = null;
@@ -72,7 +72,7 @@ public class SmartShoe extends Applet {
             log("check - 4 -");
 			
 			try {
-			    log("check - 4.1 -");
+			    log("Gsensor Sleep");
 				Thread.sleep(1000);
 			}catch (InterruptedException e) {
 				log("InterruptedException:" + e);
@@ -87,7 +87,6 @@ public class SmartShoe extends Applet {
                 + "&batterylevel=" + batterylevel;
 				//reportTestInfo(info);
 				log (info);
-				
 				
            }
        }
@@ -143,7 +142,7 @@ public class SmartShoe extends Applet {
 			
             log("read:" + convertEscapedChar(readString));
 			
-            Thread.sleep(10000);
+            Thread.sleep(1000);
         } catch (IOException e) {
             log("GPS IOException:" + e);
         } catch (InterruptedException e) {
@@ -173,14 +172,8 @@ public class SmartShoe extends Applet {
 
                 while(allowRunning) {
 				    
-						readGPSModule();
+					readGPSModule();
 						
-					//try {
-					//	Thread.sleep(10000);
-					//}catch (InterruptedException e) {
-					//	log("InterruptedException:" + e);
-					//}
-
                 }
 
                 closeGPSModule();
@@ -215,7 +208,7 @@ public class SmartShoe extends Applet {
             xAc = getAccIntValue(accBuf[0], accBuf[1]);
             yAc = getAccIntValue(accBuf[2], accBuf[3]);
             zAc = getAccIntValue(accBuf[4], accBuf[5]);
-            log("save value:" + xAc + ":" + yAc + ":" + zAc);
+            log("1 save value:" + xAc + ":" + yAc + ":" + zAc);
 			
             counter.saveAccValue(xAc, yAc, zAc);
             if (counter.available()) {
