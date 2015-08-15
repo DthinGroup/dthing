@@ -258,7 +258,7 @@ public class StepCounter {
 		}
 		
 		log("calculating steps");
-    	if ((cursor >= minCaculatedCount) &&(calculateFlag = 0){
+    	if ((cursor >= minCaculatedCount) &&(calculateFlag == 0)){
 			size = caculateSteps(xArray, yArray, zArray);
     		caculatedStepCount += size;
     		if ((size > 0)||(cursor >= maxArraySize) ) {
