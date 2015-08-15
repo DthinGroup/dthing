@@ -123,7 +123,7 @@ public class SmartShoe extends Applet {
 	public void convertgpsBuftoStringBuf(){
 		
 		for (int i=0;i<128;i++){
-			gpsStrBuf.append((char)(gpsBuf[i] & 0xff));
+			gpsStrBuf.replace(i, i+1, (char)(gpsBuf[i] & 0xff));
 		}
 		return;
 	}
