@@ -104,14 +104,14 @@ public class StepCounter {
         } else {
             isBadStep = true;
         }
-
+/*
         log("maxXAc = " + maxXAc + ",minXAc = " + minXAc
             + " maxYAc = " + maxYAc + ", minYAc = " + minYAc
             + (isThreeAxisAcc ? (" maxZAc = " + maxZAc + ", minZAc = " + minZAc) : ""));
         log("xDcThred = " + xDcThred + ", yDcThred = " + yDcThred
             + (isThreeAxisAcc ? (", zDcThred = " + zDcThred) : "")
             + ", isBadStep = " + isBadStep + ", maxAxis = " + maxAxis);
-
+*/
         minXAc = UNDEFINED_VALUE;
         minYAc = UNDEFINED_VALUE;
         minZAc = UNDEFINED_VALUE;
@@ -220,7 +220,7 @@ public class StepCounter {
         }
     }
 
-    private static final int maxArraySize = 50;
+    private static final int maxArraySize = 20;
     private static final int minCaculatedCount = 10;
     private int[] xArray = new int[maxArraySize];
     private int[] yArray = new int[maxArraySize];
