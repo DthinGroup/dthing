@@ -218,7 +218,7 @@ public class StepCounter {
         }
     }
 
-    private static final int maxArraySize = 50;
+    private static final int maxArraySize = 11;
     private static final int minCaculatedCount = 10;
     private int[] xArray = new int[maxArraySize];
     private int[] yArray = new int[maxArraySize];
