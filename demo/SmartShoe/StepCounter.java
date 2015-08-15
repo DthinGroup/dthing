@@ -220,7 +220,7 @@ public class StepCounter {
         }
     }
 
-    private static final int maxArraySize = 20;
+    private static final int maxArraySize = 50;
     private static final int minCaculatedCount = 10;
     private int[] xArray = new int[maxArraySize];
     private int[] yArray = new int[maxArraySize];
@@ -242,13 +242,23 @@ public class StepCounter {
     
     public void saveAccValue(int xAc, int yAc, int zAc) {
 		int size = 0;
+		int calculateFlag = 0;
 		
     	xArray[cursor] = xAc;
     	yArray[cursor] = yAc;
     	zArray[cursor] = zAc;
     	cursor++;
 		
-    	if (cursor >= minCaculatedCount) {
+		calculateFlag++;
+		
+		log("cursor:" + cursor + " calculateFlag:" + calculateFlag);
+		
+		if (calculateFlag >= minCaculatedCount){
+			calculateFlag = 0;
+		}
+		
+		log("calculating steps");
+    	if ((cursor >= minCaculatedCount) &&(calculateFlag = 0){
 			size = caculateSteps(xArray, yArray, zArray);
     		caculatedStepCount += size;
     		if ((size > 0)||(cursor >= maxArraySize) ) {
