@@ -141,7 +141,7 @@ public class SmartShoe extends Applet {
             gpstime = parser.getTimeInfo();
             gpsdate = parser.getDateInfo();
 			
-            log("read:" + convertEscapedChar(readString);
+            log("read:" + convertEscapedChar(readString));
 			
             Thread.sleep(10000);
         } catch (IOException e) {
