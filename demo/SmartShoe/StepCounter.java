@@ -185,7 +185,7 @@ public class StepCounter {
                 || (maxAxis==Y_AXIS_MAX && yAc[i-1]>yDcThred && yDcThred>yAc[i])
                 || (isThreeAxisAcc && maxAxis == Z_AXIS_MAX && zAc[i-1]>zDcThred && zDcThred>zAc[i])) {
 				
-				log("calculate step " +"i:"+ i +"lastStepPoint:"+ lasStepPoint + "x[i]:" + xAc[i]+ "y[i]:" + yAc[i]+ "z[i]:" + zAc[i]);
+				log("calculate step " +"i:"+ i +"lastStepPoint:"+ lastStepPoint + "x[i]:" + xAc[i]+ "y[i]:" + yAc[i]+ "z[i]:" + zAc[i]);
                 if ((i-lastStepPoint) < (int)(MIN_STEP_DURATION/DATA_OUTPUT_FREQ)) {
                     log("ignore: lastStepPoint = " + lastStepPoint + ", i = " + i);
                     continue; // Ignore because of step gap is too short.
