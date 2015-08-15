@@ -16,9 +16,9 @@ public class StepCounter {
     private static final int X_AXIS_MAX = 0;
     private static final int Y_AXIS_MAX = 100;
     private static final int Z_AXIS_MAX = 200;
-    private static final int MIN_VALID_STEP_GAP = 30;
-    private static final int MIN_STEP_DURATION = 20;
-    private static final int MAX_STEP_DURATION = 200;
+    private static final int MIN_VALID_STEP_GAP = 10;
+    private static final int MIN_STEP_DURATION = 10;
+    private static final int MAX_STEP_DURATION = 20;
     private int minXAc = UNDEFINED_VALUE;
     private int minYAc = UNDEFINED_VALUE;
     private int minZAc = UNDEFINED_VALUE;
