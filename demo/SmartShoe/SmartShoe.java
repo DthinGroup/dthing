@@ -18,8 +18,8 @@ public class SmartShoe extends Applet {
     private static String imei = "1234";
     private static String imsi = "1234";
     private static String password = "111";
-    private static String longitude = "100999897"; //上报格式: 符号位 + 度(3位) + 分(换算后保留6位)
-    private static String latitude = "36010203"; //上报格式：符号位 + 度(2位) + 分(换算后保留6位)
+    private static String longitude = "116357400"; //上报格式: 符号位 + 度(3位) + 分(换算后保留6位)
+    private static String latitude = "39902719"; //上报格式：符号位 + 度(2位) + 分(换算后保留6位)
     private static String altitude = "210";
     private static String speed = "50";
     private static String deviation = "100";
@@ -82,7 +82,7 @@ public class SmartShoe extends Applet {
                 //netlog("lo:" + longitude + ",la:" + latitude + ",step:" + stepcount + ",date:" + gpsdate + ",time:" + gpstime);
 				//按照服务器要求上报指定格式数据，没有获取属性的使用默认属性数据
 				String info = "&imei=" + imei + "&imsi=" + imsi + "&password=" + password + "&longitude="
-                + longitude + "&latitude=" + latitude + "&altitude=" + altitude + "&speed=" + speed
+                + longitude + "&latitude=" +  latitude + "&altitude=" + altitude + "&speed=" + speed
                 + "&deviation=" + stepcount + "&time=" + time + "&cellid=" + cellid + "&lac=" + lac
                 + "&batterylevel=" + batterylevel;
 				//reportTestInfo(info);
@@ -209,7 +209,7 @@ public class SmartShoe extends Applet {
             xAc = getAccIntValue(accBuf[0], accBuf[1]);
             yAc = getAccIntValue(accBuf[2], accBuf[3]);
             zAc = getAccIntValue(accBuf[4], accBuf[5]);
-            log("3 save value:" + xAc + ":" + yAc + ":" + zAc);
+            log("4 save value:" + xAc + ":" + yAc + ":" + zAc);
 			
             counter.saveAccValue(xAc, yAc, zAc);
             if (counter.available()) {
