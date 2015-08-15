@@ -855,8 +855,11 @@ public final class StringBuffer {
         if ((index < 0) || (index >= count)) {
             throw new StringIndexOutOfBoundsException();
         }
+		/*No need to copy value to another space */
+		/*
         if (sharedStr != null)
             copy();
+		*/
         value[index] = ch;
     }
 
