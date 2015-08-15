@@ -216,14 +216,14 @@ public class SmartShoe extends Applet {
             yAc = getAccIntValue(accBuf[2], accBuf[3]);
             zAc = getAccIntValue(accBuf[4], accBuf[5]);
             log(xAc + ":" + yAc + ":" + zAc);
-			/*
+			
             counter.saveAccValue(xAc, yAc, zAc);
             if (counter.available()) {
                 stepcount += counter.fetchStepCount();
                 log("update stepcount to " + stepcount);
                 isUpdated = true;
             }
-			*/
+			
 			
         } catch (IllegalArgumentException e) {
             log("GSensor IllegalArgumentException:" + e);
