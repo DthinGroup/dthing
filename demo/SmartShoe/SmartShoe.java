@@ -129,17 +129,18 @@ public class SmartShoe extends Applet {
                 log("exit when readSize is less than 0");
                 return;
             }
-			/*
-            String readString = new String(gpsBuf).trim();
 			
+            String readString = new String(gpsBuf).trim();
+			/*
             parser.save(readString);
             longitude = parser.getLongtiInfo();
             latitude = parser.getLatiInfo();
             gpstime = parser.getTimeInfo();
             gpsdate = parser.getDateInfo();
+			*/
 			
             log("read:" + convertEscapedChar(readString));
-			*/
+			readString = null;
             Thread.sleep(1000);
         } catch (IOException e) {
             log("GPS IOException:" + e);
