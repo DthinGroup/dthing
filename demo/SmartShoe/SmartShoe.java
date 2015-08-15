@@ -52,6 +52,7 @@ public class SmartShoe extends Applet {
     private byte[] accBuf = null;
     private byte[] gpsBuf = null;
     private Gpio ldo = null;
+	private StringBuffer gpsStrBuf = null;
 
     public void cleanup() {
         allowRunning = false;
@@ -108,6 +109,7 @@ public class SmartShoe extends Applet {
             gis = gpsComm.openInputStream();
             log("check - 0.3 -");
             gpsBuf = new byte[128];
+			gpsStrBuf = new StringBuffer(128);
             Thread.sleep(3000);
         } catch (IllegalArgumentException e1) {
             log("Gpio IllegalArgumentException:" + e1);
@@ -118,6 +120,13 @@ public class SmartShoe extends Applet {
     }
     }
 
+	public void convertgpsBuftoStringBuf(){
+		
+		for (int i=0;i<128;i++){
+			gpsStrBuf.append((char)(gpsbuf[i] & 0xff));
+		}
+		return;
+	}
     public void readGPSModule() {
         try {
             log("check - 3.1 -");
@@ -129,18 +138,18 @@ public class SmartShoe extends Applet {
                 log("exit when readSize is less than 0");
                 return;
             }
-			
-            String readString = new String(gpsBuf).trim();
 			/*
+            String readString = new String(gpsBuf).trim();
+			
             parser.save(readString);
             longitude = parser.getLongtiInfo();
             latitude = parser.getLatiInfo();
             gpstime = parser.getTimeInfo();
             gpsdate = parser.getDateInfo();
 			*/
+			convertgpsBuftoStringBuf(gpsBuf);
+            log("read:" + convertEscapedChar(gpsStrBuf.toString().trim()));
 			
-            log("read:" + convertEscapedChar(readString));
-			readString = null;
             Thread.sleep(1000);
         } catch (IOException e) {
             log("GPS IOException:" + e);
