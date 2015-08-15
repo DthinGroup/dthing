@@ -120,16 +120,7 @@ public class SmartShoe extends Applet {
     }
     }
 
-	public void convertgpsBuftoStringBuf(){
-		
-		log("entry of convertgpsBuftoStringBuf");
-		gpsStrBuf.setLength(128);
-		for (int i=0;i<128;i++){
-			gpsStrBuf.setCharAt(i, (char)(gpsBuf[i] & 0xff));
-		}
-		log("exit of convertgpsBuftoStringBuf");
-		return;
-	}
+
     public void readGPSModule() {
         try {
             log("check - 3.1 -");
@@ -141,7 +132,7 @@ public class SmartShoe extends Applet {
                 log("exit when readSize is less than 0");
                 return;
             }
-			/*
+			
             String readString = new String(gpsBuf).trim();
 			
             parser.save(readString);
@@ -149,11 +140,10 @@ public class SmartShoe extends Applet {
             latitude = parser.getLatiInfo();
             gpstime = parser.getTimeInfo();
             gpsdate = parser.getDateInfo();
-			*/
-			convertgpsBuftoStringBuf();
-            log("read:" + convertEscapedChar(gpsStrBuf.toString().trim()));
 			
-            Thread.sleep(1000);
+            log("read:" + convertEscapedChar(readString);
+			
+            Thread.sleep(10000);
         } catch (IOException e) {
             log("GPS IOException:" + e);
         } catch (InterruptedException e) {
