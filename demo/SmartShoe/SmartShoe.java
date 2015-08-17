@@ -362,28 +362,22 @@ public class SmartShoe extends Applet {
 	
     private void reportTestInfo(String msg) {
 	
-		final String reportInfo = REPORT_SERVER_FORMAT + msg.replace(' ', '.');
+		String reportInfo = REPORT_SERVER_FORMAT + msg.replace(' ', '.');
 			
-	    new Thread() {
-            public void run() {
-
-				log("reportTestInfo sending.................");
-				log(reportInfo);
-				
-				try {
-					URL url = new URL(reportInfo);
-					HttpURLConnection httpConn = (HttpURLConnection)url.openConnection();
-					//httpConn = (HttpURLConnection)url.openConnection();
-					httpConn.setRequestMethod(HttpURLConnection.POST);
-					InputStream dis = httpConn.getInputStream();
-					dis.close();
-					httpConn.disconnect();
-				} catch (IOException e) {
-					System.out.println("IOException:" + e);
-				}
-				notifyDestroyed();
-			}
-		}.start();
+		log("reportTestInfo sending.................");
+		log(reportInfo);
+		
+		try {
+			URL url = new URL(reportInfo);
+			HttpURLConnection httpConn = (HttpURLConnection)url.openConnection();
+			httpConn = (HttpURLConnection)url.openConnection();
+			httpConn.setRequestMethod(HttpURLConnection.POST);
+			InputStream dis = httpConn.getInputStream();
+			dis.close();
+			httpConn.disconnect();
+		} catch (IOException e) {
+			System.out.println("IOException:" + e);
+		}
     }
 
     private void netlog(String msg)
