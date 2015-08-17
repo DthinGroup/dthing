@@ -173,7 +173,7 @@ public class StepCounter {
             if (isThreeAxisAcc && (minZAc == UNDEFINED_VALUE || zAc[i] < minZAc)) {
                 minZAc = zAc[i];
             }
-			log("calculate step data [ " + i +" ]"+ " x[i]: " + xAc[i]+ " y[i]: " + yAc[i]+ " z[i]: " + zAc[i]);
+			//log("calculate step data [ " + i +" ]"+ " x[i]: " + xAc[i]+ " y[i]: " + yAc[i]+ " z[i]: " + zAc[i]);
             samCounter++;
             /** Caculate threshold value and reset sampling data. */
             if (samCounter == SAMPLING_NUMBER) {
@@ -232,8 +232,8 @@ public class StepCounter {
         }
     }
 
-    private static final int maxArraySize = 1000;
-    private static final int minCaculatedCount = 200;
+    private static final int maxArraySize = 100;
+    private static final int minCaculatedCount = 50;
     private int[] xArray = new int[maxArraySize];
     private int[] yArray = new int[maxArraySize];
     private int[] zArray = new int[maxArraySize];
