@@ -104,6 +104,7 @@ public class StepCounter {
         } else {
             isBadStep = true;
         }
+		log("isBadStep = "+isBadStep);
 /*
         log("maxXAc = " + maxXAc + ",minXAc = " + minXAc
             + " maxYAc = " + maxYAc + ", minYAc = " + minYAc
@@ -169,7 +170,7 @@ public class StepCounter {
             if (isThreeAxisAcc && (minZAc == UNDEFINED_VALUE || zAc[i] < minZAc)) {
                 minZAc = zAc[i];
             }
-
+			log("calculate step data" + " x[i]: " + xAc[i]+ " y[i]: " + yAc[i]+ " z[i]: " + zAc[i]);
             samCounter++;
             /** Caculate threshold value and reset sampling data. */
             if (samCounter == SAMPLING_NUMBER) {
@@ -177,6 +178,7 @@ public class StepCounter {
             }
 
             if (isBadStep || i == 0) {
+				log("isBadStep= " + isBadStep);
                 continue;
             }
 
@@ -190,9 +192,11 @@ public class StepCounter {
                     log("ignore: lastStepPoint = " + lastStepPoint + ", i = " + i);
                     continue; // Ignore because of step gap is too short.
                 } else if ((i-lastStepPoint) > (int)(MAX_STEP_DURATION/DATA_OUTPUT_FREQ)) {
+					log("bigger than max step duration");
                     stepState = STEP_SEARCHING;
                     lastStepPoint = i;
                 } else {
+				    log("Calculate one step or two steps?");
                     if (stepState == STEP_INITIALIZING) {
                         stepState = STEP_SEARCHING;
                     } else if (stepState == STEP_SEARCHING) {

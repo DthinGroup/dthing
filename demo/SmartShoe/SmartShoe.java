@@ -72,7 +72,7 @@ public class SmartShoe extends Applet {
 			
 			try {
 			    log("Gsensor Sleep");
-				Thread.sleep(100);
+				Thread.sleep(300);
 			}catch (InterruptedException e) {
 				log("InterruptedException:" + e);
 			}
