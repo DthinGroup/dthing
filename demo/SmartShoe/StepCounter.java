@@ -31,7 +31,7 @@ public class StepCounter {
     /** The frequency of data output. */
     private final int DATA_OUTPUT_FREQ = 5;
     /** Caculate threshold dynamically every 10 output data. */
-    private final int SAMPLING_NUMBER = 10;
+    private final int SAMPLING_NUMBER = 20;
     /** sampling counter, reset to 0 every SAMPLING_NUMBER times. */
     private int samCounter = 0;
     /** x axis dynamic threshold. */
@@ -141,12 +141,15 @@ public class StepCounter {
             isThreeAxisAcc = false;
         }
 
+		/*
         if (xAc.length > yAc.length) {
             dataLen = !isThreeAxisAcc ? xAc.length : ((zAc.length > yAc.length) ? yAc.length : zAc.length);
         } else {
             dataLen = !isThreeAxisAcc ? yAc.length : ((zAc.length > xAc.length) ? xAc.length : zAc.length);
         }
-
+		*/
+		dataLen = cursor;
+		
         log("dataLen = " + dataLen);
 
         initAcData();
@@ -170,15 +173,20 @@ public class StepCounter {
             if (isThreeAxisAcc && (minZAc == UNDEFINED_VALUE || zAc[i] < minZAc)) {
                 minZAc = zAc[i];
             }
-			log("calculate step data" + " x[i]: " + xAc[i]+ " y[i]: " + yAc[i]+ " z[i]: " + zAc[i]);
+			log("calculate step data [ " + i +" ]"+ " x[i]: " + xAc[i]+ " y[i]: " + yAc[i]+ " z[i]: " + zAc[i]);
             samCounter++;
             /** Caculate threshold value and reset sampling data. */
             if (samCounter == SAMPLING_NUMBER) {
                 resetSamplingData();
             }
 
+			/*
             if (isBadStep || i == 0) {
 				log("isBadStep= " + isBadStep);
+                continue;
+            }
+			*/
+			if ( i == 0) {
                 continue;
             }
 
