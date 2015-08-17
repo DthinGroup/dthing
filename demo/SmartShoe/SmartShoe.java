@@ -70,12 +70,14 @@ public class SmartShoe extends Applet {
             log("check - reading Gsensor data -");
             readGSensorModule();
 			
+			/*
 			try {
 			    log("Gsensor Sleep");
-				//Thread.sleep(100);
+				Thread.sleep(100);
 			}catch (InterruptedException e) {
 				log("InterruptedException:" + e);
 			}
+			*/
 			
             if (isUpdated) {
                 isUpdated = false;
@@ -209,7 +211,7 @@ public class SmartShoe extends Applet {
             xAc = getAccIntValue(accBuf[0], accBuf[1]);
             yAc = getAccIntValue(accBuf[2], accBuf[3]);
             zAc = getAccIntValue(accBuf[4], accBuf[5]);
-            log("10 save value:" + xAc + ":" + yAc + ":" + zAc);
+            log("11 save value:" + xAc + ":" + yAc + ":" + zAc);
 			
             counter.saveAccValue(xAc, yAc, zAc);
             if (counter.available()) {
