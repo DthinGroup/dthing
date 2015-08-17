@@ -85,8 +85,8 @@ public class SmartShoe extends Applet {
                 + longitude + "&latitude=" +  latitude + "&altitude=" + altitude + "&speed=" + speed
                 + "&deviation=" + stepcount + "&time=" + time + "&cellid=" + cellid + "&lac=" + lac
                 + "&batterylevel=" + batterylevel;
-				//reportTestInfo(info);
-				log (info);
+				reportTestInfo(info);
+				//log (info);
 				
            }
        }
@@ -365,7 +365,6 @@ public class SmartShoe extends Applet {
 	    new Thread() {
             public void run() {
 
-				
 				log("reportTestInfo sending.................");
 				log(reportInfo);
 				
