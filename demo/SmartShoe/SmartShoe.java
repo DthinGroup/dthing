@@ -74,11 +74,12 @@ public class SmartShoe extends Applet {
 			
 			try {
 			    log("Gsensor Sleep");
-				Thread.sleep(1000);
+				Thread.sleep(100);
 			}catch (InterruptedException e) {
 				log("InterruptedException:" + e);
 			}
 			
+			/*
 			sendResultLoop++;
 			if (sendResultLoop >= 5){
 			
@@ -90,6 +91,7 @@ public class SmartShoe extends Applet {
                 + "&batterylevel=" + batterylevel;
 				reportTestInfo(info);
 			}
+			*/
 			
             if (isUpdated) {
                 isUpdated = false;
