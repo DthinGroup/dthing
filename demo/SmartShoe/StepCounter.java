@@ -9,7 +9,7 @@
  *      }
  */
 public class StepCounter {
-    private boolean DEBUG = true;
+    private boolean DEBUG = false;
     private boolean isBadStep = false;
 
     private static final int UNDEFINED_VALUE = -1000;

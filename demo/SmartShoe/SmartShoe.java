@@ -409,7 +409,7 @@ public class SmartShoe extends Applet {
 
     private void log(String msg)
     {
-        System.out.println("SmartShoe:" + msg);
+        //System.out.println("SmartShoe:" + msg);
     }
 }
 
