@@ -71,27 +71,30 @@ public class SmartShoe extends Applet {
             log("check - reading Gsensor data -");
             readGSensorModule();
 			
-			
+			/*
 			try {
 			    log("Gsensor Sleep");
 				Thread.sleep(100);
 			}catch (InterruptedException e) {
 				log("InterruptedException:" + e);
 			}
+			*/
 			
-			/*
-			sendResultLoop++;
-			if (sendResultLoop >= 5){
 			
-				sendResultLoop = 0;
+			//sendResultLoop++;
+			//if (sendResultLoop >= 5){
+			
+				//sendResultLoop = 0;
+			for (int i = 0; i< 10; i++){
+				
 				//按照服务器要求上报指定格式数据，没有获取属性的使用默认属性数据
 				String info = "&imei=" + imei + "&imsi=" + imsi + "&password=" + password + "&longitude="
                 + longitude + "&latitude=" +  latitude + "&altitude=" + altitude + "&speed=" + speed
                 + "&deviation=" + stepcount + "&time=" + time + "&cellid=" + cellid + "&lac=" + lac
                 + "&batterylevel=" + batterylevel;
-				reportTestInfo(info);
+				log(info);
 			}
-			*/
+			
 			
             if (isUpdated) {
                 isUpdated = false;
@@ -102,7 +105,6 @@ public class SmartShoe extends Applet {
                 + "&deviation=" + stepcount + "&time=" + time + "&cellid=" + cellid + "&lac=" + lac
                 + "&batterylevel=" + batterylevel;
 				reportTestInfo(info);
-				//log (info);
 				
            }
        }
