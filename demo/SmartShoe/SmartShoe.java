@@ -15,16 +15,16 @@ public class SmartShoe extends Applet {
     //private static final String REPORT_SERVER_FORMAT = "http://42.121.18.62:8080/dthing/ParmInfo.action?saveDataInfo&saveType=log&parmInfo=";
 	private static final String REPORT_SERVER_FORMAT = "http://42.121.18.62:8080/dthing/ParmInfo.action?uploadData";
 	//定义上传到服务器的属性和默认值
-    private static String imei = "1234";
-    private static String imsi = "1234";
-    private static String password = "111";
+    private static String imei = "135444411112222";
+    private static String imsi = "460014411112222";
+    private static String password = "11222233";
     private static String longitude = "116357400"; //上报格式: 符号位 + 度(3位) + 分(换算后保留6位)
     private static String latitude = "39902719"; //上报格式：符号位 + 度(2位) + 分(换算后保留6位)
     private static String altitude = "210";
     private static String speed = "50";
     private static String deviation = "100";
     private static int deviation_int = 0;
-    private static String time= "20150814130101";
+    private static String time= "20150818130101";
     private static String cellid = "0";
     private static String lac = "0";
     private static String batterylevel = "0";
@@ -44,6 +44,7 @@ public class SmartShoe extends Applet {
     private static int subAccAddress = 0x02; //sub address for accelerator data read
     private static int accRange = 0;
     private static boolean isUpdated = false;
+	private static int sendResultLoop = 0;
 
     private CommConnectionImpl gpsComm = null;
     private GPSParser parser = null;
@@ -73,11 +74,22 @@ public class SmartShoe extends Applet {
 			
 			try {
 			    log("Gsensor Sleep");
-				Thread.sleep(200);
+				Thread.sleep(1000);
 			}catch (InterruptedException e) {
 				log("InterruptedException:" + e);
 			}
 			
+			sendResultLoop++;
+			if (sendResultLoop >= 5){
+			
+				sendResultLoop = 0;
+				//按照服务器要求上报指定格式数据，没有获取属性的使用默认属性数据
+				String info = "&imei=" + imei + "&imsi=" + imsi + "&password=" + password + "&longitude="
+                + longitude + "&latitude=" +  latitude + "&altitude=" + altitude + "&speed=" + speed
+                + "&deviation=" + stepcount + "&time=" + time + "&cellid=" + cellid + "&lac=" + lac
+                + "&batterylevel=" + batterylevel;
+				reportTestInfo(info);
+			}
 			
             if (isUpdated) {
                 isUpdated = false;
@@ -211,7 +223,7 @@ public class SmartShoe extends Applet {
             xAc = getAccIntValue(accBuf[0], accBuf[1]);
             yAc = getAccIntValue(accBuf[2], accBuf[3]);
             zAc = getAccIntValue(accBuf[4], accBuf[5]);
-            log("14 save value:" + xAc + ":" + yAc + ":" + zAc);
+            log("15 save value:" + xAc + ":" + yAc + ":" + zAc);
 			
             counter.saveAccValue(xAc, yAc, zAc);
             if (counter.available()) {
