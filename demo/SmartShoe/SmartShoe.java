@@ -68,7 +68,7 @@ public class SmartShoe extends Applet {
         log("check - 2 -");
         //startGPSThread();
         while(allowRunning) {
-            log("check - reading Gsensor data -");
+            //log("check - reading Gsensor data -");
             readGSensorModule();
 			
 			/*
@@ -220,7 +220,7 @@ public class SmartShoe extends Applet {
             xAc = getAccIntValue(accBuf[0], accBuf[1]);
             yAc = getAccIntValue(accBuf[2], accBuf[3]);
             zAc = getAccIntValue(accBuf[4], accBuf[5]);
-            log("15 save value:" + xAc + ":" + yAc + ":" + zAc);
+            //log("15 save value:" + xAc + ":" + yAc + ":" + zAc);
 			
             counter.saveAccValue(xAc, yAc, zAc);
             if (counter.available()) {
@@ -409,7 +409,7 @@ public class SmartShoe extends Applet {
 
     private void log(String msg)
     {
-        //System.out.println("SmartShoe:" + msg);
+        System.out.println("SmartShoe:" + msg);
     }
 }
 

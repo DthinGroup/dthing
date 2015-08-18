@@ -9,7 +9,7 @@
  *      }
  */
 public class StepCounter {
-    private boolean DEBUG = false;
+    private boolean DEBUG = true;
     private boolean isBadStep = false;
 
     private static final int UNDEFINED_VALUE = -1000;
@@ -195,16 +195,16 @@ public class StepCounter {
                 || (maxAxis==Y_AXIS_MAX && yAc[i-1]>yDcThred && yDcThred>yAc[i])
                 || (isThreeAxisAcc && maxAxis == Z_AXIS_MAX && zAc[i-1]>zDcThred && zDcThred>zAc[i])) {
 				
-				log("calculate step " +"i:"+ i +" lastStepPoint:"+ lastStepPoint + " x[i]: " + xAc[i]+ " y[i]: " + yAc[i]+ " z[i]: " + zAc[i]);
+				//log("calculate step " +"i:"+ i +" lastStepPoint:"+ lastStepPoint + " x[i]: " + xAc[i]+ " y[i]: " + yAc[i]+ " z[i]: " + zAc[i]);
                 if ((i-lastStepPoint) < (int)(MIN_STEP_DURATION/DATA_OUTPUT_FREQ)) {
                     log("ignore: lastStepPoint = " + lastStepPoint + ", i = " + i);
                     continue; // Ignore because of step gap is too short.
                 } else if ((i-lastStepPoint) > (int)(MAX_STEP_DURATION/DATA_OUTPUT_FREQ)) {
-					log("bigger than max step duration");
+					//log("bigger than max step duration");
                     stepState = STEP_SEARCHING;
                     lastStepPoint = i;
                 } else {
-				    log("Calculate one step or two steps?");
+				    //log("Calculate one step or two steps?");
                     if (stepState == STEP_INITIALIZING) {
                         stepState = STEP_SEARCHING;
                     } else if (stepState == STEP_SEARCHING) {
