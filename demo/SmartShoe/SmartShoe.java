@@ -85,14 +85,8 @@ public class SmartShoe extends Applet {
 			//if (sendResultLoop >= 5){
 			
 				//sendResultLoop = 0;
-			for (int i = 0; i< 10; i++){
-				
-				//按照服务器要求上报指定格式数据，没有获取属性的使用默认属性数据
-				String info = "&imei=" + imei + "&imsi=" + imsi + "&password=" + password + "&longitude="
-                + longitude + "&latitude=" +  latitude + "&altitude=" + altitude + "&speed=" + speed
-                + "&deviation=" + stepcount + "&time=" + time + "&cellid=" + cellid + "&lac=" + lac
-                + "&batterylevel=" + batterylevel;
-				log(info);
+			for (int i = 0; i< 10000; ){
+				i++;
 			}
 			
 			
@@ -105,7 +99,6 @@ public class SmartShoe extends Applet {
                 + "&deviation=" + stepcount + "&time=" + time + "&cellid=" + cellid + "&lac=" + lac
                 + "&batterylevel=" + batterylevel;
 				reportTestInfo(info);
-				
            }
        }
        log("check - 5 -");
