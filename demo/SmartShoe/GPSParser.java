@@ -309,23 +309,23 @@ public class GPSParser {
 	}
 
     public String getTimeInfo() {
-        return gpsTime;
+        return (gpsTime != null)? gpsTime : "0";
     }
 
     public String getDateInfo() {
-        return gpsDate;
+        return (gpsDate != null)? gpsDate : "0";
     }
 
     public String getLatiInfo() {
-        return gpsLati;
+        return (gpsLati != null)? formatlatitude(gpsLati) : "36";
     }
 
     public String getLongtiInfo() {
-        return formatlongitude(gpsLongti);
+        return (gpsLongti != null)? formatlongitude(gpsLongti) : "100";
     }
 
     public String getAltiInfo() {
-        return formatlatitude(gpsAlti);
+        return (gpsAlti != null)? gpsAlti : "0";
     }
 
     class NmeaInfo{
