@@ -45,14 +45,14 @@ public class SmartShoe extends Applet {
     private static boolean isUpdated = false;
     private static int sendResultLoop = 0;
 
-    private CommConnectionImpl gpsComm = null;
-    private GPSParser parser = null;
-    private InputStream gis = null;
-    private StepCounter counter = null;
-    private byte[] accBuf = null;
-    private byte[] gpsBuf = null;
-    private Gpio ldo = null;
-    private StringBuffer gpsStrBuf = null;
+    private static CommConnectionImpl gpsComm = null;
+    private static GPSParser parser = null;
+    private static InputStream gis = null;
+    private static StepCounter counter = null;
+    private static byte[] accBuf = null;
+    private static byte[] gpsBuf = null;
+    private static Gpio ldo = null;
+    private static StringBuffer gpsStrBuf = null;
     private Thread gsensorThread = null;
     private Thread gpsThread = null;
 
