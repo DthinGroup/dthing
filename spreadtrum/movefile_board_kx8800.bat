@@ -8,11 +8,11 @@ REM ########## %1: root dir of dthing  #########################################
 REM ########## %2: root dir of spd sdk ########################################################
 set SRCDIR=%1
 set DESDIR=%2
-
+f
 REM ########### Auto Generated Environment Variables ##########################################
 set DTHINGDIR=%DESDIR%\BASE\dthing
 set EXPORT_SOURCE_ROOT=%SRCDIR%\spreadtrum\export\KX8800
-
+echo %DTHINGDIR%
 RMDIR /S /Q %DTHINGDIR%\
 MKDIR %DTHINGDIR%\
 XCOPY /R /Y %EXPORT_SOURCE_ROOT%\SC6530.modules  %DESDIR%\
@@ -43,11 +43,18 @@ XCOPY /R /Y %EXPORT_SOURCE_ROOT%\BASE\make\atc\atc.mk %DESDIR%\BASE\make\atc\
 XCOPY /R /Y %EXPORT_SOURCE_ROOT%\inc\cpl_atcontrol.h %DESDIR%\MS_Ref\export\inc\
 
 XCOPY /R /Y %EXPORT_SOURCE_ROOT%\MS_Ref\source\base\src\init.c %DESDIR%\MS_Ref\source\base\src\
+XCOPY /R /Y %EXPORT_SOURCE_ROOT%\MS_Ref\source\base\src\keypad.c %DESDIR%\MS_Ref\source\base\src\
 
 XCOPY /R /Y %EXPORT_SOURCE_ROOT%\MS_Customize\export\inc\gps_com.h %DESDIR%\MS_Customize\export\inc\
+XCOPY /R /Y %EXPORT_SOURCE_ROOT%\MS_Customize\export\inc\gps_drv.h %DESDIR%\MS_Customize\export\inc\
+
+XCOPY /R /Y %EXPORT_SOURCE_ROOT%\MS_Customize\source\common\*.c %DESDIR%\MS_Customize\source\common\
 
 XCOPY /R /Y %EXPORT_SOURCE_ROOT%\MS_Customize\source\product\driver\gps\*.c %DESDIR%\MS_Customize\source\product\driver\gps\
 XCOPY /R /Y %EXPORT_SOURCE_ROOT%\MS_Customize\source\product\driver\gps\sirf\*.* %DESDIR%\MS_Customize\source\product\driver\gps\sirf\
+
+XCOPY /R /Y %EXPORT_SOURCE_ROOT%\MS_Customize\source\product\driver\lcd\*.* %DESDIR%\MS_Customize\source\product\driver\lcd\
+
 XCOPY /R /Y %EXPORT_SOURCE_ROOT%\MS_Customize\source\product\config\sc6500_modem\mem_cfg.c %DESDIR%\MS_Customize\source\product\config\sc6500_modem\
 XCOPY /R /Y %EXPORT_SOURCE_ROOT%\MS_Customize\source\product\config\sc6500_modem\pinmap_cfg.c %DESDIR%\MS_Customize\source\product\config\sc6500_modem\
 XCOPY /R /Y %EXPORT_SOURCE_ROOT%\MS_Customize\source\product\config\sc6500_modem\spiflash_cfg.c %DESDIR%\MS_Customize\source\product\config\sc6500_modem\

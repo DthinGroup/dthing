@@ -50,12 +50,11 @@ SOURCES	 = dthing_main.c \
 SOURCES	+= ams.c ams_remote.c ams_utils.c ams_sms.c
 
 #opl layer
-SOURCES	+= opl_core.c opl_es.c opl_file.c opl_mm.c opl_net.c opl_rams.c opl_atc.c
-
+SOURCES	+= opl_core.c opl_es.c opl_file.c opl_mm.c opl_net.c opl_rams.c opl_atc.c   opl_trace.c
 #native
 SOURCES	+= nativeADCManager.c nativeATCommandConnection.c \
            nativeBatteryManager.c nativeEarManager.c nativeGpio.c nativeI2CManager.c nativeLCD.c nativeMicophone.c \
            nativeMyMessageSender.c nativeMySmsConnectionThread.c nativePCMChannel.c nativePWMManager.c nativeSimManager.c \
-           nativeSpeakerManager.c nativeSPIManager.c nativeUSBConnection.c nativeCommConnectionImpl.c nativeRawKeyPdDriver.c
-
+           nativeSpeakerManager.c nativeSPIManager.c nativeUSBConnection.c nativeCommConnectionImpl.c nativeRawKeyPdDriver.c \
+           nativeNativeAPIManager.c
 #============================================

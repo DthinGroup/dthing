@@ -38,7 +38,12 @@
 	#define GPS_TRACE( _format_string )  
 #endif
 
+
+#ifdef SUPPORT_QIJUN_BOARD
+#define GPS_COM 0
+#else
 #define GPS_COM 1 //UART_COM1
+#endif
 
 /**---------------------------------------------------------------------------*
  **                         Compiler Flag                                     *
@@ -69,9 +74,10 @@ LOCAL GPS_NV_INFO_T		s_gps_nv_info			= {0};
 #ifdef _GPS_CIPHER
 LOCAL GPS_CIPHER_REPORT_T s_gps_cipher			= {0};
 #endif
-LOCAL BOOLEAN 			s_is_get_gps_cipher		= SCI_FALSE;
-LOCAL GPS_MODE_E		s_gps_mode				= GPS_MODE_MAX;
-//LOCAL GPS_INFO_T		s_gps_info				= {0};
+LOCAL BOOLEAN       s_is_get_gps_cipher   = SCI_FALSE;
+LOCAL GPS_MODE_E    s_gps_mode        = GPS_MODE_MAX;
+//LOCAL GPS_INFO_T    s_gps_info        = {0};
+LOCAL uint32 s_current_gps_port = GPS_COM;
 
 /**---------------------------------------------------------------------------*
  **                         Constant Variables                                *
@@ -239,75 +245,77 @@ PUBLIC GPS_STATUS_E GPS_GetStatus(void)
 //  Author:         Liangwen.Zhen
 //  Note:           
 /*****************************************************************************/
-PUBLIC GPS_ERR_E GPS_Init(void)
+PUBLIC GPS_ERR_E GPS_Init(uint32 port, uint32 baudrate)
 {
-	GPS_ERR_E err_val = GPS_ERR_NO_MODULE;
-	
-	if(PNULL != s_gps_operations_ptr)
-	{		
-		// must Identify 
-		if(PNULL != s_gps_operations_ptr->gps_identify)
-		{
-			if(s_gps_operations_ptr->gps_identify())
-			{
-				err_val = GPS_ERR_NONE;						
-			}
-		}
-		else
-		{
-			SCI_PASSERT(0, ("NO GPS identify!"));   /*assert verified*/
-		}		
-		
-	}
-	else
-	{	
-		// Second: to find the right operation in the table
-		s_gps_operations_ptr = *(GPS_OPERATIONS_T**)GPS_GetOperationTab();
-		
-		while(PNULL != s_gps_operations_ptr)
-		{		
-			// must Identify 
-			if(PNULL != s_gps_operations_ptr->gps_identify)
-			{
-				if(s_gps_operations_ptr->gps_identify())
-				{					
-					err_val = GPS_ERR_NONE;
-					break;			
-				}
-			}
-			else
-			{
-				SCI_PASSERT(0, ("NO GPS identify!"));   /*assert verified*/
-			}		
-			
-			// Find next operation
-			s_gps_operations_ptr++;
-		}	
-	}
-	
-	
-	if(GPS_ERR_NONE != err_val)
-	{
-	    //GPS_TRACE:"GPS_Init: Identify fail !! status %d"
-	    SCI_TRACE_ID(TRACE_TOOL_CONVERT,GPS_DRV_255_112_2_18_0_33_7_1556,(uint8*)"d", err_val);
-		
-	}
-	else
-	{
-		_GPS_SetStatus(GPS_STATUS_INIT);		
-		//GPS_TRACE:"GPS_Init: Identify successful !!"
-		SCI_TRACE_ID(TRACE_TOOL_CONVERT,GPS_DRV_261_112_2_18_0_33_7_1557,(uint8*)"");
-		
-		//call init
-		if(PNULL != s_gps_operations_ptr->gps_init)
-		{
-			s_gps_operations_ptr->gps_init();		
-		}
-	}	
-	
-	GPS_DIAG_RegDiagCmdRoutine();
-	
-	return err_val;
+  GPS_ERR_E err_val = GPS_ERR_NO_MODULE;
+
+  if(PNULL != s_gps_operations_ptr)
+  {
+    // must Identify
+    if(PNULL != s_gps_operations_ptr->gps_identify)
+    {
+      if(s_gps_operations_ptr->gps_identify())
+      {
+        err_val = GPS_ERR_NONE;
+      }
+    }
+    else
+    {
+      SCI_PASSERT(0, ("NO GPS identify!"));   /*assert verified*/
+    }
+
+  }
+  else
+  {
+    // Second: to find the right operation in the table
+    s_gps_operations_ptr = *(GPS_OPERATIONS_T**)GPS_GetOperationTab();
+
+    while(PNULL != s_gps_operations_ptr)
+    {
+      // must Identify
+      if(PNULL != s_gps_operations_ptr->gps_identify)
+      {
+        if(s_gps_operations_ptr->gps_identify())
+        {
+          err_val = GPS_ERR_NONE;
+          break;
+        }
+      }
+      else
+      {
+        SCI_PASSERT(0, ("NO GPS identify!"));   /*assert verified*/
+      }
+
+      // Find next operation
+      s_gps_operations_ptr++;
+    }
+  }
+
+
+  if(GPS_ERR_NONE != err_val)
+  {
+      //GPS_TRACE:"GPS_Init: Identify fail !! status %d"
+      SCI_TRACE_ID(TRACE_TOOL_CONVERT,GPS_DRV_255_112_2_18_0_33_7_1556,(uint8*)"d", err_val);
+
+  }
+  else
+  {
+    _GPS_SetStatus(GPS_STATUS_INIT);
+    //GPS_TRACE:"GPS_Init: Identify successful !!"
+    SCI_TRACE_ID(TRACE_TOOL_CONVERT,GPS_DRV_261_112_2_18_0_33_7_1557,(uint8*)"");
+
+    //call init
+    if(PNULL != s_gps_operations_ptr->gps_init)
+    {
+      s_gps_operations_ptr->gps_init(port, baudrate);
+    }
+
+    s_current_gps_port = port;
+  }
+
+  //GPS_DIAG_RegDiagCmdRoutine();
+
+  return err_val;
 }
 
 /*****************************************************************************/
@@ -334,16 +342,17 @@ PUBLIC GPS_ERR_E GPS_Open(GPS_MODE_E mode)
 				NMEA_Init();
 			}
 
-			_GPS_SetMode(mode);
-		}
-	}
-	else
-	{
-		err_val = GPS_ERR_NO_MODULE;
-	}
-	UART_Rx_Int_Enable(GPS_COM,TRUE);
-	
-	return err_val;
+      _GPS_SetMode(mode);
+    }
+  }
+  else
+  {
+    err_val = GPS_ERR_NO_MODULE;
+  }
+
+  UART_Rx_Int_Enable(s_current_gps_port, TRUE);
+
+  return err_val;
 }
 
 /*****************************************************************************/
@@ -353,16 +362,17 @@ PUBLIC GPS_ERR_E GPS_Open(GPS_MODE_E mode)
 /*****************************************************************************/
 PUBLIC GPS_ERR_E GPS_Close(void)
 {
-	GPS_ERR_E err_val = GPS_ERR_NONE;
-	
-	if(PNULL != s_gps_operations_ptr)
-	{
-		SCI_ASSERT(PNULL != s_gps_operations_ptr->gps_close);/*assert verified*/
-		err_val = s_gps_operations_ptr->gps_close();
-		if(GPS_ERR_NONE == err_val)
-		{
-			_GPS_SetStatus(GPS_STATUS_CLOSE);
-		}
+  GPS_ERR_E err_val = GPS_ERR_NONE;
+
+  if(PNULL != s_gps_operations_ptr)
+  {
+    SCI_ASSERT(PNULL != s_gps_operations_ptr->gps_close);/*assert verified*/
+    err_val = s_gps_operations_ptr->gps_close();
+    if(GPS_ERR_NONE == err_val)
+    {
+      _GPS_SetStatus(GPS_STATUS_CLOSE);
+      s_current_gps_port = GPS_COM;
+    }
 
 		if( GPS_MODE_TEST_NMEA == _GPS_GetMode() )
 		{				

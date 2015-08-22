@@ -85,7 +85,8 @@
 #include "aud_enha_exp.h"
 #endif
 
-#include "lvve_ctrl_param_nv.h"
+#include "lvve_ctrl_param_nv.h"\
+#include "trace.h"
 #include "cpl_atcontrol.h"
 #include "modem_public.h"
 
@@ -123,7 +124,8 @@ ATAMSCFGINIT=\"<SuiteID1,SuiteID2>\"\r\n\
 ATAMSCFGCANCEL=<SuiteID>\r\n\
 ATAMSCFGCANCELALL\r\n\
 ATAMSCFGURL=\"<ip|port>\"\r\n\
-ATAMSCFGACCOUNT=\"<user|password>\"\r\n"
+ATAMSCFGACCOUNT=\"<user|password>\"\r\n\
+ATAMSDEBUG=<DebugLevelNumber>\r\n"
 
 static HAUDIO hAtcCustomRing = INVALID_HANDLE;
 static HAUDIO hAtcDtmfRing = INVALID_HANDLE;
@@ -426,7 +428,7 @@ AT_CMD_FUNC(ATC_ProcessAMS)
     switch(ATC_GET_CMD_TYPE)
     {
         case ATC_CMD_TYPE_EXECUTE:
-            ATC_TRACE_LOW("ATC_ProcessAMS:ATC_CMD_TYPE_EXECUTE");
+            //ATC_TRACE_LOW("ATC_ProcessAMS:ATC_CMD_TYPE_EXECUTE");
             ATC_BuildInfoRsp(atc_config_ptr, ATAMS_USAGE);
             break;
 
@@ -454,16 +456,16 @@ AT_CMD_FUNC(ATC_ProcessAMSOTA)
     switch(ATC_GET_CMD_TYPE)
     {
         case ATC_CMD_TYPE_EXECUTE:
-            ATC_TRACE_LOW("ATC_ProcessAMS:ATC_CMD_TYPE_EXECUTE");
+            //ATC_TRACE_LOW("ATC_ProcessAMS:ATC_CMD_TYPE_EXECUTE");
             ATC_BuildInfoRsp(atc_config_ptr, ATAMS_USAGE);
             ATC_EnableModemFileProtocol(atc_config_ptr->current_link_id);
             break;
 
         case ATC_CMD_TYPE_SET:
-            ATC_TRACE_LOW("ATC_ProcessAMS:ATC_CMD_TYPE_SET");
+            //ATC_TRACE_LOW("ATC_ProcessAMS:ATC_CMD_TYPE_SET");
             if ((PARAM1_FLAG) && (PARAM1_TYPE == ATC_CMD_PARAM_TYPE_STRING))
             {
-                ATC_TRACE_LOW("[Param] %s", PARA1.str_ptr->str_ptr);
+                //ATC_TRACE_LOW("[Param] %s", PARA1.str_ptr->str_ptr);
                 paramStr = PARA1.str_ptr->str_ptr;
             }
 
@@ -507,14 +509,14 @@ AT_CMD_FUNC(ATC_ProcessAMSINSTALL)
     switch(ATC_GET_CMD_TYPE)
     {
         case ATC_CMD_TYPE_EXECUTE:
-            ATC_TRACE_LOW("ATC_ProcessAMS:ATC_CMD_TYPE_EXECUTE");
+            //ATC_TRACE_LOW("ATC_ProcessAMS:ATC_CMD_TYPE_EXECUTE");
             ATC_BuildInfoRsp(atc_config_ptr, ATAMS_USAGE);
             break;
         case ATC_CMD_TYPE_SET:
-            ATC_TRACE_LOW("ATC_ProcessAMS:ATC_CMD_TYPE_SET");
+            //ATC_TRACE_LOW("ATC_ProcessAMS:ATC_CMD_TYPE_SET");
             if ((PARAM1_FLAG) && (PARAM1_TYPE == ATC_CMD_PARAM_TYPE_STRING))
             {
-                ATC_TRACE_LOW("[Param] %s", PARA1.str_ptr->str_ptr);
+                //ATC_TRACE_LOW("[Param] %s", PARA1.str_ptr->str_ptr);
                 paramStr = PARA1.str_ptr->str_ptr;
             }
 
@@ -557,14 +559,14 @@ AT_CMD_FUNC(ATC_ProcessAMSDL)
     switch(ATC_GET_CMD_TYPE)
     {
         case ATC_CMD_TYPE_EXECUTE:
-            ATC_TRACE_LOW("ATC_ProcessAMS:ATC_CMD_TYPE_EXECUTE");
+            //ATC_TRACE_LOW("ATC_ProcessAMS:ATC_CMD_TYPE_EXECUTE");
             ATC_BuildInfoRsp(atc_config_ptr, ATAMS_USAGE);
             break;
         case ATC_CMD_TYPE_SET:
-            ATC_TRACE_LOW("ATC_ProcessAMS:ATC_CMD_TYPE_SET");
+            //ATC_TRACE_LOW("ATC_ProcessAMS:ATC_CMD_TYPE_SET");
             if ((PARAM1_FLAG) && (PARAM1_TYPE == ATC_CMD_PARAM_TYPE_STRING))
             {
-                ATC_TRACE_LOW("[Param] %s", PARA1.str_ptr->str_ptr);
+                //ATC_TRACE_LOW("[Param] %s", PARA1.str_ptr->str_ptr);
                 paramStr = PARA1.str_ptr->str_ptr;
             }
 
@@ -606,14 +608,14 @@ AT_CMD_FUNC(ATC_ProcessAMSDELETE)
     switch(ATC_GET_CMD_TYPE)
     {
         case ATC_CMD_TYPE_EXECUTE:
-            ATC_TRACE_LOW("ATC_ProcessAMS:ATC_CMD_TYPE_EXECUTE");
+            //ATC_TRACE_LOW("ATC_ProcessAMS:ATC_CMD_TYPE_EXECUTE");
             ATC_BuildInfoRsp(atc_config_ptr, ATAMS_USAGE);
             break;
         case ATC_CMD_TYPE_SET:
-            ATC_TRACE_LOW("ATC_ProcessAMS:ATC_CMD_TYPE_SET");
+            //ATC_TRACE_LOW("ATC_ProcessAMS:ATC_CMD_TYPE_SET");
             if ((PARAM1_FLAG) && (PARAM1_TYPE == ATC_CMD_PARAM_TYPE_NUMERIC))
             {
-                ATC_TRACE_LOW("[Param] %d", PARA1.num);
+                //ATC_TRACE_LOW("[Param] %d", PARA1.num);
                 result = cpl_handleATRequestWithNumericParam("DELETE", PARA1.num, &outStr);
             }
 
@@ -655,7 +657,7 @@ AT_CMD_FUNC(ATC_ProcessAMSDELETEALL)
     switch(ATC_GET_CMD_TYPE)
     {
         case ATC_CMD_TYPE_EXECUTE:
-            ATC_TRACE_LOW("ATC_ProcessAMS:ATC_CMD_TYPE_EXECUTE");
+            //ATC_TRACE_LOW("ATC_ProcessAMS:ATC_CMD_TYPE_EXECUTE");
             result = cpl_handleATRequest("DELETEALL", 0x0, &outStr);
 
             if (result > 0)
@@ -695,14 +697,14 @@ AT_CMD_FUNC(ATC_ProcessAMSRUN)
     switch(ATC_GET_CMD_TYPE)
     {
         case ATC_CMD_TYPE_EXECUTE:
-            ATC_TRACE_LOW("ATC_ProcessAMS:ATC_CMD_TYPE_EXECUTE");
+            //ATC_TRACE_LOW("ATC_ProcessAMS:ATC_CMD_TYPE_EXECUTE");
             ATC_BuildInfoRsp(atc_config_ptr, ATAMS_USAGE);
             break;
         case ATC_CMD_TYPE_SET:
-            ATC_TRACE_LOW("ATC_ProcessAMS:ATC_CMD_TYPE_SET");
+            //ATC_TRACE_LOW("ATC_ProcessAMS:ATC_CMD_TYPE_SET");
             if ((PARAM1_FLAG) && (PARAM1_TYPE == ATC_CMD_PARAM_TYPE_NUMERIC))
             {
-                ATC_TRACE_LOW("[Param] %d", PARA1.num);
+                //ATC_TRACE_LOW("[Param] %d", PARA1.num);
                 result = cpl_handleATRequestWithNumericParam("RUN", PARA1.num, &outStr);
             }
 
@@ -743,7 +745,7 @@ AT_CMD_FUNC(ATC_ProcessAMSLIST)
     switch(ATC_GET_CMD_TYPE)
     {
         case ATC_CMD_TYPE_EXECUTE:
-            ATC_TRACE_LOW("ATC_ProcessAMS:ATC_CMD_TYPE_EXECUTE");
+            //ATC_TRACE_LOW("ATC_ProcessAMS:ATC_CMD_TYPE_EXECUTE");
             result = cpl_handleATRequest("LIST", 0x0, &outStr);
 
             if ((result > 0) && (outStr != NULL))
@@ -780,14 +782,14 @@ AT_CMD_FUNC(ATC_ProcessAMSDESTROY)
     switch(ATC_GET_CMD_TYPE)
     {
         case ATC_CMD_TYPE_EXECUTE:
-            ATC_TRACE_LOW("ATC_ProcessAMS:ATC_CMD_TYPE_EXECUTE");
+            //ATC_TRACE_LOW("ATC_ProcessAMS:ATC_CMD_TYPE_EXECUTE");
             ATC_BuildInfoRsp(atc_config_ptr, ATAMS_USAGE);
             break;
         case ATC_CMD_TYPE_SET:
-             ATC_TRACE_LOW("ATC_ProcessAMS:ATC_CMD_TYPE_SET");
+            //ATC_TRACE_LOW("ATC_ProcessAMS:ATC_CMD_TYPE_SET");
             if ((PARAM1_FLAG) && (PARAM1_TYPE == ATC_CMD_PARAM_TYPE_NUMERIC))
             {
-                ATC_TRACE_LOW("[Param] %d", PARA1.num);
+                //ATC_TRACE_LOW("[Param] %d", PARA1.num);
                 result = cpl_handleATRequestWithNumericParam("DESTROY", PARA1.num, &outStr);
             }
 
@@ -828,7 +830,7 @@ AT_CMD_FUNC(ATC_ProcessAMSSTATUS)
     switch(ATC_GET_CMD_TYPE)
     {
         case ATC_CMD_TYPE_EXECUTE:
-            ATC_TRACE_LOW("ATC_ProcessAMS:ATC_CMD_TYPE_EXECUTE");
+            //ATC_TRACE_LOW("ATC_ProcessAMS:ATC_CMD_TYPE_EXECUTE");
             result = cpl_handleATRequest("STATUS", 0x0, &outStr);
 
             if ((result > 0) && (outStr != NULL))
@@ -865,7 +867,7 @@ AT_CMD_FUNC(ATC_ProcessAMSRESET)
     switch(ATC_GET_CMD_TYPE)
     {
         case ATC_CMD_TYPE_EXECUTE:
-            ATC_TRACE_LOW("ATC_ProcessAMS:ATC_CMD_TYPE_EXECUTE");
+            //ATC_TRACE_LOW("ATC_ProcessAMS:ATC_CMD_TYPE_EXECUTE");
             result = cpl_handleATRequest("RESET", 0x0, &outStr);
 
             if (result > 0)
@@ -906,14 +908,14 @@ AT_CMD_FUNC(ATC_ProcessAMSCFGINIT)
     switch(ATC_GET_CMD_TYPE)
     {
         case ATC_CMD_TYPE_EXECUTE:
-            ATC_TRACE_LOW("ATC_ProcessAMS:ATC_CMD_TYPE_EXECUTE");
+            //ATC_TRACE_LOW("ATC_ProcessAMS:ATC_CMD_TYPE_EXECUTE");
             ATC_BuildInfoRsp(atc_config_ptr, ATAMS_USAGE);
             break;
         case ATC_CMD_TYPE_SET:
-            ATC_TRACE_LOW("ATC_ProcessAMS:ATC_CMD_TYPE_SET");
+            //ATC_TRACE_LOW("ATC_ProcessAMS:ATC_CMD_TYPE_SET");
             if ((PARAM1_FLAG) && (PARAM1_TYPE == ATC_CMD_PARAM_TYPE_STRING))
             {
-                ATC_TRACE_LOW("[Param] %s", PARA1.str_ptr->str_ptr);
+                //ATC_TRACE_LOW("[Param] %s", PARA1.str_ptr->str_ptr);
                 paramStr = PARA1.str_ptr->str_ptr;
             }
 
@@ -956,14 +958,14 @@ AT_CMD_FUNC(ATC_ProcessAMSCFGURL)
     switch(ATC_GET_CMD_TYPE)
     {
         case ATC_CMD_TYPE_EXECUTE:
-            ATC_TRACE_LOW("ATC_ProcessAMS:ATC_CMD_TYPE_EXECUTE");
+            //ATC_TRACE_LOW("ATC_ProcessAMS:ATC_CMD_TYPE_EXECUTE");
             ATC_BuildInfoRsp(atc_config_ptr, ATAMS_USAGE);
             break;
         case ATC_CMD_TYPE_SET:
-            ATC_TRACE_LOW("ATC_ProcessAMS:ATC_CMD_TYPE_SET");
+            //ATC_TRACE_LOW("ATC_ProcessAMS:ATC_CMD_TYPE_SET");
             if ((PARAM1_FLAG) && (PARAM1_TYPE == ATC_CMD_PARAM_TYPE_STRING))
             {
-                ATC_TRACE_LOW("[Param] %s", PARA1.str_ptr->str_ptr);
+                //ATC_TRACE_LOW("[Param] %s", PARA1.str_ptr->str_ptr);
                 paramStr = PARA1.str_ptr->str_ptr;
             }
 
@@ -1006,14 +1008,14 @@ AT_CMD_FUNC(ATC_ProcessAMSCFGACCOUNT)
     switch(ATC_GET_CMD_TYPE)
     {
         case ATC_CMD_TYPE_EXECUTE:
-            ATC_TRACE_LOW("ATC_ProcessAMS:ATC_CMD_TYPE_EXECUTE");
+            //ATC_TRACE_LOW("ATC_ProcessAMS:ATC_CMD_TYPE_EXECUTE");
             ATC_BuildInfoRsp(atc_config_ptr, ATAMS_USAGE);
             break;
         case ATC_CMD_TYPE_SET:
-            ATC_TRACE_LOW("ATC_ProcessAMS:ATC_CMD_TYPE_SET");
+            //ATC_TRACE_LOW("ATC_ProcessAMS:ATC_CMD_TYPE_SET");
             if ((PARAM1_FLAG) && (PARAM1_TYPE == ATC_CMD_PARAM_TYPE_STRING))
             {
-                ATC_TRACE_LOW("[Param] %s", PARA1.str_ptr->str_ptr);
+                //ATC_TRACE_LOW("[Param] %s", PARA1.str_ptr->str_ptr);
                 paramStr = PARA1.str_ptr->str_ptr;
             }
 
@@ -1055,14 +1057,14 @@ AT_CMD_FUNC(ATC_ProcessAMSCFGCANCEL)
     switch(ATC_GET_CMD_TYPE)
     {
         case ATC_CMD_TYPE_EXECUTE:
-            ATC_TRACE_LOW("ATC_ProcessAMS:ATC_CMD_TYPE_EXECUTE");
+            //ATC_TRACE_LOW("ATC_ProcessAMS:ATC_CMD_TYPE_EXECUTE");
             ATC_BuildInfoRsp(atc_config_ptr, ATAMS_USAGE);
             break;
         case ATC_CMD_TYPE_SET:
-            ATC_TRACE_LOW("ATC_ProcessAMS:ATC_CMD_TYPE_SET");
+            //ATC_TRACE_LOW("ATC_ProcessAMS:ATC_CMD_TYPE_SET");
             if ((PARAM1_FLAG) && (PARAM1_TYPE == ATC_CMD_PARAM_TYPE_NUMERIC))
             {
-                ATC_TRACE_LOW("[Param] %d", PARA1.num);
+                //ATC_TRACE_LOW("[Param] %d", PARA1.num);
                 result = cpl_handleATRequestWithNumericParam("CFGCANCEL", PARA1.num, &outStr);
             }
 
@@ -1104,7 +1106,7 @@ AT_CMD_FUNC(ATC_ProcessAMSCFGCANCELALL)
     switch(ATC_GET_CMD_TYPE)
     {
         case ATC_CMD_TYPE_EXECUTE:
-            ATC_TRACE_LOW("ATC_ProcessAMS:ATC_CMD_TYPE_EXECUTE");
+            //ATC_TRACE_LOW("ATC_ProcessAMS:ATC_CMD_TYPE_EXECUTE");
             result = cpl_handleATRequest("CFGCANCELALL", 0x0, &outStr);
 
             if (result > 0)
@@ -1114,6 +1116,47 @@ AT_CMD_FUNC(ATC_ProcessAMSCFGCANCELALL)
                   ATC_BuildInfoRsp(atc_config_ptr, outStr);
                   cpl_freeOutStr(&outStr);
                 }
+            }
+            else
+            {
+                return ERR_UNKNOWN;
+            }
+            break;
+
+        default:
+            ATC_TRACE_LOW("ATAMS:OPERATION NOT SUPPORTED");
+            return ERR_OPERATION_NOT_SUPPORTED;
+    }
+
+    return S_ATC_SUCCESS;
+#else
+    return S_ATC_FAIL;
+#endif /* _ULTRA_LOW_CODE_ */
+}
+
+/*****************************************************************************/
+//  Description : This function handle the ATAMSDEBUG command
+/*****************************************************************************/
+AT_CMD_FUNC(ATC_ProcessAMSDEBUG)
+{
+#ifndef _ULTRA_LOW_CODE_
+    int result = -1;
+    char *outStr = 0x0;
+
+    switch(ATC_GET_CMD_TYPE)
+    {
+        case ATC_CMD_TYPE_EXECUTE:
+            ATC_BuildInfoRsp(atc_config_ptr, ATAMS_USAGE);
+            break;
+        case ATC_CMD_TYPE_SET:
+            if ((PARAM1_FLAG) && (PARAM1_TYPE == ATC_CMD_PARAM_TYPE_NUMERIC))
+            {
+                result = SetDthingTraceLevel(PARA1.num);
+            }
+
+            if (result > 0)
+            {
+                ATC_BuildInfoRsp(atc_config_ptr, "OK");
             }
             else
             {
@@ -13378,6 +13421,10 @@ AT_CMD_FUNC(ATC_ProcessSPAUDVOLTYPE)
     return status;
 }
 
+AT_CMD_FUNC(ATC_ProcessSFSTEST)
+{
+	return S_ATC_SUCCESS;
+}
 /**---------------------------------------------------------------------------*
  **                         Compiler Flag                                     *
  **---------------------------------------------------------------------------*/

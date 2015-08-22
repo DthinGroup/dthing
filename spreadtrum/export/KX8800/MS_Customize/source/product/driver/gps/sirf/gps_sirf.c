@@ -23,7 +23,7 @@
 #include "Srf_func.h"
 #include "nv_productionparam_type.h"
 #include "sci_types.h"
-#include "GPS_COM.h"
+#include "gps_com.h"
 #include "gpio_prod_api.h"           //@David.Jia 2007.8.14
 #include "gps_nmea.h"
 
@@ -55,6 +55,8 @@
  #define     GPIO_GPS_WAKEUP                   // no wakeup pin @P2 7560
 #endif
 
+LOCAL uint32 s_current_gps_port = 0;
+LOCAL uint32 s_current_gps_baudrate = 0;
 /*****************************************************************************/
 //  Description:    Control GPS's power
 //                  is_open = SCI_TRUE, 	power on
@@ -178,21 +180,32 @@ LOCAL void GPIO_GPS_UART2GPIO(BOOLEAN is_gpio)
 //  date:           2007.7.31
 //	Note:           u1rxd/u1txd, power_control/power down/reset/boot_from pin select.
 /*****************************************************************************/
-LOCAL GPS_ERR_E Srf_Init(void)
+LOCAL GPS_ERR_E Srf_Init(uint32 port, uint32 baudrate)
 {
     //GPS_LOG:"Srf_Init"
     SCI_TRACE_ID(TRACE_TOOL_CONVERT,GPS_SIRF_158_112_2_18_0_33_22_1693,(uint8*)"");
    
     //GPS_LOG:"config Uart1 to GPIO and pull them down for saving power"
     SCI_TRACE_ID(TRACE_TOOL_CONVERT,GPS_SIRF_160_112_2_18_0_33_22_1694,(uint8*)"");
+    s_current_gps_port = port;
+    s_current_gps_baudrate = baudrate;
+
+#ifdef M2M_EVB_SUPPORT
+    GPIO_Enable(LDO_PIN); //enable
+    GPIO_SetDirection(LDO_PIN, 1); //set output
+    GPIO_SetValue(LDO_PIN, 1);
+#else
+#ifndef SUPPORT_QIJUN_BOARD
     GPIO_GPS_UART2GPIO(SCI_TRUE);
+#endif
+#endif
    
     return GPS_ERR_NONE;
 }
 
 int GpsDownloadSrf(uint32 a)
 {
-	SCI_TRACE_LOW("===>>Fuck GpsDownloadSrf\n");
+	SCI_TRACE_LOW("GpsDownloadSrf\n");
 	return 0;
 }
 /*****************************************************************************/
@@ -212,11 +225,13 @@ LOCAL GPS_ERR_E Srf_Open(GPS_MODE_E mode)
     //GPS_LOG:"Srf_Open: mode=%d"
     SCI_TRACE_ID(TRACE_TOOL_CONVERT,GPS_SIRF_178_112_2_18_0_33_22_1695,(uint8*)"d", mode);
 
-  	GPIO_GPS_UART2GPIO(SCI_FALSE); // GPIO-->uart1
+#ifndef SUPPORT_QIJUN_BOARD
+    GPIO_GPS_UART2GPIO(SCI_FALSE); // GPIO-->uart1
+#endif
 
-    //serial com init    
-    GPS_ComInit(9600);
-     
+    //serial com init
+    GPS_ComInit(s_current_gps_port, s_current_gps_baudrate);
+#ifndef SUPPORT_QIJUN_BOARD
     //download firmware
 	IsSrfDownload = PROD_GetPeripheralNVParam( PROD_NV_ID_GPS );
     if (!(IsSrfDownload && 0x1))   //download firmware
@@ -246,8 +261,8 @@ LOCAL GPS_ERR_E Srf_Open(GPS_MODE_E mode)
         {
             PROD_SetPeripheralNVParam( PROD_NV_ID_GPS , IsSrfDownload | 0x1);
         }
-        GPS_ComInit(9600);
-        
+        GPS_ComInit(s_current_gps_port, s_current_gps_baudrate);
+
         //after reflash, must power off and boot from external again
         GPIO_GPS_PowerOn(SCI_FALSE);
         OS_TickDelay(10);
@@ -265,7 +280,7 @@ LOCAL GPS_ERR_E Srf_Open(GPS_MODE_E mode)
     GPIO_GPS_Reset(SCI_TRUE);
     OS_TickDelay(10);
     GPIO_GPS_Reset(SCI_FALSE);
-    
+#endif //ifndef M2M_EVB_SUPPORT
     return GPS_ERR_NONE;
 }
 
@@ -284,8 +299,14 @@ LOCAL GPS_ERR_E Srf_Close(void)
     SCI_TRACE_ID(TRACE_TOOL_CONVERT,GPS_SIRF_245_112_2_18_0_33_22_1697,(uint8*)"");
     //serial com close
     GPS_ComClose();
-  
 
+#ifdef M2M_EVB_SUPPORT
+    GPIO_SetDirection(LDO_PIN, 1); //set output
+    GPIO_SetValue(LDO_PIN, 0);
+    GPIO_Disable(LDO_PIN); //disable
+#endif
+
+#ifndef SUPPORT_QIJUN_BOARD
     //reset gps
     GPIO_GPS_Reset(SCI_FALSE);
     SCI_Sleep(10);
@@ -301,7 +322,8 @@ LOCAL GPS_ERR_E Srf_Close(void)
     GPIO_GPS_UART2GPIO(SCI_TRUE);  //uart1-->GPIO and PULL all Down.
 
     GPIO_GPS_PowerOn(SCI_FALSE);  //
-    //SCI_TRACE_LOW:"[GPIO_GPS_PowerOn] OFF"
+#endif
+    //Yarlung_log:"[GPIO_GPS_PowerOn] OFF"
     SCI_TRACE_ID(TRACE_TOOL_CONVERT,GPS_SIRF_265_112_2_18_0_33_22_1698,(uint8*)"");
 
     return GPS_ERR_NONE;
@@ -320,9 +342,10 @@ LOCAL GPS_ERR_E Srf_Sleep(BOOLEAN is_sleep)
 {
     //GPS_LOG:"Srf_Sleep: is_sleep=%d"
     SCI_TRACE_ID(TRACE_TOOL_CONVERT,GPS_SIRF_279_112_2_18_0_33_22_1699,(uint8*)"d", is_sleep);
-    
+#ifndef SUPPORT_QIJUN_BOARD
     GPIO_GPS_Wakeup(!is_sleep);
-    
+#endif
+
     return GPS_ERR_NONE;
 }
 
@@ -339,10 +362,10 @@ GPS_ERR_E	Srf_Reflash(void)
 {
     //GPS_LOG:"Srf_Reflash"
     SCI_TRACE_ID(TRACE_TOOL_CONVERT,GPS_SIRF_295_112_2_18_0_33_22_1700,(uint8*)"");
-    
+#ifndef SUPPORT_QIJUN_BOARD
     //call GpsGetTTFFSrf
-    GpsGetTTFFSrf(100*1000);    
-    
+    GpsGetTTFFSrf(100*1000);
+#endif
     return GPS_ERR_NONE;
 }
 
@@ -411,7 +434,11 @@ uint32 Srf_Test(void* ptr, uint32 param)
 {
     //GPS_LOG:"Srf_Test"
     SCI_TRACE_ID(TRACE_TOOL_CONVERT,GPS_SIRF_355_112_2_18_0_33_22_1704,(uint8*)"");
+#ifndef SUPPORT_QIJUN_BOARD
     return GpsGetTTFFSrf(param);
+#else
+    return 1;
+#endif
 }
 
 /**************************************************************************************/

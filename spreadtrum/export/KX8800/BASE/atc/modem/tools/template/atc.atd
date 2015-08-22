@@ -1648,6 +1648,12 @@ xor_SYSCONFIG
     " "
 };
 
++SFSTEST
+{
+    1,
+    " "
+};
+
 AMS
 {
     1,
@@ -1742,4 +1748,10 @@ AMSCFGCANCELALL
 {
     1,
     " "
+};
+
+AMSDEBUG
+{
+    3,
+    "(0-65535)"
 };

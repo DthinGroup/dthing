@@ -274,6 +274,9 @@ ifeq ($(strip $(AUTOTEST_DEVICE_SUPPORT)), TRUE)
 SOURCES   +=	sensor_parallel_dummy.c \
 	            sensor_spi_dummy.c 
 endif
+else
+# LCD DRIVER                           
+SOURCES   += 	tft_VTM88828A_spi.c
 endif
 
 # NORFLASH+SRAM SPEC

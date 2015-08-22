@@ -88,10 +88,9 @@ PUBLIC uint32 UART_Initilize (uint32 port,
 
     if (UART_ALREADY_OPEN == uart_cb.p_info[port].open_flag)
     {
-        //SCI_TRACE_LOW("===>>Reopen uart0,close pre");
-#if 1  //nix
-	//return UART_SUCCESS;
- //       return UART_PORT_REOPEN_ERR;
+        SCI_TRACE_LOW("===>>Reopen uart[%d], close pre", port);
+#if 0
+        return UART_PORT_REOPEN_ERR;
 #else
     UART_Close(port);
 #endif

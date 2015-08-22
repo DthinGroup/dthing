@@ -6,7 +6,7 @@ set RELEASE=%1
 :SELECT_RELEASE_VERSION
 
 if "0"=="%RELEASE%" (
-  set IDHDIR=D:\JbedHome\fei_dev_main\sdk\KX8800B_1112
+  set IDHDIR=D:\sdk0
   set EXPORT_FILE=spreadtrum\movefile_board_kx8800.bat
 ) else if "1"=="%RELEASE%" (
   set IDHDIR=
@@ -15,7 +15,7 @@ if "0"=="%RELEASE%" (
   set IDHDIR=
   set EXPORT_FILE=spreadtrum\movefile_phone.bat
 ) else if "3"=="%RELEASE%" (
-  set IDHDIR=D:\JbedHome\fei_dev_main\sdk\W1322_Dthing
+  set IDHDIR=D:\sdk
   set EXPORT_FILE=spreadtrum\movefile_board_12C1322.bat
   ) else (
   echo ---------------------------
@@ -41,7 +41,7 @@ setlocal
 echo ##### delete old files ########################
 
 set CURDIR=%cd%
-rd %CURDIR%\gen\release\MS_Code\ /S /Q
+rd /S /Q %CURDIR%\gen\release\MS_Code\
 md %CURDIR%\gen\release\MS_Code\
 set DESDIR=%CURDIR%\gen\release\MS_Code
 
@@ -103,12 +103,12 @@ copy %CURDIR%\vm\impl\nativeCommConnectionImpl.c  %DESDIR%\BASE\dthing\vm\impl\
 copy %CURDIR%\vm\impl\nativeRawKeyPdDriver.c  %DESDIR%\BASE\dthing\vm\impl\
 copy %CURDIR%\vm\impl\nativeNativeAPIManager.c  %DESDIR%\BASE\dthing\vm\impl\
 
-xcopy %CURDIR%\gen\rvct\libs\DthingVM.a %DESDIR%\Third-party\dthing\  /s /h /y /i
-xcopy %CURDIR%\gen\rvct\libs\DthingVM.a %IDHDIR%\Third-party\dthing\  /s /h /y /i
+xcopy /S /R /F /Y %CURDIR%\gen\rvct\libs\DthingVM.a %DESDIR%\Third-party\dthing\
+xcopy /S /R /F /Y %CURDIR%\gen\rvct\libs\DthingVM.a %IDHDIR%\Third-party\dthing\
 
 echo ==============================================================
 echo ==================== copy files to IDH =======================
-xcopy %CURDIR%\gen\release\MS_Code\* %IDHDIR%  /s /h /d /y /i
+xcopy /S /R /F /Y %CURDIR%\gen\release\MS_Code\* %IDHDIR%
 echo =======================copy over =============================
 
 echo ==============================================================

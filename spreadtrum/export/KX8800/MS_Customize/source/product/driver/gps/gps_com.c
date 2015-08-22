@@ -34,7 +34,12 @@
 #define GPS_TX_WATER_MARK	8
 #define GPS_RX_WATER_MARK	48
 #define GPS_GET_DELAY       50      //@David.Jia 2007.7.12 get command fequency 20Hz
+
+#ifdef SUPPORT_QIJUN_BOARD
+#define GPS_COM  UART_COM0
+#else
 #define GPS_COM  UART_COM1
+#endif
 
 typedef struct {
     uint8 *buf;
@@ -104,8 +109,8 @@ CycleQueue Output_Q = {
 };
 
 
-COM_OBJ gps_com_ins = {         //static instance of com 1
-    GPS_COM,              //port 0
+static COM_OBJ s_gps_com_ins = {         //static instance of com 1
+    GPS_COM,              //port 0 TODO: should update it with g_gps_com_id
     s_send_buf,     //default send buffer
     0,              //none to send
     0,              //none has send
@@ -260,17 +265,18 @@ static int QueueDelete(CycleQueue *Q_ptr, uint8 *data, uint32 len)
 static volatile int b_read_able = 0;
 PUBLIC void GPS_setReadable(int bol)
 {
-	b_read_able = bol;
-	if(bol)
-	{
-		UART_Rx_Int_Enable(GPS_COM, FALSE);
-		SCI_TRACE_LOW("===>>disable IRQ,to read.");
-	}
-	else
-	{
-		UART_Rx_Int_Enable(GPS_COM, TRUE);
-		SCI_TRACE_LOW("===>>enable IRQ,to recv.");
-	}
+  b_read_able = bol;
+
+  if(bol)
+  {
+    UART_Rx_Int_Enable(s_gps_com_ins.port, FALSE);
+    SCI_TRACE_LOW("===>>disable IRQ,to read.");
+  }
+  else
+  {
+    UART_Rx_Int_Enable(s_gps_com_ins.port, TRUE);
+    SCI_TRACE_LOW("===>>enable IRQ,to recv.");
+  }
 }
 PUBLIC int GPS_getReadable(void)
 {
@@ -287,10 +293,10 @@ PUBLIC int GPS_getReadable(void)
 
 PUBLIC void gps_uart_callback(uint32 event)
 {
-	uint8 tmp_buf[128+1];
+    uint8 tmp_buf[128+1] = {0};
     uint32 cnt_old, cnt;
-    COM_OBJ *pcom = &gps_com_ins;
-    
+    COM_OBJ *pcom = &s_gps_com_ins;
+
     //SCI_ASSERT(event < COM_MAX_EVENT);
 	SCI_TRACE_LOW("===>>event=%d \n",event);
     switch (event)
@@ -356,8 +362,8 @@ PUBLIC void gps_uart_callback(uint32 event)
 int GPS_ComRead(uint8 *buf, uint32 len)
 {
     int rec;
-    COM_OBJ *pCom = &gps_com_ins;
-    
+    COM_OBJ *pCom = &s_gps_com_ins;
+
     UART_Rx_Int_Enable(pCom->port, FALSE);
     rec = QueueDelete(&Input_Q, buf, len);
     UART_Rx_Int_Enable(pCom->port, TRUE);
@@ -377,7 +383,7 @@ int GPS_ComRead(uint8 *buf, uint32 len)
 int GPS_ComWrite(uint8 *buf, uint32 len)
 {
     int ret;
-    COM_OBJ *pCom = &gps_com_ins;
+    COM_OBJ *pCom = &s_gps_com_ins;
     UART_Tx_Int_Enable(pCom->port, FALSE);
     ret = QueueInsert(&Output_Q, buf, len);
     UART_Tx_Int_Enable(pCom->port, TRUE);
@@ -395,22 +401,26 @@ int GPS_ComWrite(uint8 *buf, uint32 len)
 //  date:           2007.6.19
 //	Note:           call before using uart 1.
 /*****************************************************************************/
-int GPS_ComInit(uint32 BaudRate)
+int GPS_ComInit(uint32 port, uint32 baudRate)
 {
     int ret; 
     
     UART_INIT_PARA_T    uart_st;
     
     //SCI_TRACE_LOW:"\r\nGPS_ComInit.BaudRate=%d"
-    SCI_TRACE_ID(TRACE_TOOL_CONVERT,GPS_COM_351_112_2_18_0_33_6_1549,(uint8*)"d",BaudRate);
+    SCI_TRACE_ID(TRACE_TOOL_CONVERT,GPS_COM_351_112_2_18_0_33_6_1549,(uint8*)"d", baudRate);
 
 	GPS_setReadable(0);
     uart_st.tx_watermark  = GPS_TX_WATER_MARK; // 0~127B
     uart_st.rx_watermark  = GPS_RX_WATER_MARK; // 0~127B
-    switch(BaudRate)
+
+    switch(baudRate)
     {
-        case 38400:
-        	uart_st.baud_rate     = BAUD_38400;
+    case 9600:
+        uart_st.baud_rate     = BAUD_9600;
+        break;
+    case 38400:
+        uart_st.baud_rate     = BAUD_38400;
         break;
         case 57600:
         	uart_st.baud_rate     = BAUD_57600;
@@ -418,10 +428,7 @@ int GPS_ComInit(uint32 BaudRate)
         case 115200:
         	uart_st.baud_rate     = BAUD_115200;
         break;
-	 case 9600:
-	 	uart_st.baud_rate     = BAUD_9600;
-	break;
-        default:
+    default:
         uart_st.baud_rate     = BAUD_115200;
         break;
     }
@@ -432,40 +439,40 @@ int GPS_ComInit(uint32 BaudRate)
     uart_st.stop_bits     = ONE_STOP_BIT;
     uart_st.flow_control  = NO_FLOW_CONTROL;
     uart_st.ds_wakeup_en  = DS_WAKEUP_DISABLE;
-    
-    gps_com_ins.port = GPS_COM;
-    
-	SCI_TRACE_LOW("===>>gps_uart_callback addr:0x%x \n",(void *)gps_uart_callback);
-    ret = UART_Initilize(GPS_COM, &uart_st, gps_uart_callback);
+
+    s_gps_com_ins.port = port;
+
+    SCI_TRACE_LOW("===>>gps_uart_callback addr:0x%x \n",(void *)gps_uart_callback);
+    ret = UART_Initilize(s_gps_com_ins.port, &uart_st, gps_uart_callback);
     QueueClean(&Input_Q);
     QueueClean(&Output_Q);
-    UART_Tx_Int_Enable(GPS_COM, FALSE);
-    
+    UART_Tx_Int_Enable(s_gps_com_ins.port, FALSE);
+
     return ret;
 }
 
 int GPS_SetBaudRate(uint32 baudrate_bps)
 {
-	uint32 baudrate;
-		
-	switch(baudrate_bps)
-	{
-		case 38400:
-			baudrate     = BAUD_38400;
-			break;
-		case 57600:
-			baudrate     = BAUD_57600;
-			break;	
-		case 115200:
-			baudrate     = BAUD_115200;
-			break;
-		default:
-			baudrate     = BAUD_115200;
-			break;
-	}
-	
-	UART_SetBaudSpeed(GPS_COM,baudrate);
-	return 0;
+  uint32 baudrate;
+
+  switch(baudrate_bps)
+  {
+    case 38400:
+      baudrate     = BAUD_38400;
+      break;
+    case 57600:
+      baudrate     = BAUD_57600;
+      break;
+    case 115200:
+      baudrate     = BAUD_115200;
+      break;
+    default:
+      baudrate     = BAUD_115200;
+      break;
+  }
+
+  UART_SetBaudSpeed(s_gps_com_ins.port, baudrate);
+  return 0;
 }
 
 
@@ -479,8 +486,8 @@ int GPS_SetBaudRate(uint32 baudrate_bps)
 /*****************************************************************************/
 int GPS_ComClose(void)
 {
-    UART_INIT_PARA_T    uart1_st;
-    
+    int result = 0;
+    UART_INIT_PARA_T    uart1_st = {0};
     //SCI_TRACE_LOW:"\r\nGPS_ComClose."
     SCI_TRACE_ID(TRACE_TOOL_CONVERT,GPS_COM_423_112_2_18_0_33_6_1550,(uint8*)"");
     
@@ -495,10 +502,16 @@ int GPS_ComClose(void)
     uart1_st.flow_control  = NO_FLOW_CONTROL;
     uart1_st.ds_wakeup_en  = DS_WAKEUP_DISABLE;
     
-    gps_com_ins.port = GPS_COM;
+    s_gps_com_ins.port = GPS_COM;
+	result = UART_Close(s_gps_com_ins.port);
+	
+	if (result == 0)
+	{
+	    s_gps_com_ins.port = GPS_COM;
+	}
     
     //assume u1rxd/u1txd have selected in pinmap    
-    return UART_Close(GPS_COM);
+    return result;
 }
 
 

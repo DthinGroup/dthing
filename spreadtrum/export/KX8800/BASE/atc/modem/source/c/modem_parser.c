@@ -13,14 +13,22 @@ int modem_check_header(ModemRequest* request, const char* data, int datalen)
   {
     if (*pch == XSTX)
     {
-      result = i;
-      request->protocol = MTYPE_YMODEM_G;
-      break;
+      if ((*(pch + 1) == 0x0) && (*(pch + 2) == 0xff))
+      {
+        //Check ymodem header "0100FF"
+        result = i;
+        request->protocol = MTYPE_YMODEM_G;
+        break;
+      }
     }
     else if (*pch == XSOH)
     {
-      result = i;
-      break;
+      if ((*(pch + 1) == 0x0) && (*(pch + 2) == 0xff))
+      {
+        //Check ymodem header "0100FF"
+        result = i;
+        break;
+      }
     }
     pch++;
   }
@@ -64,6 +72,45 @@ int modem_check_end(const char* data, int datalen)
     }
     pch++;
   }
+  return result;
+}
+
+int modem_write_file(ModemRequest* request)
+{
+  int result = MRESULT_PENDING;
+  int wlen = -1;
+  char* pch = NULL;
+
+  do
+  {
+    if (request->handle <= 0)
+    {
+      request->handle = modem_fs_open_file(request->filename);
+    }
+
+    wlen = request->buflen - request->bufpos;
+
+    if (wlen <= 0)
+    {
+      result = MRESULT_EOF;
+      break;
+    }
+
+    result = modem_fs_write_file(request->handle, request->buf + request->bufpos, wlen);
+
+    if (result > 0)
+    {
+      request->bufpos += result;
+      request->writelen += result;
+      //TODO: check EOF
+      result = MRESULT_SUCCESS;
+    }
+    else
+    {
+      result = MRESULT_ERROR_WRITE_FILE;
+      break;
+    }
+  } while(0);
   return result;
 }
 

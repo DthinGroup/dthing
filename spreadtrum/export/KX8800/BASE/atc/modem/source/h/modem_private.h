@@ -11,6 +11,8 @@
 #include "sfs.h"
 #include "sci_types.h"
 
+#define MODEM_FS_ROOT "D:/dthing/" //D:/app/
+
 /**
  * standard zmodem file protocol macros
  */
@@ -167,6 +169,7 @@ typedef enum
 {
   MSTATE_INIT = 0,       // no NAK or C request(default)
   MSTATE_WAIT,           // send NAK or C and wait for file transfer
+  MSTATE_DIRECT,         // direct send data
   MSTATE_READY,          // received SOH
   MSTATE_PREVERIFY,      // preverify file name crc
   MSTATE_RECEIVING_DATA, // receiving data
@@ -222,7 +225,8 @@ typedef enum
   MRESULT_ERROR,
   MRESULT_ERROR_WRITE_FILE,
   MRESULT_RETRY,
-  MRESULT_PENDING
+  MRESULT_PENDING,
+  MRESULT_EOF
 } ModemResult;
 
 int modem_at_response(void* atc_config_ptr, unsigned char flag, ATResponseCB cb);
@@ -235,6 +239,7 @@ void ATC_StopFileListener();
 /* modem parser api */
 int modem_parse_data(ModemRequest* request);
 int modem_parse_header(ModemRequest* request);
+int modem_write_file(ModemRequest* request);
 //return offset of SOH, -1 means no found
 int modem_check_header(ModemRequest* request, const char* data, int datalen);
 int modem_check_cancel(const char* data, int datalen);
