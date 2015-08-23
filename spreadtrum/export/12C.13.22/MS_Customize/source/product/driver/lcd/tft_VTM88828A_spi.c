@@ -49,7 +49,7 @@
 
 /*lint -restore*/
 #define LCD_Delay( ticks)\
-        OS_TickDelay( ticks );
+        SCI_Sleep( ticks );
 
 #define VTM88828A_SUPPORT_WIDTH   128
 #define VTM88828A_SUPPORT_HEIGHT  64
@@ -382,6 +382,7 @@ int spiConfig(int DevHandle, spi_config_t* pConfig)
   dev.mode = CPOL0_CPHA0;
   spiCfg.cs_id = SPI_CS_ID0;
   spiCfg.dev_type = SPI_SDCARD;
+  spiCfg.tx_shift_edge = SCI_TRUE;
 
   //²ÎÊý×ª»»
   if((pConfig->ioctrlMode == SPI_IOCTL_DMA) || (pConfig->modeSel == SPI_SLAVER))
@@ -459,8 +460,12 @@ int spiConfig(int DevHandle, spi_config_t* pConfig)
   //ret = SPI_HAL_Open(&dev);
   ret = SPI_Open(spiNo, &spiCfg);
 
-  if(0 == ret)
+  if (0 == ret)
   {
+    if (SCI_FALSE == SPI_Init(spiNo))
+    {
+      return SCI_ERROR;
+    }
     spiBody[spiNo].cfg = devCfg;
     return SCI_SUCCESS;
   }
@@ -512,8 +517,9 @@ int spiWrite(int DevHandle, uint8* pchUserBuf, uint32 length)
   {
     return ret;
   }
-
+  SPI_SetCSSignal(spiNo, SPI_CS_LOW);
   ret = SPI_Write(spiNo, pchUserBuf, length);
+  SPI_SetCSSignal(spiNo, SPI_CS_HIGH);
   return ret;
 }
 
@@ -652,7 +658,7 @@ void custLcdRstPinSet(uint8 val)
 
 void custLcdCmdDataSet(uint8 val)
 {
-  GPIO_SetDirection(g_rstRdHandle, GPIO_OUTPUT_DIRECTION);
+  GPIO_SetDirection(g_dcRdHandle, GPIO_OUTPUT_DIRECTION);
   GPIO_SetValue(g_dcRdHandle, val);
 }
 
@@ -1056,7 +1062,7 @@ void SPILCD_Test(void)
         "_SPILCD_Test_Queue",
         _SPILCD_Test_Task,
         0,
-        PNULL,
+        NULL,
         0x8000,
         10,
         31,
@@ -1114,6 +1120,7 @@ const LCD_SPEC_T g_lcd_VTM88828A_spi =
 /**---------------------------------------------------------------------------*
  **                         Compiler Flag                                     *
  **---------------------------------------------------------------------------*/
+
 #ifdef   __cplusplus
     }
 #endif
