@@ -168,19 +168,16 @@ public class SmartShoe extends Applet {
                 }
 
                 String readString = new String(gpsBuf).trim();
-                netlog("read:" + convertEscapedChar(readString));
-            }
+                log("read:" + convertEscapedChar(readString));
 
-            //TODO: If app works well, enable below code to parse gps info
-      /*
-            if (parser != null) {
-                parser.save(readString);
-                longitude = parser.getLongtiInfo();
-                latitude = parser.getLatiInfo();
-                gpstime = parser.getTimeInfo();
-                gpsdate = parser.getDateInfo();
+                if (parser != null) {
+                    parser.save(readString);
+                    longitude = parser.getLongtiInfo();
+                    latitude = parser.getLatiInfo();
+                    gpstime = parser.getTimeInfo();
+                    gpsdate = parser.getDateInfo();
+                }
             }
-      */
         } catch (IOException e) {
             log("GPS IOException:" + e);
         }

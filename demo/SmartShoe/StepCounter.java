@@ -240,8 +240,8 @@ public class StepCounter {
         }
     }
 
-    private static final int maxArraySize = 100;
-    private static final int minCaculatedCount = 15;
+    private static final int maxArraySize = 201;
+    private static final int minCaculatedCount = 50;
     private int[] xArray = new int[maxArraySize];
     private int[] yArray = new int[maxArraySize];
     private int[] zArray = new int[maxArraySize];
@@ -288,7 +288,7 @@ public class StepCounter {
     }
     
     public boolean available() {
-    	return ((caculatedStepCount > 0) || (cursor >= (maxArraySize/2)));
+    	return ((caculatedStepCount > 0) || (cursor >= (maxArraySize  - 1)));
     }
     
     public int fetchStepCount() {
