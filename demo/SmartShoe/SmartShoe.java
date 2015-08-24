@@ -122,7 +122,7 @@ public class SmartShoe extends Applet {
     };
 
     gsensorThread.start();
-    //gpsThread.start();
+    gpsThread.start();
 
     }
 
@@ -134,6 +134,9 @@ public class SmartShoe extends Applet {
                 ldo.write(true);
                 debug("check - 0.1 -");
                 gpsComm = CommConnectionImpl.getComInstance(0, 9600);
+                if (gpsComm == null) {
+                    return;
+                }
                 debug("check - 0.2 -");
                 parser = new GPSParser();
                 gis = gpsComm.openInputStream();
@@ -153,26 +156,30 @@ public class SmartShoe extends Applet {
 
     public void readGPSModule() {
         try {
-            debug("check - 3.1 -");
-            int readSize = gis.read(gpsBuf, 0, 128);
+            if (gis != null) {
+                debug("check - 3.1 -");
+                int readSize = gis.read(gpsBuf, 0, 128);
 
-            debug("check - 3.2 - readSize:" + readSize);
-            if (readSize < 0)
-            {
-                log("exit when readSize is less than 0");
-                return;
+                debug("check - 3.2 - readSize:" + readSize);
+                if (readSize < 0)
+                {
+                    log("exit when readSize is less than 0");
+                    return;
+                }
+
+                String readString = new String(gpsBuf).trim();
+                netlog("read:" + convertEscapedChar(readString));
             }
 
-            String readString = new String(gpsBuf).trim();
-            netlog("read:" + convertEscapedChar(readString));
             //TODO: If app works well, enable below code to parse gps info
-
       /*
-            parser.save(readString);
-            longitude = parser.getLongtiInfo();
-            latitude = parser.getLatiInfo();
-            gpstime = parser.getTimeInfo();
-            gpsdate = parser.getDateInfo();
+            if (parser != null) {
+                parser.save(readString);
+                longitude = parser.getLongtiInfo();
+                latitude = parser.getLatiInfo();
+                gpstime = parser.getTimeInfo();
+                gpsdate = parser.getDateInfo();
+            }
       */
         } catch (IOException e) {
             log("GPS IOException:" + e);
@@ -181,10 +188,12 @@ public class SmartShoe extends Applet {
 
     public void closeGPSModule() {
         try {
+            if (gpsComm == null) {
+                gpsComm.close();
+                gpsComm = null;
+            }
             ldo.setCurrentMode(Gpio.WRITE_MODE);
             ldo.write(false);
-            gpsComm.close();
-            gpsComm = null;
             gis = null;
             parser = null;
             gpsBuf = null;
