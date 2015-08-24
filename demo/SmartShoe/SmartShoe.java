@@ -122,7 +122,7 @@ public class SmartShoe extends Applet {
     };
 
     gsensorThread.start();
-    gpsThread.start();
+    //gpsThread.start();
 
     }
 
