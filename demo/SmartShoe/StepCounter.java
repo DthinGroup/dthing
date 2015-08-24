@@ -288,7 +288,7 @@ public class StepCounter {
     }
     
     public boolean available() {
-    	return ((caculatedStepCount > 0) || (cursor >= (maxArraySize  - 1)));
+    	return ((caculatedStepCount > 0) || (cursor >= (maxArraySize/2)));
     }
     
     public int fetchStepCount() {

@@ -57,6 +57,8 @@ public class SmartShoe extends Applet {
     private Thread gpsThread = null;
 
     private static final boolean DEBUG = false;
+    private static long totalMemory = 0;
+    private static long gcMemory = 0;
 
     public void cleanup() {
         allowRunning = false;
@@ -67,6 +69,8 @@ public class SmartShoe extends Applet {
 
     public void startup() {
         netlog("startup");
+        totalMemory = Runtime.getRuntime().totalMemory();
+        gcMemory = totalMemory * 3 / 10;
         gsensorThread = new Thread() {
             public void run() {
             debug("check - openGSensorModule -");
@@ -231,8 +235,8 @@ public class SmartShoe extends Applet {
             if (counter.available()) {
                 stepcount += counter.fetchStepCount() * 4;
                 isUpdated = true;
+                log("update stepcount to " + stepcount);
             }
-            log("update stepcount to " + stepcount);
 
         } catch (IllegalArgumentException e) {
             log("GSensor IllegalArgumentException:" + e);
@@ -414,17 +418,16 @@ public class SmartShoe extends Applet {
     }
 
   public static void MemoryCheck() {
-      long total = Runtime.getRuntime().totalMemory();
       long free =  Runtime.getRuntime().freeMemory();
-        System.out.println("free:" + free + "/" + total);
+        //System.out.println("free:" + free + "/" + total);
 
         //Force VM to gc when memory is less than 30%
-        if ((free * 10) < (total * 3)) {
+        if (free < gcMemory) {
             Runtime.getRuntime().gc();
         }
 
-        free =  Runtime.getRuntime().freeMemory();
-        System.out.println("free:" + free + "/" + total);
+        //free =  Runtime.getRuntime().freeMemory();
+        //System.out.println("free:" + free + "/" + total);
     }
 
     private void log(String msg)
