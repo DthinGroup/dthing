@@ -8,7 +8,7 @@ typedef enum
     ARCH_X86,
     ARCH_ARM_SPD
 }ARCH_E;
-//#define ARCH_X86
+#define ARCH_X86
 
 #ifndef ARCH_X86 
 #define ARCH_ARM_SPD
