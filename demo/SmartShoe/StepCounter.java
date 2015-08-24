@@ -8,6 +8,12 @@
  *          totalStep += counter.fetchStepCount();
  *      }
  */
+
+import java.net.http.HttpURLConnection;
+import java.net.http.URL;
+import java.io.IOException;
+import java.io.InputStream;
+
 public class StepCounter {
     private boolean DEBUG = true;
     private boolean isBadStep = false;
