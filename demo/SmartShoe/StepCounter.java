@@ -241,7 +241,7 @@ public class StepCounter {
     }
 
     private static final int maxArraySize = 100;
-    private static final int minCaculatedCount = 50;
+    private static final int minCaculatedCount = 10;
     private int[] xArray = new int[maxArraySize];
     private int[] yArray = new int[maxArraySize];
     private int[] zArray = new int[maxArraySize];
@@ -276,14 +276,14 @@ public class StepCounter {
 			calculateFlag = 0;		
 			log("calculating steps");
 		}
-		
-    	if ((cursor >= minCaculatedCount) &&(calculateFlag == 0)){
+
+    	if ((cursor >= minCaculatedCount) && (calculateFlag == 0)){
 			size = caculateSteps(xArray, yArray, zArray);
     		caculatedStepCount += size;
     		if ((size > 0)||(cursor >= maxArraySize) ) {
     		    resetArray();
     		}
-			netlog("cursor:" + cursor + ";caculatedStep:" + caculatedStepCount);
+			log("cursor:" + cursor + ",caculatedStep:" + caculatedStepCount);
     	}
     }
     
