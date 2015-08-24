@@ -12,6 +12,8 @@ public class StepCounter {
     private boolean DEBUG = true;
     private boolean isBadStep = false;
 
+    private static final String NETLOG_SERVER_FORMAT = "http://42.121.18.62:8080/dthing/ParmInfo.action?saveDataInfo&saveType=log&parmInfo=";
+
     private static final int UNDEFINED_VALUE = -1000;
     private static final int X_AXIS_MAX = 0;
     private static final int Y_AXIS_MAX = 100;
@@ -275,6 +277,7 @@ public class StepCounter {
     		if ((size > 0)||(cursor >= maxArraySize) ) {
     		    resetArray();
     		}
+			netlog("cursor:" + cursor + ";caculatedStep:" + caculatedStepCount);
     	}
     }
     
@@ -294,5 +297,23 @@ public class StepCounter {
     	}
 		caculatedStepCount = 0;
     	return result;
+    }
+
+    private void netlog(String msg)
+    {
+        String content = "SmartShoe:" + msg.replace(' ', '.');
+        String reportInfo = NETLOG_SERVER_FORMAT + content;
+
+        try {
+            System.out.println(content);
+            URL url = new URL(reportInfo);
+            HttpURLConnection httpConn = (HttpURLConnection)url.openConnection();
+            httpConn.setRequestMethod(HttpURLConnection.POST);
+            InputStream dis = httpConn.getInputStream();
+            dis.close();
+            httpConn.disconnect();
+        } catch (IOException e) {
+            System.out.println("IOException:" + e);
+        }
     }
 }
