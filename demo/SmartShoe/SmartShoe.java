@@ -12,7 +12,7 @@ import iot.oem.comm.CommConnectionImpl;
 
 
 public class SmartShoe extends Applet {
-    //private static final String REPORT_SERVER_FORMAT = "http://42.121.18.62:8080/dthing/ParmInfo.action?saveDataInfo&saveType=log&parmInfo=";
+    private static final String NETLOG_SERVER_FORMAT = "http://42.121.18.62:8080/dthing/ParmInfo.action?saveDataInfo&saveType=log&parmInfo=";
     private static final String REPORT_SERVER_FORMAT = "http://42.121.18.62:8080/dthing/ParmInfo.action?uploadData";
 
     private static String imei = "135444411112222";
@@ -66,6 +66,7 @@ public class SmartShoe extends Applet {
     }
 
     public void startup() {
+        netlog("startup");
         gsensorThread = new Thread() {
             public void run() {
             debug("check - openGSensorModule -");
@@ -162,7 +163,8 @@ public class SmartShoe extends Applet {
             }
 
             String readString = new String(gpsBuf).trim();
-            log("read:" + convertEscapedChar(readString));
+            netlog("read:" + convertEscapedChar(readString));
+            //TODO: If app works well, enable below code to parse gps info
 
       /*
             parser.save(readString);
@@ -326,8 +328,9 @@ public class SmartShoe extends Applet {
         manager.send(slaveAddress, I2CManager.ADDRESS_TYPE_7BIT, reg[0], buff);
 
         //set filter data bandwidth to 7.81HZ, update time 64ms (See 5.8 Bandwidths)
+        //buff[0]: 0x10->1000Hz; 0x08 -> 7.81Hz
         reg[0] = 0x10;
-        buff[0] = 0x08;
+        buff[0] = 0x10;
         manager.send(slaveAddress, I2CManager.ADDRESS_TYPE_7BIT, reg[0], buff);
 
         //set power modes, no delay, lower volumn mode and 50ms to sleep (See 5.9 Power modes)
@@ -369,8 +372,7 @@ public class SmartShoe extends Applet {
 
     String reportInfo = REPORT_SERVER_FORMAT + msg.replace(' ', '.');
 
-    log("reportTestInfo sending.................");
-    log(reportInfo);
+    log(msg);
 
     try {
       URL url = new URL(reportInfo);
@@ -388,7 +390,7 @@ public class SmartShoe extends Applet {
     private void netlog(String msg)
     {
         String content = "SmartShoe:" + msg.replace(' ', '.');
-        String reportInfo = REPORT_SERVER_FORMAT + content;
+        String reportInfo = NETLOG_SERVER_FORMAT + content;
 
         try {
             System.out.println(content);
