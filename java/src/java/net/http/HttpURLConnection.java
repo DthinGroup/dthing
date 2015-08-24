@@ -205,7 +205,7 @@ public class HttpURLConnection extends URLConnection {
 
     private static final String SP = " ";
     private static final String CRLF = "\r\n";
-    private static final String HTTP = "HTTP/1.0";
+    private static final String HTTP = "HTTP/1.1";
     private static final String KV_SEGM = ": ";
     private static final String[] methods = {GET, POST, HEAD, OPTIONS, PUT, DELETE, TRACE};
 
@@ -336,7 +336,7 @@ public class HttpURLConnection extends URLConnection {
             socketOut.write(userData);
             socketOut.write(CRLF.getBytes());
         }
-        socketOut.write(CRLF.getBytes());
+        //socketOut.write(CRLF.getBytes());
         socketOut.flush();
         socket.shutdownOutput();
 
