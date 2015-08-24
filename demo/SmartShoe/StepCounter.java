@@ -39,7 +39,7 @@ public class StepCounter {
     /** The frequency of data output. */
     private final int DATA_OUTPUT_FREQ = 5;
     /** Caculate threshold dynamically every 10 output data. */
-    private final int SAMPLING_NUMBER = 10;
+    private final int SAMPLING_NUMBER = 2;
     /** sampling counter, reset to 0 every SAMPLING_NUMBER times. */
     private int samCounter = 0;
     /** x axis dynamic threshold. */
@@ -241,7 +241,7 @@ public class StepCounter {
     }
 
     private static final int maxArraySize = 100;
-    private static final int minCaculatedCount = 10;
+    private static final int minCaculatedCount = 15;
     private int[] xArray = new int[maxArraySize];
     private int[] yArray = new int[maxArraySize];
     private int[] zArray = new int[maxArraySize];
@@ -270,7 +270,7 @@ public class StepCounter {
     	cursor = cursor + 1;
 		calculateFlag = calculateFlag + 1;
 		
-		log("cursor:" + cursor + " calculateFlag:" + calculateFlag);
+		//log("cursor:" + cursor + " calculateFlag:" + calculateFlag);
 		
 		if (calculateFlag >= minCaculatedCount){
 			calculateFlag = 0;		
