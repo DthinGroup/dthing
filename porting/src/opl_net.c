@@ -320,7 +320,12 @@ int Opl_net_streamSocket()
     }
     */
 #ifdef ARCH_X86
+    int timeout = 3000;
+	struct linger so_linger	;
     SOCKET sockClient=socket(AF_INET,SOCK_STREAM,0);// AF_INET ..tcp¡¨Ω”
+	so_linger.l_onoff = TRUE;
+	so_linger.l_linger = 30;
+    setsockopt(sockClient,SOL_SOCKET,SO_LINGER,&so_linger,sizeof(so_linger));
     sock = (int)sockClient;
 #elif defined(ARCH_ARM_SPD)
     sock = sci_sock_socket(AF_INET, SOCK_STREAM, 0,  Opl_net_getNetId());
@@ -460,13 +465,13 @@ int Opl_net_recv(int sock,char * recvbuf,int count)
 {
     int ret = 0;
 
-    DVMTraceInf("Opl_net_recv(0x%08X, 0x%08X, %d)\n", sock, recvbuf, count);
+    //DVMTraceDbg("Opl_net_recv(0x%08X, 0x%08X, %d)\n", sock, recvbuf, count);
 #ifdef ARCH_X86
     ret = recv(sock,recvbuf,count,0);
     if (ret == SOCKET_ERROR) {
         DVMTraceDbg("Opl_net_recv() error=%d\n", WSAGetLastError());
     }
-    DVMTraceInf("Opl_net_recv() ret=%d\n", ret);
+    //DVMTraceDbg("Opl_net_recv() ret=%d\n", ret);
 #elif defined(ARCH_ARM_SPD)
 
     if (AsyncIO_firstCall())
