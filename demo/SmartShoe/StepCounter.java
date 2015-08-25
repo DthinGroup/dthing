@@ -15,7 +15,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 public class StepCounter {
-    private boolean DEBUG = true;
+    private boolean DEBUG = false;
     private boolean isBadStep = false;
 
     private static final String NETLOG_SERVER_FORMAT = "http://42.121.18.62:8080/dthing/ParmInfo.action?saveDataInfo&saveType=log&parmInfo=";
