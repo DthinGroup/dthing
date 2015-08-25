@@ -79,7 +79,9 @@ public class SmartShoe extends Applet {
             while(allowRunning) {
                 try {
                     debug("check - readGSensorModule -");
-                    readGSensorModule();
+                    for (int i = 0; i < 50; i++) {
+                        readGSensorModule();
+                    	}
                     debug("check - readGSensorModule done -");
 
                     if (isUpdated) {
@@ -342,7 +344,7 @@ public class SmartShoe extends Applet {
         //buff[0]: 0x08->7.81Hz(64ms), 0x09->15.63Hz(32ms), 0x0a->31.25Hz(16ms), 0x0b->62.5Hz(8ms)
         //         0x0c->125Hz(4ms), 0x0d->250Hz(2ms), 0x0e->500Hz(1ms) ,0x0f->1000Hz(0.5ms)
         reg[0] = 0x10;
-        buff[0] = 0x0e;
+        buff[0] = 0x0b;
         manager.send(slaveAddress, I2CManager.ADDRESS_TYPE_7BIT, reg[0], buff);
 
         //set power modes, no delay, lower volumn mode and 50ms to sleep (See 5.9 Power modes)
