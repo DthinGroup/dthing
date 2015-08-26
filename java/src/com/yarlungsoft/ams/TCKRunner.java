@@ -14,13 +14,13 @@ public class TCKRunner extends Thread implements OTAListener {
     private static final String TAG = "TCKRunner";
 
     /** The number of tries for installing test Applets */
-    private static final int TRIES_FOR_TEST_FINISHED = 3;
+    private static final int TRIES_FOR_TEST_FINISHED = 6;
 
     /** The number of milliseconds to wait between retries */
-    private static final int RETRY_DELAY = 2000;
+    private static final int RETRY_DELAY = 1000;
 
     /** The number of milliseconds to wait before removing */
-    private static final int REMOVE_DELAY = 2000;
+    private static final int REMOVE_DELAY = 1000;
 
     /** The interval in milliseconds of checking OTA status */
     private static final long CHECK_INTERVAL = 5000;
@@ -101,8 +101,8 @@ public class TCKRunner extends Thread implements OTAListener {
 
                 while (otaResult == OTAConfig.OTA_UNKNOWN) {
                     try {
-                    	Log.amsLog(TAG, "sleep 1000 ms to wait ota result \n");
-                    	sleep(1000);
+                    	Log.amsLog(TAG, "sleep 100 ms to wait ota result \n");
+                    	sleep(100);
                         //lock.wait(CHECK_INTERVAL);
                     } catch (InterruptedException ie) {
                         // ignore
@@ -120,17 +120,17 @@ public class TCKRunner extends Thread implements OTAListener {
                     tries = 0;
                     break;
                 case OTAConfig.OTA_INVALID_URL:
-                    Log.amsLog(TAG, "invalid TCK url: " + jadUrl);
+                    Log.amsLog(TAG, "invalid TCK url: " + url);
                     tries = 0;
                     break;
 
                 case OTAConfig.OTA_IO_ERROR:
                 case OTAConfig.OTA_TASK_FAIL:
-                    Log.amsLog(TAG, "failed to download: " + jadUrl);
+                    Log.amsLog(TAG, "failed to download: " + url);
                     tries++;
                     break;
                 case OTAConfig.OTA_NET_ERROR:
-                    Log.amsLog(TAG, "cannot connect to: " + jadUrl);
+                    Log.amsLog(TAG, "cannot connect to: " + url);
                     tries++;
                     break;
                 }

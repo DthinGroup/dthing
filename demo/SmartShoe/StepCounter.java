@@ -15,7 +15,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 public class StepCounter {
-    private boolean DEBUG = true;
+    private boolean DEBUG = false;
     private boolean isBadStep = false;
 
     private static final String NETLOG_SERVER_FORMAT = "http://42.121.18.62:8080/dthing/ParmInfo.action?saveDataInfo&saveType=log&parmInfo=";
@@ -39,7 +39,7 @@ public class StepCounter {
     /** The frequency of data output. */
     private final int DATA_OUTPUT_FREQ = 5;
     /** Caculate threshold dynamically every 10 output data. */
-    private final int SAMPLING_NUMBER = 2;
+    private final int SAMPLING_NUMBER = 10;
     /** sampling counter, reset to 0 every SAMPLING_NUMBER times. */
     private int samCounter = 0;
     /** x axis dynamic threshold. */
@@ -112,7 +112,7 @@ public class StepCounter {
         } else {
             isBadStep = true;
         }
-		log("isBadStep = "+isBadStep);
+    log("isBadStep = "+isBadStep);
 /*
         log("maxXAc = " + maxXAc + ",minXAc = " + minXAc
             + " maxYAc = " + maxYAc + ", minYAc = " + minYAc
@@ -128,7 +128,7 @@ public class StepCounter {
         maxYAc = UNDEFINED_VALUE;
         maxZAc = UNDEFINED_VALUE;
     }
-    
+
     /**
      * Start Caculating steps with the acceleration data.
      * When you specify zInAc as non-null value, it means three axis accelerometer.
@@ -149,15 +149,15 @@ public class StepCounter {
             isThreeAxisAcc = false;
         }
 
-		/*
+    /*
         if (xAc.length > yAc.length) {
             dataLen = !isThreeAxisAcc ? xAc.length : ((zAc.length > yAc.length) ? yAc.length : zAc.length);
         } else {
             dataLen = !isThreeAxisAcc ? yAc.length : ((zAc.length > xAc.length) ? xAc.length : zAc.length);
         }
-		*/
-		dataLen = cursor;
-		
+    */
+    dataLen = cursor;
+
         log("dataLen = " + dataLen);
 
         initAcData();
@@ -181,20 +181,20 @@ public class StepCounter {
             if (isThreeAxisAcc && (minZAc == UNDEFINED_VALUE || zAc[i] < minZAc)) {
                 minZAc = zAc[i];
             }
-			//log("calculate step data [ " + i +" ]"+ " x[i]: " + xAc[i]+ " y[i]: " + yAc[i]+ " z[i]: " + zAc[i]);
+      //log("calculate step data [ " + i +" ]"+ " x[i]: " + xAc[i]+ " y[i]: " + yAc[i]+ " z[i]: " + zAc[i]);
             samCounter++;
             /** Caculate threshold value and reset sampling data. */
             if (samCounter == SAMPLING_NUMBER) {
                 resetSamplingData();
             }
 
-			/*
+      /*
             if (isBadStep || i == 0) {
-				log("isBadStep= " + isBadStep);
+        log("isBadStep= " + isBadStep);
                 continue;
             }
-			*/
-			if ( i == 0) {
+      */
+      if ( i == 0) {
                 continue;
             }
 
@@ -202,17 +202,17 @@ public class StepCounter {
             if ((maxAxis==X_AXIS_MAX && xAc[i-1]>xDcThred && xDcThred>xAc[i])
                 || (maxAxis==Y_AXIS_MAX && yAc[i-1]>yDcThred && yDcThred>yAc[i])
                 || (isThreeAxisAcc && maxAxis == Z_AXIS_MAX && zAc[i-1]>zDcThred && zDcThred>zAc[i])) {
-				
-				//log("calculate step " +"i:"+ i +" lastStepPoint:"+ lastStepPoint + " x[i]: " + xAc[i]+ " y[i]: " + yAc[i]+ " z[i]: " + zAc[i]);
+
+        //log("calculate step " +"i:"+ i +" lastStepPoint:"+ lastStepPoint + " x[i]: " + xAc[i]+ " y[i]: " + yAc[i]+ " z[i]: " + zAc[i]);
                 if ((i-lastStepPoint) < (int)(MIN_STEP_DURATION/DATA_OUTPUT_FREQ)) {
                     log("ignore: lastStepPoint = " + lastStepPoint + ", i = " + i);
                     continue; // Ignore because of step gap is too short.
                 } else if ((i-lastStepPoint) > (int)(MAX_STEP_DURATION/DATA_OUTPUT_FREQ)) {
-					//log("bigger than max step duration");
+          //log("bigger than max step duration");
                     stepState = STEP_SEARCHING;
                     lastStepPoint = i;
                 } else {
-				    //log("Calculate one step or two steps?");
+            //log("Calculate one step or two steps?");
                     if (stepState == STEP_INITIALIZING) {
                         stepState = STEP_SEARCHING;
                     } else if (stepState == STEP_SEARCHING) {
@@ -240,69 +240,69 @@ public class StepCounter {
         }
     }
 
-    private static final int maxArraySize = 100;
-    private static final int minCaculatedCount = 15;
+    private static final int maxArraySize = 101;
+    private static final int minCaculatedCount = 16;
     private int[] xArray = new int[maxArraySize];
     private int[] yArray = new int[maxArraySize];
     private int[] zArray = new int[maxArraySize];
     private int cursor = 0;
-	private int calculateFlag = 0;
+    private int calculateFlag = 0;
     private int caculatedStepCount = 0;
-    
+
     private void resetArray() {
-    	cursor = 0;
-		//xArray = new int[maxArraySize];
-		//yArray = new int[maxArraySize];
-		//zArray = new int[maxArraySize];	
+      cursor = 0;
+    //xArray = new int[maxArraySize];
+    //yArray = new int[maxArraySize];
+    //zArray = new int[maxArraySize];
         for (int i = 0; i < maxArraySize; i++) {
             xArray[i] = 0x0;
             yArray[i] = 0x0;
             zArray[i] = 0x0;
         }
     }
-    
-    public void saveAccValue(int xAc, int yAc, int zAc) {
-		int size = 0;
-		
-    	xArray[cursor] = xAc;
-    	yArray[cursor] = yAc;
-    	zArray[cursor] = zAc;
-    	cursor = cursor + 1;
-		calculateFlag = calculateFlag + 1;
-		
-		//log("cursor:" + cursor + " calculateFlag:" + calculateFlag);
-		
-		if (calculateFlag >= minCaculatedCount){
-			calculateFlag = 0;		
-			log("calculating steps");
-		}
 
-    	if ((cursor >= minCaculatedCount) && (calculateFlag == 0)){
-			size = caculateSteps(xArray, yArray, zArray);
-    		caculatedStepCount += size;
-    		if ((size > 0)||(cursor >= maxArraySize) ) {
-    		    resetArray();
-    		}
-			log("cursor:" + cursor + ",caculatedStep:" + caculatedStepCount);
-    	}
+    public void saveAccValue(int xAc, int yAc, int zAc) {
+        int size = 0;
+
+        xArray[cursor] = xAc;
+        yArray[cursor] = yAc;
+        zArray[cursor] = zAc;
+        cursor = cursor + 1;
+        calculateFlag = calculateFlag + 1;
+
+        //log("cursor:" + cursor + " calculateFlag:" + calculateFlag);
+
+        if (calculateFlag >= minCaculatedCount){
+            calculateFlag = 0;
+            log("calculating steps");
+        }
+
+        if ((cursor >= minCaculatedCount) && (calculateFlag == 0)){
+            size = caculateSteps(xArray, yArray, zArray);
+            caculatedStepCount += size;
+            if ((size > 0)||(cursor >= maxArraySize) ) {
+               resetArray();
+            }
+            log("cursor:" + cursor + ",caculatedStep:" + caculatedStepCount);
+        }
     }
-    
+
     public boolean available() {
-    	return ((caculatedStepCount > 0) || (cursor >= (maxArraySize/2)));
+        return ((caculatedStepCount > 0) || (cursor >= (maxArraySize/2)));
     }
-    
+
     public int fetchStepCount() {
-    	int result = caculatedStepCount;
-    	int size = 0;
-    	if (cursor >= minCaculatedCount) {
-    		size = caculateSteps(xArray, yArray, zArray);
-    		if ((size > 0)||(cursor >= maxArraySize) ) {
-        		resetArray();
-    		}
-    		result += size;
-    	}
-		caculatedStepCount = 0;
-    	return result;
+        int result = caculatedStepCount;
+        int size = 0;
+        if (cursor >= minCaculatedCount) {
+            size = caculateSteps(xArray, yArray, zArray);
+            if ((size > 0)||(cursor >= maxArraySize) ) {
+                resetArray();
+            }
+            result += size;
+        }
+        caculatedStepCount = 0;
+        return result;
     }
 
     private void netlog(String msg)
@@ -323,3 +323,4 @@ public class StepCounter {
         }
     }
 }
+

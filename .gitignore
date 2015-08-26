@@ -9,3 +9,4 @@ java_demo/
 java/bin/
 win/*
 gen/*
+*.class
