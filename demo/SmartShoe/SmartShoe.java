@@ -18,8 +18,8 @@ public class SmartShoe extends Applet {
     private static String imei = "135444411112222";
     private static String imsi = "460014411112222";
     private static String password = "11222233";
-    private static String longitude = "116357400";
-    private static String latitude = "39902719";
+    private static String longitude = "116357331";
+    private static String latitude = "39902663";
     private static String altitude = "210";
     private static String speed = "50";
     private static String deviation = "100";
