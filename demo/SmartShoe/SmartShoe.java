@@ -24,7 +24,7 @@ public class SmartShoe extends Applet {
     private static String speed = "50";
     private static String deviation = "100";
     private static int deviation_int = 0;
-    private static String time= "20150818130101";
+    private static String time= "20150826180101";
     private static String cellid = "0";
     private static String lac = "0";
     private static String batterylevel = "0";
