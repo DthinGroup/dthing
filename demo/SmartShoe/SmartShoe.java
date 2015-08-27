@@ -116,7 +116,7 @@ public class SmartShoe extends Applet {
                 readGPSModule();
                 debug("check - readGPSModule done -");
                 MemoryCheck();
-                Thread.sleep(5000);
+                Thread.sleep(3000);
             } catch (InterruptedException e) {
                 log("InterruptedException:" + e);
             }
@@ -139,7 +139,7 @@ public class SmartShoe extends Applet {
                 ldo.setCurrentMode(Gpio.WRITE_MODE);
                 ldo.write(true);
                 debug("check - 0.1 -");
-                gpsComm = CommConnectionImpl.getComInstance(0, 9600);
+                gpsComm = CommConnectionImpl.getComInstance(1, 9600);
                 if (gpsComm == null) {
                     return;
                 }
