@@ -134,7 +134,7 @@ public class SmartShoe extends Applet {
 
     public void openGPSModule() {
         try {
-            if (gpsComm != null) {
+            if (gpsComm == null) {
                 ldo = new Gpio(60); //60 for board, 7 for shoe
                 ldo.setCurrentMode(Gpio.WRITE_MODE);
                 ldo.write(true);
@@ -147,9 +147,9 @@ public class SmartShoe extends Applet {
                 parser = new GPSParser();
                 gis = gpsComm.openInputStream();
                 debug("check - 0.3 -");
-                gpsBuf = new byte[128];
-                gpsStrBuf = new StringBuffer(128);
-                Thread.sleep(3000);
+                gpsBuf = new byte[320];
+                //gpsStrBuf = new StringBuffer(300);
+                Thread.sleep(5000);
             }
         } catch (IllegalArgumentException e1) {
             log("Gpio IllegalArgumentException:" + e1);
@@ -164,7 +164,7 @@ public class SmartShoe extends Applet {
         try {
             if (gis != null) {
                 debug("check - 3.1 -");
-                int readSize = gis.read(gpsBuf, 0, 128);
+                int readSize = gis.read(gpsBuf, 0, 320);
 
                 debug("check - 3.2 - readSize:" + readSize);
                 if (readSize < 0)
