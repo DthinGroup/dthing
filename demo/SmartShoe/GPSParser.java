@@ -317,11 +317,11 @@ public class GPSParser {
     }
 
     public String getLatiInfo() {
-        return (gpsLati != null)? formatlatitude(gpsLati) : "36";
+        return (gpsLati != null)? formatlatitude(gpsLati) : "39902678";
     }
 
     public String getLongtiInfo() {
-        return (gpsLongti != null)? formatlongitude(gpsLongti) : "100";
+        return (gpsLongti != null)? formatlongitude(gpsLongti) : "116357822";
     }
 
     public String getAltiInfo() {
