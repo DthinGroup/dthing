@@ -113,6 +113,7 @@ public class SmartShoe extends Applet {
             debug("check - openGPSModule done -");
             try {
                 Thread.sleep(5000);
+                MemoryCheck();
                 debug("check - readGPSModule -");
                 readGPSModule();
                 debug("check - readGPSModule done -");
