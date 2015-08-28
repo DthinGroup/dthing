@@ -12,6 +12,7 @@ public class GPSParser {
 
     private static boolean DEBUG = true;
     private String buffer = "";
+    private static boolean waitingMode = false; //When not get enough data to parse
 
     String[] nmeaNames = new String[] {
         "$GPGSA",
@@ -27,14 +28,24 @@ public class GPSParser {
     }
 
     public void save(String rawInfo) {
-    	buffer = buffer + rawInfo;
-    	int index = buffer.indexOf("$GPRMC");
-    	int nextsection = buffer.indexOf("$", index + 1);
-    	
-    	if ((index >= 0) && (nextsection >= 0)) {
-            startParseNmea(rawInfo);
-            buffer = "";
-    	}
+        int index = rawInfo.indexOf("$GPRMC");
+        int nextsection = 0;
+
+        if (index >= 0) {
+            buffer += rawInfo;
+            waitingMode = true;
+        }
+
+        if (waitingMode) {
+            index = buffer.indexOf("$GPRMC");
+            nextsection = buffer.indexOf("$", index + 1);
+
+            if ((index >= 0) && (nextsection >= 0)) {
+                startParseNmea(rawInfo);
+                buffer = "";
+                waitingMode = false;
+            }
+        }
     }
 
     private static void log(String l) {

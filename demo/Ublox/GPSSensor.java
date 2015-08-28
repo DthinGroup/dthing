@@ -38,7 +38,7 @@ public class GPSSensor extends Applet
 
                 CommConnectionImpl gpsComm = CommConnectionImpl.getComInstance(0, 9600);
                 try {
-                    byte[] buf = new byte[128];
+                    byte[] buf = new byte[320];
 
                     InputStream is = gpsComm.openInputStream();
                     int readSize;
@@ -49,7 +49,7 @@ public class GPSSensor extends Applet
                             System.out.println("InterruptedException:" + e);
                         }
 
-                        readSize = is.read(buf, 0, 128);
+                        readSize = is.read(buf, 0, 320);
 
                         if (readSize < 0)
                         {
@@ -59,7 +59,7 @@ public class GPSSensor extends Applet
 
                         String readString = new String(buf);
 
-                        reportTestInfo("GPSCOM", "read:" + convertEscapedChar(readString));
+                        reportTestInfo("GPSCOM", "read["+readSize+"]:" + convertEscapedChar(readString));
                     } while (allowRunning);
                     gpsComm.close();
                     notifyDestroyed();
