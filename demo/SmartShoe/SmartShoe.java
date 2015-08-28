@@ -60,6 +60,11 @@ public class SmartShoe extends Applet {
     private static long totalMemory = 0;
     private static long gcMemory = 0;
 
+    private static final int DefaultGPSPort = 0;
+    private static final int DefaultBaudrate = 9600;
+    private static final int DefaultGPSBuffer = 320;
+    private static final int DefaultGCPercentage = 50;
+
     public void cleanup() {
         allowRunning = false;
     }
@@ -68,9 +73,9 @@ public class SmartShoe extends Applet {
     }
 
     public void startup() {
-        netlog("startup");
+        netlog("startup with COM["+DefaultGPSPort+"] Baudrate["+DefaultBaudrate+"] GC["+DefaultGCPercentage+"] GPSBuffer["+DefaultGCPercentage+"]");
         totalMemory = Runtime.getRuntime().totalMemory();
-        gcMemory = totalMemory * 5/ 10;
+        gcMemory = totalMemory * DefaultGCPercentage/ 100;
         gsensorThread = new Thread() {
             public void run() {
             debug("check - openGSensorModule -");
@@ -140,7 +145,7 @@ public class SmartShoe extends Applet {
                 ldo.setCurrentMode(Gpio.WRITE_MODE);
                 ldo.write(true);
                 debug("check - 0.1 -");
-                gpsComm = CommConnectionImpl.getComInstance(0, 9600);
+                gpsComm = CommConnectionImpl.getComInstance(DefaultGPSPort, DefaultBaudrate);
                 if (gpsComm == null) {
                     return;
                 }
@@ -148,7 +153,7 @@ public class SmartShoe extends Applet {
                 parser = new GPSParser();
                 gis = gpsComm.openInputStream();
                 debug("check - 0.3 -");
-                gpsBuf = new byte[320];
+                gpsBuf = new byte[DefaultGPSBuffer];
                 //gpsStrBuf = new StringBuffer(300);
                 Thread.sleep(5000);
             }
@@ -165,7 +170,7 @@ public class SmartShoe extends Applet {
         try {
             if (gis != null) {
                 debug("check - 3.1 -");
-                int readSize = gis.read(gpsBuf, 0, 320);
+                int readSize = gis.read(gpsBuf, 0, DefaultGPSBuffer);
 
                 debug("check - 3.2 - readSize:" + readSize);
                 if (readSize < 0)
