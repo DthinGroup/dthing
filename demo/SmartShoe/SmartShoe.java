@@ -70,7 +70,7 @@ public class SmartShoe extends Applet {
     public void startup() {
         netlog("startup");
         totalMemory = Runtime.getRuntime().totalMemory();
-        gcMemory = totalMemory * 3 / 10;
+        gcMemory = totalMemory * 5/ 10;
         gsensorThread = new Thread() {
             public void run() {
             debug("check - openGSensorModule -");
