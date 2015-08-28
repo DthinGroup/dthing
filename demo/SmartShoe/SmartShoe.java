@@ -73,7 +73,7 @@ public class SmartShoe extends Applet {
     }
 
     public void startup() {
-        netlog("startup with COM["+DefaultGPSPort+"] Baudrate["+DefaultBaudrate+"] GC["+DefaultGCPercentage+"] GPSBuffer["+DefaultGCPercentage+"]");
+        netlog("startup with COM["+DefaultGPSPort+"] Baudrate["+DefaultBaudrate+"] GC["+DefaultGCPercentage+"] GPSBuffer["+DefaultGPSBuffer+"]");
         totalMemory = Runtime.getRuntime().totalMemory();
         gcMemory = totalMemory * DefaultGCPercentage/ 100;
         gsensorThread = new Thread() {
