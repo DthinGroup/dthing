@@ -76,7 +76,7 @@ public class File implements Serializable {
      */
     public boolean delete() {
         if (!exists()) {
-            return true;
+            return false;
         }
         return delete0(path);
     }
