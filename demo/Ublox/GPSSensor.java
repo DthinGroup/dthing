@@ -29,7 +29,7 @@ public class GPSSensor extends Applet
                     Gpio ldo = new Gpio(60); //60 for board, 7 for shoe
                     ldo.setCurrentMode(Gpio.WRITE_MODE);
                     ldo.write(true);
-                    reportTestInfo("GPSCOM", "pull GPIO 7 to high");
+                    reportTestInfo("GPSCOM", "pull GPIO 60 to high");
                 } catch (IllegalArgumentException e1) {
                     System.out.println("IllegalArgumentException:" + e1);
                 } catch (IOException e1) {
@@ -38,7 +38,7 @@ public class GPSSensor extends Applet
 
                 CommConnectionImpl gpsComm = CommConnectionImpl.getComInstance(0, 9600);
                 try {
-                    byte[] buf = new byte[320];
+                    byte[] buf = new byte[128];
 
                     InputStream is = gpsComm.openInputStream();
                     int readSize;
@@ -49,7 +49,7 @@ public class GPSSensor extends Applet
                             System.out.println("InterruptedException:" + e);
                         }
 
-                        readSize = is.read(buf, 0, 320);
+                        readSize = is.read(buf, 0, 128);
 
                         if (readSize < 0)
                         {

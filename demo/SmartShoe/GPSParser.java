@@ -32,16 +32,16 @@ public class GPSParser {
         int nextsection = 0;
 
         if (index >= 0) {
-            buffer += rawInfo;
             waitingMode = true;
         }
 
         if (waitingMode) {
+			buffer += rawInfo;
             index = buffer.indexOf("$GPRMC");
             nextsection = buffer.indexOf("$", index + 1);
 
             if ((index >= 0) && (nextsection >= 0)) {
-                startParseNmea(rawInfo);
+                startParseNmea(buffer);
                 buffer = "";
                 waitingMode = false;
             }

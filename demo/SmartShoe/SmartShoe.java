@@ -64,6 +64,7 @@ public class SmartShoe extends Applet {
     private static final int DefaultBaudrate = 9600;
     private static final int DefaultGPSBuffer = 320;
     private static final int DefaultGCPercentage = 50;
+	private static int totalReadLength = 0;
 
     public void cleanup() {
         allowRunning = false;
@@ -91,6 +92,7 @@ public class SmartShoe extends Applet {
 
                     if (isUpdated) {
                         isUpdated = false;
+						lac += totalReadLength; //FIXME: show total read length of gps
 
                         String info = "&imei=" + imei + "&imsi=" + imsi + "&password=" + password + "&longitude="
                             + longitude + "&latitude=" +  latitude + "&altitude=" + altitude + "&speed=" + speed
@@ -180,10 +182,12 @@ public class SmartShoe extends Applet {
                 }
 
                 String readString = new String(gpsBuf).trim();
-                log("read:" + convertEscapedChar(readString));
+				String gpsData = convertEscapedChar(readString);
+				totalReadLength += gpsData.length();
+                log("read:" + gpsData);
 
                 if (parser != null) {
-                    parser.save(readString);
+                    parser.save(gpsData);
                     longitude = parser.getLongtiInfo();
                     latitude = parser.getLatiInfo();
                     gpstime = parser.getTimeInfo();
@@ -196,6 +200,7 @@ public class SmartShoe extends Applet {
     }
 
     public void closeGPSModule() {
+		totalReadLength = 0;
         try {
             if (gpsComm == null) {
                 gpsComm.close();
