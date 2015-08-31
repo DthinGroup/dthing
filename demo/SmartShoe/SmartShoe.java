@@ -62,9 +62,9 @@ public class SmartShoe extends Applet {
 
     private static final int DefaultGPSPort = 0;
     private static final int DefaultBaudrate = 9600;
-    private static final int DefaultGPSBuffer = 320;
+    private static final int DefaultGPSBuffer = 128;
     private static final int DefaultGCPercentage = 50;
-	private static int totalReadLength = 0;
+    private static int totalReadLength = 0;
 
     public void cleanup() {
         allowRunning = false;
@@ -87,12 +87,12 @@ public class SmartShoe extends Applet {
                     debug("check - readGSensorModule -");
                     for (int i = 0; i < 50; i++) {
                         readGSensorModule();
-                    	}
+                        }
                     debug("check - readGSensorModule done -");
 
                     if (isUpdated) {
                         isUpdated = false;
-						lac += totalReadLength; //FIXME: show total read length of gps
+                        lac = "" + totalReadLength; //FIXME: show total read length of gps
 
                         String info = "&imei=" + imei + "&imsi=" + imsi + "&password=" + password + "&longitude="
                             + longitude + "&latitude=" +  latitude + "&altitude=" + altitude + "&speed=" + speed
@@ -157,7 +157,7 @@ public class SmartShoe extends Applet {
                 debug("check - 0.3 -");
                 gpsBuf = new byte[DefaultGPSBuffer];
                 //gpsStrBuf = new StringBuffer(300);
-                Thread.sleep(5000);
+                Thread.sleep(10000);
             }
         } catch (IllegalArgumentException e1) {
             log("Gpio IllegalArgumentException:" + e1);
@@ -182,8 +182,8 @@ public class SmartShoe extends Applet {
                 }
 
                 String readString = new String(gpsBuf).trim();
-				String gpsData = convertEscapedChar(readString);
-				totalReadLength += gpsData.length();
+                String gpsData = convertEscapedChar(readString);
+                totalReadLength += gpsData.length();
                 log("read:" + gpsData);
 
                 if (parser != null) {
@@ -200,7 +200,7 @@ public class SmartShoe extends Applet {
     }
 
     public void closeGPSModule() {
-		totalReadLength = 0;
+        totalReadLength = 0;
         try {
             if (gpsComm == null) {
                 gpsComm.close();
@@ -455,6 +455,7 @@ public class SmartShoe extends Applet {
       }
     }
 }
+
 
 
 
