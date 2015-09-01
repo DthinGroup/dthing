@@ -74,6 +74,7 @@ public class GPSSensor extends Applet
 
                             if (gpsComm != null) {
                                 buf = new byte[DefaultGPSBuffer];
+								reportTestInfo("GPSCOM", "Comm instance is created");
                             } else {
                                 continue;
                             }
@@ -82,6 +83,7 @@ public class GPSSensor extends Applet
                         if (is == null) {
                             is = gpsComm.openInputStream();
                             if (is != null) {
+								reportTestInfo("GPSCOM", "Comm input stream is opened");
                                 Thread.sleep(10000L);
                             } else {
                                 continue;
@@ -100,6 +102,7 @@ public class GPSSensor extends Applet
 
                         reportTestInfo("GPSCOM", "read["+readSize+"]:" + convertEscapedChar(readString));
                         MemoryCheck();
+						Thread.sleep(1);
                     } catch (IllegalArgumentException e) {
                         System.out.println("IllegalArgumentException:" + e);
                     } catch (InterruptedException e) {
