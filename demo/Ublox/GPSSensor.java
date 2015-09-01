@@ -61,7 +61,8 @@ public class GPSSensor extends Applet
 
                             ldo.setCurrentMode(Gpio.READ_MODE);
                             isLDOEnabled = ldo.read();
-                            reportTestInfo("GPSCOM", "pull GPIO 60 to high:" + isLDOEnabled? "Success" : "Failure");
+							String res = isLDOEnabled? "Success" : "Failure";
+                            reportTestInfo("GPSCOM", "pull GPIO 60 to high:" + res);
 
                             if (!isLDOEnabled) {
                                 continue;
