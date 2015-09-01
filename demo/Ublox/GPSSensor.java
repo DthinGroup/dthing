@@ -41,22 +41,41 @@ public class GPSSensor extends Applet
                 InputStream is = null;
                 totalMemory = Runtime.getRuntime().totalMemory();
                 gcMemory = totalMemory * DefaultGCPercentage/ 100;
+                Gpio ldo = null;
+                boolean isLDOEnabled = false;
 
                 while(allowRunning) {
                     try {
+                        if (ldo == null) {
+                            ldo = new Gpio(60); //60 for board, 7 for shoe
+                        }
+
+                        if ((ldo != null) && !isLDOEnabled) {
+                            ldo.setCurrentMode(Gpio.READ_MODE);
+                            isLDOEnabled = ldo.read();
+
+                            if (!isLDOEnabled) {
+                                ldo.setCurrentMode(Gpio.WRITE_MODE);
+                                ldo.write(true);
+                            }
+
+                            ldo.setCurrentMode(Gpio.READ_MODE);
+                            isLDOEnabled = ldo.read();
+                            reportTestInfo("GPSCOM", "pull GPIO 60 to high:" + isLDOEnabled? "Success" : "Failure");
+
+                            if (!isLDOEnabled) {
+                                continue;
+                            }
+                        }
+
                         if (gpsComm == null) {
                             gpsComm = CommConnectionImpl.getComInstance(DefaultGPSPort, DefaultBaudrate);
 
                             if (gpsComm != null) {
-                                Gpio ldo = new Gpio(60); //60 for board, 7 for shoe
-                                ldo.setCurrentMode(Gpio.WRITE_MODE);
-                                ldo.write(true);
-                                boolean status = ldo.read();
-                                reportTestInfo("GPSCOM", "pull GPIO 60 to high:" + status);
                                 buf = new byte[DefaultGPSBuffer];
                             } else {
                                 continue;
-                            };
+                            }
                         }
 
                         if (is == null) {
@@ -90,9 +109,11 @@ public class GPSSensor extends Applet
                 }
 
                 try {
-                   Gpio ldo = new Gpio(60); //60 for board, 7 for shoe
-                   ldo.setCurrentMode(Gpio.WRITE_MODE);
-                   ldo.write(false);
+                   if (ldo != null) {
+                       ldo.setCurrentMode(Gpio.WRITE_MODE);
+                       ldo.write(false);
+                       isLDOEnabled = false;
+                   }
                    gpsComm.close();
                 } catch (IOException e1) {
                     System.out.println("IOException:" + e1);
