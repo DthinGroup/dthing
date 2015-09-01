@@ -51,7 +51,7 @@ public class GPSSensor extends Applet
                                 Gpio ldo = new Gpio(60); //60 for board, 7 for shoe
                                 ldo.setCurrentMode(Gpio.WRITE_MODE);
                                 ldo.write(true);
-								int status = ldo.read();
+                                boolean status = ldo.read();
                                 reportTestInfo("GPSCOM", "pull GPIO 60 to high:" + status);
                                 buf = new byte[DefaultGPSBuffer];
                             } else {
@@ -93,7 +93,7 @@ public class GPSSensor extends Applet
                    Gpio ldo = new Gpio(60); //60 for board, 7 for shoe
                    ldo.setCurrentMode(Gpio.WRITE_MODE);
                    ldo.write(false);
-                    gpsComm.close();
+                   gpsComm.close();
                 } catch (IOException e1) {
                     System.out.println("IOException:" + e1);
                 }
