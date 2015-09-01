@@ -136,7 +136,7 @@ public class GPSSensor extends Applet
                 httpConn.disconnect();
             }
 
-            public static void MemoryCheck() {
+            public void MemoryCheck() {
                 long free =  Runtime.getRuntime().freeMemory();
 
                 if (free < gcMemory) {
