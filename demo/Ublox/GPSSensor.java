@@ -15,6 +15,16 @@ public class GPSSensor extends Applet
     private static boolean allowLogPrint = true;
     private static boolean allowRunning = true;
 
+    private static long totalMemory = 0;
+    private static long gcMemory = 0;
+
+    private static final int DefaultGPSPort = 0;
+    private static final int DefaultBaudrate = 9600;
+    private static final int DefaultGPSBuffer = 32;
+    private static final int DefaultGCPercentage = 50;
+    private static int totalReadLength = 0;
+    private static CommConnectionImpl gpsComm = null;
+
     public void cleanup() {
         allowRunning = false;
     }
@@ -23,33 +33,42 @@ public class GPSSensor extends Applet
     }
 
     public void startup() {
+
         new Thread() {
             public void run() {
-                try {
-                    Gpio ldo = new Gpio(60); //60 for board, 7 for shoe
-                    ldo.setCurrentMode(Gpio.WRITE_MODE);
-                    ldo.write(true);
-                    reportTestInfo("GPSCOM", "pull GPIO 60 to high");
-                } catch (IllegalArgumentException e1) {
-                    System.out.println("IllegalArgumentException:" + e1);
-                } catch (IOException e1) {
-                    System.out.println("IOException:" + e1);
-                }
+                byte[] buf = null;
+                int readSize = 0;
+                InputStream is = null;
+                totalMemory = Runtime.getRuntime().totalMemory();
+                gcMemory = totalMemory * DefaultGCPercentage/ 100;
 
-                CommConnectionImpl gpsComm = CommConnectionImpl.getComInstance(0, 9600);
-                try {
-                    byte[] buf = new byte[128];
+                while(allowRunning) {
+                    try {
+                        if (gpsComm == null) {
+                            gpsComm = CommConnectionImpl.getComInstance(DefaultGPSPort, DefaultBaudrate);
 
-                    InputStream is = gpsComm.openInputStream();
-                    int readSize;
-                    do {
-                        try {
-                            Thread.sleep(10000L);
-                        } catch (InterruptedException e) {
-                            System.out.println("InterruptedException:" + e);
+                            if (gpsComm != null) {
+                                Gpio ldo = new Gpio(60); //60 for board, 7 for shoe
+                                ldo.setCurrentMode(Gpio.WRITE_MODE);
+                                ldo.write(true);
+								int status = ldo.read();
+                                reportTestInfo("GPSCOM", "pull GPIO 60 to high:" + status);
+                                buf = new byte[DefaultGPSBuffer];
+                            } else {
+                                continue;
+                            };
                         }
 
-                        readSize = is.read(buf, 0, 128);
+                        if (is == null) {
+                            is = gpsComm.openInputStream();
+                            if (is != null) {
+                                Thread.sleep(10000L);
+                            } else {
+                                continue;
+                            }
+                        }
+
+                        readSize = is.read(buf, 0, DefaultGPSBuffer);
 
                         if (readSize < 0)
                         {
@@ -60,12 +79,25 @@ public class GPSSensor extends Applet
                         String readString = new String(buf);
 
                         reportTestInfo("GPSCOM", "read["+readSize+"]:" + convertEscapedChar(readString));
-                    } while (allowRunning);
-                    gpsComm.close();
-                    notifyDestroyed();
-                } catch (IOException e) {
-                    System.out.println("IOException:" + e);
+                        MemoryCheck();
+                    } catch (IllegalArgumentException e) {
+                        System.out.println("IllegalArgumentException:" + e);
+                    } catch (InterruptedException e) {
+                        System.out.println("InterruptedException:" + e);
+                    } catch (IOException e) {
+                        System.out.println("IOException:" + e);
+                    }
                 }
+
+                try {
+                   Gpio ldo = new Gpio(60); //60 for board, 7 for shoe
+                   ldo.setCurrentMode(Gpio.WRITE_MODE);
+                   ldo.write(false);
+                    gpsComm.close();
+                } catch (IOException e1) {
+                    System.out.println("IOException:" + e1);
+                }
+                notifyDestroyed();
             }
 
             private String convertEscapedChar(String original)
@@ -102,6 +134,14 @@ public class GPSSensor extends Applet
                 InputStream dis = httpConn.getInputStream();
                 dis.close();
                 httpConn.disconnect();
+            }
+
+            public static void MemoryCheck() {
+                long free =  Runtime.getRuntime().freeMemory();
+
+                if (free < gcMemory) {
+                    Runtime.getRuntime().gc();
+                }
             }
         }.start();
     }
