@@ -61,7 +61,7 @@ public class GPSSensor extends Applet
 
                             ldo.setCurrentMode(Gpio.READ_MODE);
                             isLDOEnabled = ldo.read();
-							String res = isLDOEnabled? "Success" : "Failure";
+                            String res = isLDOEnabled? "Success" : "Failure";
                             reportTestInfo("GPSCOM", "pull GPIO 60 to high:" + res);
 
                             if (!isLDOEnabled) {
@@ -74,7 +74,7 @@ public class GPSSensor extends Applet
 
                             if (gpsComm != null) {
                                 buf = new byte[DefaultGPSBuffer];
-								reportTestInfo("GPSCOM", "Comm instance is created");
+                                reportTestInfo("GPSCOM", "Comm instance is created");
                             } else {
                                 continue;
                             }
@@ -83,7 +83,7 @@ public class GPSSensor extends Applet
                         if (is == null) {
                             is = gpsComm.openInputStream();
                             if (is != null) {
-								reportTestInfo("GPSCOM", "Comm input stream is opened");
+                                reportTestInfo("GPSCOM", "Comm input stream is opened");
                                 Thread.sleep(10000L);
                             } else {
                                 continue;
@@ -102,7 +102,7 @@ public class GPSSensor extends Applet
 
                         reportTestInfo("GPSCOM", "read["+readSize+"]:" + convertEscapedChar(readString.substring(0, 50)));
                         MemoryCheck();
-						Thread.sleep(2000);
+                        Thread.sleep(2000);
                     } catch (IllegalArgumentException e) {
                         reportTestInfo("GPSCOM", "IllegalArgumentException:" + e);
                     } catch (InterruptedException e) {
@@ -119,7 +119,7 @@ public class GPSSensor extends Applet
                        isLDOEnabled = false;
                    }
                    gpsComm.close();
-				   reportTestInfo("GPSCOM", "GPS comm is closed");
+                   reportTestInfo("GPSCOM", "GPS comm is closed");
                 } catch (IOException e1) {
                    reportTestInfo("GPSCOM", "IOException:" + e1);
                 }
@@ -144,22 +144,26 @@ public class GPSSensor extends Applet
                 return escaped;
             }
 
-            private void reportTestInfo(String name, String msg) throws IOException {
+            private void reportTestInfo(String name, String msg) {
                 String content = name + ":" + msg.replace(' ', '.');
                 String reportInfo = REPORT_SERVER_FORMAT + content;
 
                 if (allowLogPrint)
                 {
-                  System.out.println("[" + name + "]" + content + "\r\n");
-                  //return;
+                    System.out.println("[" + name + "]" + content + "\r\n");
+                    //return;
                 }
 
-                URL url = new URL(reportInfo);
-                HttpURLConnection httpConn = (HttpURLConnection)url.openConnection();
-                httpConn.setRequestMethod(HttpURLConnection.POST);
-                InputStream dis = httpConn.getInputStream();
-                dis.close();
-                httpConn.disconnect();
+                try {
+                    URL url = new URL(reportInfo);
+                    HttpURLConnection httpConn = (HttpURLConnection)url.openConnection();
+                    httpConn.setRequestMethod(HttpURLConnection.POST);
+                    InputStream dis = httpConn.getInputStream();
+                    dis.close();
+                    httpConn.disconnect();
+                } catch (Exception e) {
+                    System.out.println(e.getMessage());
+                }
             }
 
             public void MemoryCheck() {
@@ -167,7 +171,7 @@ public class GPSSensor extends Applet
 
                 if (free < gcMemory) {
                     Runtime.getRuntime().gc();
-					reportTestInfo("GPSCOM", "gc when left " + free + "/" + gcMemory);
+                    reportTestInfo("GPSCOM", "gc when left " + free + "/" + gcMemory);
                 }
             }
         }.start();
