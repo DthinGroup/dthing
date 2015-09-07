@@ -20,7 +20,7 @@ public class GPSSensor extends Applet
 
     private static final int DefaultGPSPort = 0;
     private static final int DefaultBaudrate = 9600;
-    private static final int DefaultGPSBuffer = 32;
+    private static final int DefaultGPSBuffer = 512;
     private static final int DefaultGCPercentage = 50;
     private static int totalReadLength = 0;
     private static CommConnectionImpl gpsComm = null;
@@ -100,15 +100,15 @@ public class GPSSensor extends Applet
 
                         String readString = new String(buf);
 
-                        reportTestInfo("GPSCOM", "read["+readSize+"]:" + convertEscapedChar(readString));
+                        reportTestInfo("GPSCOM", "read["+readSize+"]:" + convertEscapedChar(readString.substring(0, 50)));
                         MemoryCheck();
-						Thread.sleep(1);
+						Thread.sleep(2000);
                     } catch (IllegalArgumentException e) {
-                        System.out.println("IllegalArgumentException:" + e);
+                        reportTestInfo("GPSCOM", "IllegalArgumentException:" + e);
                     } catch (InterruptedException e) {
-                        System.out.println("InterruptedException:" + e);
+                        reportTestInfo("GPSCOM", "InterruptedException:" + e);
                     } catch (IOException e) {
-                        System.out.println("IOException:" + e);
+                        reportTestInfo("GPSCOM", "IOException:" + e);
                     }
                 }
 
@@ -119,8 +119,9 @@ public class GPSSensor extends Applet
                        isLDOEnabled = false;
                    }
                    gpsComm.close();
+				   reportTestInfo("GPSCOM", "GPS comm is closed");
                 } catch (IOException e1) {
-                    System.out.println("IOException:" + e1);
+                   reportTestInfo("GPSCOM", "IOException:" + e1);
                 }
                 notifyDestroyed();
             }
@@ -149,7 +150,7 @@ public class GPSSensor extends Applet
 
                 if (allowLogPrint)
                 {
-                  System.out.println("[" + name + "]" + content);
+                  System.out.println("[" + name + "]" + content + "\r\n");
                   //return;
                 }
 
@@ -166,6 +167,7 @@ public class GPSSensor extends Applet
 
                 if (free < gcMemory) {
                     Runtime.getRuntime().gc();
+					reportTestInfo("GPSCOM", "gc when left " + free + "/" + gcMemory);
                 }
             }
         }.start();
