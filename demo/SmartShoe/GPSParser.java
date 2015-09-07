@@ -319,11 +319,13 @@ public class GPSParser {
     }
 
     public String getLatiInfo() {
+        gpsLati = "3032.1456";
         String result = (gpsLati != null)? (gpsLatitudeSign + formatlatitude(gpsLati)) : "39902678";
         return result;
     }
 
     public String getLongtiInfo() {
+        gpsLongti = "10456.0321";
         String result = (gpsLongti != null)? (gpsLongitudeSign + formatlongitude(gpsLongti)) : "116357822";
         return result;
     }
