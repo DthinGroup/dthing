@@ -12,7 +12,7 @@ public class GPSParser {
     private static final int MIN_LATI_LEN = 5;
     private static final int MIN_LONGTI_LEN = 6;
 
-    private static boolean DEBUG = true;
+    private static boolean DEBUG = false;
     private String buffer = "";
     private static boolean waitingMode = false; //When not get enough data to parse
 
