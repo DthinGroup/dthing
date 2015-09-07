@@ -298,16 +298,18 @@ public class GPSParser {
         String deg = value.substring(separator - 2 - degLen, separator - 2);
 
         String min = value.substring(separator - 2, separator);
-        int imin = Integer.parseInt(min);
+        //int imin = Integer.parseInt(min);
 
         String sec = value.substring(separator + 1) + "000000";
-        sec = sec.substring(0, 6);
-        int isec = Integer.parseInt(sec);
+	 sec = sec.substring(0, 4);
+        //sec = sec.substring(0, 6);
+        //int isec = Integer.parseInt(sec);
 
-        int temp = (imin * 1000000 + isec) / 60 + 1000000;
-        String result = "" + temp;
-        result = result.substring(1);
-        return deg + result;
+        //int temp = (imin * 1000000 + isec) / 60 + 1000000;
+        //String result = "" + temp;
+        //result = result.substring(1);
+        //return deg + result;
+        return deg + min + sec;
     }
 
     public String getTimeInfo() {
