@@ -4,6 +4,8 @@ public class GPSParser {
     private String gpsLati;
     private String gpsLongti;
     private String gpsAlti;
+    private String gpsLongitudeSign = "";
+    private String gpsLatitudeSign = "";
 
     private static final int MIN_TIME_LEN = 7;
     private static final int MIN_DATE_LEN = 6;
@@ -15,13 +17,13 @@ public class GPSParser {
     private static boolean waitingMode = false; //When not get enough data to parse
 
     String[] nmeaNames = new String[] {
-        "$GPGSA",
-        "$GPGSV",
-        "$GPGGA",
+        //"$GPGSA",
+        //"$GPGSV",
+        //"$GPGGA",
         "$GPRMC",
-        "$GPVTG",
-        "$GPGLL",
-        "$GPZDA"
+        //"$GPVTG",
+        //"$GPGLL",
+        //"$GPZDA"
     };
 
     public GPSParser () {
@@ -36,7 +38,7 @@ public class GPSParser {
         }
 
         if (waitingMode) {
-			buffer += rawInfo;
+            buffer += rawInfo;
             index = buffer.indexOf("$GPRMC");
             nextsection = buffer.indexOf("$", index + 1);
 
@@ -68,16 +70,16 @@ public class GPSParser {
         gpsLongti = null;
         gpsAlti = null;
     }
-    
+
     private static String[] trimto(String s[],int i)
     {
         if(s.length==i) return s;
-        
+
         String res[]=new String[i];
         for(i--;i>=0;i--) res[i]=s[i];
         return res;
     }
-    
+
     /**
      * Splits a string into sections according to a separating character.
      *
@@ -107,18 +109,18 @@ public class GPSParser {
                   if(pos==start) start++;
                 }
                 while(pos<start && pos>=0);
-                
+
                 if(pos<0 && start==st.length()) break;
             }
             else pos=st.indexOf(sep,start);
-            
+
             if(i==res.length)
             {
                 String r2[]=new String[res.length+10];
                 System.arraycopy(res,0,r2,0,res.length);
                 res=r2;
             }
-            
+
             res[i++]=st.substring(start,(pos<0?st.length():pos));
             start=pos+1;
         }
@@ -160,6 +162,11 @@ public class GPSParser {
         }
     }
 
+    private String formatDegreeStringEx(String value) {
+
+        return null;
+    }
+
      public void startParseNmea(String gpsInfo){
         int start = 0;
         NmeaInfo nmeaInfo;
@@ -187,11 +194,13 @@ public class GPSParser {
             // read latitude info.
             if (gpsLati == null && len > 4 && items[3].length() >= MIN_LATI_LEN) {
                 gpsLati = items[3];
+                gpsLatitudeSign = (items[4].equals("N"))? "" : "-";
             }
 
             // read longitude info.
             if (gpsLongti == null && len > 6 && items[5].length() >= MIN_LONGTI_LEN) {
                 gpsLongti = items[5];
+                gpsLongitudeSign = (items[6].equals("E"))? "" : "-";
             }
 
             // read date info.
@@ -206,7 +215,7 @@ public class GPSParser {
             }
         }
 
-        printGpsInfo();
+        /*printGpsInfo();
 
         start = 0;
         while ((nmeaInfo = extractNmeaInfo(gpsInfo, "$GPGGA", start)) != null) {
@@ -242,82 +251,64 @@ public class GPSParser {
                 gpsLongti != null && gpsDate != null && gpsAlti != null) {
                 break;
             }
-        }
+        }*/
     }
 
-	private String formatlatitude(String value)
-	{
-		//获取本地纬度数据后，先保留符号位数据，剩余数据处理后交formateDegreeString格式化
-		int signPos = value.indexOf('-');
-		String sign = (signPos < 0)? "" : "-";
-		/**
-		 * 无法保证本地纬度数据一定按照ddmm.mmmm的字符格式上传
-		 * 对于度未补0的情况, 例如dmm.mmmm或者mm.mmmm格式，也要能正常处理
-		 * 为避免formatDegreeString里面做额外的判定，增加代码量，我们为纬度数据
-		 * 手动补0, 再经formatDegreeString格式化。
-		 */
-		String target = "00" + value.substring(signPos + 1); //Avoid dmm.mmmm or mm.mmmm
-		//返回服务器的数据为符号位+格式化后的纬度数据
-		return sign + formatDegreeString(target, "36010203", 2);
-	}
+    private String formatlatitude(String value)
+    {
+        String target = "00" + value; //Avoid dmm.mmmm or mm.mmmm
+        return formatDegreeString(target, "39902678", 2);
+    }
 
-	private String formatlongitude(String value)
-	{
-		//获取本地经度数据后，先保留符号位数据，剩余数据处理后交formateDegreeString格式化
-		int signPos = value.indexOf('-');
-		String sign = (signPos < 0)? "" : "-";
-		/**
-		 * 无法保证本地经度数据一定按照dddmm.mmmm的字符格式上传
-		 * 对于度未补0的情况, 例如ddmm.mmmm或者dmm.mmmm或者mm.mmmm格式，也要能正常处理
-		 * 为避免formatDegreeString里面做额外的判定，增加代码量，我们为经度数据
-		 * 手动补0, 再经formatDegreeString格式化。
-		 */
-		String target = "000" + value.substring(signPos + 1); //Avoid dmm.mmmm or mm.mmmm
-		//返回服务器的数据为符号位+格式化后的经度数据
-		return sign + formatDegreeString(target, "100999897", 3);
-	}
+    private String formatlongitude(String value)
+    {
+        String target = "000" + value; //Avoid dmm.mmmm or mm.mmmm
+        return formatDegreeString(target, "116357822", 3);
+    }
 
-	/**
-	 * @description format gps data like longitude or latitude
-	 *     longitude: dddmm.mmmm -> (ddd + mm.mmmm / 60) * 1000000
-	 *     latitude: ddmm.mmmm -> (dd + mm.mmmm / 60) * 1000000
-	 * @param value String gps data with degree-minute format
-	 * @param defaultValue String default value when failed to format
-	 * @param degLen int length of degree
-	 * @return formatted degree string without sign
-	 */
-	private String formatDegreeString(String value, String defaultValue, int degLen)
-	{
-		//先找到".", 即可确认度分字符串的位置
-		int separator = value.indexOf('.');
+    /**
+     * @description format gps data like longitude or latitude
+     *     longitude: dddmm.mmmm -> (ddd + mm.mmmm / 60) * 1000000
+     *     latitude: ddmm.mmmm -> (dd + mm.mmmm / 60) * 1000000
+     * @param value String gps data with degree-minute format
+     * @param defaultValue String default value when failed to format
+     * @param degLen int length of degree
+     * @return formatted degree string without sign
+     */
+    private String formatDegreeString(String value, String defaultValue, int degLen)
+    {
 
-		//异常数据检查
-		if (separator < (2 + degLen))
-		{
-			if (separator < 0)
-			{
-				//比0小表明数据不包含".", 可能是ddmm或dddmm格式, 故分隔符位置在最后
-				//ddmm or dddmm
-				separator = value.length();
-			}
-			else
-			{
-				//其他异常情况, 返回默认值
-				//other illegal data
-				return defaultValue;
-			}
-		}
+        int separator = value.indexOf('.');
 
-		//度的数据为分数据前degLen位到分数据之间的字符串
-		String deg = value.substring(separator - 2 - degLen, separator - 2);
-		//分的数据为分隔符前两位到分隔符之间的字符串
-		String min = value.substring(separator - 2);
-		//数据化分字符串数据并保留小数点后6位
-		double dmin = Double.valueOf(min).doubleValue() * 1000000D / 60D;
-		min = new Double(dmin).toString().substring(0, 6);
-		//合并度数据和分数据并返回
-		return deg + min;
-	}
+
+        if (separator < (2 + degLen))
+        {
+            if (separator < 0)
+            {
+                //ddmm or dddmm
+                separator = value.length();
+            }
+            else
+            {
+                //other illegal data
+                return defaultValue;
+            }
+        }
+
+        String deg = value.substring(separator - 2 - degLen, separator - 2);
+
+        String min = value.substring(separator - 2, separator);
+        int imin = Integer.parseInt(min);
+
+        String sec = value.substring(separator + 1) + "000000";
+        sec = sec.substring(0, 6);
+        int isec = Integer.parseInt(sec);
+
+        int temp = (imin * 1000000 + isec) / 60 + 1000000;
+        String result = "" + temp;
+        result = result.substring(1);
+        return deg + result;
+    }
 
     public String getTimeInfo() {
         return (gpsTime != null)? gpsTime : "0";
@@ -328,11 +319,13 @@ public class GPSParser {
     }
 
     public String getLatiInfo() {
-        return (gpsLati != null)? formatlatitude(gpsLati) : "39902678";
+        String result = (gpsLati != null)? (gpsLatitudeSign + formatlatitude(gpsLati)) : "39902678";
+        return result;
     }
 
     public String getLongtiInfo() {
-        return (gpsLongti != null)? formatlongitude(gpsLongti) : "116357822";
+        String result = (gpsLongti != null)? (gpsLongitudeSign + formatlongitude(gpsLongti)) : "116357822";
+        return result;
     }
 
     public String getAltiInfo() {
@@ -352,3 +345,4 @@ public class GPSParser {
         }
     }
 }
+
