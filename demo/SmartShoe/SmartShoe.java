@@ -187,8 +187,7 @@ public class SmartShoe extends Applet {
                 log("read:" + gpsData);
                 totalReadLength++;
                 if (parser != null) {
-                    totalReadLength++;
-                    //parser.save(gpsData);
+                    parser.save(gpsData);
                     totalReadLength++;
                     longitude = parser.getLongtiInfo();
                     totalReadLength++;

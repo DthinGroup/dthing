@@ -296,19 +296,9 @@ public class GPSParser {
         }
 
         String deg = value.substring(separator - 2 - degLen, separator - 2);
-
         String min = value.substring(separator - 2, separator);
-        //int imin = Integer.parseInt(min);
-
         String sec = value.substring(separator + 1) + "000000";
 	 sec = sec.substring(0, 4);
-        //sec = sec.substring(0, 6);
-        //int isec = Integer.parseInt(sec);
-
-        //int temp = (imin * 1000000 + isec) / 60 + 1000000;
-        //String result = "" + temp;
-        //result = result.substring(1);
-        //return deg + result;
         return deg + min + sec;
     }
 
@@ -321,13 +311,11 @@ public class GPSParser {
     }
 
     public String getLatiInfo() {
-        gpsLati = "3032.1456";
         String result = (gpsLati != null)? (gpsLatitudeSign + formatlatitude(gpsLati)) : "39902678";
         return result;
     }
 
     public String getLongtiInfo() {
-        gpsLongti = "10456.0321";
         String result = (gpsLongti != null)? (gpsLongitudeSign + formatlongitude(gpsLongti)) : "116357822";
         return result;
     }
