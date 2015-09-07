@@ -185,17 +185,24 @@ public class SmartShoe extends Applet {
                 String gpsData = convertEscapedChar(readString);
                 totalReadLength += gpsData.length();
                 log("read:" + gpsData);
-
+                totalReadLength++;
                 if (parser != null) {
+                    totalReadLength++;
                     parser.save(gpsData);
+                    totalReadLength++;
                     longitude = parser.getLongtiInfo();
+                    totalReadLength++;
                     latitude = parser.getLatiInfo();
+                    totalReadLength++;
                     gpstime = parser.getTimeInfo();
+                    totalReadLength++;
                     gpsdate = parser.getDateInfo();
+                    totalReadLength++;
                 }
             }
         } catch (IOException e) {
             log("GPS IOException:" + e);
+            totalReadLength += 20;
         }
     }
 
