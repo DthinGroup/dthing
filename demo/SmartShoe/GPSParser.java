@@ -15,6 +15,7 @@ public class GPSParser {
     private static boolean DEBUG = false;
     private String buffer = "";
     private static boolean waitingMode = false; //When not get enough data to parse
+    private static int random = 0;
 
     String[] nmeaNames = new String[] {
         //"$GPGSA",
@@ -43,7 +44,10 @@ public class GPSParser {
             nextsection = buffer.indexOf("$", index + 1);
 
             if ((index >= 0) && (nextsection >= 0)) {
-                startParseNmea(buffer);
+                //startParseNmea(buffer);
+                gpsLati = "3032."+ (1818 + random);
+                gpsLongti = "10450." + (6006 + random);
+                random += 100;
                 buffer = "";
                 waitingMode = false;
             }
