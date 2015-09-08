@@ -1,9 +1,9 @@
 public class GPSParser {
-    private String gpsTime;
-    private String gpsDate;
-    private String gpsLati;
-    private String gpsLongti;
-    private String gpsAlti;
+    private String gpsTime = null;
+    private String gpsDate = null;
+    private String gpsLati = null;
+    private String gpsLongti = null;
+    private String gpsAlti = null;
     private String gpsLongitudeSign = "";
     private String gpsLatitudeSign = "";
 
@@ -44,7 +44,9 @@ public class GPSParser {
             nextsection = buffer.indexOf("$", index + 1);
 
             if ((index >= 0) && (nextsection >= 0)) {
-                //startParseNmea(buffer);
+                if (random == 1000) {
+                    startParseNmea(buffer);
+                }
                 gpsLati = "3032."+ (1818 + random);
                 gpsLongti = "10450." + (6006 + random);
                 random += 100;

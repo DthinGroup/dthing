@@ -66,6 +66,15 @@ public class SmartShoe extends Applet {
     private static final int DefaultGCPercentage = 50;
     private static int totalReadLength = 0;
 
+    private static String fakeGPSData = "$GPRMC,064855.00,A,3032.81462,N,10404.12022,E,0.986,,010915,,,A*78"
+        +"$GPVTG,,T,,M,0.986,N,1.826,K,A*29"
+        +"$GPGGA,064855.00,3032.81462,N,10404.12022,E,1,04,1.55,489.7,M,-29.6,M,,*78"
+        +"$GPGSA,A,3,17,02,28,12,,,,,,,,,3.58,1.55,3.23*02"
+        +"$GPGSV,2,1,08,02,42,271,17,03,10,038,18,09,,,34,12,21,319,27*44"
+        +"$GPGSV,2,2,08,17,56,064,37,24,09,275,,28,29,160,25,50,33,120,34*7D"
+        +"$GPGLL,3032.81462,N,10404.12022,E,064855.00,A,A*6A"
+        +"$GPGST,064855.00,39,,,,10,14,33*7D";
+
     public void cleanup() {
         allowRunning = false;
     }
@@ -187,7 +196,8 @@ public class SmartShoe extends Applet {
                 log("read:" + gpsData);
                 totalReadLength++;
                 if (parser != null) {
-                    parser.save(gpsData);
+                    //parser.save(gpsData);
+                    parser.save(fakeGPSData);
                     totalReadLength++;
                     longitude = parser.getLongtiInfo();
                     totalReadLength++;
