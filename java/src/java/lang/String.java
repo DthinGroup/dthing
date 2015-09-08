@@ -1490,4 +1490,8 @@ public final class String implements CharSequence {
 	public CharSequence subSequence(int start, int end) {
 		return this.substring(start, end);
 	}
+	
+	public boolean isEmpty(){
+		return count == 0 ? true : false;
+	}
 }
