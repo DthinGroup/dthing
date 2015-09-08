@@ -2,10 +2,13 @@
 #include "kni.h"
 
 #include <nativeADCManager.h>
-#include <nativeATCommandConnection.h>
 #include <nativeAsyncIO.h>
+#include <nativeATCommandConnection.h>
 #include <nativeBatteryManager.h>
 #include <nativeClass.h>
+#include <nativeCommConnectionImpl.h>
+#include <nativeDouble.h>
+#include <nativeDThread.h>
 #include <nativeEarManager.h>
 #include <nativeFile.h>
 #include <nativeFileInputStream.h>
@@ -19,27 +22,27 @@
 #include <nativeMicophone.h>
 #include <nativeMyMessageSender.h>
 #include <nativeMySmsConnectionThread.h>
+#include <nativeNativeAPIManager.h>
 #include <nativeNetNativeBridge.h>
 #include <nativeObject.h>
 #include <nativeOTADownload.h>
 #include <nativePCMChannel.h>
 #include <nativePWMManager.h>
+#include <nativeRawKeyPdDriver.h>
 #include <nativeRuntime.h>
-#include <nativeSPIManager.h>
 #include <nativeScheduler.h>
 #include <nativeSimManager.h>
 #include <nativeSpeakerManager.h>
+#include <nativeSPIManager.h>
 #include <nativeString.h>
 #include <nativeSystem.h>
+#include <nativeSystemInputStream.h>
+#include <nativeSystemPrintStream.h>
 #include <nativeThread.h>
 #include <nativeThrowable.h>
 #include <nativeTimeZone.h>
 #include <nativeUSBConnection.h>
-#include <nativeCommConnectionImpl.h>
-#include <nativeRawKeyPdDriver.h>
-#include <nativeNativeAPIManager.h>
 #include <nativeMethods.h>
-
 
 KniFunc Kni_findFuncPtr(const Method * mthd) {
     ClassObject * clazz = NULL;

@@ -18,7 +18,6 @@ extern "C" {
  */
 void Java_com_yarlungsoft_ams_Main_loadClassByPath0(const u4* args, JValue* pResult);
 
-
 /**
  * Class:     com_yarlungsoft_ams_Main
  * Method:    setNextSchedulerState0

@@ -79,12 +79,12 @@ kni_fix_map = {
 	},
 }
 
-java_modifiers = ['public', 'protected', 'private', 'abstract', 'static', 'final', 'transient', 'volatile', 'synchronized', 'native', 'strictfp']
-modifiers_pat = r'(?:(?:' + '|'.join(java_modifiers) + r')\s+)*'
-type_pat = r'[a-zA-Z0-9<>\?\[\]]+\s+'
-name_pat = r'[a-zA-Z0-9_]+\s*'
+java_modifiers = ['public', 'protected', 'private', 'abstract', 'static', 'final', 'transient', 'volatile', 'synchronized', 'native', 'strictfp', 'threadsafe']
+modifiers_pat = r'(?:(?:' + '|'.join(java_modifiers) + r')\s+)+'
+type_pat = r'[\w<>\?\[\]]+\s+'
+name_pat = r'\w+\s*'
 type_name_pat = type_pat + name_pat
-throws_pat = r'(?:throws[a-zA-Z0-9_\s,]+)?' #r'(?:throws\s+(?:[a-zA-Z_0-9]+\s*,?\s*)+)?'
+throws_pat = r'(?:throws[\w\s,]+)?' #r'(?:throws\s+(?:\w+\s*,?\s*)+)?'
 static_pat = r'\sstatic\s'
 
 def get_native_methods(rootdir):

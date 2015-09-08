@@ -7,28 +7,18 @@
  */
 
 /**
- * The implementation of java.lang.Double and java.lang.Float.
+ * The implementation of java.lang.Float
  */
 
 #include <nativeFloat.h>
 
-
-static int isnan (double d)
-{
-	IEEEd2bits u;
-
-	u.d = d;
-	return (u.bits.exp == 2047 && (u.bits.manl != 0 || u.bits.manh != 0));
-}
-
 static int isnanf(float f)
 {
-	IEEEf2bits u;
+    IEEEf2bits u;
 
-	u.f = f;
-	return (u.bits.exp == 255 && u.bits.man != 0);
+    u.f = f;
+    return (u.bits.exp == 255 && u.bits.man != 0);
 }
-
 
 /**
  * Class:     java_lang_Float
@@ -64,32 +54,3 @@ void Java_java_lang_Float_intBitsToFloat(const u4* args, JValue* pResult)
     convert.arg = args[1];
     pResult->f = convert.ff;
 }
-
-#define LL
-/* see nativeFloat.h */
-void Java_java_lang_Double_doubleToLongBits(const u4* args, JValue* pResult)
-{
-    Convert64 convert;
-    convert.arg[0] = args[1];
-    convert.arg[1] = args[2];
-    pResult->j = isnan(convert.dd) ? 0x7ff8000000000000 LL : convert.ll;
-}
-
-/* see nativeFloat.h */
-void Java_java_lang_Double_doubleToRawLongBits(const u4* args, JValue* pResult)
-{
-    Convert64 convert;
-    convert.arg[0] = args[1];
-    convert.arg[1] = args[2];
-    pResult->j = convert.ll;
-}
-
-/* see nativeFloat.h */
-void Java_java_lang_Double_longBitsToDouble(const u4* args, JValue* pResult)
-{
-    Convert64 convert;
-    convert.arg[0] = args[1];
-    convert.arg[1] = args[2];
-    pResult->d = convert.dd;
-}
-
