@@ -198,33 +198,31 @@ def get_kni_method_init(jni, is_static, type_name_pairs):
 	return_type, method_name = parse_type_name(type_name_pairs[0])
 	codes = []
 	includes = []
-	args_off = -1
 
 	if is_static:
 		codes.append('    ClassObject* thisObj = (ClassObject*) args[0];')
-		args_off = 0
 
 	for i in range(1, len(type_name_pairs)):
 		type, name = parse_type_name(type_name_pairs[i])
 		code = ''
 		if type in ['boolean', 'byte', 'char', 'short', 'int', 'long', 'float', 'double']:
-			code = '    j%s %s = (j%s) args[%d];' % (type, name, type, i + args_off)
+			code = '    j%s %s = (j%s) args[%d];' % (type, name, type, i)
 		elif type in ['Object', 'Cloneable']:
-			code = '    Object * %sObj = (Object *) args[%d];' % (name, i + args_off)
+			code = '    Object * %sObj = (Object *) args[%d];' % (name, i)
 		elif type in ['Class', 'Class<?>']:
-			code = '    ClassObject * %sObj = (ClassObject *) args[%d];' % (name, i + args_off)
+			code = '    ClassObject * %sObj = (ClassObject *) args[%d];' % (name, i)
 		elif type == 'String':     # 'Ljava/lang/String;',
 			code = '''    StringObject * %sObj = (StringObject *) args[%d];
     const jchar* %s = dvmGetStringData(%sObj);
 //    const char* %s = dvmCreateCstrFromString(%sObj);
-    int %sLen = dvmGetStringLength(%sObj);''' % (name, i + args_off, name, name, name, name, name, name)
+    int %sLen = dvmGetStringLength(%sObj);''' % (name, i, name, name, name, name, name, name)
 			includes.append('<utfstring.h>')
 		elif type in ['boolean[]', 'byte[]', 'char[]', 'short[]', 'int[]', 'long[]', 'float[]', 'double[]']:
 			code = '''    ArrayObject * %sArr = (ArrayObject *)args[%d];
     j%s * %sArrPtr = (j%s *)(KNI_GET_ARRAY_BUF(args[%d]));
-    int %sArrLen = KNI_GET_ARRAY_LEN(args[%d]);''' % (name, i + args_off, type[:-2], name, type[:-2], i + args_off, name, i + args_off)
+    int %sArrLen = KNI_GET_ARRAY_LEN(args[%d]);''' % (name, i, type[:-2], name, type[:-2], i, name, i)
 		else:
-			code = '    // TODO: unknown type of param %d %s: %s' % (i + args_off + 1, name, type)
+			code = '    // TODO: unknown type of param %d %s: %s' % (i + 1, name, type)
 		codes.append(code)
 
 	todo_imp = '    // TODO: implementation'
