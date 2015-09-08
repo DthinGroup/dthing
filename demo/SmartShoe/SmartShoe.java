@@ -87,7 +87,7 @@ public class SmartShoe extends Applet {
                     debug("check - readGSensorModule -");
                     for (int i = 0; i < 50; i++) {
                         readGSensorModule();
-                        }
+                    }
                     debug("check - readGSensorModule done -");
 
                     if (isUpdated) {
@@ -181,17 +181,15 @@ public class SmartShoe extends Applet {
                     return;
                 }
 
-                String readString = new String(gpsBuf).trim();
-                String gpsData = convertEscapedChar(readString);
-                totalReadLength += gpsData.length();
-                log("read:" + gpsData);
+                totalReadLength += readSize;
 
                 if (parser != null) {
-                    parser.save(gpsData);
+                    parser.save(gpsBuf, readSize);
                     longitude = parser.getLongtiInfo();
                     latitude = parser.getLatiInfo();
                     gpstime = parser.getTimeInfo();
                     gpsdate = parser.getDateInfo();
+                    time = gpsdate + gpstime;
                 }
             }
         } catch (IOException e) {
