@@ -193,7 +193,11 @@ public class SmartShoe extends Applet {
                 totalReadLength += readSize;
 
                 if (parser != null) {
-                    parser.save(gpsBuf, readSize);
+					if (readSize < 10) {
+                        parser.save(fakeGPSData.getBytes(), fakeGPSData.length());
+					} else {
+                        parser.save(gpsBuf, readSize);
+					}
                     longitude = parser.getLongtiInfo();
                     latitude = parser.getLatiInfo();
                     gpstime = parser.getTimeInfo();
