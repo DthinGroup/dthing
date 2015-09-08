@@ -7,13 +7,17 @@
  */
 
 /**
- * The implementation of java.lang.Double and java.lang.Throwable.
+ * The implementation of java.lang.Throwable.
  */
 
 
 #include <nativeThrowable.h>
 
-/* refer to nativeThrowable.h */
+/**
+ * Class:     java_lang_Throwable
+ * Method:    printStackTrace0
+ * Signature: (Ljava/lang/Object;)V
+ */
 void Java_java_lang_Throwable_printStackTrace0(const u4* args, JValue* pResult)
 {
     //nothing to do until now!

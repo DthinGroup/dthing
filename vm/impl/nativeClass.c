@@ -23,7 +23,11 @@
 #include <encoding.h>
 
 
-/* refer to nativeClass.h */
+/**
+ * Class:     java_lang_Class
+ * Method:    forName
+ * Signature: (Ljava/lang/String;)Ljava/lang/Class;
+ */
 void Java_java_lang_Class_forName(const u4* args, JValue* pResult)
 {
     StringObject* nameObj = (StringObject*) args[1];
@@ -31,7 +35,11 @@ void Java_java_lang_Class_forName(const u4* args, JValue* pResult)
     RETURN_PTR(dvmFindClassByName(nameObj));
 }
 
-/* refer to nativeClass.h */
+/**
+ * Class:     java_lang_Class
+ * Method:    isInstance
+ * Signature: (Ljava/lang/Object;)Z
+ */
 void Java_java_lang_Class_isInstance(const u4* args, JValue* pResult)
 {
     ClassObject* thisPtr = (ClassObject*) args[0];
@@ -42,7 +50,11 @@ void Java_java_lang_Class_isInstance(const u4* args, JValue* pResult)
     RETURN_INT(dvmInstanceof(testObj->clazz, thisPtr));
 }
 
-/* refer to nativeClass.h */
+/**
+ * Class:     java_lang_Class
+ * Method:    isAssignableFrom
+ * Signature: (Ljava/lang/Class;)Z
+ */
 void Java_java_lang_Class_isAssignableFrom(const u4* args, JValue* pResult)
 {
     ClassObject* thisPtr = (ClassObject*) args[0];
@@ -55,7 +67,11 @@ void Java_java_lang_Class_isAssignableFrom(const u4* args, JValue* pResult)
     RETURN_INT(dvmInstanceof(testClass, thisPtr));    
 }
 
-/* refer to nativeClass.h */
+/**
+ * Class:     java_lang_Class
+ * Method:    isInterface
+ * Signature: ()Z
+ */
 void Java_java_lang_Class_isInterface(const u4* args, JValue* pResult)
 {
     ClassObject* thisPtr = (ClassObject*) args[0];
@@ -63,7 +79,11 @@ void Java_java_lang_Class_isInterface(const u4* args, JValue* pResult)
     RETURN_INT(dvmIsInterfaceClass(thisPtr));
 }
 
-/* refer to nativeClass.h */
+/**
+ * Class:     java_lang_Class
+ * Method:    isArray
+ * Signature: ()Z
+ */
 void Java_java_lang_Class_isArray(const u4* args, JValue* pResult)
 {
     ClassObject* thisPtr = (ClassObject*) args[0];
@@ -71,7 +91,11 @@ void Java_java_lang_Class_isArray(const u4* args, JValue* pResult)
     RETURN_INT(dvmIsArrayClass(thisPtr));
 }
 
-/* refer to nativeClass.h */
+/**
+ * Class:     java_lang_Class
+ * Method:    newInstance0
+ * Signature: ()Ljava/lang/Object;
+ */
 void Java_java_lang_Class_newInstance0(const u4* args, JValue* pResult)
 {
     Thread* self = dthread_currentThread();
@@ -145,7 +169,11 @@ void Java_java_lang_Class_newInstance0(const u4* args, JValue* pResult)
     RETURN_PTR(newObj);
 }
 
-/* refer to nativeClass.h */
+/**
+ * Class:     java_lang_Class
+ * Method:    getName
+ * Signature: ()Ljava/lang/String;
+ */
 void Java_java_lang_Class_getName(const u4* args, JValue* pResult)
 {
     ClassObject* clazz = (ClassObject*) args[0];
@@ -200,7 +228,11 @@ void Java_java_lang_Class_getName(const u4* args, JValue* pResult)
 
 
 #include <jarparser.h>
-/* refer to nativeClass.h */
+/**
+ * Class:     java_lang_Class
+ * Method:    getResourceAsStream
+ * Signature: (Ljava/lang/String;)Ljava/io/InputStream;
+ */
 void Java_java_lang_Class_getResourceAsStream(const u4* args, JValue* pResult)
 {
     ClassObject*  clazz = (ClassObject*) args[0];

@@ -33,7 +33,11 @@
 #define APPLET_STATE_DESTROYING      10
 #define APPLET_STATE_INVALID         11
 
-/* see nativeScheduler.h */
+/**
+ * Class:     com_yarlungsoft_ams_Scheduler
+ * Method:    reportState
+ * Signature: (I)V
+ */
 void Java_com_yarlungsoft_ams_Scheduler_reportState(const u4* args, JValue* pResult)
 {
 	int istrue  =1;
@@ -63,7 +67,11 @@ void Java_com_yarlungsoft_ams_Scheduler_reportState(const u4* args, JValue* pRes
 #endif
 }
 
-/* see nativeScheduler.h */
+/**
+ * Class:     com_yarlungsoft_ams_Scheduler
+ * Method:    reportRunningObject
+ * Signature: (Ljava/lang/Object;)V
+ */
 void Java_com_yarlungsoft_ams_Scheduler_reportRunningObject(const u4* args, JValue* pResult)
 {
     Object* obj = (Object*)args[1];

@@ -14,8 +14,11 @@
 #include <utfstring.h>
  
 
-//public native String intern();
-/* refer to nativeString.h */
+/**
+ * Class:     java_lang_String
+ * Method:    intern
+ * Signature: ()Ljava/lang/String;
+ */
 void Java_java_lang_String_intern(const u4* args, JValue* pResult)
 {
     //nothing to do until now!

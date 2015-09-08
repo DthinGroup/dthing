@@ -14,7 +14,7 @@ extern "C" {
 /**
  * Class:     iot_oem_spi_SPIManager
  * Method:    open0
- * Signature: (II)I
+ * Signature: (IIII)I
  */
 void Java_iot_oem_spi_SPIManager_open0(const u4* args, JValue* pResult);
 

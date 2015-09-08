@@ -14,6 +14,11 @@ DWORD WINAPI AsyncNotify(PVOID pParam) {
 }
 */
 
+/**
+ * Class:     java_lang_Thread
+ * Method:    activeCount
+ * Signature: ()I
+ */
 void Java_java_lang_Thread_activeCount(const u4* args, JValue* pResult) {
 #if 1
     int count = 0;
@@ -35,6 +40,11 @@ void Java_java_lang_Thread_activeCount(const u4* args, JValue* pResult) {
 #endif
 }
 
+/**
+ * Class:     java_lang_Thread
+ * Method:    currentThread
+ * Signature: ()Ljava/lang/Thread;
+ */
 void Java_java_lang_Thread_currentThread(const u4* args, JValue* pResult) {
     Object * cur = NULL;
     Thread * curthd = NULL;
@@ -45,6 +55,11 @@ void Java_java_lang_Thread_currentThread(const u4* args, JValue* pResult) {
     RETURN_PTR(cur);
 }
 
+/**
+ * Class:     java_lang_Thread
+ * Method:    sleep
+ * Signature: (JI)V
+ */
 void Java_java_lang_Thread_sleep(const u4* args, JValue* pResult) {
     u8 sleeptime = (u8) args[1];
     Thread * curThd = dthread_currentThread();
@@ -60,6 +75,11 @@ void Java_java_lang_Thread_sleep(const u4* args, JValue* pResult) {
     RETURN_VOID();
 }
 
+/**
+ * Class:     java_lang_Thread
+ * Method:    start
+ * Signature: ()V
+ */
 void Java_java_lang_Thread_start(const u4* args, JValue* pResult) {
     //self->threadObj->clazz->vtable[gDvm.voffJavaLangThread_run]
     Method * runMeth = NULL;
@@ -76,6 +96,11 @@ void Java_java_lang_Thread_start(const u4* args, JValue* pResult) {
     RETURN_VOID();
 }
 
+/**
+ * Class:     java_lang_Thread
+ * Method:    isAlive
+ * Signature: ()Z
+ */
 void Java_java_lang_Thread_isAlive(const u4* args, JValue* pResult) {
     Thread * thd = NULL;
     Object * thisObj = (Object*) args[0];
@@ -87,16 +112,31 @@ void Java_java_lang_Thread_isAlive(const u4* args, JValue* pResult) {
     RETURN_BOOLEAN(ret);
 }
 
+/**
+ * Class:     java_lang_Thread
+ * Method:    setPriority
+ * Signature: (I)V
+ */
 void Java_java_lang_Thread_setPriority(const u4* args, JValue* pResult) {
     // TODO : implement
     DVMTraceInf("Java_java_lang_Thread_setPriority0 is not implemented..\n");
 }
 
+/**
+ * Class:     java_lang_Thread
+ * Method:    interrupt
+ * Signature: ()V
+ */
 void Java_java_lang_Thread_interrupt(const u4* args, JValue* pResult) {
     // TODO : implement
     DVMTraceInf("Java_java_lang_Thread_interrupt is not implemented..\n");
 }
 
+/**
+ * Class:     java_lang_Thread
+ * Method:    interrupted
+ * Signature: ()Z
+ */
 void Java_java_lang_Thread_interrupted(const u4* args, JValue* pResult) {
     Object * thisObj = (Object*) args[0];
     int param1 = (int) args[1];
@@ -112,17 +152,33 @@ void Java_java_lang_Thread_interrupted(const u4* args, JValue* pResult) {
     RETURN_INT(ret);
 }
 
+/**
+ * Class:     java_lang_Thread
+ * Method:    isInterrupted
+ * Signature: ()Z
+ */
 void Java_java_lang_Thread_isInterrupted(const u4* args, JValue* pResult) {
     // TODO : implement
     DVMTraceInf("Java_java_lang_Thread_isInterrupted is not implemented..\n");
 }
 
+/**
+ * Class:     java_lang_Thread
+ * Method:    yield
+ * Signature: ()V
+ */
 void Java_java_lang_Thread_yield(const u4* args, JValue* pResult) {
     // TODO : implement
     DVMTraceInf("Java_java_lang_Thread_yield is not implemented..\n");
 }
 
+/**
+ * Class:     java_lang_Thread
+ * Method:    holdsLock
+ * Signature: (Ljava/lang/Object;)Z
+ */
 void Java_java_lang_Thread_holdsLock(const u4* args, JValue* pResult) {
     // TODO : implement
     DVMTraceInf("Java_java_lang_Thread_holdsLock is not implemented..\n");
 }
+

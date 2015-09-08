@@ -66,7 +66,6 @@ end:
     RETURN_LONG(ret);
 }
 
-
 /**
  * Class:     iot_oem_kpd_RawKeyPdDriver
  * Method:    close0

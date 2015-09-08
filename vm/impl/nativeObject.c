@@ -7,6 +7,11 @@
 #include <heap.h>
 #include <sync.h>
 
+/**
+ * Class:     java_lang_Object
+ * Method:    internalClone
+ * Signature: (Ljava/lang/Cloneable;)Ljava/lang/Object;
+ */
 void Java_java_lang_Object_internalClone(const u4* args, JValue* pResult)
 {
     Object* thisObj = (Object*) args[0];
@@ -38,6 +43,11 @@ void Java_java_lang_Object_internalClone(const u4* args, JValue* pResult)
     RETURN_PTR(clone);
 }
 
+/**
+ * Class:     java_lang_Object
+ * Method:    getClass
+ * Signature: ()Ljava/lang/Class;
+ */
 void Java_java_lang_Object_getClass(const u4* args, JValue* pResult)
 {
     Object* thisPtr = (Object*) args[0];
@@ -45,6 +55,11 @@ void Java_java_lang_Object_getClass(const u4* args, JValue* pResult)
     RETURN_PTR(thisPtr->clazz);
 }
 
+/**
+ * Class:     java_lang_Object
+ * Method:    hashCode
+ * Signature: ()I
+ */
 void Java_java_lang_Object_hashCode(const u4* args, JValue* pResult) {
     Object* thisPtr = (Object*) args[0];
 
@@ -52,6 +67,11 @@ void Java_java_lang_Object_hashCode(const u4* args, JValue* pResult) {
     RETURN_INT((u4)thisPtr);
 }
 
+/**
+ * Class:     java_lang_Object
+ * Method:    wait
+ * Signature: (JI)V
+ */
 void Java_java_lang_Object_wait(const u4* args, JValue* pResult) {
     Thread * thd = NULL;
     Object * thisObj = (Object*) args[0];
@@ -65,6 +85,11 @@ void Java_java_lang_Object_wait(const u4* args, JValue* pResult) {
     RETURN_VOID();
 }
 
+/**
+ * Class:     java_lang_Object
+ * Method:    notify
+ * Signature: ()V
+ */
 void Java_java_lang_Object_notify(const u4* args, JValue* pResult) {
     Thread * thd = NULL;
     Object * thisObj = (Object*) args[0];
@@ -78,6 +103,11 @@ void Java_java_lang_Object_notify(const u4* args, JValue* pResult) {
     RETURN_VOID();
 }
 
+/**
+ * Class:     java_lang_Object
+ * Method:    notifyAll
+ * Signature: ()V
+ */
 void Java_java_lang_Object_notifyAll(const u4* args, JValue* pResult) {
     Thread * thd = NULL;
     Object * thisObj = (Object*) args[0];

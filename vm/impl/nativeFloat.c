@@ -30,7 +30,11 @@ static int isnanf(float f)
 }
 
 
-/* see nativeFloat.h */
+/**
+ * Class:     java_lang_Float
+ * Method:    floatToIntBits
+ * Signature: (F)I
+ */
 void Java_java_lang_Float_floatToIntBits(const u4* args, JValue* pResult)
 {
     Convert32 convert;
@@ -39,13 +43,21 @@ void Java_java_lang_Float_floatToIntBits(const u4* args, JValue* pResult)
     pResult->i = isnanf(convert.ff) ? 0x7fc00000 : convert.arg;
 }
 
-/* see nativeFloat.h */
+/**
+ * Class:     java_lang_Float
+ * Method:    floatToRawIntBits
+ * Signature: (F)I
+ */
 void Java_java_lang_Float_floatToRawIntBits(const u4* args, JValue* pResult)
 {
     pResult->i = args[1];
 }
 
-/* see nativeFloat.h */
+/**
+ * Class:     java_lang_Float
+ * Method:    intBitsToFloat
+ * Signature: (I)F
+ */
 void Java_java_lang_Float_intBitsToFloat(const u4* args, JValue* pResult)
 {
     Convert32 convert;
@@ -80,7 +92,4 @@ void Java_java_lang_Double_longBitsToDouble(const u4* args, JValue* pResult)
     convert.arg[1] = args[2];
     pResult->d = convert.dd;
 }
-
-
-
 

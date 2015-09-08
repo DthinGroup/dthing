@@ -4,6 +4,11 @@
 #include <kni.h>
 #include <nativeAsyncIO.h>
 
+/**
+ * Class:     java_lang_AsyncIO
+ * Method:    getCurNotifierState
+ * Signature: ()I
+ */
 void Java_java_lang_AsyncIO_getCurNotifierState(const u4* args, JValue* pResult) {
     ASYNC_Notifier * notifier;
     Thread * curthd = dthread_currentThread();
@@ -14,6 +19,11 @@ void Java_java_lang_AsyncIO_getCurNotifierState(const u4* args, JValue* pResult)
     RETURN_INT(notifier->asynIoState);
 }
 
+/**
+ * Class:     java_lang_AsyncIO
+ * Method:    setCurNotifierState
+ * Signature: (I)I
+ */
 void Java_java_lang_AsyncIO_setCurNotifierState(const u4* args, JValue* pResult) {
     int state = (int) args[1];
     Thread * curthd = dthread_currentThread();
@@ -46,6 +56,11 @@ void Java_java_lang_AsyncIO_setCurNotifierState(const u4* args, JValue* pResult)
     RETURN_VOID();
 }
 
+/**
+ * Class:     java_lang_AsyncIO
+ * Method:    waitSignalOrTimeOut
+ * Signature: ()V
+ */
 void Java_java_lang_AsyncIO_waitSignalOrTimeOut(const u4* args, JValue* pResult) {
     Thread * curthd = dthread_currentThread();
 

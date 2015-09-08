@@ -64,7 +64,11 @@ static void move32(void* dest, const void* src, size_t n) {
     }
 }
 
-/* see nativeSystem.h */
+/**
+ * Class:     java_lang_System
+ * Method:    arraycopy
+ * Signature: (Ljava/lang/Object;ILjava/lang/Object;II)V
+ */
 void Java_java_lang_System_arraycopy(const u4* args, JValue* pResult) {
     ArrayObject* srcArray = (ArrayObject*) args[1];
     int srcPos = args[2];
@@ -224,14 +228,22 @@ void Java_java_lang_System_arraycopy(const u4* args, JValue* pResult) {
     RETURN_VOID();
 }
 
-/* see nativeSystem.h */
+/**
+ * Class:     java_lang_System
+ * Method:    currentTimeMillis
+ * Signature: ()J
+ */
 void Java_java_lang_System_currentTimeMillis(const u4* args, JValue* pResult) {
     int64_t curTime = OPL_core_getCurrentTimeMillis();
 
     RETURN_LONG(curTime);
 }
 
-/* see nativeSystem.h */
+/**
+ * Class:     java_lang_System
+ * Method:    identityHashCode
+ * Signature: (Ljava/lang/Object;)I
+ */
 void Java_java_lang_System_identityHashCode(const u4* args, JValue* pResult) {
     u4 iHashCode = 0;
     Object* thisPtr = (Object*) args[1];
@@ -241,7 +253,11 @@ void Java_java_lang_System_identityHashCode(const u4* args, JValue* pResult) {
     RETURN_INT(iHashCode);
 }
 
-/* see nativeSystem.h */
+/**
+ * Class:     java_lang_System
+ * Method:    getProperty
+ * Signature: (Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+ */
 void Java_java_lang_System_getProperty(const u4* args, JValue* pResult)
 {
     StringObject* keyObj = (StringObject*) args[1];
