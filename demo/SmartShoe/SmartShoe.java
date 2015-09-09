@@ -63,10 +63,10 @@ public class SmartShoe extends Applet {
     private static final int DefaultGPSPort = 0;
     private static final int DefaultBaudrate = 9600;
     private static final int DefaultGPSBuffer = 128;
-    private static final int DefaultGCPercentage = 50;
+    private static final int DefaultGCPercentage = 30;
     private static int totalReadLength = 0;
 
-    private static String fakeGPSData = "$GPRMC,064855.00,A,3032.81462,N,10404.12022,E,0.986,,010915,,,A*78"
+    private static String fakeGPSData = "$GPRMC,,A,3032.81462,N,10404.12022,E,0.986,,,,,A*78"
         +"$GPVTG,,T,,M,0.986,N,1.826,K,A*29"
         +"$GPGGA,064855.00,3032.81462,N,10404.12022,E,1,04,1.55,489.7,M,-29.6,M,,*78"
         +"$GPGSA,A,3,17,02,28,12,,,,,,,,,3.58,1.55,3.23*02"
@@ -180,13 +180,10 @@ public class SmartShoe extends Applet {
     public void readGPSModule() {
         try {
             if (gis != null) {
-                debug("check - 3.1 -");
                 int readSize = gis.read(gpsBuf, 0, DefaultGPSBuffer);
 
-                debug("check - 3.2 - readSize:" + readSize);
-                if (readSize < 0)
+                if (readSize <= 0)
                 {
-                    log("exit when readSize is less than 0");
                     return;
                 }
 
