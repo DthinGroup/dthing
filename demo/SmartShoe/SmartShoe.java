@@ -63,7 +63,7 @@ public class SmartShoe extends Applet {
     private static final int DefaultGPSPort = 0;
     private static final int DefaultBaudrate = 9600;
     private static final int DefaultGPSBuffer = 128;
-    private static final int DefaultGCPercentage = 30;
+    private static final int DefaultGCPercentage = 50;
     private static int totalReadLength = 0;
 
     private static String fakeGPSData = "$GPRMC,,A,3032.81462,N,10404.12022,E,0.986,,,,,A*78"
