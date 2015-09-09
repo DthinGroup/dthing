@@ -113,9 +113,9 @@ public class GPSParser {
                 case 7: //speed
                     if (!available) break;
                     if (currentSeparator > (lastSeparator + 5)) {
-                        gpsSpeed = "" + digit2int(rawBuf[lastSeparator + 1]) + digit2int(rawBuf[lastSeparator + 2])
-                            + digit2int(rawBuf[lastSeparator + 3]) + digit2int(rawBuf[lastSeparator + 4])
-                            + digit2int(rawBuf[lastSeparator + 5]);
+                        gpsSpeed = "" + digit2char(rawBuf[lastSeparator + 1]) + digit2char(rawBuf[lastSeparator + 2])
+                            + digit2char(rawBuf[lastSeparator + 3]) + digit2char(rawBuf[lastSeparator + 4])
+                            + digit2char(rawBuf[lastSeparator + 5]);
                     }
                     break;
                 case 9: //date
@@ -144,6 +144,11 @@ public class GPSParser {
         {
             result = digit - '0';
         }
+        return result;
+    }
+
+    private char digit2char(byte digit) {
+        char result = (char)(digit & 0xFF);
         return result;
     }
 
@@ -216,6 +221,7 @@ public class GPSParser {
         return (gpsSpeed != null)? gpsSpeed : "0";
     }
 }
+
 
 
 
