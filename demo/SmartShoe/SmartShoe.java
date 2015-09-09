@@ -62,7 +62,7 @@ public class SmartShoe extends Applet {
 
     private static final int DefaultGPSPort = 0;
     private static final int DefaultBaudrate = 9600;
-    private static final int DefaultGPSBuffer = 1000;
+    private static final int DefaultGPSBuffer = 1200;
     private static final int DefaultGCPercentage = 48;
     private static int totalReadLength = 0;
 
