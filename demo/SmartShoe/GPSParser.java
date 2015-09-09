@@ -25,6 +25,7 @@ public class GPSParser {
 
         for (int i = 0; i < rawBufLen; i++) {
             if (rawBuf[i] == '$') {
+                parseMode = false;
                 if ((rawBuf[i + 1] == 'G') && (rawBuf[i + 2] == 'P') && (rawBuf[i + 3] == 'R')
                     && (rawBuf[i + 4] == 'M') && (rawBuf[i + 5] == 'C')) {
                     lastSeparator = i;
@@ -47,6 +48,9 @@ public class GPSParser {
                         gpsTime = "" + digit2int(rawBuf[lastSeparator + 1]) + digit2int(rawBuf[lastSeparator + 2])
                             + digit2int(rawBuf[lastSeparator + 3]) + digit2int(rawBuf[lastSeparator + 4])
                             + digit2int(rawBuf[lastSeparator + 5]) + digit2int(rawBuf[lastSeparator + 6]);
+                    } else {
+                        //DebugOnly
+                        gpsTime = "111111";
                     }
                     log(lastSeparator + ":" + currentSeparator + "@time:" +gpsTime);
                     break;
@@ -110,6 +114,9 @@ public class GPSParser {
                         gpsDate = "" + digit2int(rawBuf[lastSeparator + 5]) + digit2int(rawBuf[lastSeparator + 6])
                             + digit2int(rawBuf[lastSeparator + 3]) + digit2int(rawBuf[lastSeparator + 4])
                             + digit2int(rawBuf[lastSeparator + 1]) + digit2int(rawBuf[lastSeparator + 2]);
+                    } else {
+                        //DebugOnly
+                        gpsDate = "090909";
                     }
                     parseMode = false;
                     log(lastSeparator + ":" + currentSeparator + "@gpsDate:" + gpsDate);
@@ -196,6 +203,8 @@ public class GPSParser {
         return (gpsAlti != null)? gpsAlti : "0";
     }
 }
+
+
 
 
 
