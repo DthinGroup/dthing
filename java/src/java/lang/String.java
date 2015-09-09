@@ -1267,7 +1267,7 @@ public final class String implements CharSequence {
             if (--idx < 0) {
                 return this;
             }
-        } while (Character.isLowerCase(value[offset+idx]));
+        } while (Character.isUpperCase(value[offset+idx]));
 
         // Copy the section of the original string that is already lower case
 
@@ -1281,8 +1281,9 @@ public final class String implements CharSequence {
         // one character to convert.
 
         do {
-            buf[idx] = Character.toLowerCase(value[offset+idx]);
+            buf[idx] = Character.toUpperCase(value[offset+idx]);
         } while (--idx >= 0);
+
         return new String(0, this.count, buf);
     }
 
@@ -1490,7 +1491,7 @@ public final class String implements CharSequence {
 	public CharSequence subSequence(int start, int end) {
 		return this.substring(start, end);
 	}
-	
+
 	public boolean isEmpty(){
 		return count == 0 ? true : false;
 	}
