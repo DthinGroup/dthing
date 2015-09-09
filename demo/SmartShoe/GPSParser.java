@@ -2,6 +2,7 @@ public class GPSParser {
     private int mLatitude = 0;
     private int mLongitude = 0;
 
+    private String gpsSpeed = null;
     private String gpsTime = null;
     private String gpsDate = null;
     private String gpsAlti = null;
@@ -109,6 +110,14 @@ public class GPSParser {
                     }
                     log(lastSeparator + ":" + currentSeparator + "@gpsLongitudeSign:" + gpsLongitudeSign);
                     break;
+                case 7: //speed
+                    if (!available) break;
+                    if (currentSeparator > (lastSeparator + 5)) {
+                        gpsSpeed = "" + digit2int(rawBuf[lastSeparator + 1]) + digit2int(rawBuf[lastSeparator + 2])
+                            + digit2int(rawBuf[lastSeparator + 3]) + digit2int(rawBuf[lastSeparator + 4])
+                            + digit2int(rawBuf[lastSeparator + 5]);
+                    }
+                    break;
                 case 9: //date
                     if (currentSeparator > (lastSeparator + 6)) {
                         gpsDate = "" + digit2int(rawBuf[lastSeparator + 5]) + digit2int(rawBuf[lastSeparator + 6])
@@ -130,7 +139,7 @@ public class GPSParser {
     }
 
     private int digit2int(byte digit) {
-        int result = 0;
+        int result = digit;
         if ((digit >= '0') && (digit <= '9'))
         {
             result = digit - '0';
@@ -202,7 +211,12 @@ public class GPSParser {
     public String getAltiInfo() {
         return (gpsAlti != null)? gpsAlti : "0";
     }
+
+    public String getSpeed() {
+        return (gpsSpeed != null)? gpsSpeed : "0";
+    }
 }
+
 
 
 
