@@ -68,12 +68,12 @@ public class SmartShoe extends Applet {
 
     private static String fakeGPSData = "$GPRMC,,A,3032.81462,N,10404.12022,E,0.986,,,,,A*78"
         +"$GPVTG,,T,,M,0.986,N,1.826,K,A*29"
-        +"$GPGGA,064855.00,3032.81462,N,10404.12022,E,1,04,1.55,489.7,M,-29.6,M,,*78"
+        +"$GPGGA,,3032.81462,N,10404.12022,E,1,04,1.55,489.7,M,-29.6,M,,*78"
         +"$GPGSA,A,3,17,02,28,12,,,,,,,,,3.58,1.55,3.23*02"
         +"$GPGSV,2,1,08,02,42,271,17,03,10,038,18,09,,,34,12,21,319,27*44"
         +"$GPGSV,2,2,08,17,56,064,37,24,09,275,,28,29,160,25,50,33,120,34*7D"
-        +"$GPGLL,3032.81462,N,10404.12022,E,064855.00,A,A*6A"
-        +"$GPGST,064855.00,39,,,,10,14,33*7D";
+        +"$GPGLL,3032.81462,N,10404.12022,E,,A,A*6A"
+        +"$GPGST,,39,,,,10,14,33*7D";
 
     public void cleanup() {
         allowRunning = false;
@@ -176,16 +176,13 @@ public class SmartShoe extends Applet {
                 totalReadLength += readSize;
 
                 if (parser != null) {
-                    if (readSize < 10) {
-                        parser.save(fakeGPSData.getBytes(), fakeGPSData.length());
-                    } else {
-                        parser.save(gpsBuf, readSize);
+                    if (parser.save(gpsBuf, readSize)) {
+                        longitude = parser.getLongtiInfo();
+                        latitude = parser.getLatiInfo();
+                        gpstime = parser.getTimeInfo();
+                        gpsdate = parser.getDateInfo();
+                        time = gpsdate + gpstime;
                     }
-                    longitude = parser.getLongtiInfo();
-                    latitude = parser.getLatiInfo();
-                    gpstime = parser.getTimeInfo();
-                    gpsdate = parser.getDateInfo();
-                    time = gpsdate + gpstime;
                 }
             }
         } catch (IOException e) {
@@ -438,6 +435,7 @@ public class SmartShoe extends Applet {
         }
     }
 }
+
 
 
 

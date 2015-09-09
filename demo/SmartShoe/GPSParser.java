@@ -61,7 +61,7 @@ public class GPSParser {
                     }
                     break;
                 case 3: //latitude
-                    if (!available) continue;
+                    if (!available) break;
                     if (currentSeparator > (lastSeparator + 9)) {
                         int deg = (digit2int(rawBuf[lastSeparator + 1]) * 10 + digit2int(rawBuf[lastSeparator + 2])) * 1000000;
                         int min = (digit2int(rawBuf[lastSeparator + 3]) * 10 + digit2int(rawBuf[lastSeparator + 4])) * 1000000;
@@ -72,7 +72,7 @@ public class GPSParser {
                     log(lastSeparator + ":" + currentSeparator + "@latitude:" + mLatitude);
                     break;
                 case 4: //latitude direction
-                    if (!available) continue;
+                    if (!available) break;
                     if (currentSeparator > (lastSeparator + 1)) {
                         if (rawBuf[i - 1] == 'N') {
                             gpsLatitudeSign = "";
@@ -83,7 +83,7 @@ public class GPSParser {
                     log(lastSeparator + ":" + currentSeparator + "@gpsLatitudeSign:" + gpsLatitudeSign);
                     break;
                 case 5: //longitude
-                    if (!available) continue;
+                    if (!available) break;
                     if (currentSeparator > (lastSeparator + 10)) {
                         int deg = (digit2int(rawBuf[lastSeparator + 1]) * 100 + digit2int(rawBuf[lastSeparator + 2]) * 10
                             + digit2int(rawBuf[lastSeparator + 3])) * 1000000;
@@ -95,7 +95,7 @@ public class GPSParser {
                     log(lastSeparator + ":" + currentSeparator + "@longitude:" + mLongitude);
                     break;
                 case 6: //longitude direction
-                    if (!available) continue;
+                    if (!available) break;
                     if (currentSeparator > (lastSeparator + 1)) {
                         if (rawBuf[i - 1] == 'E') {
                             gpsLongitudeSign = "";
@@ -131,7 +131,8 @@ public class GPSParser {
         return result;
     }
 
-    public void save(byte[] buf, int len) {
+    //return true means save and parse, false otherwise
+    public boolean save(byte[] buf, int len) {
         boolean isDataReady = false;
 
         for (int i = 0; i < len; i++) {
@@ -141,6 +142,11 @@ public class GPSParser {
                     isDataReady = true;
                     break;
                 } else {
+                    if (len < 6) {
+                        //Not enough data for parser
+                        return isDataReady;
+                    }
+
                     if ((buf[i + 1] == 'G') && (buf[i + 2] == 'P') && (buf[i + 3] == 'R')
                         && (buf[i + 4] == 'M') && (buf[i + 5] == 'C')) {
                         waitingMode = true;
@@ -155,11 +161,11 @@ public class GPSParser {
         }
 
         if (isDataReady) {
-            log("start parse");
+            //log("start parse");
             parseGPRMC();
-            isDataReady = false;
             rawBufLen = 0;
         }
+        return isDataReady;
     }
 
     private static void log(String l) {
@@ -190,6 +196,7 @@ public class GPSParser {
         return (gpsAlti != null)? gpsAlti : "0";
     }
 }
+
 
 
 
