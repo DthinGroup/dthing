@@ -88,16 +88,12 @@ public class SmartShoe extends Applet {
         gcMemory = totalMemory * DefaultGCPercentage/ 100;
         gsensorThread = new Thread() {
             public void run() {
-            debug("check - openGSensorModule -");
             openGSensorModule();
-            debug("check - openGSensorModule done -");
             while(allowRunning) {
                 try {
-                    debug("check - readGSensorModule -");
                     for (int i = 0; i < 50; i++) {
                         readGSensorModule();
                     }
-                    debug("check - readGSensorModule done -");
 
                     if (isUpdated) {
                         isUpdated = false;
@@ -115,7 +111,6 @@ public class SmartShoe extends Applet {
                     log("InterruptedException:" + e);
                 }
             }
-            debug("check - closeGSensorModule -");
             closeGSensorModule();
             notifyDestroyed();
         }
@@ -124,21 +119,16 @@ public class SmartShoe extends Applet {
     gpsThread = new Thread() {
         public void run() {
         while(allowRunning) {
-            debug("check - openGPSModule -");
             openGPSModule();
-            debug("check - openGPSModule done -");
             try {
                 Thread.sleep(5000);
                 MemoryCheck();
-                debug("check - readGPSModule -");
                 readGPSModule();
-                debug("check - readGPSModule done -");
                 MemoryCheck();
             } catch (InterruptedException e) {
                 log("InterruptedException:" + e);
             }
         }
-        debug("check - closeGPSModule -");
         closeGPSModule();
         notifyDestroyed();
         }
@@ -155,17 +145,13 @@ public class SmartShoe extends Applet {
                 ldo = new Gpio(60); //60 for board, 7 for shoe
                 ldo.setCurrentMode(Gpio.WRITE_MODE);
                 ldo.write(true);
-                debug("check - 0.1 -");
                 gpsComm = CommConnectionImpl.getComInstance(DefaultGPSPort, DefaultBaudrate);
                 if (gpsComm == null) {
                     return;
                 }
-                debug("check - 0.2 -");
                 parser = new GPSParser();
                 gis = gpsComm.openInputStream();
-                debug("check - 0.3 -");
                 gpsBuf = new byte[DefaultGPSBuffer];
-                //gpsStrBuf = new StringBuffer(300);
                 Thread.sleep(10000);
             }
         } catch (IllegalArgumentException e1) {
@@ -190,11 +176,11 @@ public class SmartShoe extends Applet {
                 totalReadLength += readSize;
 
                 if (parser != null) {
-					if (readSize < 10) {
+                    if (readSize < 10) {
                         parser.save(fakeGPSData.getBytes(), fakeGPSData.length());
-					} else {
+                    } else {
                         parser.save(gpsBuf, readSize);
-					}
+                    }
                     longitude = parser.getLongtiInfo();
                     latitude = parser.getLatiInfo();
                     gpstime = parser.getTimeInfo();
@@ -227,13 +213,9 @@ public class SmartShoe extends Applet {
     public void openGSensorModule() {
         try {
             manager = new I2CManager(busId, I2CManager.DATA_RATE_FAST, slaveAddress, regAddressNumber);
-            debug("check - 1.1 -");
             initGSensor();
-            debug("check - 1.2 -");
             initAccelerator();
-            debug("check - 1.3 -");
             enableAccelerator();
-            debug("check - 1.4 -");
             accBuf = new byte[6];
             counter = new StepCounter();
         } catch (IOException e) {
@@ -250,13 +232,11 @@ public class SmartShoe extends Applet {
             xAc = getAccIntValue(accBuf[0], accBuf[1]);
             yAc = getAccIntValue(accBuf[2], accBuf[3]);
             zAc = getAccIntValue(accBuf[4], accBuf[5]);
-            log("15 save value:" + xAc + ":" + yAc + ":" + zAc);
 
             counter.saveAccValue(xAc, yAc, zAc);
             if (counter.available()) {
                 stepcount += counter.fetchStepCount() * 4;
                 isUpdated = true;
-                log("update stepcount to " + stepcount);
             }
 
         } catch (IllegalArgumentException e) {
@@ -403,21 +383,21 @@ public class SmartShoe extends Applet {
 
     private void reportTestInfo(String msg) {
 
-    String reportInfo = REPORT_SERVER_FORMAT + msg.replace(' ', '.');
+        String reportInfo = REPORT_SERVER_FORMAT + msg.replace(' ', '.');
 
-    log(msg);
+        log(msg);
 
-    try {
-      URL url = new URL(reportInfo);
-      HttpURLConnection httpConn = (HttpURLConnection)url.openConnection();
-      httpConn = (HttpURLConnection)url.openConnection();
-      httpConn.setRequestMethod(HttpURLConnection.POST);
-      InputStream dis = httpConn.getInputStream();
-      dis.close();
-      httpConn.disconnect();
-    } catch (IOException e) {
-      System.out.println("IOException:" + e);
-    }
+        try {
+            URL url = new URL(reportInfo);
+            HttpURLConnection httpConn = (HttpURLConnection)url.openConnection();
+            httpConn = (HttpURLConnection)url.openConnection();
+            httpConn.setRequestMethod(HttpURLConnection.POST);
+            InputStream dis = httpConn.getInputStream();
+            dis.close();
+            httpConn.disconnect();
+        } catch (IOException e) {
+            System.out.println("IOException:" + e);
+        }
     }
 
     private void netlog(String msg)
@@ -453,16 +433,12 @@ public class SmartShoe extends Applet {
 
     private void log(String msg)
     {
-        System.out.println("SmartShoe:" + msg);
-    }
-
-    private void debug(String msg)
-    {
-      if (DEBUG) {
+        if (DEBUG) {
             System.out.println("SmartShoe:" + msg);
-      }
+        }
     }
 }
+
 
 
 
