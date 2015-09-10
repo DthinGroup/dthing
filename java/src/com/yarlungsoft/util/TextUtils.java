@@ -23,6 +23,16 @@ public final class TextUtils {
         return str == null || str.length() == 0;
     }
 
+    public static int countChar(String str, char c) {
+        int count = 0;
+        for(int i=0;i<str.length();i++){
+            if(str.charAt(i) == c){
+                count++;
+            }
+        }
+        return count;
+    }
+    
     public static boolean equals(String str1, String str2) {
         if (str1 == str2) {
             return true;

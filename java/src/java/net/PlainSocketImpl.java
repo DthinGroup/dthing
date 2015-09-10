@@ -37,7 +37,8 @@ public class PlainSocketImpl extends SocketImpl {
 
     private boolean isInputShutdown;
     private boolean isOutputShutdown;
-
+    private PlainSocketInputStream input = null;
+    private PlainSocketOutputStream output = null;
     private volatile int sockHandle;
 
     public PlainSocketImpl() {
@@ -83,8 +84,14 @@ public class PlainSocketImpl extends SocketImpl {
     }
 
     protected synchronized void close() throws IOException {
+        if(sockHandle == 0) {
+            throw new IOException("Socket is closed");
+        }
         NetNativeBridge.closeSocket(sockHandle);
+
         sockHandle = 0;
+        input = null;
+        output = null;
     }
 
     protected void connect(String host, int port) throws IOException {
@@ -131,7 +138,10 @@ public class PlainSocketImpl extends SocketImpl {
 
     protected synchronized InputStream getInputStream() throws IOException {
         checkNotClosed();
-        return new PlainSocketInputStream(this);
+        if(input == null){
+            input =new PlainSocketInputStream(this);
+        }
+        return input;
     }
 
     private static class PlainSocketInputStream extends InputStream {
@@ -150,6 +160,9 @@ public class PlainSocketImpl extends SocketImpl {
         }
 
         public int read() throws IOException {
+            if(socketImpl.sockHandle == 0){
+                throw new IOException("socket closed"); 
+            }
             byte[] buffer = new byte[1];
             int result = read(buffer, 0, 1);
             return (result != -1) ? buffer[0] & 0xff : -1;
@@ -166,7 +179,10 @@ public class PlainSocketImpl extends SocketImpl {
 
     protected synchronized OutputStream getOutputStream() throws IOException {
         checkNotClosed();
-        return new PlainSocketOutputStream(this);
+        if(output == null){
+            output = new PlainSocketOutputStream(this);
+        }
+        return output;
     }
 
     private static class PlainSocketOutputStream extends OutputStream {
@@ -181,6 +197,9 @@ public class PlainSocketImpl extends SocketImpl {
         }
 
         public void write(int oneByte) throws IOException {
+            if(socketImpl.sockHandle == 0){
+                throw new IOException("socket closed"); 
+            }
             byte[] buffer = new byte[1];
             buffer[0] = (byte) (oneByte & 0xff);
             write(buffer, 0, 1);

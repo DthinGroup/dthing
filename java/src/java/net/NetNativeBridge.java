@@ -104,7 +104,9 @@ public final class NetNativeBridge {
             throws IOException {
         int ip = address.getAddressToInt();
         int family = address.getFamily();
-
+        if(ip == 0){
+            throw new IOException("connect to server:" + ip + ":" + port + " fail!");
+        }
         int ret = 0;
         while (AsyncIO.loop()) {
             ret = connect0(sockHandle, ip, port, timeoutMs);

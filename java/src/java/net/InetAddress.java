@@ -507,6 +507,12 @@ public class InetAddress implements Serializable {
         if (TextUtils.isEmpty(host)) {
             return Inet4Address.LOOPBACK;
         }
+        if(host.indexOf("..") != -1){
+            throw new UnknownHostException(host + ": invalid address");
+        }
+        if(host.endsWith(".invalid")==true){
+            throw new UnknownHostException(host + ": invalid address");
+        }
 
         boolean ipv6Expected = false;
         if (host.charAt(0) == '[') {
@@ -527,6 +533,7 @@ public class InetAddress implements Serializable {
             byte[] addr = null;
             String ifname = null;
             // see if it is IPv4 address
+
             addr = TextUtils.parseIpV4(host);
             if (addr == null) {
                 // This is supposed to be an IPv6 literal

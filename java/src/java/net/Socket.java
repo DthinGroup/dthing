@@ -86,7 +86,7 @@ public class Socket {
      * @throws IOException if an error occurs while creating the socket.
      */
     public Socket(String dstName, int dstPort, InetAddress localAddress, int localPort)
-            throws IOException {
+            throws UnknownHostException, IOException {
         this(InetAddress.getByName(dstName), dstPort, localAddress, localPort);
     }
 
@@ -154,7 +154,11 @@ public class Socket {
      * @throws IOException if an error occurs while closing the socket.
      */
     public synchronized void close() throws IOException {
+        if(isClosed == true){
+            throw new IOException("Socket have been closed");
+        }
         isClosed = true;
+        isConnected = false;
         // RI compatibility: the RI returns the any address (but the original local port) after
         // close.
         localAddress = Inet4Address.ANY;
@@ -233,7 +237,7 @@ public class Socket {
      * is not yet connected.
      */
     public int getPort() {
-        if (!isConnected()) {
+        if (!isConnected() || isClosed()) {
             return 0;
         }
         return impl.getPort();
