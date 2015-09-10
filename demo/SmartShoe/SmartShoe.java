@@ -121,8 +121,7 @@ public class SmartShoe extends Applet {
         while(allowRunning) {
             openGPSModule();
             try {
-                Thread.sleep(5000);
-                MemoryCheck();
+                Thread.sleep(1000);
                 readGPSModule();
                 MemoryCheck();
             } catch (InterruptedException e) {
@@ -436,6 +435,7 @@ public class SmartShoe extends Applet {
         }
     }
 }
+
 
 
 

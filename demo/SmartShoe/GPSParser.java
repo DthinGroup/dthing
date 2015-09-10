@@ -53,7 +53,6 @@ public class GPSParser {
                         //DebugOnly
                         gpsTime = "111111";
                     }
-                    log(lastSeparator + ":" + currentSeparator + "@time:" +gpsTime);
                     break;
                 case 2: //is gps data available
                     if (currentSeparator > (lastSeparator + 1)) {
@@ -62,19 +61,18 @@ public class GPSParser {
                         } else {
                             available = false;
                         }
-                        log(lastSeparator + ":" + currentSeparator + "@A:" +available);
                     }
                     break;
                 case 3: //latitude
                     if (!available) break;
-                    if (currentSeparator > (lastSeparator + 9)) {
+                    if (currentSeparator > (lastSeparator + 10)) {
                         int deg = (digit2int(rawBuf[lastSeparator + 1]) * 10 + digit2int(rawBuf[lastSeparator + 2])) * 1000000;
                         int min = (digit2int(rawBuf[lastSeparator + 3]) * 10 + digit2int(rawBuf[lastSeparator + 4])) * 1000000;
                         int sec = digit2int(rawBuf[lastSeparator + 6]) * 100000 + digit2int(rawBuf[lastSeparator + 7]) * 10000
-                            + digit2int(rawBuf[lastSeparator + 8]) * 100000 + digit2int(rawBuf[lastSeparator + 9]) * 100000;
+                            + digit2int(rawBuf[lastSeparator + 8]) * 1000 + digit2int(rawBuf[lastSeparator + 9]) * 100
+                            + digit2int(rawBuf[lastSeparator + 10]) * 10;
                         mLatitude = deg + (min + sec) / 60;
                     }
-                    log(lastSeparator + ":" + currentSeparator + "@latitude:" + mLatitude);
                     break;
                 case 4: //latitude direction
                     if (!available) break;
@@ -85,19 +83,18 @@ public class GPSParser {
                             gpsLatitudeSign = "-";
                         }
                     }
-                    log(lastSeparator + ":" + currentSeparator + "@gpsLatitudeSign:" + gpsLatitudeSign);
                     break;
                 case 5: //longitude
                     if (!available) break;
-                    if (currentSeparator > (lastSeparator + 10)) {
+                    if (currentSeparator > (lastSeparator + 11)) {
                         int deg = (digit2int(rawBuf[lastSeparator + 1]) * 100 + digit2int(rawBuf[lastSeparator + 2]) * 10
                             + digit2int(rawBuf[lastSeparator + 3])) * 1000000;
                         int min = (digit2int(rawBuf[lastSeparator + 4]) * 10 + digit2int(rawBuf[lastSeparator + 5])) * 1000000;
                         int sec = digit2int(rawBuf[lastSeparator + 7]) * 100000 + digit2int(rawBuf[lastSeparator + 8]) * 10000
-                            + digit2int(rawBuf[lastSeparator + 9]) * 100000 + digit2int(rawBuf[lastSeparator + 10]) * 100000;
+                            + digit2int(rawBuf[lastSeparator + 9]) * 1000 + digit2int(rawBuf[lastSeparator + 10]) * 100
+                            + digit2int(rawBuf[lastSeparator + 11]) * 10;
                         mLongitude = deg + (min + sec) / 60;
                     }
-                    log(lastSeparator + ":" + currentSeparator + "@longitude:" + mLongitude);
                     break;
                 case 6: //longitude direction
                     if (!available) break;
@@ -108,7 +105,6 @@ public class GPSParser {
                             gpsLongitudeSign = "-";
                         }
                     }
-                    log(lastSeparator + ":" + currentSeparator + "@gpsLongitudeSign:" + gpsLongitudeSign);
                     break;
                 case 7: //speed
                     if (!available) break;
@@ -128,7 +124,6 @@ public class GPSParser {
                         gpsDate = "090909";
                     }
                     parseMode = false;
-                    log(lastSeparator + ":" + currentSeparator + "@gpsDate:" + gpsDate);
                     break;
                 default:
                     break;
@@ -221,11 +216,4 @@ public class GPSParser {
         return (gpsSpeed != null)? gpsSpeed : "0";
     }
 }
-
-
-
-
-
-
-
 
