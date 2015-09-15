@@ -30,7 +30,7 @@ public class TckDemo extends Applet
     		Object[] x = new String[3];
     		x[0] = new Integer(0);
     		System.out.println("not throw ArrayStoreTest");
-    	} catch(ArrayStoreException e){
+    	} catch(Exception e){
     		System.out.println("throw ArrayStoreTest");
     	}
     }
