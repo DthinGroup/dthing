@@ -100,6 +100,8 @@ void dvmThrowArrayStoreExceptionNotArray(ClassObject* actual, const char* label)
 int dvmFindCatchBlock(Thread * self, int relPc, Object* exception, vbool scanOnly, void** newFrame);
 
 void dvmThrowArrayStoreExceptionIncompatibleElement(ClassObject* objectType, ClassObject* arrayType);
+
+void dvmThrowArithmeticException(const char* msg);
 #ifdef __cplusplus
 }
 #endif

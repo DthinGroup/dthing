@@ -337,10 +337,6 @@ float	fmodf(float a, float b)
     return 0.0;
 }
 */
-void dvmThrowArithmeticException(const char* msg) 
-{
-	DVM_LOG(">>>call dvmThrowArithmeticException!\n");
-}
 
 #ifndef _TEST_ED_
 INLINE void dvmSetStaticFieldObject(StaticField* sfield, Object* val) 

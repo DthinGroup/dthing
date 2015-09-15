@@ -566,7 +566,7 @@ void dvmThrowException(const char* exceptionDescriptor, const char* msg)
         //goto fatal Error?
     }
 
-    dvmThrowChainedException(exceptionDescriptor, msg, NULL);
+    dvmThrowChainedException(exception, msg, NULL);
 }
 
 
@@ -848,4 +848,10 @@ void dvmThrowArrayStoreExceptionIncompatibleElement(ClassObject* objectType,
 	
 	arrayStoreException = dvmFindSystemClassNoInit("Ljava/lang/ArrayStoreException;");
 	throwTypeError(arrayStoreException, "%s cannot be stored in an array of type %s", objectType, arrayType);
+}
+
+void dvmThrowArithmeticException(const char* msg) 
+{
+	DVMTraceWar(">>>call dvmThrowArithmeticException!\n");
+	dvmThrowException("Ljava/lang/ArithmeticException;", msg);
 }

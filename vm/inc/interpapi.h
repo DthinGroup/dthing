@@ -126,8 +126,6 @@ INLINE s4 dvmGetFieldIntVolatile(const Object* obj, int offset) ;
 
 //float	fmodf(float a , float b);
 
-void dvmThrowArithmeticException(const char* msg) ;
-
 INLINE void dvmSetStaticFieldObject(StaticField* sfield, Object* val) ;
 
 INLINE void dvmSetStaticFieldLong(StaticField* sfield, s8 val) ;
