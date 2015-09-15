@@ -208,8 +208,6 @@ INLINE vbool dvmIsClassInitialized(const ClassObject* clazz) ;
 StringObject* dvmResolveString(const ClassObject* referrer, u4 stringIdx);
 #endif
 
-void dvmThrowClassCastException(ClassObject* actual, ClassObject* desired);
-
 INLINE int dvmInstanceof(const ClassObject* instance, const ClassObject* clazz);
 
 /*

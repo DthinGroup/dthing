@@ -104,6 +104,8 @@ void dvmThrowArrayStoreExceptionIncompatibleElement(ClassObject* objectType, Cla
 void dvmThrowArithmeticException(const char* msg);
 
 void dvmThrowArrayIndexOutOfBoundsException(int length, int index);
+
+void dvmThrowClassCastException(ClassObject* actual, ClassObject* desired);
 #ifdef __cplusplus
 }
 #endif

@@ -840,8 +840,7 @@ int dvmFindCatchBlock(Thread* self, int relPc, Object* exception,
     return catchAddr;
 }
 
-void dvmThrowArrayStoreExceptionIncompatibleElement(ClassObject* objectType,
-        ClassObject* arrayType)
+void dvmThrowArrayStoreExceptionIncompatibleElement(ClassObject* objectType, ClassObject* arrayType)
 {
 	ClassObject* arrayStoreException;
 	DVMTraceWar(">>>call dvmThrowArrayStoreExceptionIncompatibleElement!\n");
@@ -863,4 +862,12 @@ void dvmThrowArrayIndexOutOfBoundsException(int length, int index)
 	DVMTraceWar(">>>call dvmThrowArrayIndexOutOfBoundsException!\n");	
 	arrayIndexOutOfBoundsException = dvmFindSystemClassNoInit("Ljava/lang/ArrayIndexOutOfBoundsException;");
 	dvmThrowExceptionFmt(arrayIndexOutOfBoundsException, "length=%d; index=%d", length, index);
+}
+
+void dvmThrowClassCastException(ClassObject* actual, ClassObject* desired)
+{
+	ClassObject* classCastException;
+	DVMTraceWar(">>>call dvmThrowClassCastException!\n");	
+	classCastException = dvmFindSystemClassNoInit("Ljava/lang/ClassCastException;");
+	throwTypeError(classCastException, "%s cannot be cast to %s", actual, desired);
 }

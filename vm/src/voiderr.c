@@ -466,11 +466,6 @@ void dvmThrowNegativeArraySizeException(s4 size)
 	DVM_LOG(">>>call dvmThrowNegativeArraySizeException!\n");
 }
 
-void dvmThrowClassCastException(ClassObject* actual, ClassObject* desired)
-{
-	DVM_LOG(">>>call dvmThrowClassCastException!\n");
-}
-
 vbool dvmUnlockObject(Thread* self, Object *obj)
 {
 	DVM_LOG(">>>call dvmUnlockObject!\n");
