@@ -164,10 +164,7 @@ INLINE Field* dvmDexGetResolvedField(const DvmDex* pDvmDex,
     u4 fieldIdx);
     
 INLINE void dvmSetObjectArrayElement(const ArrayObject* obj, int index,
-                                     Object* val) ;
-                                     
-void dvmThrowArrayStoreExceptionIncompatibleElement(ClassObject* objectType,
-        ClassObject* arrayType);
+                                     Object* val) ;                                     
 
 #ifndef _TEST_ED_
 extern "C" bool dvmCanPutArrayElement(const ClassObject* objectClass, const ClassObject* arrayClass);

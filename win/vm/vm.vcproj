@@ -788,6 +788,10 @@
 			RelativePath="..\..\vm\dthing.h"
 			>
 		</File>
+		<File
+			RelativePath="..\..\base\src\trace.c"
+			>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>

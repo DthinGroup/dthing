@@ -187,10 +187,6 @@
 			>
 		</File>
 		<File
-			RelativePath="..\..\base\src\trace.c"
-			>
-		</File>
-		<File
 			RelativePath="..\..\base\inc\trace.h"
 			>
 		</File>

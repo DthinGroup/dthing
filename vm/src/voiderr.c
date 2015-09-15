@@ -91,6 +91,7 @@ void dvmReportReturn(Thread* self)
 
 void dvmThrowIncompatibleClassChangeError(const char* msg) 
 {
+	DVM_LOG(">>>call dvmThrowIncompatibleClassChangeError!\n");
 //    dvmThrowException(gDvm.exIncompatibleClassChangeError, msg);
 }
 
@@ -218,6 +219,7 @@ INLINE void dvmWriteBarrierArray(const ArrayObject *obj,
 
 void dvmThrowRuntimeException(const char* msg) 
 {
+	DVM_LOG(">>>call dvmThrowRuntimeException!\n");
 }
 void dvmAbort()
 {
@@ -337,6 +339,7 @@ float	fmodf(float a, float b)
 */
 void dvmThrowArithmeticException(const char* msg) 
 {
+	DVM_LOG(">>>call dvmThrowArithmeticException!\n");
 }
 
 #ifndef _TEST_ED_
@@ -414,12 +417,6 @@ StaticField* dvmResolveStaticField(const ClassObject* referrer, u4 sfieldIdx)
     return NULL;
 }
 #endif
-                           
-void dvmThrowArrayStoreExceptionIncompatibleElement(ClassObject* objectType,
-        ClassObject* arrayType)
-{
-	DVM_LOG(">>>call dvmThrowArrayStoreExceptionIncompatibleElement!\n");
-}
 
 void dvmThrowArrayIndexOutOfBoundsException(int length, int index)
 {
@@ -507,12 +504,12 @@ void dvmCheckBefore(const u2 *pc, u4 *fp, Thread* self)
 
 void dvmThrowIllegalArgumentException(char * str)
 {
-
+	DVM_LOG(">>>call dvmThrowIllegalArgumentException!\n");
 }
 
 void dvmThrowIllegalMonitorStateException(char * str)
 {
-
+	DVM_LOG(">>>call dvmThrowIllegalMonitorStateException!\n");
 }
 
 char * strdup (const char *s)  

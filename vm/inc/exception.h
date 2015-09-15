@@ -98,6 +98,8 @@ void dvmThrowNullPointerException(const char* msg);
 void dvmThrowArrayStoreExceptionNotArray(ClassObject* actual, const char* label);
 
 int dvmFindCatchBlock(Thread * self, int relPc, Object* exception, vbool scanOnly, void** newFrame);
+
+void dvmThrowArrayStoreExceptionIncompatibleElement(ClassObject* objectType, ClassObject* arrayType);
 #ifdef __cplusplus
 }
 #endif

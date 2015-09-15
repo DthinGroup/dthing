@@ -32,6 +32,7 @@
 #include "vm_common.h"
 #include "interpStack.h"
 #include "interpOpcode.h"
+#include "exception.h"
 #include "interpApi.h"
 #include "schd.h"
 #include "kni.h"
@@ -6355,7 +6356,8 @@ GOTO_TARGET(exceptionThrown)
          * classes, and we don't want class loader exceptions to get
          * confused with this one.
          */
-        assert(dvmCheckException(self));
+
+		assert(dvmCheckException(self));
         exception = dvmGetException(self);
         dvmAddTrackedAlloc(exception, self);
         dvmClearException(self);

@@ -110,17 +110,42 @@ static char* dvmDescriptorToName(const char* str)
 {
     if (str[0] == 'L') {
         size_t length = CRTL_strlen(str) - 1;
-        char* newStr = (char*)CRTL_malloc(length);
+        char* newStr = (char*)CRTL_malloc(length + 1);
 
         if (newStr == NULL) {
             return NULL;
         }
-
+		CRTL_memset(newStr, 0, length +1);
         CRTL_memcpy(newStr, str + 1, length);
         return newStr;
     }
 
     return CRTL_strdup(str);
+}
+static void dvmThrowExceptionFmtV(ClassObject* exceptionClass,
+    const char* fmt, va_list args)
+{
+    char msgBuf[512];
+
+    vsnprintf(msgBuf, sizeof(msgBuf), fmt, args);
+    dvmThrowChainedException(exceptionClass, msgBuf, NULL);
+}
+
+static void dvmThrowExceptionFmt(ClassObject* exceptionClass,
+    const char* fmt, ...)
+{
+    va_list args;
+    va_start(args, fmt);
+    dvmThrowExceptionFmtV(exceptionClass, fmt, args);
+    va_end(args);
+}
+
+static void throwTypeError(ClassObject* exceptionClass, const char* fmt,
+    ClassObject* actual, ClassObject* desired)
+{   
+	char * actual_str = dvmDescriptorToName(actual->descriptor);
+	char * desired_str = dvmDescriptorToName(desired->descriptor);
+    dvmThrowExceptionFmt(exceptionClass, fmt, actual_str, desired_str);
 }
 
 /*
@@ -815,3 +840,12 @@ int dvmFindCatchBlock(Thread* self, int relPc, Object* exception,
     return catchAddr;
 }
 
+void dvmThrowArrayStoreExceptionIncompatibleElement(ClassObject* objectType,
+        ClassObject* arrayType)
+{
+	ClassObject* arrayStoreException;
+	DVMTraceWar(">>>call dvmThrowArrayStoreExceptionIncompatibleElement!\n");
+	
+	arrayStoreException = dvmFindSystemClassNoInit("Ljava/lang/ArrayStoreException;");
+	throwTypeError(arrayStoreException, "%s cannot be stored in an array of type %s", objectType, arrayType);
+}
