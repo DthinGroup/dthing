@@ -414,11 +414,6 @@ StaticField* dvmResolveStaticField(const ClassObject* referrer, u4 sfieldIdx)
 }
 #endif
 
-void dvmThrowArrayIndexOutOfBoundsException(int length, int index)
-{
-	DVM_LOG(">>>call dvmThrowArrayIndexOutOfBoundsException!\n");
-}
-
 #if 0
 s4 dvmInterpHandleSparseSwitch(const u2* switchData, s4 testVal)
 {

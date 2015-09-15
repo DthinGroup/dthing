@@ -102,6 +102,8 @@ int dvmFindCatchBlock(Thread * self, int relPc, Object* exception, vbool scanOnl
 void dvmThrowArrayStoreExceptionIncompatibleElement(ClassObject* objectType, ClassObject* arrayType);
 
 void dvmThrowArithmeticException(const char* msg);
+
+void dvmThrowArrayIndexOutOfBoundsException(int length, int index);
 #ifdef __cplusplus
 }
 #endif

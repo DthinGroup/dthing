@@ -855,3 +855,12 @@ void dvmThrowArithmeticException(const char* msg)
 	DVMTraceWar(">>>call dvmThrowArithmeticException!\n");
 	dvmThrowException("Ljava/lang/ArithmeticException;", msg);
 }
+
+void dvmThrowArrayIndexOutOfBoundsException(int length, int index)
+{
+	ClassObject* arrayIndexOutOfBoundsException;
+	
+	DVMTraceWar(">>>call dvmThrowArrayIndexOutOfBoundsException!\n");	
+	arrayIndexOutOfBoundsException = dvmFindSystemClassNoInit("Ljava/lang/ArrayIndexOutOfBoundsException;");
+	dvmThrowExceptionFmt(arrayIndexOutOfBoundsException, "length=%d; index=%d", length, index);
+}

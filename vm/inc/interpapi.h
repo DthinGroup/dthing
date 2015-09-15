@@ -168,7 +168,6 @@ INLINE void dvmSetObjectArrayElement(const ArrayObject* obj, int index,
 extern "C" bool dvmCanPutArrayElement(const ClassObject* objectClass, const ClassObject* arrayClass);
 #endif
 
-void dvmThrowArrayIndexOutOfBoundsException(int length, int index);
 
 s4 dvmInterpHandleSparseSwitch(const u2* switchData, s4 testVal);
 
