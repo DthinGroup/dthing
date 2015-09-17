@@ -39,6 +39,7 @@ static ReadStream* createFileReadStream(uint16_t* fn, int32_t len);
 static const char * const builtinProperties[] =
 {
     #define DEF_PROPERTY(k, v)  (k "\0" v)
+    DEF_PROPERTY("microedition.encoding", "UTF_8"),
 #ifdef ARCH_X86	
     //DEF_PROPERTY("appdb.dir", "D:/dvm/appdb/"),
     DEF_PROPERTY("appdb.dir", "D:/nix.long/ReDvmAll/dvm/appdb/"),
@@ -57,57 +58,69 @@ typedef struct Property_s
 static Property* sysProps;
 
 
+static void parsePropertyLine(uint8_t* buf) {
+    uint8_t* key = buf;
+    uint8_t* value = NULL;
+    uint8_t* p = NULL;
+
+    // skip begining spaces
+    while (CRTL_isspace(*key)) {
+        key++;
+    }
+    if (*key == '#') {
+        // it is a comment line, just return
+        return;
+    }
+    for (value = key; *value != '\0'; value++) {
+        if (*value == ':') {
+            // trim trailing spaces of key
+            p = value - 1;
+            while (CRTL_isspace(*p)) {
+                p--;
+            }
+            p[1] = 0;
+
+            // skip begining spaces
+            value++;
+            while (CRTL_isspace(*value)) {
+                value++;
+            }
+
+            // trim trainling spaces of value
+            p = value;
+            while (*p != '\0') {
+                p++;
+            }
+            p--;
+            while (CRTL_isspace(*p)) {
+                p--;
+            }
+            p[1] = 0;
+
+            props_setValue(key, value);
+            return;
+        }
+    }
+}
+
 static void parseProperty(ReadStream* rs)
 {
     #define MAX_LINE 512
     uint8_t buf[MAX_LINE+1];
-    int32_t i;
-    int32_t line = 0;
-    int32_t c;
-    
-    for (i = 0; i < MAX_LINE; i++)
-    {
-        c = rs->read(rs);
+    int32_t i = 0;
+    int32_t c = 0;
 
-        if (c < 0)
-            break; /* EOF */
-        buf[i] = (char)c;
-
-        if ((c == '\n') || (i == MAX_LINE))
-        {
-            line++;
-            buf[i] = '\0';
-
-            if (buf[0] != '#')
-            {
-                char* key = buf;
-                char* value;
-
-                for (value = key; *value != '\0'; value++)
-                {
-                    if (*value == ':') 
-                    {
-                        *value++ = '\0';
-
-                        while(CRTL_isspace(*value)) 
-                            value++;
-
-                        props_setValue(key, value);
-                        break;
-                    }
-                }
-            }
-
-            while(i == MAX_LINE && buf[i] != '\n' && c > 0)
-                c = rs->read(rs);
-
-            i = -1; //reset to -1;
+    while ((c = rs->read(rs)) >= 0) {
+        if (c == '\n' || c == '\r' || i == MAX_LINE) {
+            buf[i] = 0;
+            parsePropertyLine(buf);
+            i = 0;
+            continue;
         }
-
-        if (buf[i] == '\r') {
-            i--;
-        }
+        buf[i++] = c;
     }
+    buf[i] = 0;
+    parsePropertyLine(buf);
 }
 
 static int32_t readNextByte(ReadStream* rs)
