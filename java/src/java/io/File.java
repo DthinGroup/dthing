@@ -23,7 +23,13 @@ public class File implements Serializable {
 
     /** use serialVersionUID from JDK 1.0.2 for interoperability */
     private static final long serialVersionUID = 301077366599181567L;
-
+   
+	private static final int FILE_IS_IINVALID = -1;
+    private static final int FILE_IS_REG = -2;
+    private static final int FILE_IS_DIR = -3;
+    
+    public static final String separator = 
+    					(Platform.getPlatform() == Platform.PLAT_UNIX) ? "/" : "\\";
     /**
      * This absolute pathname's normalized pathname string. A normalized pathname string uses the
      * default name-separator character and does not contain any duplicate or redundant separators.
@@ -45,6 +51,7 @@ public class File implements Serializable {
         if (pathname == null) {
             throw new NullPointerException();
         }
+        System.out.println("file path:" + pathname);
         path = pathname;
     }
 
@@ -59,14 +66,35 @@ public class File implements Serializable {
      * @throws IOException If an I/O error occurred
      */
     public boolean createNewFile() throws IOException {
-        if (exists()) {
-            return false;
-        }
+    	if(path ==null || path.isEmpty())
+    		throw new IOException("File Path is Empty.");
+    	
+    	int sep = path.lastIndexOf(File.separator);
+    	if(sep <=0){
+    		throw new IOException("File Path is Invalid.");
+    	}    	
+    	String dir = path.substring(0, sep);
+    	switch(checkpath(path)){
+    	case FILE_IS_IINVALID:
+    		if(checkpath(dir) != FILE_IS_DIR){
+    			throw new IOException("File Path is Invalid.");
+    		}
+    		break;
+    	case FILE_IS_REG:
+    	case FILE_IS_DIR:
+    		return false;
+    	}
+    	
         return createFile0(path);
     }
 
     private static native boolean createFile0(String path);
 
+    private int checkpath(String path){
+    	return checkpath0(path);
+    }
+    
+    private static synchronized native int checkpath0(String path);
     /**
      * Deletes the file or directory denoted by this absolute pathname. If this pathname denotes a
      * directory, then the directory must be empty in order to be deleted.

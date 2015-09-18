@@ -18,6 +18,7 @@
 #if defined(ARCH_X86)
 /* platform header files */
 #include <windows.h>
+#include <io.h>
 
 #elif defined(ARCH_ARM_SPD)
 #include <sfs.h>
@@ -434,7 +435,7 @@ int32_t file_exists(const uint16_t* name, int32_t nameLen)
     uint16_t fname[MAX_FILE_NAME_LEN];
     int32_t  fnameLen;
     DWORD    atts;
-
+	int res =0; 
     DVMTraceInf("file_exists: %s\n", getAsciiName(name, nameLen));
 
     if ((fnameLen = convertFileName(name, nameLen, fname)) <= 0)
@@ -447,6 +448,10 @@ int32_t file_exists(const uint16_t* name, int32_t nameLen)
     if (((fnameLen > 3) || ((fnameLen == 3) && (fname[1] != ':'))) &&
             (fname[fnameLen - 1] == '\\'))
         fname[--fnameLen] = 0;
+
+	if(-1 == (res =_waccess(fname, 0))){
+		return FILE_RES_FAILURE;
+	}
 
     /* Docs say that GetFileAttributes returns INVALID_FILE_ATTRIBUTES on fail,
      * but that doesn't seem to exist. Seems to return ~0
@@ -1188,8 +1193,7 @@ bool_t file_registerDeviceIfNeed()
 
 uint16_t * file_getDthingWDir()
 {
-#if defined (ARCH_X86)
-    //return L"D:\\nix.long\\ReDvmAll\\dvm\\appdb\\";
+#if defined (ARCH_X86)    
     return L"C:\\dvm\\";
 #elif defined(ARCH_ARM_SPD)
     return DTHING_PATH_FIX;
@@ -1199,9 +1203,8 @@ uint16_t * file_getDthingWDir()
 
 uint8_t * file_getDthingDir()
 {
-#if defined (ARCH_X86)
-    //return "D:\\nix.long\\ReDvmAll\\dvm\\appdb\\";
-    return L"C:\\dvm\\";
+#if defined (ARCH_X86)    
+    return "C:\\dvm\\";
 #elif defined(ARCH_ARM_SPD)
     return DTHING_PATH_FIX_C;
 #endif
