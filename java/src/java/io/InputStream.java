@@ -186,7 +186,8 @@ public abstract class InputStream extends Object {
     	if ((offset > buffer.length) || 
     			(offset < 0) ||
     			(length < 0) || 
-    			(length + offset> buffer.length)){
+    			(length + offset > buffer.length) ||
+    			(length + offset < 0)){
             throw new IndexOutOfBoundsException("read: Index out of Bounds Exceptions");
         }
 
