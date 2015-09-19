@@ -79,6 +79,40 @@ void Java_java_io_File_exists0(const u4* args, JValue* pResult) {
 
 /**
  * Class:     java_io_File
+ * Method:    checkpath0
+ * Signature: (Ljava/lang/String;)I
+ */
+void Java_java_io_File_checkpath0(const u4* args, JValue* pResult)
+{
+	ClassObject* thisObj = (ClassObject*) args[0];
+    StringObject * pathObj = (StringObject *) args[1];
+	const jchar* path = dvmGetStringData(pathObj);
+	int pathLen = dvmGetStringLength(pathObj);
+	int32_t fioRes = FILE_RES_FAILURE;
+
+	if (path == NULL || pathLen <= 0) {
+		RETURN_INT(INVALID_HANDLE_VALUE);
+	}
+
+	fioRes = file_exists(path, pathLen);
+
+	switch(fioRes){
+		case FILE_RES_ISDIR:
+			RETURN_INT(FILE_RES_ISDIR);
+			break;
+
+		case FILE_RES_ISREG:
+			RETURN_INT(FILE_RES_ISREG);
+			break;
+
+		default:
+			RETURN_INT(INVALID_HANDLE_VALUE);
+			break;
+	}
+}
+
+/**
+ * Class:     java_io_File
  * Method:    isDirectory0
  * Signature: (Ljava/lang/String;)Z
  */
