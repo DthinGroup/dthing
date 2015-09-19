@@ -10,17 +10,14 @@ public abstract class StreamReader extends Reader {
     /**
      * Open the reader
      */
-    public Reader open(InputStream in, String enc)
-        throws UnsupportedEncodingException {
-
+    public Reader open(InputStream in, String enc) throws UnsupportedEncodingException {
         this.in = in;
         return this;
     }
 
     /**
-     * Tell whether the underlying byte stream is ready to be read.  Return
-     * false for those streams that do not support available(), such as the
-     * Win32 console stream.
+     * Tell whether the underlying byte stream is ready to be read.
+     * @return {@code false} for those streams that do not support available(), such as the Win32 console stream.
      */
     public boolean ready() {
         try {
@@ -40,7 +37,7 @@ public abstract class StreamReader extends Reader {
     /**
      * Mark the present position in the stream.
      *
-     * @exception  IOException  If an I/O error occurs
+     * @throws IOException If an I/O error occurs
      */
     public void mark(int readAheadLimit) throws IOException {
         if (in.markSupported()) {
@@ -53,7 +50,7 @@ public abstract class StreamReader extends Reader {
     /**
      * Reset the stream.
      *
-     * @exception  IOException  If an I/O error occurs
+     * @throws IOException If an I/O error occurs
      */
     public void reset() throws IOException {
         in.reset();
@@ -62,7 +59,7 @@ public abstract class StreamReader extends Reader {
     /**
      * Close the stream.
      *
-     * @exception  IOException  If an I/O error occurs
+     * @throws IOException If an I/O error occurs
      */
     public void close() throws IOException {
         in.close();
@@ -73,5 +70,4 @@ public abstract class StreamReader extends Reader {
      * Get the size in chars of an array of bytes
      */
     public abstract int sizeOf(byte[] array, int offset, int length);
-
 }

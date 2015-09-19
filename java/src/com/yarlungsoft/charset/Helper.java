@@ -7,385 +7,349 @@ public class Helper {
     /**
      * The name of the default character encoding
      */
-    private static String defaultEncoding;
+    private static final String DEFAULT_ENCODING = "ISO8859_1";
 
     /**
-     * Default path to the J2ME classes
+     * Package of the charset classes
      */
-    private static String defaultMEPath;
+    private static final String CHARSET_PACKAGE = "com.yarlungsoft.charset";
 
     /**
      * Built-in encoding name table.
-     *
-     * Maps historical and canonical encoding names to canonical encoding
-     * names and internal names used to find the reader/writer classes.
-     *
+     * <p/>
+     * Maps historical and canonical encoding names to canonical encoding names and internal names
+     * used to find the reader/writer classes.
+     * <p/>
      * Other mappings can be added using the properties:
-     *  <normalized name>_InternalEncodingName
-     *  <normalized name>_CanonicalEncodingName
-     *
-     * If no match is found then the normalized name is used for both the
-     * canonical and internal name.
-     *
-     * When matching names, ignore the case. Preserve the case in the returned
-     * canonical and internal names.
+     * <ul>
+     * <li>&lt;normalized name&gt;_InternalEncodingName</li>
+     * <li>&lt;normalized name&gt;_CanonicalEncodingName</li>
+     * </ul>
+     * If no match is found then the normalized name is used for both the canonical and internal
+     * name.
+     * <p/>
+     * When matching names, ignore the case. Preserve the case in the returned canonical and
+     * internal names.
      */
-    private static final String encodingMapping[] =
-    {
+    private static final String ENCODING_MAPS[] = {
         // Normalized historical name   Canonical name  Internal name
         "ISO_8859_1",                   "ISO8859_1",    "ISO8859_1",
         "8859_1",                       "ISO8859_1",    "ISO8859_1",
-        "UTF_8",                        "UTF8",         "UTF_8",    
+        "UTF_8",                        "UTF8",         "UTF_8",
 
-        // US-ASCII is subclass of ISO-8859-1 so we do not need a
-        // separate reader for it.
-        "US_ASCII",                     "ASCII",       "ISO8859_1",
+        // US-ASCII is subclass of ISO-8859-1 so we do not need a separate reader for it.
+        "US_ASCII",                     "ASCII",        "ISO8859_1"
     };
 
-    /**
-     * Class initializer
-     */
-    static {
-
-    	defaultEncoding = "ISO8859_1";
-
-        /*  Get the default encoding name */
-        defaultMEPath = "com.yarlungsoft.charset";
-    }
-
-/*---------------------------------------------------------------------------*/
-/*                               Character encoding                          */
-/*---------------------------------------------------------------------------*/
+    /*---------------------------------------------------------------------------*/
+    /* Character encoding */
+    /*---------------------------------------------------------------------------*/
 
     /**
      * Return an appropriate reader/writer for the given encoding.
      *
-     * @param   encoding    Encoding name
-     * @param   who         either "_Reader" or "_Writer"
-     * @return  Returns either a writer or a reader for the given encoding.
-     *
-     * @exception NullPointerException if encoding is null
-     * @exception UnsupportedEncodingException if the encoding can't be found.
-     * @exception RuntimeException for other problems with the enconding.
+     * @param encoding Encoding name.
+     * @param forReader {@code true} for reader class, while {@code false} for writer class
+     * @return reader/writer for the given encoding.
+     * @throws NullPointerException if {@code encoding} is {@code null}.
+     * @throws UnsupportedEncodingException if the encoding can't be found.
+     * @throws RuntimeException for other problems with the encoding.
      */
-    private static Object getEncodingClass(String encoding, String who)
-        throws UnsupportedEncodingException {
-
-        Throwable th;
-
-        // Rely on internalNameForEncoding() throwing a NullPointerException
-
+    private static Object getEncodingClass(String encoding, boolean forReader)
+            throws UnsupportedEncodingException, RuntimeException {
         // Get the reader/writer class name
-
-        String className = defaultMEPath + '.' +
-            internalNameForEncoding(encoding) + who;
+        String suffix = forReader ? "_Reader" : "_Writer";
+        String className = CHARSET_PACKAGE + '.' + internalNameForEncoding(encoding) + suffix;
 
         try {
             Class<?> clazz = Class.forName(className);
             return clazz.newInstance();
-        } catch(ClassNotFoundException x) {
-            throw new UnsupportedEncodingException(
-                "Encoding " + encoding + " not found");
-        } catch(InstantiationException x) {
-            th = x;
-        } catch(IllegalAccessException x) {
-            th = x;
+        } catch (ClassNotFoundException x) {
+            throw new UnsupportedEncodingException("Encoding " + encoding + " not found");
+        } catch (Throwable t) {
+            throw new RuntimeException(t.getClass().getName() + ' ' + t.getMessage());
         }
-
-        throw new RuntimeException(th.getClass().getName()+' '+th.getMessage());
     }
 
     /**
-     * Get a reader for an InputStream
+     * Get a reader of default encoding ISO8859_1 for an {@link InputStream}
      *
-     * @param  is              The input stream the reader is for
-     * @return                 A new reader for the stream
+     * @param is The input stream for the reader
+     * @return A new reader for the stream
+     * @throws NullPointerException if {@code is} is {@code null}.
+     * @throws RuntimeException for other problems with the encoding.
      */
-    public static Reader getStreamReader(InputStream is) {
+    public static Reader getStreamReader(InputStream is) throws NullPointerException,
+            RuntimeException {
         try {
-            return getStreamReader(is, defaultEncoding);
-        } catch(UnsupportedEncodingException x) {
-            throw new RuntimeException(x.getMessage());
+            return getStreamReader(is, DEFAULT_ENCODING);
+        } catch (UnsupportedEncodingException e) {
+            System.out.println("Unexpected exception when create stream reader of default encoding: "
+                               + e);
+            return null;
         }
     }
 
     /**
-     * Get a reader for an InputStream
+     * Get a reader of the specified encoding for an {@link InputStream}
      *
-     * @param  is              The input stream the reader is for
-     * @param  name            The name of the decoder
-     * @return                 A new reader for the stream
-     * @exception UnsupportedEncodingException  If the encoding is not known
-     * @exception NullPointerException If either argument is null
+     * @param is The input stream for the reader
+     * @param encoding Encoding name
+     * @return A new reader for the stream
+     * @throws NullPointerException if {@code is} or {@code encoding} is {@code null}.
+     * @throws UnsupportedEncodingException if the encoding can't be found.
+     * @throws RuntimeException for other problems with the encoding.
      */
-    public static Reader getStreamReader(InputStream is, String name)
-        throws UnsupportedEncodingException {
-
-        /* Test for null arguments */
-        if (is == null)
+    public static Reader getStreamReader(InputStream is, String encoding)
+            throws NullPointerException, UnsupportedEncodingException, RuntimeException {
+        if (is == null) {
             throw new NullPointerException();
-
-        // Rely on getEncodingClass() to do null check on name.
+        }
 
         /* Get the reader from the encoding */
-        StreamReader fr = (StreamReader)getEncodingClass(name, "_Reader");
+        StreamReader reader = (StreamReader) getEncodingClass(encoding, true);
 
-        /* Open the connection and return*/
-        return fr.open(is, name);
+        /* Open the connection and return */
+        return reader.open(is, encoding);
     }
 
     /**
-     * Get a writer for an OutputStream
+     * Get a writer of default encoding ISO8859_1 for an {@link OutputStream}
      *
-     * @param  os              The output stream the reader is for
-     * @return                 A new writer for the stream
+     * @param os The output stream for the writer
+     * @return A new writer for the stream
+     * @throws NullPointerException if {@code os} is {@code null}.
+     * @throws RuntimeException for other problems with the encoding.
      */
-    public static Writer getStreamWriter(OutputStream os) {
+    public static Writer getStreamWriter(OutputStream os) throws NullPointerException,
+            RuntimeException {
         try {
-            return getStreamWriter(os, defaultEncoding);
-        } catch(UnsupportedEncodingException x) {
-            throw new RuntimeException(x.getMessage());
+            return getStreamWriter(os, DEFAULT_ENCODING);
+        } catch (UnsupportedEncodingException e) {
+            System.out.println("Unexpected exception when create stream writer of default encoding: "
+                    + e);
+            return null;
         }
     }
 
-
     /**
-     * Get a writer for an OutputStream
+     * Get a writer of the specified encoding for an {@link OutputStream}
      *
-     * @param  os              The output stream the reader is for
-     * @param  name            The name of the decoder
-     * @return                 A new writer for the stream
-     * @exception UnsupportedEncodingException  If the encoding is not known
+     * @param os The output stream for the writer
+     * @param encoding Encoding name
+     * @return A new writer for the stream
+     * @throws NullPointerException if {@code os} or {@code encoding} is {@code null}.
+     * @throws UnsupportedEncodingException if the encoding can't be found.
+     * @throws RuntimeException for other problems with the encoding.
      */
-    public static Writer getStreamWriter(OutputStream os, String name)
-        throws UnsupportedEncodingException {
-
-        /* Test for null arguments */
-        if (os == null)
+    public static Writer getStreamWriter(OutputStream os, String encoding)
+            throws NullPointerException, UnsupportedEncodingException, RuntimeException {
+        if (os == null) {
             throw new NullPointerException();
-
-        // Rely on getEncodingClass() to do null check on name.
+        }
 
         /* Get the writer from the encoding */
-        StreamWriter sw = (StreamWriter)getEncodingClass(name, "_Writer");
+        StreamWriter writer = (StreamWriter) getEncodingClass(encoding, false);
 
         /* Open it on the output stream and return */
-        return sw.open(os, name);
+        return writer.open(os, encoding);
     }
 
     /**
-     * Convert a byte array to a char array using the default encoding.
+     * Convert a byte array to a char array using the default encoding (ISO8859_1).
      *
-     * @param  buffer          The byte array buffer
-     * @param  offset          The offset
-     * @param  length          The length
-     * @return                 A new char array
+     * @param buffer The byte array buffer
+     * @param offset The offset
+     * @param length The length
+     * @return A new char array
+     * @throws NullPointerException if {@code buffer} is {@code null}.
+     * @throws IndexOutOfBoundsException If buffer, offset, or length not valid.
      */
-    public static
-    char[] byteToCharArray(byte[] buffer, int offset, int length) {
-
-        /* Optimise the very common default encoding. We can do a direct
-         * test for equality here rather than using String.equals()
-         * because of the careful way this private variable has been
-         * initialised.
+    public static char[] byteToCharArray(byte[] buffer, int offset, int length)
+        throws IndexOutOfBoundsException {
+        /*
+         * Rely on implicit exception checks to validate the incoming buffer, offset and length
+         * arguments.
+         * <ul>
+         * <li>a) length < 0 causes a NegativeArraySizeException</li>
+         * <li>b) offset thru offset+length-1 outside of buffer causes an
+         * ArrayIndexOutOfBoundsException</li>
+         * </ul>
+         * However, we need to avoid creating the character array if length is way too big, as this
+         * may cause an OutOfMemoryException instead (before hitting condition b). So add an
+         * explicit, albeit somewhat inaccurate check.
          */
-        if (defaultEncoding == "ISO8859_1"){
-
-            // Rely on implicit exception checks to validate the
-            // incomming buffer, offset and length arguments.
-            // a) length < 0 causes a NegativeArraySizeException
-            // b) offset thru offset+length-1 outside of buffer causes
-            //    an ArrayIndexOutOfBoundsException
-            //
-            // However, we need to avoid creating the character array
-            // if length is way too big, as this may cause an
-            // OutOfMemoryException instead (before hitting condition b).
-            // So add an explicit, albeit somewhat inaccurate check.
-            if (length > buffer.length)
-                length = -1;    // Force an exception
-
-            try {
-                char [] carray = new char[length];
-                for (int i = length; --i >= 0; )
-                    carray[i] = (char)(buffer[offset + i] & 0xff);
-                return carray;
-            } catch(NegativeArraySizeException ex1) {
-            } catch(ArrayIndexOutOfBoundsException ex2) {
-            }
-
-            // Callers are expecting an IndexOutOfBoundsException instead.
-            throw new IndexOutOfBoundsException();
+        if (length > buffer.length) {
+            length = -1; // force an exception
         }
 
         try {
-            return byteToCharArray(buffer, offset, length, defaultEncoding);
-        } catch(UnsupportedEncodingException x) {
-            throw new RuntimeException(x.getMessage());
+            char[] carray = new char[length];
+            for (int i = length; --i >= 0;) {
+                carray[i] = (char) (buffer[offset + i] & 0xff);
+            }
+            return carray;
+        } catch (NegativeArraySizeException ex1) {
+        } catch (ArrayIndexOutOfBoundsException ex2) {
         }
+
+        // Callers are expecting an IndexOutOfBoundsException instead.
+        throw new IndexOutOfBoundsException();
     }
 
     /**
-     * Convert a char array to a byte array
+     * Convert a char array to a byte array using the default encoding (ISO8859_1).
      *
-     * @param  buffer          The char array buffer
-     * @param  offset          The offset
-     * @param  length          The length
-     * @return                 A new byte array
+     * @param buffer The char array buffer
+     * @param offset The offset
+     * @param length The length
+     * @return A new byte array
+     * @throws NullPointerException if {@code buffer} is {@code null}.
+     * @throws IndexOutOfBoundsException If buffer, offset, or length not valid.
      */
-    public static
-    byte[] charToByteArray(char[] buffer, int offset, int length) {
-
-        /* Optimise the very common default encoding. We can do a direct
-         * test for equality here rather than using String.equals()
-         * because of the careful way this private variable has been
-         * initialised.
+    public static byte[] charToByteArray(char[] buffer, int offset, int length)
+            throws IndexOutOfBoundsException {
+        /*
+         * Rely on implicit exception checks to validate the incoming buffer, offset and length
+         * arguments.
+         * <ul>
+         * <li>a) length < 0 causes a NegativeArraySizeException</li>
+         * <li>b) offset thru offset+length-1 outside of buffer causes an
+         * ArrayIndexOutOfBoundsException</li>
+         * </ul>
+         * However, we need to avoid creating the character array if length is way too big, as this
+         * may cause an OutOfMemoryException instead (before hitting condition b). So add an
+         * explicit, albeit somewhat inaccurate check.
          */
-         if (defaultEncoding == "ISO8859_1") {
+        if (length > buffer.length) {
+            length = -1; // force an exception
+        }
+
+        try {
             byte[] barray = new byte[length];
-            for (int i = length; --i >= 0; ) {
+            for (int i = length; --i >= 0;) {
                 int ch = buffer[offset + i];
-                barray[i] = (byte)((ch > 255)? '?' : ch);
+                barray[i] = (byte) ((ch > 255) ? '?' : ch);
             }
             return barray;
+        } catch (NegativeArraySizeException ex1) {
+        } catch (ArrayIndexOutOfBoundsException ex2) {
         }
 
-        try {
-            return charToByteArray(buffer, offset, length, defaultEncoding);
-        } catch(UnsupportedEncodingException x) {
-            throw new RuntimeException(x.getMessage());
-        }
+        // Callers are expecting an IndexOutOfBoundsException instead.
+        throw new IndexOutOfBoundsException();
     }
 
-    /*
+    /**
      * Cached variables for byteToCharArray
      */
-    static class CachedReader
-    {
-        final public String encoding;
-        final public StreamReader stream;
-
-    public CachedReader(String enc) throws UnsupportedEncodingException
-    {
-      encoding = enc;
-      stream =  (StreamReader)getEncodingClass(enc, "_Reader");
-    }
-
-	}
-    private static CachedReader cachedReader;
+    private static String sLastReaderEncoding;
+    private static StreamReader sLastReader;
 
     /**
      * Convert a byte array to a char array.
-     * FIXME other VMs "recover" from corrupt encoding bytes and continue
-     * processing. Our implementation just gives up early.
-     * Would need to fix all the _Reader classes.
+     * FIXME other VMs "recover" from corrupt encoding bytes and continue processing. Our
+     * implementation just gives up early. Would need to fix all the _Reader classes.
      *
-     * @param  b    The byte array buffer
-     * @param  off  The offset
-     * @param  len  The length
-     * @param  enc  The character encoding
-     * @return      A new char array
-     * @exception UnsupportedEncodingException  If the encoding is not known.
-     * @exception IndexOutOfBoundsException If b, off, or len not valid.
+     * @param buffer The byte array buffer
+     * @param offset The offset
+     * @param length The length
+     * @param encoding The character encoding
+     * @return A new char array
+     * @throws NullPointerException if {@code buffer} or {@code encoding} is {@code null}.
+     * @throws IndexOutOfBoundsException If buffer, offset, or length not valid.
+     * @throws UnsupportedEncodingException If the encoding is not known.
      */
-    public static char[] byteToCharArray(
-        byte[] b, int off, int len, String enc)
-        throws UnsupportedEncodingException {
-
-        // Ensure the given off and len are valid for b[]
-        if ((off | len | (off + len) | (b.length - (off + len))) < 0)
+    public static synchronized char[] byteToCharArray(byte[] buffer, int offset, int length, String encoding)
+            throws IndexOutOfBoundsException, UnsupportedEncodingException {
+        // Ensure the given off and len are valid for buffer[]
+        if ((offset | length | (offset + length) | (buffer.length - (offset + length))) < 0) {
             throw new IndexOutOfBoundsException();
-
-        if(cachedReader==null)
-            cachedReader=new CachedReader(enc);
-
-        CachedReader reader = cachedReader;
-        String internalName = internalNameForEncoding(enc);
-        if (!internalName.equals(reader.encoding))
-        {
-            reader = new CachedReader(internalName);
-            cachedReader = reader;
         }
 
-        // Now "reader.stream" is the correct StreamReader for "enc"
-        StreamReader stream = reader.stream;
-        synchronized(stream)
-        {
-            /* Ask the stream for the size the output will be */
-            int size = stream.sizeOf(b, off, len);
+        encoding = internalNameForEncoding(encoding);
 
-            /* Allocate a buffer of that size */
-            char[] outbuf = new char[size];
-
-            /* Open the reader on a ByteArrayInputStream */
-            stream.open(new ByteArrayInputStream(b, off, len),
-            internalNameForEncoding(enc));
-
-            try {
-                /* Read the input */
-                stream.read(outbuf, 0, size);
-                /* Close the reader */
-                stream.close();
-            } catch(IOException x) {
-
-            }
-
-            /* And return the buffer */
-            return outbuf;
+        /* If we don't have a cached reader then make one */
+        if (sLastReaderEncoding == null || !sLastReaderEncoding.equals(encoding)) {
+            sLastReader = (StreamReader) getEncodingClass(encoding, true);
+            sLastReaderEncoding = encoding;
         }
+        // Now sLastReaderEncoding is the correct StreamReader for encoding
+
+        /* Ask the stream for the size the output will be */
+        int size = sLastReader.sizeOf(buffer, offset, length);
+
+        /* Allocate a buffer of that size */
+        char[] outbuf = new char[size];
+
+        /* Open the reader on a ByteArrayInputStream */
+        sLastReader.open(new ByteArrayInputStream(buffer, offset, length), encoding);
+
+        try {
+            /* Read the input */
+            sLastReader.read(outbuf, 0, size);
+            /* Close the reader */
+            sLastReader.close();
+        } catch (IOException x) {
+            // Behavior undefined: just give up and return what we have
+        }
+
+        /* And return the buffer */
+        return outbuf;
     }
 
-
-    /*
+    /**
      * Cached variables for charToByteArray
      */
-    private static String lastWriterEncoding;
-    private static StreamWriter lastWriter;
+    private static String sLastWriterEncoding;
+    private static StreamWriter sLastWriter;
 
     /**
      * Convert a char array to a byte array.
-     * FIXME other VMs "recover" from corrupt encoding bytes and continue
-     * processing. Our implementation just gives up early.
-     * Would need to fix all the _Writer classes.
+     * FIXME other VMs "recover" from corrupt encoding bytes and continue processing. Our
+     * implementation just gives up early. Would need to fix all the _Writer classes.
      *
-     * @param  buffer          The char array buffer
-     * @param  offset          The offset
-     * @param  length          The length
-     * @param  enc             The character encoding
-     * @return                 A new byte array
-     * @exception UnsupportedEncodingException  If the encoding is not known
+     * @param buffer The char array buffer
+     * @param offset The offset
+     * @param length The length
+     * @param encoding The character encoding
+     * @return A new byte array
+     * @throws NullPointerException if {@code buffer} or {@code encoding} is {@code null}.
+     * @throws IndexOutOfBoundsException If buffer, offset, or length not valid.
+     * @throws UnsupportedEncodingException If the encoding is not known.
      */
-    public static synchronized byte[] charToByteArray(
-        char[] buffer, int offset, int length, String enc)
-        throws UnsupportedEncodingException {
-
-        /* If we don't have a cached writer then make one */
-        if(lastWriterEncoding == null || !lastWriterEncoding.equals(enc)) {
-            lastWriter = (StreamWriter)getEncodingClass(enc, "_Writer");
-            lastWriterEncoding = internalNameForEncoding(enc);
+    public static synchronized byte[] charToByteArray(char[] buffer, int offset, int length, String encoding)
+            throws IndexOutOfBoundsException, UnsupportedEncodingException {
+        // Ensure the given off and len are valid for buf[]
+        if ((offset | length | (offset + length) | (buffer.length - (offset + length))) < 0) {
+            throw new IndexOutOfBoundsException();
         }
 
-        /* Ask the writeer for the size the output will be */
-        int size = lastWriter.sizeOf(buffer, offset, length);
+        encoding = internalNameForEncoding(encoding);
+
+        /* If we don't have a cached writer then make one */
+        if (sLastWriterEncoding == null || !sLastWriterEncoding.equals(encoding)) {
+            sLastWriter = (StreamWriter) getEncodingClass(encoding, false);
+            sLastWriterEncoding = encoding;
+        }
+
+        /* Ask the writer for the size the output will be */
+        int size = sLastWriter.sizeOf(buffer, offset, length);
 
         /* Get the output stream */
         ByteArrayOutputStream os = new ByteArrayOutputStream(size);
 
         /* Open the writer */
-        lastWriter.open(os, internalNameForEncoding(enc));
+        sLastWriter.open(os, encoding);
 
         try {
             /* Convert */
-            lastWriter.write(buffer, offset, length);
+            sLastWriter.write(buffer, offset, length);
             /* Close the writer */
-            lastWriter.close();
-        } catch(IOException x) {
-            // Behaviour undefined: just give up and return what we have
+            sLastWriter.close();
+        } catch (IOException x) {
+            // Behavior undefined: just give up and return what we have
         }
-
-        /* Close the output stream */
-        try {
-            os.close();
-        } catch(IOException x) {};
 
         /* Return the array */
         return os.toByteArray();
@@ -394,107 +358,90 @@ public class Helper {
     /**
      * Get the internal name for an encoding.
      *
-     * @param encodingName encoding name
-     *
+     * @param encoding encoding name
      * @return internal name for this encoding
-     *
-     * @exception NullPointerException if specified encodingName is null.
+     * @throws NullPointerException if specified {@code encoding} is {@code null}.
      */
-    private static String internalNameForEncoding(String encodingName) {
-        String internalName;
-        String property;
+    private static String internalNameForEncoding(String encoding) {
+        // Optimize for the (very common) default encoding case
+        if (encoding.equals(DEFAULT_ENCODING)) {
+            return DEFAULT_ENCODING;
+        }
 
-        // Rely on encodingName.equals() to throw a NullPointerException
-
-        // Optimise for the (very common) default encoding case
-        if (encodingName.equals("ISO8859_1"))
-            return "ISO8859_1";
-
-        internalName = normalizeEncodingName(encodingName);
+        encoding = normalizeEncodingName(encoding);
 
         // Check the built-in encoding map
-        for (int i = encodingMapping.length - 3; i >= 0; i -=3)
-        {
+        for (int i = ENCODING_MAPS.length - 3; i >= 0; i -= 3) {
             // Compare the historical name and canonical names
-            if (internalName.equals(encodingMapping[i]) ||
-                matchCanonicalName(internalName, encodingMapping[i + 1]))
-            {
+            if (encoding.equals(ENCODING_MAPS[i])
+                || matchCanonicalName(encoding, ENCODING_MAPS[i + 1])) {
                 // Return the internal encoding name
-                return encodingMapping[i + 2];
+                return ENCODING_MAPS[i + 2];
             }
         }
 
         /*
-         * Since IANA character encoding names can start with a digit
-         * and that some Reader class names that do not match the standard
-         * name, we have a way to configure alternate names for encodings.
-         *
-         * Note: The names must normalized, digits, upper case only with "_"
-         *       and "_" substituted for ":" and "-".
+         * Some IANA character encoding names start with digits, which cannot be used as Java reader
+         * class name. We provide a way to configure alternate names for those encodings.
+         * <p/>
+         * Note: The encoding names must be normalized, i.e. only contains upper case characters,
+         * digits and '_' while only begins with upper case character.
          */
-        property = System.getProperty(internalName + "_InternalEncodingName");
+        String property = System.getProperty(encoding + "_InternalEncodingName");
         if (property != null) {
             return property;
         }
 
-        return internalName;
+        return encoding;
     }
 
     /**
      * Get the canonical name for an encoding.
      *
-     * @param encodingName encoding name or null for the default encoding
-     *
+     * @param encoding encoding name or {@code null} for the default encoding
      * @return canonical name for this encoding
      */
-    public static String canonicalEncodingName(String encodingName)
-    {
-        String internalName;
-        String property;
+    public static String canonicalEncodingName(String encoding) {
+        if (encoding == null) {
+            encoding = DEFAULT_ENCODING;
+        }
 
-        if (encodingName == null)
-            encodingName = defaultEncoding;
-
-        internalName = normalizeEncodingName(encodingName);
+        encoding = normalizeEncodingName(encoding);
 
         // Check the built-in encoding map
-        for (int i = encodingMapping.length - 3; i >= 0; i -=3)
-        {
+        for (int i = ENCODING_MAPS.length - 3; i >= 0; i -= 3) {
             // Compare with the historical and canonical names
-            if (internalName.equals(encodingMapping[i]) ||
-                matchCanonicalName(internalName, encodingMapping[i + 1]))
-            {
+            if (encoding.equals(ENCODING_MAPS[i])
+                || matchCanonicalName(encoding, ENCODING_MAPS[i + 1])) {
                 // Return the canonical encoding name
-                return encodingMapping[i + 1];
+                return ENCODING_MAPS[i + 1];
             }
         }
 
         /*
-         * Since IANA character encoding names can start with a digit
-         * and that some Reader class names that do not match the standard
-         * name, we have a way to configure alternate names for encodings.
-         *
-         * Note: The names must normalized, digits, upper case only with "_"
-         *       and "_" substituted for ":" and "-".
+         * Some IANA character encoding names start with digits, which cannot be used as Java reader
+         * class name. We provide a way to configure alternate names for those encodings.
+         * <p/>
+         * Note: The encoding names must be normalized, i.e. only contains upper case characters,
+         * digits and '_' while only begins with upper case character.
          */
-        property = System.getProperty(internalName + "_CanonicalEncodingName");
+        String property = System.getProperty(encoding + "_CanonicalEncodingName");
         if (property != null) {
             return property;
         }
 
-        return internalName;
+        return encoding;
     }
-    
+
     /**
-     * Converts "-" and ":" in a string to "_" and converts the name
-     * to upper case.
-     * This is needed because the names of IANA character encodings have
-     * characters that are not allowed for java class names and
-     * IANA encoding names are not case sensitive.
+     * Converts "-" and ":" in a string to "_" and converts the name to upper case.
+     * <p/>
+     * This is needed because the names of IANA character encodings have characters that are not
+     * allowed for java class names and IANA encoding names are not case sensitive.
      *
      * @param encodingName encoding name
-     *
      * @return normalized name
+     * @throws NullPointerException if {@code encodingName} is {@code null}.
      */
     private static String normalizeEncodingName(String encodingName) {
         StringBuffer normalizedName = new StringBuffer(encodingName);
@@ -515,32 +462,15 @@ public class Helper {
 
     /**
      * Compares a normalized encoding name with a canonical encoding name.
+     * <p/>
+     * Characters in the canonical name are converted as if normalizeEncodingName() were called.
      *
-     * Characters in the canonical name are converted as if
-     * normalizeEncodingName() were called.
-     *
-     * @param normalizedName internal encoding name returned by
-     *        normalizeEncodingName()
+     * @param normalizedName internal encoding name returned by normalizeEncodingName()
      * @param canonicalName canonical encoding name
-     *
-     * @return true if the names match, false otherwise
+     * @return {@code true} if the names match, {@code false} otherwise
      */
-    private static boolean matchCanonicalName(String normalizedName,
-        String canonicalName)
-    {
-        int length = canonicalName.length();
-        if (normalizedName.length() != length)
-            return false;
-
-        for (int i = 0; i < length; i++) {
-            char nc = normalizedName.charAt(i);
-            char cc = canonicalName.charAt(i);
-            if ((cc == '-') || (cc == ':'))
-                cc = '_';
-            if ((nc != cc) && (nc != Character.toUpperCase(cc)))
-                return false;
-        }
-
-        return true;
+    private static boolean matchCanonicalName(String normalizedName, String canonicalName) {
+        canonicalName = normalizeEncodingName(canonicalName);
+        return normalizedName.equals(canonicalName);
     }
 }
