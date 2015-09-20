@@ -81,7 +81,7 @@ public class TckDemo extends Applet
         } catch (IOException e) {
         	System.out.println("Unexpected exception:" + e.getMessage());
         }
-        System.out.println("===DataInputStream0007 over ===");
+        System.out.println("===DataInputStream0007 over over ===");
     }
     
     
