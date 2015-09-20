@@ -188,4 +188,53 @@ public class InputStreamReader extends Reader {
     	ensureOpen();
     	return in.ready();
     }
+    /**
+     * Sets a mark position in this reader. The parameter {@code readLimit}
+     * indicates how many characters can be read before the mark is invalidated.
+     * Calling {@code reset()} will reposition the reader back to the marked
+     * position if {@code readLimit} has not been surpassed.
+     * <p>
+     * This default implementation simply throws an {@code IOException};
+     * subclasses must provide their own implementation.
+     *
+     * @param readLimit
+     *            the number of characters that can be read before the mark is
+     *            invalidated.
+     * @throws IllegalArgumentException
+     *             if {@code readLimit < 0}.
+     * @throws IOException
+     *             if an error occurs while setting a mark in this reader.
+     * @see #markSupported()
+     * @see #reset()
+     */
+    public void mark(int readLimit) throws IOException {
+        in.mark(readLimit);
+    }
+    /**
+     * Indicates whether this reader supports the {@code mark()} and
+     * {@code reset()} methods. This default implementation returns
+     * {@code false}.
+     *
+     * @return always {@code false}.
+     */
+    public boolean markSupported() {
+        return in.markSupported();
+    }
+    
+        /**
+     * Resets this reader's position to the last {@code mark()} location.
+     * Invocations of {@code read()} and {@code skip()} will occur from this new
+     * location. If this reader has not been marked, the behavior of
+     * {@code reset()} is implementation specific. This default
+     * implementation throws an {@code IOException}.
+     *
+     * @throws IOException
+     *             always thrown in this default implementation.
+     * @see #mark(int)
+     * @see #markSupported()
+     */
+     //@Override
+    public void reset() throws IOException {
+        in.reset();
+    }
 }

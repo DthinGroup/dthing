@@ -184,18 +184,6 @@ public class ByteArrayInputStream extends InputStream {
     }
 
     /**
-     * Resets this stream to the last marked location. This implementation
-     * resets the position to either the marked position, the start position
-     * supplied in the constructor or 0 if neither has been provided.
-     *
-     * @see #mark(int)
-     */
-    //@Override
-    public synchronized void reset() {
-        pos = mark;
-    }
-
-    /**
      * Skips {@code byteCount} bytes in this InputStream. Subsequent
      * calls to {@code read} will not return these bytes unless {@code reset} is
      * used. This implementation skips {@code byteCount} number of bytes in the
@@ -211,5 +199,31 @@ public class ByteArrayInputStream extends InputStream {
         int temp = pos;
         pos = this.count - pos < byteCount ? this.count : (int) (pos + byteCount);
         return pos - temp;
+    }
+    
+    /**
+     * Resets this stream to the last marked location. Throws an
+     * {@code IOException} if the number of bytes read since the mark has been
+     * set is greater than the limit provided to {@code mark}, or if no mark
+     * has been set.
+     * <p>
+     * This implementation always throws an {@code IOException} and concrete
+     * subclasses should provide the proper implementation.
+     *
+     * @throws IOException
+     *             if this stream is closed or another IOException occurs.
+     */
+    //@Override
+    public synchronized void reset() throws IOException {
+    /*
+        if(mark >0 && pos > mark){
+            throw new IOException("Pos bigger than mark");
+        }
+        else
+        {
+            pos = mark;
+        }
+        */
+        pos = mark;
     }
 }
