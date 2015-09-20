@@ -80,45 +80,45 @@ public abstract class TimeZone implements Serializable, Cloneable {
     static final TimeZone GMT = new SimpleTimeZone(0, "GMT"); // Greenwich Mean Time
 
     private static String[] ids = new String[] {
-        "GMT-12",
-        "GMT-11",
-        "GMT-10",
-        "GMT-9:30",
-        "GMT-9",
-        "GMT-8",
-        "GMT-7",
-        "GMT-6",
-        "GMT-5",
-        "GMT-4:30",
-        "GMT-4",
-        "GMT-3:30",
-        "GMT-3",
-        "GMT-2",
-        "GMT-1",
-        "GMT",
-        "GMT+1",
-        "GMT+2",
-        "GMT+3",
-        "GMT+3:30",
-        "GMT+4",
-        "GMT+4:30",
-        "GMT+5",
-        "GMT+5:30",
-        "GMT+5:45",
-        "GMT+6",
-        "GMT+6:30",
-        "GMT+7",
-        "GMT+8",
-        "GMT+9",
-        "GMT+9:30",
-        "GMT+10",
+        "GMT-12:00",
+        "GMT-11:00",
+        "GMT-10:00",
+        "GMT-09:30",
+        "GMT-09:00",
+        "GMT-08:00",
+        "GMT-07:00",
+        "GMT-06:00",
+        "GMT-05:00",
+        "GMT-04:30",
+        "GMT-04:00",
+        "GMT-03:30",
+        "GMT-03:00",
+        "GMT-02:00",
+        "GMT-01:00",
+        "GMT+00:00",
+        "GMT+01:00",
+        "GMT+02:00",
+        "GMT+03:00",
+        "GMT+03:30",
+        "GMT+04:00",
+        "GMT+04:30",
+        "GMT+05:00",
+        "GMT+05:30",
+        "GMT+05:45",
+        "GMT+06:00",
+        "GMT+06:30",
+        "GMT+07:00",
+        "GMT+08:00",
+        "GMT+09:00",
+        "GMT+09:30",
+        "GMT+10:00",
         "GMT+10:30",
-        "GMT+11",
+        "GMT+11:00",
         "GMT+11:30",
-        "GMT+12",
+        "GMT+12:00",
         "GMT+12:45",
-        "GMT+13",
-        "GMT+14"
+        "GMT+13:00",
+        "GMT+14:00"
     };
 
     private static TimeZone defaultTimeZone;
@@ -146,7 +146,7 @@ public abstract class TimeZone implements Serializable, Cloneable {
      * instance. Currently only support {@code GMT[+|-]hh[[:]mm]} ids.
      */
     public static synchronized String[] getAvailableIDs() {
-        return ids.clone();
+        return ids;
     }
 
     /**
@@ -263,10 +263,11 @@ public abstract class TimeZone implements Serializable, Cloneable {
      * zone IDs used in Java 1.1.
      */
     public static synchronized TimeZone getTimeZone(String id) {
-        TimeZone zone = null;
         if (id == null) {
-            id = "GMT";
-        }
+    		throw new NullPointerException();
+    	 }
+
+        TimeZone zone = null;
         if (id.length() > 3 && id.startsWith("GMT")) {
             zone = getCustomTimeZone(id);
         }
