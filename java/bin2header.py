@@ -41,9 +41,9 @@ def main(argv):
 				return
 
 	fsize = os.path.getsize(srcFile)
-	fd = os.open(srcFile, os.O_RDONLY | os.O_BINARY)
-	buf = os.read(fd, fsize)
-	os.close(fd)
+	fp = open(srcFile, 'rb')
+	buf = fp.read()
+	fp.close()
 
 	sys.stdout.write('%s loaded\nconverting ...\n' % (srcFile))
 
