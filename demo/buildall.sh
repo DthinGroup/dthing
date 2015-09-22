@@ -15,6 +15,7 @@
 . build.sh JSDDemo
 . build.sh KeypadDemo
 . build.sh KeyPadLed
+. build.sh LCDDemo
 . build.sh LEDDemo
 . build.sh PWMDemo
 . build.sh QTDemo
