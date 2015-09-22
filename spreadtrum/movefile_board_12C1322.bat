@@ -63,6 +63,7 @@ XCOPY /R /Y %EXPORT_SOURCE_ROOT%\MS_Customize\source\product\config\sc6500_modem
 XCOPY /R /Y %EXPORT_SOURCE_ROOT%\MS_Customize\source\product\config\sc6500_modem\spiflash_cfg.c %DESDIR%\MS_Customize\source\product\config\sc6500_modem\
 
 XCOPY /R /Y %EXPORT_SOURCE_ROOT%\chip_drv\chip_plf\sc6530\sc6530_spi_cfg.c %DESDIR%\chip_drv\chip_plf\sc6530\
+XCOPY /R /Y %EXPORT_SOURCE_ROOT%\chip_drv\chip_plf\sc6530\sc6530_spi_cfg.h %DESDIR%\chip_drv\chip_plf\sc6530\
 
 XCOPY /R /Y %EXPORT_SOURCE_ROOT%\chip_drv\chip_module\uart\uart_hal.c %DESDIR%\chip_drv\chip_module\uart\
 XCOPY /R /Y %EXPORT_SOURCE_ROOT%\chip_drv\chip_module\uart\uart_phy.h %DESDIR%\chip_drv\chip_module\uart\
