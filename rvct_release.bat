@@ -6,7 +6,7 @@ set RELEASE=%1
 :SELECT_RELEASE_VERSION
 
 if "0"=="%RELEASE%" (
-  set IDHDIR=D:\sdk0
+  set IDHDIR=
   set EXPORT_FILE=spreadtrum\movefile_board_kx8800.bat
 ) else if "1"=="%RELEASE%" (
   set IDHDIR=
@@ -15,7 +15,7 @@ if "0"=="%RELEASE%" (
   set IDHDIR=
   set EXPORT_FILE=spreadtrum\movefile_phone.bat
 ) else if "3"=="%RELEASE%" (
-  set IDHDIR=D:\sdk
+  set IDHDIR=
   set EXPORT_FILE=spreadtrum\movefile_board_12C1322.bat
   ) else (
   echo ---------------------------
