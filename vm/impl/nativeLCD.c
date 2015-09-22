@@ -12,7 +12,11 @@ void Java_iot_oem_lcd_LCD_setBackgroundStatus0(const u4* args, JValue* pResult) 
     jboolean status = (jboolean) args[1];
     jint ret = 0;
 
-    // TODO: implementation
+    if (status) {
+        SPILCD_Open();
+    } else {
+        SPILCD_Close();
+    }
 
     RETURN_INT(ret);
 }

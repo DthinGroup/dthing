@@ -1,5 +1,5 @@
 /**
- * Copyright 2012-2014 Yarlung Soft. All Rights Reserved.
+ * Copyright 2012-2015 Yarlung Soft. All Rights Reserved.
  * $Id: $
  */
 import jp.co.cmcc.event.Applet;
@@ -28,6 +28,8 @@ public class HeartSensor extends Applet {
     private static boolean allowLogPrint = true;
     private static boolean allowRunning = true;
     private static int[] buffer = new int[MAX_BUFFER_COUNT];
+    private static long totalMemory = 0;
+    private static long gcMemory = 0;
 
     public HeartSensor() {
         // TODO Auto-generated constructor stub
@@ -48,6 +50,9 @@ public class HeartSensor extends Applet {
     }
 
     public void startup() {
+        totalMemory = Runtime.getRuntime().totalMemory();
+        gcMemory = totalMemory * 3 / 10;
+
         //ADC采样线程
         new Thread() {
             private long lastScheduledTime = 0;
@@ -60,6 +65,11 @@ public class HeartSensor extends Applet {
                     {
                         lastScheduledTime = currentTime;
                         read();
+                    }
+                    try {
+                        Thread.sleep(1);
+                    } catch (InterruptedException e) {
+                        System.out.println(e.getMessage());
                     }
                 } while ((count > 0) && allowRunning);
                 notifyDestroyed();
@@ -116,12 +126,22 @@ public class HeartSensor extends Applet {
                     if (reportDataIndex < readDataCount)
                     {
                         try {
-                            double value = buffer[reportDataIndex]*3.5/1000;
+                            int temp = buffer[reportDataIndex] * 35;
+                            int head = temp / 10000;
+                            String tail = "0000" + (temp % 10000);
+                            int len = tail.length();
+                            String value = head + "." + tail.substring(len - 4, len);
                             reportDataIndex++;
                             reportADCInfo(value, DEFAULT_ADC_CHANNEL);
                         } catch (IOException e) {
                             System.out.println("Heart IOException:" + e);
                         }
+                    }
+                    try {
+                        MemoryCheck();
+                        Thread.sleep(1);
+                    } catch (InterruptedException e) {
+                        System.out.println(e.getMessage());
                     }
                 } while ((count > 0) && allowRunning);
                 notifyDestroyed();
@@ -132,7 +152,7 @@ public class HeartSensor extends Applet {
              * @param cid 端口ID
              * @exception 当网络连接有问题时抛出IO异常
              */
-            private void reportADCInfo(double value, int cid) throws IOException {
+            private void reportADCInfo(String value, int cid) throws IOException {
                 String content = "Heart:" + value + " CID:" + cid;
                 String reportInfo = REPORT_SERVER_FORMAT + value;
 
@@ -148,5 +168,14 @@ public class HeartSensor extends Applet {
                 httpConn.disconnect();
             }
         }.start();
+    }
+
+    public static void MemoryCheck() {
+        long free =  Runtime.getRuntime().freeMemory();
+
+        //Force VM to gc when memory is less than 30%
+        if (free < gcMemory) {
+            Runtime.getRuntime().gc();
+        }
     }
 }
