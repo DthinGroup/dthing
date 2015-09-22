@@ -973,10 +973,8 @@ void VTM88828A_Init(void)
 
   m2mHalSpiInit();
   Cust_Pwm_BackLight_Init();
-
   VTM88828A_driver();
-    Mmi_Idle_Display();
-
+  Mmi_Idle_Display();
   Cust_Pwm_BackLight_Cfg_Set(BackLightOnCfg);
   SCI_Sleep(3000);
 }
@@ -985,6 +983,7 @@ static BOOLEAN allowRunning = SCI_FALSE;
 
 void _SPILCD_Test_Task(uint32 argc, void* argv)
 {
+    wis_debug("---VTM88828A_Init ---\r\n");
     VTM88828A_Init();
     SCI_Sleep(500);
 
@@ -992,6 +991,8 @@ void _SPILCD_Test_Task(uint32 argc, void* argv)
     {
         SCI_Sleep(1000);
     }
+
+    wis_debug("---VTM88828A exit ---\r\n");
     Cust_Pwm_BackLight_Cfg_Set(BackLightOffCfg);
     open_lcd(0);
     SCI_Sleep(10);
@@ -1016,7 +1017,7 @@ void SPILCD_Test(void)
         PNULL,
         0x1000,
         10,
-        SCI_APP_PRI(31),
+        1,//SCI_APP_PRI(31),
         SCI_PREEMPT,
         SCI_AUTO_START);
 }

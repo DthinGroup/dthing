@@ -6,14 +6,18 @@ import jp.co.cmcc.event.Event;
 
 
 public class LCDDriver extends Applet {
-    private static boolean allowRunning = true;
+    private static LCD lcdObj = null;
     public LCDDriver() {
         // TODO Auto-generated constructor stub
     }
 
     public void cleanup() {
-        // TODO Auto-generated method stub
-        allowRunning = false;
+      System.out.println("[lcd] cleanup");
+        try {
+            lcdObj.setBackgroundStatus(false);
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+        }
     }
 
     public void processEvent(Event arg0) {
@@ -22,29 +26,15 @@ public class LCDDriver extends Applet {
     }
 
     public void startup() {
-        new Thread() {
-            public void run() {
-                LCD lcdObj = LCD.getInstance();
-                try {
-                    lcdObj.setBackgroundStatus(true);
-                } catch (IOException e) {
-                    System.out.println(e.getMessage());
-                }
-                while(allowRunning) {
-                    try {
-                        Thread.sleep(2000);
-                    } catch (InterruptedException e) {
-                        System.out.println(e.getMessage());
-                    }
-                }
-                try {
-                    lcdObj.setBackgroundStatus(false);
-                } catch (IOException e) {
-                    System.out.println(e.getMessage());
-                }
-                notifyDestroyed();
-            }
-        }.start();
+        lcdObj = LCD.getInstance();
+        System.out.println("[lcd] get instance " + lcdObj);
+        try {
+            lcdObj.setBackgroundStatus(true);
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+        }
+        System.out.println("[lcd] end of startup");
     }
 
 }
+
