@@ -225,6 +225,7 @@ VM_SOURCES += \
     vm/impl/nativeFileInputStream.c \
     vm/impl/nativeFileOutputStream.c \
     vm/impl/nativeFloat.c \
+    vm/impl/nativeDouble.c\
     vm/impl/nativeMath.c \
     vm/impl/nativeNetNativeBridge.c \
     vm/impl/nativeObject.c \
