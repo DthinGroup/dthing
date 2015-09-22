@@ -22,6 +22,7 @@
 #include "spi_drvapi.h"
 #include "spi_drvapi_old.h"
 #include "gpio_drvapi.h"
+#include "pwm_drvapi.h"
 
 /**---------------------------------------------------------------------------*
  **                            Macro Define
@@ -295,6 +296,7 @@ static Gpio_Body_T gpioBody[GPIO_ID_MAX] = {0};//GPIO结构表
 static Pwm_Body_T pwmBody[PWM_ID_MAX] = {0};//PWM结构表
 static const MDP_PWM_CFG_S BackLightOnCfg = {PWM_BACKLIGHT_FREQ_DEF,PWM_BACKLIGHT_DUTYCYCLE_ON};//背光开启
 static MDP_PWM_CFG_S pwmBackLightCfg = {PWM_BACKLIGHT_FREQ_DEF,PWM_BACKLIGHT_DUTYCYCLE_ON};//LCD背光PWM输出配置
+static const MDP_PWM_CFG_S BackLightOffCfg = {PWM_BACKLIGHT_FREQ_DEF,PWM_BACKLIGHT_DUTYCYCLE_OFF};//背光关闭
 
 
 static DEV_HANDLE spiRdHandle = 0;
