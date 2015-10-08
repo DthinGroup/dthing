@@ -11,13 +11,13 @@ void Java_iot_oem_lcd_LCD_setBackgroundStatus0(const u4* args, JValue* pResult) 
     ClassObject* thisObj = (ClassObject*) args[0];
     jboolean status = (jboolean) args[1];
     jint ret = 0;
-
+#if defined(ARCH_ARM_SPD)
     if (status) {
         SPILCD_Open();
     } else {
         SPILCD_Close();
     }
-
+#endif
     RETURN_INT(ret);
 }
 
