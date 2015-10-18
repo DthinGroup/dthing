@@ -119,7 +119,7 @@ MEMORY_DEBUG_SUPPORT = TRUE                          ### MEMORY DEBUG SUPPORT:
                                                      # Option1:TRUE
                                                      # Option2:FALSE
 
-TRACE_INFO_SUPPORT = TRUE                            ### TRACE INFO SUPPORT:
+TRACE_INFO_SUPPORT = FALSE                           ### TRACE INFO SUPPORT:
                                                      # Option1:TRUE
                                                      # Option2:FALSE
 

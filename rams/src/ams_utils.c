@@ -10,7 +10,7 @@
 #define DEFAULT_RMT_CONFIG_FILE  L"D:/RemoteConfig.cfg"
 #define DEFAULT_RMT_CONFIG_FILE_PATH_LEN 19
 #define DEFAULT_SERVER "42.121.18.62"
-#define DEFAULT_PORT "8888"
+#define DEFAULT_PORT "7899"
 //#define DEFAULT_SERVER "218.206.176.236"
 //#define DEFAULT_PORT "7777"
 #define DEFAULT_USER_NAME "test_username"
