@@ -34,4 +34,5 @@
 . build.sh ZigbeeDemoNoCom
 . build.sh ZigbeeDemoNoComModiNet
 . build.sh TckDemo
+. build.sh SmsDemo
 
