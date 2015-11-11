@@ -45,7 +45,7 @@ MMI_MULTI_SIM_SYS = SINGLE                             ### Platform Support Mult
                                                      # OPtion4:QUAD      #define MMI_MULTI_SIM_SYS_QUAD
                                                      
                                                      
-PLATFORM_INTERNAL_SIM = TRUE                        ###6500M internal sim card
+PLATFORM_INTERNAL_SIM = FALSE                        ###6500M internal sim card
                                                      # Option1:TRUE
                                                      # Option2:FALSE
                                                      
@@ -124,7 +124,7 @@ MEMORY_DEBUG_SUPPORT = TRUE                         ### MEMORY DEBUG SUPPORT:
                                                      # Option1:TRUE
                                                      # Option2:FALSE
 
-TRACE_INFO_SUPPORT = TRUE                           ### TRACE INFO SUPPORT:
+TRACE_INFO_SUPPORT = FALSE                           ### TRACE INFO SUPPORT:
                                                      # Option1:TRUE
                                                      # Option2:FALSE
 

@@ -10,7 +10,7 @@ MULTI_BIN_RAM = FALSE                                ## Option1  32MBIT_LEVEL1  
                                                      ## Option2  32MBIT_LEVEL2   ----32x32
                                                      ## Option3  32MBIT_LEVEL3   ----32x32
 
-RELEASE_INFO = TRUE                                 ### RELEASE version
+RELEASE_INFO = FALSE                                 ### RELEASE version
                                                      # Option1:TRUE
                                                      # Option2:FALSE
 
@@ -18,7 +18,7 @@ FLASH_TYPE = SPI                                     ### FLASH TYPE
                                                      # Option1:NOR        #define NOR_FLASH
                                                      # Option2:SPI
 
-FLASH_SIZE = 32MBIT                                  ### FLASH_SIZE SIZE
+FLASH_SIZE = 16MBIT                                  ### FLASH_SIZE SIZE
                                                      # Option1:NONE       #FALSH_SIZE_NONE
                                                      # Option2:16MBIT     #define FLASH_SIZE_16MBIT
                                                      # Option3:32MBIT     #define FLASH_SIZE_32MBIT
@@ -32,23 +32,18 @@ SRAM_SIZE = 32MBIT                                   ### SRAM SIZE
                                                      # Option3:32MBIT     #define SRAM_SIZE_32MBIT
                                                      # Option4:64MBIT     #define SRAM_SIZE_64MBIT
 
-VDDCORE_SUPPLY = LDO                                ### VDDCORE_SUPPLY
+VDDCORE_SUPPLY = DCDC                                ### VDDCORE_SUPPLY
                                                      # Option1:DCDC     #define VDDCORE_SUPPLY_DCDC
                                                      # Option2:LDO     #define VDDCORE_SUPPLY_LDO
 CUSTOM_CFLAG = -g                                    ### CUSTOM CFLAG
                                                      # Option1:-g
 
-MMI_MULTI_SIM_SYS = SINGLE                             ### Platform Support Multi Sim Card Number
+MMI_MULTI_SIM_SYS = DUAL                             ### Platform Support Multi Sim Card Number
                                                      # Option1:SINGLE    #define MMI_MULTI_SIM_SYS_SINGLE
                                                      # Option2:DUAL      #define MMI_MULTI_SIM_SYS_DUAL
                                                      # Option3:TRI       #define MMI_MULTI_SIM_SYS_TRI
                                                      # OPtion4:QUAD      #define MMI_MULTI_SIM_SYS_QUAD
-                                                     
-                                                     
-PLATFORM_INTERNAL_SIM = FALSE                        ###6500M internal sim card
-                                                     # Option1:TRUE
-                                                     # Option2:FALSE
-                                                     
+
 SIM_CDMA_CARD_SUPPORT = FALSE                        ### CDMA UIM Card Support. Only for CDMA+GSM modem project.
                                                      # Option1:TRUE
                                                      # Option2:FALSE
@@ -99,7 +94,7 @@ QQ_SUPPORT = NONE
 PRODUCT_CONFIG = sc6500_modem                        ### MS_Customize/source/product/config;scf file;nv;resource
                                                      # default: project name
 
-PRODUCT_BASELIB_DIR = sc6500_16X32_modem_single_notrace                     ### Dir name for base lib in MS_Code\lib\
+PRODUCT_BASELIB_DIR = $(PROJECT)                     ### Dir name for base lib in MS_Code\lib\
                                                      # default: project name
 
 BLUETOOTH_SUPPORT = NONE                             ### Bluetooth Chip Type:
@@ -120,7 +115,7 @@ DEMOD_HW = NONE                                      ### demod chip type:
                                                      # Option1:SIANO      DEMOD_HW_SIANO
                                                      # Option2:INNOFIDEI  DEMOD_HW_INNOFIDEI
 
-MEMORY_DEBUG_SUPPORT = FALSE                         ### MEMORY DEBUG SUPPORT:
+MEMORY_DEBUG_SUPPORT = TRUE                         ### MEMORY DEBUG SUPPORT:
                                                      # Option1:TRUE
                                                      # Option2:FALSE
 
@@ -137,10 +132,6 @@ TIMER_MSG_SUPPORT = FALSE                             ### time message
 OSC32K_CLOCK_SELECT = DCXO                           ### 是否使用外部晶体
                                                      # Option1:DCXO 去掉外部32K晶体
                                                      # Option2:EXTE 使用外部32K晶体
-                                                     
-EDL_UDISK_IMG_SUPPORT = TRUE                          ### EDL_UDISK_IMG_SUPPORT:
-                                                     # Option1:TRUE
-                                                     # Option2:FALSE                                                     
 M2M_EVB_SUPPORT = TRUE
 #****************************************************************************************#
 #  Segment: SPRD MACRO
@@ -305,7 +296,7 @@ STACK_CHECK_SUPPORT = FALSE                          ### STACK CHECK SUPPORT:
                                                      # Option1:TRUE
                                                      # Option2:FALSE
 
-MULTI_SIM_SYS = SINGLE                                  ### Platform Support Multi Sim Card Number:
+MULTI_SIM_SYS = DUAL                                  ### Platform Support Multi Sim Card Number:
                                                      # Option1:SINGLE    #define MULTI_SIM_SYS_SINGLE
                                                      # Option2:DUAL      #define MULTI_SIM_SYS_DUAL
                                                      # Option3:TRI       #define MULTI_SIM_SYS_TRI
@@ -381,7 +372,7 @@ NXP_LVVE_SUPPORT = FALSE                             ### NXP Support
                                                      # Option1:TRUE
                                                      # Option2:FALSE
 
-NV_PRTITION = TINY_EX                                   ### NV Prtition
+NV_PRTITION = TINY                                   ### NV Prtition
                                                      # Option1:TINY
                                                      # Option2:SMALL
                                                      # Option3:NORMAL
@@ -431,7 +422,7 @@ KURO_SUPPORT = FALSE                                 ### KURO Player Support:
                                                      # Option1:TRUE
                                                      # Option2:FALSE
 
-LOW_MEMORY_SUPPORT = 32X32                           ### Low Memory Size Requirement:
+LOW_MEMORY_SUPPORT = 16X16                           ### Low Memory Size Requirement:
                                                      # Option1:256X64
                                                      # Option1:128X64
                                                      # Option2:128X32
@@ -474,11 +465,11 @@ NOR_BOOTLOADER_SUPPORT  = FALSE                      ### Nor Bootloader Support
                                                      # Option1:TRUE
                                                      # Option2:FALSE
 
-CALI_MODE_PORT = UART0                               ### Calibration MODE uart port selection
+CALI_MODE_PORT = UART1                               ### Calibration MODE uart port selection
                                                      # Option1:UART1 (defaut)
                                                      # Option2:UART0 (ZBX recommand)
 
-UART0_HWFLOW_SUPPORT = FALSE                         ### UART 0 HW Flow support 
+UART0_HWFLOW_SUPPORT = FALSE                          ### UART 0 HW Flow support 
                                                      # Option1:TURE : NOTE: it will use U0CTS/RTS, which is default as UART1_0 TX/RX, so please use UART1_PIN_SEL_UART1_1 in following MACRO
                                                      # Option2:FALSE (default)
 
@@ -488,9 +479,9 @@ UART1_PIN_SEL = UART1_0                              ### UART 1 pin selection
 
 WMMP_SDK_ENABLE = TRUE                               ### wmmp sdk的编译开关，再这种情况下,pinmap 要重新映射
 
-MODEM_WAKEUP_SUPPORT = FALSE     					           ### MODEM_WAKEUP_SUPPORT
+MODEM_WAKEUP_SUPPORT = FALSE     					 ### MODEM_WAKEUP_SUPPORT
                                                      # Option1:TRUE
-                                                     # Option2:FALSE
+                                                     # Option2:FALSE                                                    
 
 GPS_SUPPORT = TRUE                                   ### GPS Module Support
                                                      # Option1:TRUE

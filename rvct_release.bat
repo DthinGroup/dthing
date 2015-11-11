@@ -17,12 +17,16 @@ if "0"=="%RELEASE%" (
 ) else if "3"=="%RELEASE%" (
   set IDHDIR=
   set EXPORT_FILE=spreadtrum\movefile_board_12C1322.bat
-  ) else (
+) else if "4"=="%RELEASE%" (
+  set IDHDIR=
+  set EXPORT_FILE=spreadtrum\movefile_board_W1336.bat
+) else (
   echo ---------------------------
   echo [0] KX8800
   echo [1] 12C1316
   echo [2] Phone
   echo [3] 12C.13.22 Qijun
+  echo [4] W1336 Qijun
   echo ---------------------------
   echo Please input right params and press Enter to select again..
   SET /P RELEASE=
