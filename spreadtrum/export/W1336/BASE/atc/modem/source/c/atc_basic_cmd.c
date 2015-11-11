@@ -86,7 +86,6 @@
 #endif
 
 #include "lvve_ctrl_param_nv.h"
-#include "trace.h"
 #include "cpl_atcontrol.h"
 #include "modem_public.h"
 
