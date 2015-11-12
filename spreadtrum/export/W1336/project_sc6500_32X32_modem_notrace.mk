@@ -18,7 +18,7 @@ FLASH_TYPE = SPI                                     ### FLASH TYPE
                                                      # Option1:NOR        #define NOR_FLASH
                                                      # Option2:SPI
 
-FLASH_SIZE = 16MBIT                                  ### FLASH_SIZE SIZE
+FLASH_SIZE = 32MBIT                                  ### FLASH_SIZE SIZE
                                                      # Option1:NONE       #FALSH_SIZE_NONE
                                                      # Option2:16MBIT     #define FLASH_SIZE_16MBIT
                                                      # Option3:32MBIT     #define FLASH_SIZE_32MBIT
