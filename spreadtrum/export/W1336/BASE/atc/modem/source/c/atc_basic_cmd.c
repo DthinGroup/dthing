@@ -2829,8 +2829,8 @@ AT_CMD_FUNC(ATC_ProcessCPIN)
                 //other error code indicates sim initialize not ready or sim error
                 if (atc_config_ptr->is_sim_init[dual_sys])
                 {
-                return ERR_SIM_BUSY;
-            }
+                    return ERR_SIM_BUSY;
+                }
             }
 
             if(atc_config_ptr->sim_flag[dual_sys] == TRUE)

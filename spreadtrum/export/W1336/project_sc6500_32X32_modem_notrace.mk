@@ -94,7 +94,7 @@ QQ_SUPPORT = NONE
 PRODUCT_CONFIG = sc6500_modem                        ### MS_Customize/source/product/config;scf file;nv;resource
                                                      # default: project name
 
-PRODUCT_BASELIB_DIR = $(PROJECT)                     ### Dir name for base lib in MS_Code\lib\
+PRODUCT_BASELIB_DIR = sc6500_16X32_modem_notrace     ### Dir name for base lib in MS_Code\lib\
                                                      # default: project name
 
 BLUETOOTH_SUPPORT = NONE                             ### Bluetooth Chip Type:

@@ -4433,8 +4433,8 @@ LOCAL ATC_STATUS ATC_Initialize(void  // Retur S_ATC_SUCCESS if success,
     ATC_InitAutoStartPS();
 #else
     //auto start ps when run in CALIBRATION_POST_MODE
-    if (  (CALIBRATION_POST_MODE == POWER_GetResetMode()) || (CALIBRATION_MODE == POWER_GetResetMode()) || (CALIBRATION_POST_NO_LCM_MODE == POWER_GetResetMode()))
-    { 
+    //if (  (CALIBRATION_POST_MODE == POWER_GetResetMode()) || (CALIBRATION_MODE == POWER_GetResetMode()) || (CALIBRATION_POST_NO_LCM_MODE == POWER_GetResetMode()))
+    {//modify by longsung  
         ATC_InitAutoStartPSNoSat();
     }
 #endif
@@ -6618,9 +6618,10 @@ void ATC_InitConfig(
 LOCAL void ATC_RegisterEvent(void)
 {
     POWER_RESTART_CONDITION_E      start_condition = POWER_GetRestartCondition();
-
+#if 0
     if ((RESTART_BY_ALARM != start_condition &&RESTART_BY_CHARGE != start_condition)
         || 1 == CLASSMARK_GetModelType() )
+#endif        
     {
         //Register phone event
         SCI_RegisterMsg( MN_APP_PHONE_SERVICE, 

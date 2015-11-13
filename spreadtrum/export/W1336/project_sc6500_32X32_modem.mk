@@ -94,7 +94,7 @@ QQ_SUPPORT = NONE
 PRODUCT_CONFIG = sc6500_modem                        ### MS_Customize/source/product/config;scf file;nv;resource
                                                      # default: project name
 
-PRODUCT_BASELIB_DIR = $(PROJECT)                     ### Dir name for base lib in MS_Code\lib\
+PRODUCT_BASELIB_DIR = sc6500_16X32_modem             ### Dir name for base lib in MS_Code\lib\
                                                      # default: project name
 
 BLUETOOTH_SUPPORT = NONE                             ### Bluetooth Chip Type:
@@ -465,7 +465,7 @@ NOR_BOOTLOADER_SUPPORT  = FALSE                      ### Nor Bootloader Support
                                                      # Option1:TRUE
                                                      # Option2:FALSE
 
-CALI_MODE_PORT = UART1                               ### Calibration MODE uart port selection
+CALI_MODE_PORT = UART0                               ### Calibration MODE uart port selection
                                                      # Option1:UART1 (defaut)
                                                      # Option2:UART0 (ZBX recommand)
 
