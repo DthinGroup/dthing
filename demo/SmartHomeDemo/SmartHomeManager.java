@@ -38,7 +38,7 @@ public class SmartHomeManager extends Applet {
     }
 
     public void startup() {
-    	mComm = CommConnectionImpl.getComInstance(0);
+    	mComm = CommConnectionImpl.getComInstance(1);
         registerCommReference(mComm);
         startDataCollectThread();
     }
