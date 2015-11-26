@@ -11,6 +11,9 @@ import iot.oem.adc.ADCManager;
 public class ADCSensor extends Applet {
     private static final String REPORT_SERVER_FORMAT = "http://42.121.18.62:8080/dthing/ParmInfo.action?saveDataInfo&saveType=qt&parmInfo=";
     private static boolean allowRunning = true;
+    private static final int DefaultGCPercentage = 48;
+    private static long totalMemory = 0;
+    private static long gcMemory = 0;
     private static int port = 0;
 
     public ADCSensor() {
@@ -25,6 +28,8 @@ public class ADCSensor extends Applet {
     }
 
     public void startup() {
+        totalMemory = Runtime.getRuntime().totalMemory();
+        gcMemory = totalMemory * DefaultGCPercentage/ 100;
         new Thread() {
             private ADCManager manager = null;
             private int result = -1;
@@ -60,6 +65,7 @@ public class ADCSensor extends Applet {
                     } catch (InterruptedException e) {
                         System.out.println("InterruptedException: " + e);
                     }
+                    MemoryCheck();
                 }while(allowRunning);
 
                 try {
@@ -96,6 +102,15 @@ public class ADCSensor extends Applet {
                 InputStream dis = httpConn.getInputStream();
                 dis.close();
                 httpConn.disconnect();
+            }
+
+            public static void MemoryCheck() {
+                long free =  Runtime.getRuntime().freeMemory();
+
+                //Force VM to gc when memory is less than 30%
+                if (free < gcMemory) {
+                    Runtime.getRuntime().gc();
+                }
             }
         }.start();
     }

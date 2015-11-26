@@ -27,31 +27,34 @@ public class GpioTest extends Applet
 
 
     public void startup() {
-        boolean test = false;
-        int gpioid = 0;
+        int i = 0;
+        int[] gpioids = {26,88};
         try
         {
-            while ((gpioid < 61) && allowRunning)
+            while ((i < gpioids.length) && allowRunning)
             {
-                Gpio gpio = new Gpio(gpioid);
-                for (int i = 0; i < 5; i++)
-                {
-                    Thread.sleep(1000);
-                    gpio.setCurrentMode(0);
-                    if (test)
-                    {
-                        log("read true write false:gpio="+gpioid);
-                        gpio.write(false);
-                        test = false;
-                    } else
-                    {
-                        log("read false write true:gpio="+gpioid);
-                        gpio.write(true);
-                        test = true;
-                    }
-                }
-                //TODO: destroy gpio instance
-                gpioid++;
+                Gpio gpio = new Gpio(gpioids[i]);
+                Thread.sleep(500);
+                gpio.setCurrentMode(0);
+                log("set gpio:" + gpioids[i] + " to write mode");
+                gpio.write(true);
+                log("write gpio:" + gpioids[i] + " to true");
+                gpio.setCurrentMode(1);
+                Thread.sleep(500);
+                log("read gpio:" + gpioids[i] + " with value " +gpio.read());
+                gpio.setCurrentMode(0);
+                Thread.sleep(500);
+                gpio.write(false);
+                log("write gpio:" + gpioids[i] + " to false");
+                gpio.setCurrentMode(1);
+                Thread.sleep(500);
+                log("read gpio:" + gpioids[i] + " with value " +gpio.read());
+                gpio.setCurrentMode(0);
+                Thread.sleep(500);
+                gpio.destroy();
+                log("destroy gpio:" + gpioids[i]);
+                Thread.sleep(500);
+                i++;
             }
             notifyDestroyed();
         }
@@ -71,7 +74,6 @@ public class GpioTest extends Applet
 
     private void log(String s)
     {
-        System.out.println("[Gpio Test]" + s);
+        System.out.println("[GPIO]" + s);
     }
 }
-

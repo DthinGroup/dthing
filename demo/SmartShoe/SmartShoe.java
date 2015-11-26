@@ -415,7 +415,7 @@ public class SmartShoe extends Applet {
         }
     }
 
-  public static void MemoryCheck() {
+    public static void MemoryCheck() {
       long free =  Runtime.getRuntime().freeMemory();
         //System.out.println("free:" + free + "/" + total);
 
