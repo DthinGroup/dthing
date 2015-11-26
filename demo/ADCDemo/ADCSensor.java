@@ -104,7 +104,7 @@ public class ADCSensor extends Applet {
                 httpConn.disconnect();
             }
 
-            public static void MemoryCheck() {
+            public void MemoryCheck() {
                 long free =  Runtime.getRuntime().freeMemory();
 
                 //Force VM to gc when memory is less than 30%
