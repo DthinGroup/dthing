@@ -22,6 +22,7 @@
 . build.sh ShakeDemo
 . build.sh SmartHomeDemo
 . build.sh SmartShoe
+. build.sh SocketDemo
 . build.sh SystemInfo
 . build.sh ThreadDemo
 . build.sh Ublox
