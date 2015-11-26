@@ -99,7 +99,7 @@ void Java_jp_co_cmcc_atcommand_ATCommandConnection_send0(const u4* args, JValue*
     else
     {
         //Waiting response
-        //ATC_GetResultRsp(linkId, &response, &responseLen);
+        ATC_GetResultRsp(linkId, &response, &responseLen);
         g_sendNotifier = NULL;
         ATC_RegisterCallback(NULL);
     }
