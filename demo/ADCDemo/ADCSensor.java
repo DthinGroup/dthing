@@ -11,6 +11,8 @@ import iot.oem.adc.ADCManager;
 public class ADCSensor extends Applet {
     private static final String REPORT_SERVER_FORMAT = "http://42.121.18.62:8080/dthing/ParmInfo.action?saveDataInfo&saveType=qt&parmInfo=";
     private static boolean allowRunning = true;
+    private static int port = 0;
+
     public ADCSensor() {
       // TODO Auto-generated constructor stub
     }
@@ -26,9 +28,7 @@ public class ADCSensor extends Applet {
         new Thread() {
             private ADCManager manager = null;
             private int result = -1;
-            private int valueOfPort0 = 0;
-            private int valueOfPort7 = 0;
-            private boolean reportPort0 = true;
+            private int adcValue = 0;
             private boolean allowLogPrint = false;
 
             public void run() {
@@ -40,22 +40,9 @@ public class ADCSensor extends Applet {
                     if (manager == null) break;
 
                     try {
-                        if (reportPort0 == true)
-                        {
-                            int cid = 0;
-                            //read from channel 0
-                            result = manager.read(cid);
-                            valueOfPort0 = convert(result);
-                            System.out.println("[ADCDemo] read channelID[" + cid + "] with result[" + valueOfPort0 + "]");
-                        }
-                        else
-                        {
-                            //read from channel 7
-                            int cid = 7;
-                            result = manager.read(cid);
-                            valueOfPort7 = convert(result);
-                            System.out.println("[ADCDemo] read channelID[" + cid + "] with result[" + valueOfPort7 + "]");
-                        }
+                        result = manager.read(port);
+                        adcValue = convert(result);
+                        System.out.println("[ADCDemo] read channelID[" + port + "] with result[" + adcValue + "]");
                     } catch (IllegalArgumentException e) {
                         System.out.println("ADCDemo IllegalArgumentException:" + e);
                     } catch (IOException e) {
@@ -63,16 +50,7 @@ public class ADCSensor extends Applet {
                     }
 
                     try {
-                        if (reportPort0 == true)
-                        {
-                            reportADCInfo(valueOfPort0, 0);
-                            reportPort0 = false;
-                        }
-                        else
-                        {
-                            reportADCInfo(valueOfPort7, 7);
-                            reportPort0 = true;
-                        }
+                        reportADCInfo(adcValue, port);
                     } catch (IOException e2) {
                         System.out.println("IOException: " + e2);
                     }
