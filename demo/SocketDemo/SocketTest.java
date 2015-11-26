@@ -1,6 +1,6 @@
 import java.io.IOException;
 import java.io.OutputStream;
-import java.net.ServerSocket;
+//import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
@@ -10,8 +10,8 @@ import jp.co.cmcc.event.Event;
 
 
 public class SocketTest extends Applet {
-    private static final String IP = "127.0.0.1";
-    private static final int PORT = 9999;
+    private static final String IP = "42.121.18.62";
+    private static final int PORT = 9018;
     private static Socket handle = null;
 
     public SocketTest() {
@@ -29,7 +29,7 @@ public class SocketTest extends Applet {
     }
 
     public void startup() {
-        new Thread() {
+        /*new Thread() {
             public void run() {
                 try {
                     ServerSocket ss = new ServerSocket(PORT);
@@ -40,7 +40,7 @@ public class SocketTest extends Applet {
                     System.out.println(e.getMessage());
                 }
             }
-        }.start();
+        }.start();*/
 
         new Thread() {
             public void run() {
