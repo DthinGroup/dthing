@@ -313,6 +313,7 @@ endif
 else
 SOURCES   +=	prod_cfg.c    	\
            		prod_outport.c  \
+           		scm_config.c 	\
            		keymap_cfg.c 	\
            		gpio_cfg.c 		\
            		pinmap_cfg.c 	\

@@ -234,6 +234,10 @@ nv_type\NV_SIM_CONFIG\sim_card_number=0x3
 nv_type\NV_SIM_CONFIG\sim_card_number=0x4
 #endif
 
+#ifdef PLATFORM_INTERNAL_SIM
+nv_type\NV_SIM_CONFIG\sim_slot_cfg=0x02010003
+#endif
+
 #ifdef NXP_LVVE_SUPPORT
 audio\audio\Headset\AudioStructure\aec_switch=0x3
 audio\audio\Headset\AudioStructure\extend2\extend2[64]=0x1101
@@ -295,13 +299,14 @@ nv_type\NV_REF_PARAMETER\enable_arm_sleep=0x0
 #endif
 
 #ifdef MODEM_PLATFORM
-nv_type\NV_REF_PARAMETER\uart_fifo_empty_before_sleep=1
 DownloadParam\system_param_dsp_use_T\log_switch_struct\DSP_log_switch=0x0
 nv_type\NV_REF_PARAMETER\auto_power_on=1
 // !! NOTE !!, ZBX did not need sleep
 #ifdef MODEM_TYPE_ZBX  
 nv_type\NV_REF_PARAMETER\enable_arm_sleep=0x0
 #endif
+
+nv_type\NV_REF_PARAMETER\enable_arm_sleep=0x0
 
 #ifdef DUAL_MUX_SUPPORT
 nv_type\NV_REF_PARAMETER\com_debug=0xFF

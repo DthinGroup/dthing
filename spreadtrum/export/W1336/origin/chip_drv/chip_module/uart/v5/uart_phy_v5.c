@@ -198,9 +198,11 @@ PUBLIC void  Uart_CallbackHisr (uint32 data, void *pData)
     int32 port = 0;
     volatile UART_REG_S *uart_reg_ptr = NULL;
 
+    //SCI_TRACE_LOW("===>>Uart_CallbackHisr\n");
 
     while (!threadReadBuffer (&port))
     {
+        //SCI_TRACE_LOW("===port:%d",port);
         SCI_ASSERT (port < 3);/*assert verified*/
 
         uart_reg_ptr = (volatile UART_REG_S *) hw_config.baseAddr[port-UART_COM0];
@@ -208,6 +210,9 @@ PUBLIC void  Uart_CallbackHisr (uint32 data, void *pData)
 
         mask_sts = uart_reg_ptr->masked_sts;
         raw_sts  = uart_reg_ptr->sts0;
+
+    //SCI_TRACE_LOW("===mask_sts:%x",mask_sts);
+    //SCI_TRACE_LOW("===raw_sts:%x",raw_sts);
 
         if (raw_sts & US_BREAK)
         {
@@ -220,10 +225,12 @@ PUBLIC void  Uart_CallbackHisr (uint32 data, void *pData)
 
         if (s_uart_port[port].callback != NULL)
         {
+            //SCI_TRACE_LOW("===callback:");
 
             if (mask_sts & (uint32) US_TX_EMPTY)
             {
                 //tx fifo empty interrupt disable, it will be reset when UART_Write is called
+                //SCI_TRACE_LOW("===callback:EVENT_WRITE_COMPLETE");
                 uart_reg_ptr->ien &= ~ ( (US_TX_EMPTY) &UART_IEN_MASK);
                 (*s_uart_port[port].callback) (EVENT_WRITE_COMPLETE);
             }
@@ -381,6 +388,15 @@ PUBLIC uint32 UART_PHY_Initilize (uint32 port,
 
     p->ien |= ( (US_RX_FULL | US_RXT_OUT) & UART_IEN_MASK);
 
+/*
+    REG32 (0x8300000C) |= (uint32) 128;
+
+    //SCI_TRACE_LOW("===>>p->fifo_cnt:%d",p->fifo_cnt);
+
+   // p->fifo_cnt = 128;  //nix add
+    REG32 ((int)p + ARM_UART_STS1) |= (uint32) 128;
+*/
+    //SCI_TRACE_LOW("===>>p->fifo_cnt:%d,addr:0x%x",p->fifo_cnt,&(p->fifo_cnt));
 
     return UART_SUCCESS;
 }
@@ -452,8 +468,13 @@ uint32 UART_PHY_ReadData (uint32 port, uint8 *buffer, uint32 length)
     uint32 i;
     volatile UART_REG_S *p  = (volatile UART_REG_S *) (hw_config.baseAddr[port-UART_COM0]);
 
+    //p->fifo_cnt = 128;   //nix add
+
     i = p->fifo_cnt & US1_RX_FIFOCNT;
 
+    //SCI_TRACE_LOW("===>>UART_REG_S *p = 0x%x",p);
+
+    //SCI_TRACE_LOW("===>>uart read,port =%d,i=%d,fifo cnt=%d\n",port,i,p->fifo_cnt);
 
     if (0 == length || 0 == i)
     {

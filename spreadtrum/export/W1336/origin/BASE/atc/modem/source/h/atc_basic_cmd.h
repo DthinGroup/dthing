@@ -459,16 +459,6 @@ extern ATC_STATUS ATC_ProcessAMSCFGCANCELALL(
 );
 
 /*****************************************************************************/
-//  Description : This function handle the ATAMSDEBUG command
-//  Global resource dependence : none
-//  Note:
-/*****************************************************************************/
-extern ATC_STATUS ATC_ProcessAMSDEBUG(
-    ATC_CONFIG_T         *atc_config_ptr, // point to the ATC_CONFIG_T struct.
-    ATC_CUR_INFO_LIST_T *cur_cmd_info // point to the atc cmd info
-);
-
-/*****************************************************************************/
 //  Description : This function handle the ATQ command
 //  Global resource dependence : none
 //  Author:       Xueli Lv
@@ -2030,11 +2020,6 @@ PUBLIC uint32 ATC_ProcessSioSADLVVENVData(
                 uint8           *data_ptr,  // pointer to the data
                 uint16          param_len
                 );
-
-#ifndef DAM_TEST
-AT_CMD_FUNC(ATC_ProcessSFSTEST);
-#endif
-
 /**---------------------------------------------------------------------------*
  **                         Compiler Flag                                     *
  **---------------------------------------------------------------------------*/

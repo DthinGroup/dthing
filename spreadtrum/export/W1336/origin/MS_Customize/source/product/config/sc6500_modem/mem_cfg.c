@@ -231,7 +231,7 @@ uint32 g_sfs_bufMgr_max_idle_write_size   = 20;	//unit is sector.when handset is
 	   #ifdef MULTI_BIN_SUPPORT	
 	    #define    	MAX_SYSTEM_SPACE_SIZE  	          (1500 * 1024 - DEBUG_MEM_SIZE)
 	   #else   	
-	    #define    	MAX_SYSTEM_SPACE_SIZE  	          (2200 * 1024 - DEBUG_MEM_SIZE)
+	    #define    	MAX_SYSTEM_SPACE_SIZE  	          (2500 * 1024 - DEBUG_MEM_SIZE)
 	   #endif	
 	    #define    	MAX_BASE_SPACE_SIZE  	          (50 * 1024) 
 	    #define    	MAX_APP_SPACE_SIZE  	          (380* 1024)

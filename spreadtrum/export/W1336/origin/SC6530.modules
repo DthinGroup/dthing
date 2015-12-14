@@ -9,7 +9,7 @@ EXPORTLIBS = \
              bsd            custom_tone             chip_base         digitalgain    dsp_codec \
              eq_exp         audproc_exp     generic_tone     layer1            layer1_dsp     l4 \
                         record_new      rtos             sfs               transsamplerate \
-             spzip          daps            dtmf_tone        voice             aud_common     aud_dsp_mng
+             spzip          daps            dtmf_tone        voice             aud_common     aud_dsp_mng    libjbedfbcc
 else
 EXPORTLIBS = \
              ps             audioservice    uplink_codec     downlink_codec    agc_exp    aud_algorithm \
@@ -20,7 +20,7 @@ EXPORTLIBS = \
              record_new         rtos  \
              sfs            !scaling        transsamplerate  ratecontrol       daps parser \
              voice          vsp             rotation			\
-             aud_common     aud_dsp_mng     spzip   disk     s3d  !cat_mvoice
+             aud_common     aud_dsp_mng     spzip   disk     s3d  !cat_mvoice  
 endif          
 ifneq ($(strip $(MODEM_PLATFORM)), TRUE)
 ifneq ($(strip $(VECTOR_FONT_SUPPORT)), ETRUMP)
@@ -246,13 +246,13 @@ include Makefile.third-party
 ifeq ($(strip $(MODEM_PLATFORM)), TRUE)
 COMPLIBS_DBG   = custom_drv     chip_drv     ucom         version      aud_dev   aud_config \
                  atc            refbase      sim          usbservice   !nv_parameter   mux  char_lib\
-                 main           scp          scm         dthing
+                 main             myriad
 else
 COMPLIBS_DBG   = app          custom_drv     chip_drv       gui         mmk        lcd  \
                  ucom         ubot           upcc           usbservice  version    aud_dev \
                  aud_config   scp scm        atc            refbase     isp_service     dc \
                  sim          mmk_sys        caf_templete   utility     utility_performance \
-                 !resource    !nv_parameter  dv_cfg !wre_preload char_lib main dthing
+                 !resource    !nv_parameter  dv_cfg !wre_preload		char_lib			main        myriad
 endif
 
 ifeq ($(strip $(TCPIP_SUPPORT)), TRUE)

@@ -298,11 +298,13 @@ PUBLIC BOOLEAN GPIO_PHY_GetDataMask (GPIO_INFO_T *pGpio_info)
 
     if (_GPIO_GetGpioDataMaskRegAddr (pGpio_info, &offsetAddr))
     {
+        //SCI_TRACE_LOW("===>>GPIO_PHY_GetDataMask\n");
         reg_addr += offsetAddr;
 
         ret =  ( (GPIO_REG32 (reg_addr) & (1<<pGpio_info->bit_num)) ? SCI_TRUE : SCI_FALSE);
     }
 
+    //SCI_TRACE_LOW("===>>GPIO_PHY_GetDataMask ret:%d \n",ret);
 
     return ret;
 }

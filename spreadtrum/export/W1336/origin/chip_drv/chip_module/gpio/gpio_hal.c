@@ -124,6 +124,7 @@ LOCAL void _GPIO_InitIntTable (void)
 //  Author:         Steve.Zhan
 //  Note:
 /*****************************************************************************/
+//extern void SENSE_Init(void);
 LOCAL uint32 GPIO_RegInt (void)
 {
     uint32 intNum = 0;
@@ -184,6 +185,7 @@ PUBLIC uint32 GPIO_Init (void)
                                GPIO_ZeroIntDeShaking, 0, DESHAKING_TIME, SCI_NO_ACTIVATE);
     }
 
+
     for (gpio_id = 0; gpio_id < GPIO_GetMaxNumber(); ++gpio_id)
     {
         GPIO_PHY_GetBaseInfo (gpio_id, &gpio_info);
@@ -212,7 +214,7 @@ PUBLIC uint32 GPIO_Init (void)
         }
     }
 
-
+    //SENSE_Init();
     return status;
 }
 
@@ -265,7 +267,7 @@ PUBLIC BOOLEAN  GPIO_GetValue (uint32  gpio_id)
 
     if (GPIO_PHY_GetDirection (&gpio_info))
     {
-        //SCI_PASSERT (0, ("[GPIO_DRV]GPIO_GetValue: GPIO_%d should be input port!\n", gpio_id));/*assert to do*/
+        SCI_PASSERT (0, ("[GPIO_DRV]GPIO_GetValue: GPIO_%d should be input port!\n", gpio_id));/*assert to do*/
     }
 
     return GPIO_PHY_GetPinData (&gpio_info);
@@ -337,7 +339,7 @@ PUBLIC BOOLEAN GPIO_GetGPIOState (uint32 gpio_id)
         return SCI_FALSE; /*lint !e527 comfirmed by xuepeng*/
     }
 
-    //SCI_TRACE_LOW:"GPIO_GetGPIOState UnRegister interrupt for this pin."
+    ////SCI_TRACE_LOW:"GPIO_GetGPIOState UnRegister interrupt for this pin."
     SCI_TRACE_ID(TRACE_TOOL_CONVERT,GPIO_HAL_304_112_2_17_23_4_42_982,(uint8*)"");
 
     return GPIO_PHY_GetPinData (&gpio_info);
@@ -382,6 +384,7 @@ PUBLIC void GPIO_Enable (uint32 gpio_id)
 
     GPIO_PHY_SetDataMask (&gpio_info, SCI_TRUE);
 
+    //SCI_TRACE_LOW("===>>gpio_type:%d \n",gpio_info.gpio_type);
 }
 
 /*****************************************************************************/
@@ -950,7 +953,7 @@ PUBLIC void GPIO_SetInitState (uint32  gpio_id, uint32 state)
         }
         else if (s_gpio_int_table[i].gpio_id == (uint32) GPIO_INVALID_ID)
         {
-            //SCI_TRACE_LOW:"GPIO_SetInitState ERROR gpio_id=%d,i=%d"
+            ////SCI_TRACE_LOW:"GPIO_SetInitState ERROR gpio_id=%d,i=%d"
             SCI_TRACE_ID(TRACE_TOOL_CONVERT,GPIO_HAL_875_112_2_17_23_4_44_986,(uint8*)"dd",gpio_id,i);
         }
     }
@@ -981,7 +984,7 @@ PUBLIC uint32 GPIO_GetInitState (uint32  gpio_id)
         }
         else if (s_gpio_int_table[i].gpio_id == (uint32) GPIO_INVALID_ID)
         {
-            //SCI_TRACE_LOW:"GPIO_GetInitState ERROR gpio_id=%d,i=%d"
+            ////SCI_TRACE_LOW:"GPIO_GetInitState ERROR gpio_id=%d,i=%d"
             SCI_TRACE_ID(TRACE_TOOL_CONVERT,GPIO_HAL_905_112_2_17_23_4_44_987,(uint8*)"dd",gpio_id,i);
         }
     }
@@ -1068,7 +1071,7 @@ LOCAL void _GPIO_DeShaking (uint32 int_rec_id)
                 || (SCI_FALSE == s_gpio_int_table[int_rec_id].is_stable)
            )
         {
-            //SCI_TRACE_LOW:"GPIO_DRIVER: GPIO_%d is shaking(INVALID)!\n"
+            ////SCI_TRACE_LOW:"GPIO_DRIVER: GPIO_%d is shaking(INVALID)!\n"
             SCI_TRACE_ID(TRACE_TOOL_CONVERT,GPIO_HAL_989_112_2_17_23_4_44_988,(uint8*)"d", s_gpio_int_table[int_rec_id].gpio_id);
             GPIO_EnableIntCtl (s_gpio_int_table[int_rec_id].gpio_id);
             GPIO_PHY_TrigGPIDetect (&gpio_info);
@@ -1077,7 +1080,7 @@ LOCAL void _GPIO_DeShaking (uint32 int_rec_id)
 
         //update pin state
         s_gpio_int_table[int_rec_id].state = pin_state;
-        //SCI_TRACE_LOW:"GPIO_DRIVER: GPIO_%d state is %d!\n"
+        ////SCI_TRACE_LOW:"GPIO_DRIVER: GPIO_%d state is %d!\n"
         SCI_TRACE_ID(TRACE_TOOL_CONVERT,GPIO_HAL_997_112_2_17_23_4_44_989,(uint8*)"dd",s_gpio_int_table[int_rec_id].gpio_id, pin_state);
 
         if (NULL != s_gpio_int_table[int_rec_id].gpio_callback_fun)
@@ -1163,7 +1166,7 @@ PUBLIC uint32 GPIO_GetShakeInterval (uint32 gpio_id)
         }
         else if (s_gpio_int_table[i].gpio_id == (uint32) GPIO_INVALID_ID)
         {
-            //SCI_TRACE_LOW:"GPIO_GetShakeInterval ERROR gpio_id=%d,i=%d"
+            ////SCI_TRACE_LOW:"GPIO_GetShakeInterval ERROR gpio_id=%d,i=%d"
             SCI_TRACE_ID(TRACE_TOOL_CONVERT,GPIO_HAL_1082_112_2_17_23_4_44_990,(uint8*)"dd",gpio_id,i);
             SCI_ASSERT (0);/*assert to do*/
         }
@@ -1201,7 +1204,7 @@ PUBLIC void GPIO_GetCallBack (uint32 gpio_id, uint32 gpio_state)
         }
         else if (s_gpio_int_table[i].gpio_id == (uint32) GPIO_INVALID_ID)
         {
-            //SCI_TRACE_LOW:"GPIO_GetCallBack ERROR gpio_id=%d,i=%d"
+            ////SCI_TRACE_LOW:"GPIO_GetCallBack ERROR gpio_id=%d,i=%d"
             SCI_TRACE_ID(TRACE_TOOL_CONVERT,GPIO_HAL_1119_112_2_17_23_4_44_991,(uint8*)"dd",gpio_id,i);
         }
     }

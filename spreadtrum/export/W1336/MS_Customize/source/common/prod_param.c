@@ -912,6 +912,9 @@ PUBLIC void PROD_Init(void)
 #endif		
 	}
 
+/*Begin of dam on 2014-Sep-29*/
+	SCM_Init();
+/*End of dam on 2014-Sep-29*/
 #ifndef MODEM_PLATFORM
 	SCM_Init();
 #endif	
@@ -950,7 +953,7 @@ PUBLIC void PROD_Init(void)
     #endif 
 #endif
 
-#if defined(CHIP_VER_6531) && (!defined(BLUETOOTH_SUPPORT_SPRD_BT) || defined(MODEM_PLATFORM))
+#if defined(CHIP_VER_6531) && !defined(BLUETOOTH_SUPPORT)
     SLEEP_BT_PowerDomain_Set(FALSE);
 #endif
 	PROD_CusCfgInit();	

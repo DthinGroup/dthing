@@ -10,7 +10,7 @@ MULTI_BIN_RAM = FALSE                                ## Option1  32MBIT_LEVEL1  
                                                      ## Option2  32MBIT_LEVEL2   ----32x32
                                                      ## Option3  32MBIT_LEVEL3   ----32x32
 
-RELEASE_INFO = TRUE                                 ### RELEASE version
+RELEASE_INFO = FALSE                                 ### RELEASE version
                                                      # Option1:TRUE
                                                      # Option2:FALSE
 
@@ -99,7 +99,7 @@ QQ_SUPPORT = NONE
 PRODUCT_CONFIG = sc6500_modem                        ### MS_Customize/source/product/config;scf file;nv;resource
                                                      # default: project name
 
-PRODUCT_BASELIB_DIR = sc6500_16X32_modem                     ### Dir name for base lib in MS_Code\lib\
+PRODUCT_BASELIB_DIR = sc6500_16X32_modem                    ### Dir name for base lib in MS_Code\lib\
                                                      # default: project name
 
 BLUETOOTH_SUPPORT = NONE                             ### Bluetooth Chip Type:
@@ -120,11 +120,11 @@ DEMOD_HW = NONE                                      ### demod chip type:
                                                      # Option1:SIANO      DEMOD_HW_SIANO
                                                      # Option2:INNOFIDEI  DEMOD_HW_INNOFIDEI
 
-MEMORY_DEBUG_SUPPORT = FALSE                         ### MEMORY DEBUG SUPPORT:
+MEMORY_DEBUG_SUPPORT = TRUE                         ### MEMORY DEBUG SUPPORT:
                                                      # Option1:TRUE
                                                      # Option2:FALSE
 
-TRACE_INFO_SUPPORT = FALSE                          ### TRACE INFO SUPPORT:
+TRACE_INFO_SUPPORT = TRUE            ### TRACE INFO SUPPORT:
                                                      # Option1:TRUE
                                                      # Option2:FALSE
 
@@ -294,7 +294,7 @@ GPRS_SUPPORT = TRUE                                  ### GRPS Support:该宏的取值
                                                      # Option1:TRUE
                                                      # Option2:FALSE
 
-DRM_SUPPORT = NONE                       ### DRM Support:ONLY VALIDATE WHEN MMI_AUTO_UPDATE_TIME_SUPPORT SET TRUE 
+DRM_SUPPORT = NONE                                   ### DRM Support:ONLY VALIDATE WHEN MMI_AUTO_UPDATE_TIME_SUPPORT SET TRUE 
                                                      # Option1:NONE 
                                                      # Option2:V1 
                                                      # Option3:FL
@@ -312,7 +312,7 @@ MULTI_SIM_SYS = DUAL                     ### Platform Support Multi Sim Card Num
                                                      # Option4:QUAD      #define MULTI_SIM_SYS_QUAD44
                                                      
                                                      
-JTAG_SUPPORT = FALSE                     ### JTAG Debug Version:
+JTAG_SUPPORT = FALSE                                 ### JTAG Debug Version:
                                                      # Option1: TRUE
                                                      # Option2: FALSE
 
@@ -494,4 +494,4 @@ MODEM_WAKEUP_SUPPORT = FALSE     					           ### MODEM_WAKEUP_SUPPORT
 
 GPS_SUPPORT = TRUE                                   ### GPS Module Support
                                                      # Option1:TRUE
-                                                     # Option2:FALSE
+                                                     # Option2:FALSE                                                

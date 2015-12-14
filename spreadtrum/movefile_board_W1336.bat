@@ -22,7 +22,7 @@ XCOPY /R /Y %EXPORT_SOURCE_ROOT%\SC8800G.modules  %DESDIR%\
 XCOPY /R /Y %EXPORT_SOURCE_ROOT%\Makefile.rules  %DESDIR%\
 XCOPY /R /Y %EXPORT_SOURCE_ROOT%\Makefile.third-party  %DESDIR%\
 XCOPY /R /Y %EXPORT_SOURCE_ROOT%\project_sc6500_32X32_modem.mk  %DESDIR%\
-XCOPY /R /Y %EXPORT_SOURCE_ROOT%\project_sc6500_32X32_modem_notrace.mk  %DESDIR%\
+XCOPY /R /Y %EXPORT_SOURCE_ROOT%\project_sc6500_32X32_modem_debug.mk  %DESDIR%\
 
 XCOPY /R /Y %EXPORT_SOURCE_ROOT%\dthing.mk  %DESDIR%\BASE\make\dthing\
 XCOPY /R /Y %EXPORT_SOURCE_ROOT%\priority_app.h  %DESDIR%\common\export\inc\
