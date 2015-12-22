@@ -13,7 +13,9 @@ static int s_deviceType = DEVICE_NORMAL;
 #include "os_api.h"
 #include "com_drvapi.h"
 #include "AsyncIO.h"
+#if defined(SUPPORT_GPS_BY_MODULE)
 #include "gps_drv.h"
+#endif //SUPPORT_GPS_BY_MODULE
 #endif
 
 #if defined(ARCH_ARM_SPD)
@@ -41,6 +43,7 @@ void Java_iot_oem_comm_CommConnectionImpl_open0(const u4* args, JValue* pResult)
     jint ret = 0;
 
 #if defined(ARCH_ARM_SPD)
+#if defined(SUPPORT_GPS_BY_MODULE)
     if (s_deviceType == DEVICE_GPS)
     {
         int i = 0;
@@ -57,6 +60,7 @@ void Java_iot_oem_comm_CommConnectionImpl_open0(const u4* args, JValue* pResult)
         DVMTraceDbg("[GPS] do open with result %d and gps status %d\n", ret, GPS_GetStatus());
     }
     else
+#endif //SUPPORT_GPS_BY_MODULE
     {
         s_deviceType = device;
 
@@ -120,11 +124,13 @@ void Java_iot_oem_comm_CommConnectionImpl_setBaudRate0(const u4* args, JValue* p
     jint ret = 0;
 
 #if defined(ARCH_ARM_SPD)
+#if defined(SUPPORT_GPS_BY_MODULE)
     if (s_deviceType == DEVICE_GPS)
     {
         GPS_SetBaudRate(bps);
     }
     else
+#endif //SUPPORT_GPS_BY_MODULE
     {
         UART_SetBaudSpeed(port, bps);
     }
@@ -146,6 +152,7 @@ void Java_iot_oem_comm_CommConnectionImpl_close0(const u4* args, JValue* pResult
 
 #if defined(ARCH_ARM_SPD)
     DVMTraceDbg("[COM] to close COM%d\n", port);
+#if defined(SUPPORT_GPS_BY_MODULE)
     if (s_deviceType == DEVICE_GPS)
     {
         if (GPS_ERR_NONE != GPS_Close())
@@ -154,6 +161,7 @@ void Java_iot_oem_comm_CommConnectionImpl_close0(const u4* args, JValue* pResult
         }
     }
     else
+#endif //SUPPORT_GPS_BY_MODULE
     {
         cpl_com_default_close(port);
     }
@@ -586,12 +594,14 @@ void Java_iot_oem_comm_CommConnectionImpl_writeBytes0(const u4*args, JValue* pRe
     if (AsyncIO_firstCall())
     {
         writeDoneNotifier = Async_getCurNotifier();
+#if defined(SUPPORT_GPS_BY_MODULE)
         if (s_deviceType == DEVICE_GPS)
         {
             ret = GPS_WriteData(data, len);
             DVMTraceDbg("[GPS] write gps data with result[%d]\n", ret);
         }
         else
+#endif //SUPPORT_GPS_BY_MODULE
         {
             ret = cpl_com_write(port, data, len);
         }
@@ -625,12 +635,14 @@ void Java_iot_oem_comm_CommConnectionImpl_readBytes0(const u4*args, JValue* pRes
 
     if (AsyncIO_firstCall())
     {
+#if defined(SUPPORT_GPS_BY_MODULE)
         if (s_deviceType == DEVICE_GPS)
         {
             ret = GPS_ReadData(buf, len);
             DVMTraceDbg("[GPS] read gps data with result[%d]\n", ret);
         }
         else
+#endif //SUPPORT_GPS_BY_MODULE
         {
             if (uart_object.rec_len > 0)
             {
