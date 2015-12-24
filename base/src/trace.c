@@ -45,6 +45,14 @@ void DthingTrace(const char* tag, const char* fmt, va_list argList)
 #endif
 }
 
+void DVMTraceJava(const char * fmt,...)
+{
+	va_list argList = {0};
+	va_start(argList, fmt);/*lint !e718 !e64*/
+	DthingTrace("", fmt, argList);
+	va_end(argList);    
+}
+
 void DVMTraceDbg(const char * fmt,...)
 {
     va_list argList = {0};

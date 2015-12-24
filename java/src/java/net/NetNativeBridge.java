@@ -64,13 +64,13 @@ public final class NetNativeBridge {
     public static int socket(boolean streaming) throws SocketException {
         int res = NetConstants.NET_OP_ERROR;
         byte[] arr = {1, 2, 3, 4, 5};
-        Log.log(TAG, "create socket,stream:" + (streaming ? "tcp" : "udp"));
+        Log.netLog(TAG, "create socket,stream:" + (streaming ? "tcp" : "udp"));
         if (!isNetworkInited()) {
             while (AsyncIO.loop()) {
                 res = startUpNetwork(arr);
             }
 
-            Log.log(TAG, "startUpNetwork :" + res);
+            Log.netLog(TAG, "startUpNetwork :" + res);
             if (res != NetConstants.NET_OP_SUCCESS) {
                 throw new SocketException("in socket cons,start up network fail!");
             }
@@ -81,7 +81,7 @@ public final class NetNativeBridge {
             throw new SocketException("create socket fail!");
         }
 
-        Log.log(TAG, "create sock handle:" + sock);
+        Log.netLog(TAG, "create sock handle:" + sock);
         return sock;
     }
 

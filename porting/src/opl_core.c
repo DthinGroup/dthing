@@ -44,7 +44,7 @@ void OPL_core_logChar(int chr)
     if (chr == '\n' || pos == LOG_BUFFER_SIZE-1)
     {
         buf[pos] = '\0';
-        DVMTraceErr("%s", buf);
+        DVMTraceJava("%s", buf);
         pos = 0;
     }
 }

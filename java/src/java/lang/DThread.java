@@ -41,7 +41,7 @@ public class DThread implements java.lang.Runnable {
         if (mTarget != null) {
             mTarget.run();
         } else {
-            Log.log(TAG, "Fuck!");
+            Log.log(TAG, "Thread Start Run Error!");
         }
     }
 
