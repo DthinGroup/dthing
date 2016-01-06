@@ -25,6 +25,7 @@ extern "C" {
 
  /**
  * TRACE_LEV value definitions:
+ * 0 - Only Java log
  * 1 - error
  * 2 - warning
  * 3 - info
@@ -44,6 +45,7 @@ void DVMTraceDbg(const char * fmt,...);
 void DVMTraceInf(const char * fmt,...);
 void DVMTraceWar(const char * fmt,...);
 void DVMTraceErr(const char * fmt,...);
+void DVMTraceJava(const char * fmt,...);
 
 #ifdef __cplusplus
 }
