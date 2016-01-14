@@ -5,6 +5,7 @@
 #include "os_api.h"
 #include "Sig_code.h"
 #include "AsyncIO.h"
+#include <ams_remote.h>
 #include "nativeMyMessageSender.h"
 #include "nativeMySmsConnectionThread.h"
 
@@ -934,6 +935,9 @@ static void sms_msgCallbck(uint32 id, uint32 argc, void *argv)
  */
 void Java_jp_co_cmcc_message_sms_MySmsConnectionThread_nReadMessage(const u4* args, JValue* pResult) {
     jboolean ret = FALSE;
+    ClassObject* thisObj = (ClassObject*) args[0];
+    jbyte * bufferPtr = (jbyte *)(KNI_GET_ARRAY_BUF(args[1]));
+    jint bufferLen = (jint) args[2];
 
 #if defined(ARCH_ARM_SPD)
     CPL_SmsMessage *message = NULL;
@@ -946,81 +950,55 @@ void Java_jp_co_cmcc_message_sms_MySmsConnectionThread_nReadMessage(const u4* ar
 
     if (message != NULL)
     {
-    /* TODO: We need to fill six fields to java, but current jni mechanism doesn't support
-     * bring so many fields to java. Next step, I have to write six fields into one buffer,
-     * parse the buffer on java.
-     */
-#if 0
-        // currently using hardcode for test
-        /* We will be allocating a byte array for the payload
-           which might cause objects to move. So keep
-           a reference "self" to the sct instance
-        */
-        START_TEMPORARY_ROOTS
+        SCISmsMessage *sciMsg = &(message->msg);
+        uint8_t *msgBuffer = (uint8_t *)bufferPtr;
+        int type = JAVA_ENC_GSM_7BIT;
+        int addlen = strlen(sciMsg->addr);
+        int txtlen = 0;
+        int64_t ts = (int64_t)(sciMsg->timestamp * ((int64_t)1000L));
+        int32_t timeHigh = (int32_t)((ts >> 32) & 0xffffffff);
+        int32_t timeLow = (int32_t)(ts & 0xffffffff);
+
+        DVMTraceDbg(("java native MySmsConnectionThread: nReadMessage - get data. encoding = %d", sciMsg->encoding));
+        switch(sciMsg->encoding)
         {
-            DECLARE_TEMPORARY_ROOT(MY_SCT_INSTANCE, self, sct);
+            case MN_SMS_8_BIT_ALPHBET:
+                type = JAVA_ENC_8BIT_BIN;
+                break;
 
-            /* temporary variable to force sequence points - we cannot
-             * store directly into self->data since 'self' might move
-             * during the allocation.
-             */
-            BYTEARRAY ba = NULL;
-            {
-                SCISmsMessage *sciMsg = &(message->msg);
+            case MN_SMS_UCS2_ALPHABET:
+                type = JAVA_ENC_UCS_2;
+                break;
 
-                DVMTraceDbg(("java native MySmsConnectionThread: nReadMessage - get data. encoding = %d", sciMsg->encoding));
-
-                ba = Jbni_newByteArray(sciMsg->length);
-                if (ba == NULL)
-                {
-                    Jbni_raiseOutOfMemoryError();
-                }
-                else
-                {
-                    self->address = Jbni_newString(sciMsg->addr);
-
-                    self->data = ba;
-                    CRTL_memcpy(ba->data, sciMsg->data, sciMsg->length);
-                    self->srcPort = sciMsg->srcPort;
-                    self->dstPort = sciMsg->dstPort;
-
-                    switch(sciMsg->encoding)
-                    {
-                        case MN_SMS_8_BIT_ALPHBET:
-                            self->type = JAVA_ENC_8BIT_BIN;
-                            break;
-
-                        case MN_SMS_UCS2_ALPHABET:
-                            self->type = JAVA_ENC_UCS_2;
-                            break;
-
-                        case MN_SMS_DEFAULT_ALPHABET:
-                        default:
-                            self->type = JAVA_ENC_GSM_7BIT;
-                            break;
-                    }
-
-                    {
-                        int64_t ts;
-                        int64_mul(ts, sciMsg->timestamp, int64_const(1000L));
-                        self->timestamp = ts;
-                    }
-
-                    DVMTraceDbg(("java native MySmsConnectionThread: nReadMessage - sms reading address = %s, srcPort =%d,desport=%d,encoding=%d.",
-                        sciMsg->addr, self->srcPort, self->dstPort, self->type));
-
-                    CRTL_free(message->msg.data);
-                    CRTL_free(message);
-
-                    result = JBNI_TRUE;
-                }
-            }
+            case MN_SMS_DEFAULT_ALPHABET:
+            default:
+                type = JAVA_ENC_GSM_7BIT;
+                break;
         }
-        END_TEMPORARY_ROOTS
-#else
-        DVMTraceDbg(("=== java nReadMessage message received, but didn't fill it to java because of kni issue. ==="));
+
+        /* Wrap data into msg buffer as below format:
+         * srcPort(4bytes) + dstPort(4bytes) + type(4bytes) + time_high(4bytes) + time_high(4bytes) +
+         * addlen(4bytes) + address(addlen bytes) + txtlen(4bytes) + text(txtlen bytes).
+         */
+        writebeIU32(&msgBuffer[0], sciMsg->srcPort);
+        writebeIU32(&msgBuffer[4], sciMsg->dstPort);
+        writebeIU32(&msgBuffer[8], type);
+        writebeIU32(&msgBuffer[12], timeHigh);
+        writebeIU32(&msgBuffer[16], timeLow);
+        writebeIU32(&msgBuffer[20], addlen);
+        memcpy(&msgBuffer[24], sciMsg->addr, addlen);
+        txtlen = (sciMsg->length >= (bufferLen - 28 - addlen) ? (bufferLen - 28 - addlen) : sciMsg->length);
+        writebeIU32(&msgBuffer[24+addlen], txtlen);
+        memcpy(&msgBuffer[28+addlen], sciMsg->data, txtlen);
+
+        DVMTraceDbg(("java native MySmsConnectionThread: nReadMessage - sms reading address = %s, srcPort =%d,desport=%d,type=%d.",
+            sciMsg->addr, sciMsg->srcPort, sciMsg->dstPort, type));
+         DVMTraceDbg(("java native MySmsConnectionThread: nReadMessage timeHigh = %d, timeLow = %d ", timeHigh, timeLow));
+
+        CRTL_free(message->msg.data);
+        CRTL_free(message);
+
         ret = TRUE;
-#endif
     }
     else
     {

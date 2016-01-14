@@ -359,10 +359,10 @@ KniNativeMethodInfo gJava_jp_co_cmcc_message_sms_MyMessageSender[1] = {
 
 /* jp.co.cmcc.message.sms.MySmsConnectionThread native APIs */
 KniNativeMethodInfo gJava_jp_co_cmcc_message_sms_MySmsConnectionThread[4] = {
-    {"nReadMessage",   "()Z", (KniFunc)Java_jp_co_cmcc_message_sms_MySmsConnectionThread_nReadMessage},
-    {"nDeleteMessage", "()V", (KniFunc)Java_jp_co_cmcc_message_sms_MySmsConnectionThread_nDeleteMessage},
-    {"nRegister",      "()Z", (KniFunc)Java_jp_co_cmcc_message_sms_MySmsConnectionThread_nRegister},
-    {"nUnregister",    "()V", (KniFunc)Java_jp_co_cmcc_message_sms_MySmsConnectionThread_nUnregister},
+    {"nReadMessage",   "([BI)Z", (KniFunc)Java_jp_co_cmcc_message_sms_MySmsConnectionThread_nReadMessage},
+    {"nDeleteMessage", "()V",    (KniFunc)Java_jp_co_cmcc_message_sms_MySmsConnectionThread_nDeleteMessage},
+    {"nRegister",      "()Z",    (KniFunc)Java_jp_co_cmcc_message_sms_MySmsConnectionThread_nRegister},
+    {"nUnregister",    "()V",    (KniFunc)Java_jp_co_cmcc_message_sms_MySmsConnectionThread_nUnregister},
 };
 
 KniClassNativeMethodInfo gNativeMthTab[NATIVE_CLASSES_COUNT] = {

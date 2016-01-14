@@ -30,6 +30,8 @@ class MySmsConnectionThread extends Thread {
     /** Is sms registered in native. */
     private static boolean isReg = false;
 
+    private static int MSG_BUF_LEN = 1024;
+
     /**
      * Find a server connection by provided port number
      *
@@ -191,6 +193,17 @@ class MySmsConnectionThread extends Thread {
     /* @} */
 
     /**
+     * Translate a buffer bytes with start pos into integer.
+     */
+    private int tranBytesToInt(byte[] buf, int pos) {
+        return
+            (((int)buf[pos]) << 24) |
+            (((int)buf[pos+1]) << 16) |
+            (((int)buf[pos+2]) <<  8) |
+            (((int)buf[pos+3]));    
+    }
+
+    /**
      * Main routine of the reader thread.
      * Maintains a collection of registered SmsConnection instances, and delivers messages as
      * required.
@@ -208,8 +221,13 @@ class MySmsConnectionThread extends Thread {
                 // the details into instance fields.
 
                 boolean result = false;
+                byte[] msgBuf = new byte[MSG_BUF_LEN];
+                int timeHigh = 0, timeLow = 0;
+                int addlen = 0, txtlen = 0;
+                SMSMessage msg;
+
                 while (AsyncIO.loop()) {
-                    result = nReadMessage();
+                    result = nReadMessage(msgBuf, MSG_BUF_LEN);
                 }
 
                 if (!result) {
@@ -217,12 +235,33 @@ class MySmsConnectionThread extends Thread {
 
                     sleep(10000);
                     continue;
+                } else {
+                    log("nReadMessage receive msg.");
                 }
 
-                log("nReadMessage succeeded. srcPort = " + srcPort + " dstport =" + dstPort);
-                // deliver the message to the sms connection
+                /* Parse data from msg buffer as below format:
+                 * srcPort(4bytes) + dstPort(4bytes) + type(4bytes) + time_high(4bytes) + time_high(4bytes) +
+                 * addlen(4bytes) + address(addlen bytes) + txtlen(4bytes) + text(txtlen bytes).
+                 */
+                srcPort  = tranBytesToInt(msgBuf, 0);
+                dstPort  = tranBytesToInt(msgBuf, 4);
+                type     = tranBytesToInt(msgBuf, 8);
+                timeHigh = tranBytesToInt(msgBuf, 12);
+                timeLow  = tranBytesToInt(msgBuf, 16);
+                addlen   = tranBytesToInt(msgBuf, 20);
+                address  = new String(msgBuf, 24, addlen);
+                txtlen   = tranBytesToInt(msgBuf, 24+addlen);
+                data     = new byte[txtlen];
+                System.arraycopy(msgBuf, 28+addlen, data, 0, txtlen);
+                 
+                // Print receive fields info.
+                log("nReadMessage succeeded. srcPort = " + srcPort + " dstport =" + dstPort + " tpye = " + type);
+                log("nReadMessage timeHigh = " + timeHigh + " timeLow =" + timeLow + " address = " + address + " txtlen = " + txtlen);
+ 
+                // Translate the time stamp
+                timestamp = (long)(((long)timeHigh << 32) | (long)timeLow);              
 
-                SMSMessage msg;
+                // deliver the message to the sms connection
                 if (type == SMSMessage.ENC_8BIT_BIN) { // BINARY_MODE
                     msg = new SMSMessage(data);
                 } else { // TEXT_MODE
@@ -301,9 +340,11 @@ class MySmsConnectionThread extends Thread {
      * It is safe to call this method for ports that have not been previously registered (unless
      * they are in use by the push registry) but the message (fragment) will be silently ignored.
      *
+     * @param buffer The buffer used to bring back message data.
+     * @param bufLen The buffer length.
      * @return true if the fields contain a new message, false otherwise.
      */
-    private native boolean nReadMessage();
+    private native boolean nReadMessage(byte[] buffer, int bufLen);
 
     /**
      * Delete a message.
