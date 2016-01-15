@@ -17,7 +17,7 @@ public class MyMessageReceiver implements MessageReceiver {
     private SMSConnection smsConnection;
 
     MyMessageReceiver(SMSConnection s) {
-        Log.netLog(TAG, "MyMessageSender() created.");
+        Log.netLog(TAG, "MyMessageReceiver() created.");
         this.smsConnection = s;
     }
 

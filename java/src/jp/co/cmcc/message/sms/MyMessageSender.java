@@ -22,7 +22,7 @@ public class MyMessageSender implements MessageSender {
     }
 
     private void log(String msg) {
-        // Log.netLog("MyMessageSender", msg);
+        Log.netLog("MyMessageSender", msg);
     }
 
     /** Send the message. */
