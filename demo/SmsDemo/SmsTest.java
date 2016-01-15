@@ -37,8 +37,11 @@ public class SmsTest extends Applet
                     //send the message
                     MessageSender sender = conn.getSender();
                     SMSMessage sendMessage = new SMSMessage(textData);
-                    sendMessage.setMessageAddress("1064899990000");  
-                    System.out.println("[SmsTest]send the message to 1064899990000 server. textData = " + textData);
+                    //sendMessage.setMessageAddress("1064899990000");  
+                    //System.out.println("[SmsTest]send the message to 1064899990000 server. textData = " + textData);
+					String rtNumber = "13764016422";
+					sendMessage.setMessageAddress(rtNumber);  
+                    System.out.println("[SmsTest]send the message to" + rtNumber + ". textData = " + textData);
                     sender.send(sendMessage);
 
                     //receive the message
