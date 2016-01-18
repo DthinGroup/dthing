@@ -6,7 +6,7 @@
 #include "Sig_code.h"
 #include "AsyncIO.h"
 #include <ams_remote.h>
-#include "nativeMyMessageSender.h"
+#include "nativeMySmsCommon.h"
 #include "nativeMySmsConnectionThread.h"
 
 /* Stored SMS message (CPL_SmsMessage) */

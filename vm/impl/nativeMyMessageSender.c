@@ -1,9 +1,12 @@
 #include <utfstring.h>
 #include <vm_common.h>
+#if defined(ARCH_ARM_SPD)
 #include "sci_types.h"
 #include "os_api.h"
 #include "Sig_code.h"
+#include "nativeMySmsCommon.h"
 #include "nativeMyMessageSender.h"
+#endif
 
 #if defined(ARCH_ARM_SPD)
 /** phone number length */
