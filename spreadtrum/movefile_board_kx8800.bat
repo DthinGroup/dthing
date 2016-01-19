@@ -8,7 +8,7 @@ REM ########## %1: root dir of dthing  #########################################
 REM ########## %2: root dir of spd sdk ########################################################
 set SRCDIR=%1
 set DESDIR=%2
-f
+
 REM ########### Auto Generated Environment Variables ##########################################
 set DTHINGDIR=%DESDIR%\BASE\dthing
 set EXPORT_SOURCE_ROOT=%SRCDIR%\spreadtrum\export\KX8800
