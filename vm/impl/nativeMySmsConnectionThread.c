@@ -1,4 +1,8 @@
 #include <vm_common.h>
+#include <common.h>
+#include <dvmdex.h>
+#include "nativeMySmsCommon.h"
+#include "nativeMySmsConnectionThread.h"
 
 #if defined(ARCH_ARM_SPD)
 #include "sci_types.h"
@@ -6,8 +10,8 @@
 #include "Sig_code.h"
 #include "AsyncIO.h"
 #include <ams_remote.h>
-#include "nativeMySmsCommon.h"
-#include "nativeMySmsConnectionThread.h"
+
+
 
 /* Stored SMS message (CPL_SmsMessage) */
 struct CPL_SmsMessage_s
