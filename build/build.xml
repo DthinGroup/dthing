@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="Custom Ant Build" default="all" basedir=".." xmlns:if="ant:if">
+    <property name="output.dir" location="${basedir}/gen/lib" />
+    <property name="classes.dir" location="${basedir}/gen/java/classes" />
+    <property name="java.src" location="${basedir}/java/src" />
+
+    <target name="buildJava">
+        <mkdir dir="${output.dir}" />
+    	<mkdir dir="${classes.dir}" />
+        <javac includeantruntime="no" includeJavaRuntime="no" srcdir="${java.src}" destdir="${classes.dir}" source="1.6" target="1.6" />
+        <jar jarfile="${output.dir}/DoTCore.jar" basedir="${classes.dir}" includes="**/*.class"/>
+    </target>
+
+    <target name="clean">
+        <delete quiet="true">
+            <fileset dir="${classes.dir}" includes="**/*.class" />
+            <fileset dir="${output.dir}" includes="*.jar" />
+        </delete>
+    </target>
+
+    <target name="all" depends="buildJava" />
+    <target name="cleanbuild" depends="clean, all" />
+
+</project>
