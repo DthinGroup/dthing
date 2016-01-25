@@ -1,12 +1,9 @@
 
 package jp.co.cmcc.message.sms;
 
-
 import java.io.IOException;
 import java.util.Date;
-
 import com.yarlungsoft.util.Log;
-
 
 /**
  * Singleton class implementing the code for a reader thread.
@@ -200,7 +197,7 @@ class MySmsConnectionThread extends Thread {
             (((int)buf[pos]) << 24) |
             (((int)buf[pos+1]) << 16) |
             (((int)buf[pos+2]) <<  8) |
-            (((int)buf[pos+3]));    
+            (((int)buf[pos+3]));
     }
 
     /**
@@ -240,7 +237,7 @@ class MySmsConnectionThread extends Thread {
                 }
 
                 /* Parse data from msg buffer as below format:
-                 * srcPort(4bytes) + dstPort(4bytes) + type(4bytes) + time_high(4bytes) + time_high(4bytes) +
+                 * srcPort(4bytes) + dstPort(4bytes) + type(4bytes) + time_high(4bytes) + time_low(4bytes) +
                  * addlen(4bytes) + address(addlen bytes) + txtlen(4bytes) + text(txtlen bytes).
                  */
                 srcPort  = tranBytesToInt(msgBuf, 0);
@@ -253,13 +250,13 @@ class MySmsConnectionThread extends Thread {
                 txtlen   = tranBytesToInt(msgBuf, 24+addlen);
                 data     = new byte[txtlen];
                 System.arraycopy(msgBuf, 28+addlen, data, 0, txtlen);
-                 
+
                 // Print receive fields info.
                 log("nReadMessage succeeded. srcPort = " + srcPort + " dstport =" + dstPort + " tpye = " + type);
                 log("nReadMessage timeHigh = " + timeHigh + " timeLow =" + timeLow + " address = " + address + " txtlen = " + txtlen);
- 
+
                 // Translate the time stamp
-                timestamp = (long)(((long)timeHigh << 32) | (long)timeLow);              
+                timestamp = (long)(((long)timeHigh << 32) | (long)timeLow);
 
                 // deliver the message to the sms connection
                 if (type == SMSMessage.ENC_8BIT_BIN) { // BINARY_MODE
