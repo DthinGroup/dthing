@@ -420,11 +420,11 @@ LOCAL void InitUserDataHeadForJAVA(
 {
     if (PNULL == data_head_ptr)
     {
-        DVMTraceDbg( "[INFO][MESSAGE]:InitUserDataHeadForJAVA data_head_ptr = PNULL");
+        DVMTraceDbg( "[Java native][MESSAGE]:InitUserDataHeadForJAVA data_head_ptr = PNULL");
         return;
     }
 
-    DVMTraceDbg("[INFO][MESSAGE]: InitUserDataHeadForJAVA (srcPort:%d, dstPort:%d)", srcPort ,dstPort);
+    DVMTraceDbg("[Java native][MESSAGE]: InitUserDataHeadForJAVA (srcPort:%d, dstPort:%d)", srcPort ,dstPort);
 
     if (!is_longmsg)        //is not a long sms
     {
@@ -539,14 +539,14 @@ LOCAL BOOLEAN MMIAPICOM_GenPartyNumber(
     //check the param
     if (PNULL == tele_num_ptr || PNULL == party_num)
     {
-        DVMTraceDbg("MMIAPICOM_GenPartyNumber PNULL == tele_num_ptr || PNULL == party_num");
+        DVMTraceDbg("[Java native][MESSAGE] MMIAPICOM_GenPartyNumber PNULL == tele_num_ptr || PNULL == party_num");
         return FALSE;
     }
     if (0 == tele_len)
     {
         // An empty string is given. The length of the BCD number is set to 0
         party_num->num_len = 0;
-        DVMTraceDbg("MMI_GenPartyNumber  length = 0\n");
+        DVMTraceDbg("[Java native][MESSAGE] MMI_GenPartyNumber  length = 0\n");
         return FALSE;
     }
 
@@ -598,7 +598,7 @@ LOCAL void JAVASMS_GetMnCalledNum(
 
     if (PNULL == dest_ptr || PNULL == party_number_ptr || PNULL == dest_number_ptr)
     {
-        DVMTraceDbg( "[INFO][MESSAGE]:JAVASMS_GetMnCalledNum dest_ptr party_number_ptr dest_number_ptr = PNULL");
+        DVMTraceDbg( "[Java native][MESSAGE]:JAVASMS_GetMnCalledNum dest_ptr party_number_ptr dest_number_ptr = PNULL");
         return;
     }
     // init the destination number
@@ -635,7 +635,7 @@ LOCAL void MMISMS_GetMnCalledNum(
 
     if (PNULL == dest_ptr || PNULL == party_number_ptr || PNULL == dest_number_ptr)
     {
-        DVMTraceDbg("MMISMS:MMISMS_GetMnCalledNum dest_ptr party_number_ptr dest_number_ptr = PNULL");
+        DVMTraceDbg("[Java native][MESSAGE]MMISMS_GetMnCalledNum dest_ptr party_number_ptr dest_number_ptr = PNULL");
         return;
     }
     // init the destination number
@@ -673,7 +673,7 @@ LOCAL BOOLEAN JAVASMS_GetDestNumber(
 
     if (PNULL == dest_number_ptr)
     {
-        DVMTraceDbg( "[INFO][MESSAGE]:MMISMS_GetDestNumber dest_number_ptr = PNULL");
+        DVMTraceDbg( "[Java native][MESSAGE]:MMISMS_GetDestNumber dest_number_ptr = PNULL");
         return FALSE;
     }
 
@@ -705,7 +705,7 @@ LOCAL void JAVASMS_EncodeMoSmsData(
 
     if (PNULL == mo_sms_ptr || PNULL == user_data_ptr)
     {
-        DVMTraceDbg( "[INFO][MESSAGE]:MMISMS_EncodeMoSmsData mo_sms_ptr user_data_ptr = PNULL");
+        DVMTraceDbg( "[Java native][MESSAGE]:MMISMS_EncodeMoSmsData mo_sms_ptr user_data_ptr = PNULL");
         return;
     }
 
@@ -720,7 +720,7 @@ LOCAL void JAVASMS_EncodeMoSmsData(
         mo_sms_ptr->user_head_is_exist = FALSE;
     }
 
-    DVMTraceDbg("[INFO][MESSAGE]: MMISMS_EncodeMoSmsData user_head_is_exist = %d", mo_sms_ptr->user_head_is_exist);
+    DVMTraceDbg("[Java native][MESSAGE]: MMISMS_EncodeMoSmsData user_head_is_exist = %d", mo_sms_ptr->user_head_is_exist);
     MNSMS_EncodeUserDataEx(
         dual_sys,
         mo_sms_ptr->user_head_is_exist,
@@ -753,7 +753,7 @@ LOCAL BOOLEAN Java_send_sms_to_mn(
 
     if (sms_data_ptr == NULL || sms_data_len == 0 || dest_addr_ptr == NULL)
     {
-        DVMTraceDbg("[INFO][MESSAGE]:Failed Java_send_sms_to_mn parameter is not right!");
+        DVMTraceDbg("[Java native][MESSAGE]:Failed Java_send_sms_to_mn parameter is not right!");
         return FALSE;
     }
 
@@ -799,7 +799,7 @@ LOCAL BOOLEAN Java_send_sms_to_mn(
         &user_data
         );
 
-    DVMTraceDbg("[INFO][MESSAGE]: SendMsgReqToMN send_path=%d", send_path);
+    DVMTraceDbg("[Java native][MESSAGE]: SendMsgReqToMN send_path=%d", send_path);
 
     // call the MN API to send request
     mn_err_code = MNSMS_AppSendSmsEx(
@@ -810,7 +810,7 @@ LOCAL BOOLEAN Java_send_sms_to_mn(
         FALSE    // for cr66039(34.2.9.1_1900 fta fail)
         );
 
-    DVMTraceDbg("[INFO][MESSAGE]: Java_send_sms_to_mn mn_err_code = %d", mn_err_code);
+    DVMTraceDbg("[Java native][MESSAGE]: Java_send_sms_to_mn mn_err_code = %d", mn_err_code);
 
     return (mn_err_code == ERR_MNSMS_NONE);
 }
@@ -838,9 +838,16 @@ void Java_jp_co_cmcc_message_sms_MyMessageSender_nSend(const u4* args, JValue* p
 
 #if defined(ARCH_ARM_SPD)
     {        
-        uint8_t  dstAddr[PHONE_NUM_MAX_SIZE] = {0x0,};
+        uint8_t  *dstAddr = NULL;
         uint8_t  msgData[MAX_CONTENT_LENGTH] = {0x0,};
         int32_t  tgtType = 0;
+
+        dstAddr = dvmCreateCstrFromString(addressObj);
+        if (dstAddr == NULL)
+        {
+            DVMTraceDbg("[Java native][MESSAGE] MyMessageSender_nSend error: dstAddr is NULL.");
+            RETURN_BOOLEAN(ret);
+        }
 
         if (dataLen < MAX_CONTENT_LENGTH)
         {
@@ -849,9 +856,10 @@ void Java_jp_co_cmcc_message_sms_MyMessageSender_nSend(const u4* args, JValue* p
         else
         {
             CRTL_memcpy(msgData, dataBAArrPtr, (MAX_CONTENT_LENGTH - 1));
+            dataLen = MAX_CONTENT_LENGTH - 1;
         }
         
-        DVMTraceDbg("[INFO][MESSAGE] MySmsConnectionThread nSend dstAddr = %s, srcPort =%d, desport=%d, encoding=%d, msgData=%s.",
+        DVMTraceDbg("[Java native][MESSAGE] MySmsConnectionThread nSend dstAddr = %s, srcPort =%d, desport=%d, encoding=%d, msgData=%s.",
                         dstAddr, srcPort, dstPort, type, msgData);
         switch(type)
         {
@@ -869,9 +877,10 @@ void Java_jp_co_cmcc_message_sms_MyMessageSender_nSend(const u4* args, JValue* p
                 break;
         }
         
-        ret = Java_send_sms_to_mn((uint8_t *)dataBAArrPtr, dataLen, dstAddr,
+        ret = Java_send_sms_to_mn((uint8_t *)msgData, dataLen, dstAddr,
                                       CRTL_strlen((char*)dstAddr), srcPort, dstPort, tgtType);
-        DVMTraceDbg("[INFO][MESSAGE] nSend - INFO: send %s!", ret ? "success" : "fail");
+        DVMTraceDbg("[Java native][MESSAGE] nSend - INFO: send %s!", ret ? "success" : "fail");
+        CRTL_free(dstAddr);
     }
 #endif
 
