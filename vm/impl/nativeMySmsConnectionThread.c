@@ -946,6 +946,8 @@ void Java_jp_co_cmcc_message_sms_MySmsConnectionThread_nReadMessage(const u4* ar
 #if defined(ARCH_ARM_SPD)
     CPL_SmsMessage *message = NULL;
 
+    DVMTraceDbg(("java native MySmsConnectionThread: nReadMessage() enter, bufferLen = %d.", bufferLen));
+
     if (pMsgQueue)
     {
         message = pMsgQueue;

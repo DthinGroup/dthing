@@ -748,7 +748,7 @@ LOCAL BOOLEAN Java_send_sms_to_mn(
     SCI_TIME_T time = {0};
     SCI_DATE_T date = {0};
     MN_SMS_PATH_E send_path = MN_SMS_GSM_PATH;
-    MN_DUAL_SYS_E dual_sys= MN_DUAL_SYS_1;
+    MN_DUAL_SYS_E dual_sys = MN_DUAL_SYS_2; // Change to SIM2 sending sms in W13.36
     MN_SMS_STORAGE_E  storage = MN_SMS_NO_STORED;
 
     if (sms_data_ptr == NULL || sms_data_len == 0 || dest_addr_ptr == NULL)
@@ -810,7 +810,7 @@ LOCAL BOOLEAN Java_send_sms_to_mn(
         FALSE    // for cr66039(34.2.9.1_1900 fta fail)
         );
 
-    DVMTraceDbg("[Java native][MESSAGE]: Java_send_sms_to_mn mn_err_code = %d", mn_err_code);
+    DVMTraceDbg("[Java native][MESSAGE]: Java_send_sms_to_mn mn_err_code = 0x%x", mn_err_code);
 
     return (mn_err_code == ERR_MNSMS_NONE);
 }
@@ -859,8 +859,8 @@ void Java_jp_co_cmcc_message_sms_MyMessageSender_nSend(const u4* args, JValue* p
             dataLen = MAX_CONTENT_LENGTH - 1;
         }
         
-        DVMTraceDbg("[Java native][MESSAGE] MySmsConnectionThread nSend dstAddr = %s, srcPort =%d, desport=%d, encoding=%d, msgData=%s.",
-                        dstAddr, srcPort, dstPort, type, msgData);
+        DVMTraceDbg("[Java native][MESSAGE] MySmsConnectionThread nSend dstAddr = %s, srcPort =%d, desport=%d, encoding=%d, msgData=%s, dataLen = %d.",
+                        dstAddr, srcPort, dstPort, type, msgData, dataLen);
         switch(type)
         {
             case JAVA_ENC_8BIT_BIN:
@@ -877,7 +877,7 @@ void Java_jp_co_cmcc_message_sms_MyMessageSender_nSend(const u4* args, JValue* p
                 break;
         }
         
-        ret = Java_send_sms_to_mn((uint8_t *)msgData, dataLen, dstAddr,
+        ret = Java_send_sms_to_mn((uint8_t *)msgData, CRTL_strlen((char*)msgData), dstAddr,
                                       CRTL_strlen((char*)dstAddr), srcPort, dstPort, tgtType);
         DVMTraceDbg("[Java native][MESSAGE] nSend - INFO: send %s!", ret ? "success" : "fail");
         CRTL_free(dstAddr);
