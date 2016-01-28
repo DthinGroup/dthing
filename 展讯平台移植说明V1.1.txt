@@ -23,7 +23,7 @@ typedef enum
 
 1.3 Remote Server的 Ip/Port 配置
 
-在 rasmclient.h 文件，定义的宏:
+在 ams_remote.h文件，定义的宏:
 
 // remote ip
 #define RS_ADDRESS  0x2a79123e
@@ -36,14 +36,14 @@ typedef enum
 
 1.4 需要自定义Dthing应用运行目录
 
-在 properties.c 文件的指针数组变量 builtinProperties 定义:
+1、在 properties.c 文件的指针数组变量 builtinProperties 定义:
 
 static const char * const builtinProperties[] =
 {
     #define DEF_PROPERTY(k, v)  (k "\0" v)
 #ifdef ARCH_X86 
     //DEF_PROPERTY("appdb.dir", "D:/dvm/appdb/"),
-    DEF_PROPERTY("appdb.dir", "D:/nix.long/ReDvmAll/dvm/appdb/"),
+    DEF_PROPERTY("appdb.dir", "C:/Users/111/Documents/GitHub/dvm/appdb/"),
 #elif defined (ARCH_ARM_SPD)
     DEF_PROPERTY( "appdb.dir", "D:/dthing/" ),
 #endif
@@ -51,6 +51,11 @@ static const char * const builtinProperties[] =
 };
 
 请根据自己需要更改目录(现在这样)
+
+2、在 opl_file.c文件uint16_t * file_getDthingWDir()函数中：
+#if defined (ARCH_X86)    
+    return L"C:/Users/111/Documents/GitHub/dvm/appdb/";
+请根据实际路径返回。
 
 
 
