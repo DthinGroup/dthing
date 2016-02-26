@@ -120,7 +120,6 @@ bool_t amsUtils_readConfigData(RMTConfig **pp_cfg)
 {
   RMTConfig *config = NULL;
   bool_t ret = FALSE;
-
 #if defined(ARCH_ARM_SPD)
   int file_readLen = 0;
   int result = FILE_RES_SUCCESS;
@@ -130,12 +129,13 @@ bool_t amsUtils_readConfigData(RMTConfig **pp_cfg)
 
   int i = 0;
 
+  DVMTraceErr("==RMT== amsUtils_readConfigData()_test_log_2_defined(ARCH_ARM_SPD)");
   //to parse remoteconfig.txt
   result = file_open(DEFAULT_RMT_CONFIG_FILE, DEFAULT_RMT_CONFIG_FILE_PATH_LEN, FILE_MODE_RD, &sfsHandle);
 
   if(sfsHandle != INVALID_HANDLE_VALUE)
   {
-    DVMTraceDbg("==RMT== amsUtils_readConfigData() get config file");
+    DVMTraceErr("==RMT== amsUtils_readConfigData() get 000000000 file");
     content = malloc(MAX_FILE_BUFF_LEN);
     memset(content, 0x0, MAX_FILE_BUFF_LEN);
     file_readLen = file_read(sfsHandle, content, MAX_FILE_BUFF_LEN);
@@ -150,7 +150,7 @@ bool_t amsUtils_readConfigData(RMTConfig **pp_cfg)
       //TODO: Check if initData is NULL, how much params would be returned by sscanf, 4 or 5
       if (sscanf(content, "%[^|]|%[^|]|%[^|]|%[^|]|%s", addr, port, initData, user, pwd) < 4)
       {
-        DVMTraceDbg("==RMT== amsUtils_readConfigData() error data format %s in file", content);
+        DVMTraceErr("==RMT== amsUtils_readConfigData() error data format %s in file", content);
         goto end;
       }
 
@@ -162,7 +162,7 @@ bool_t amsUtils_readConfigData(RMTConfig **pp_cfg)
       config->initData = amsUtils_strdup(initData);
       config->user = amsUtils_strdup(user);
       config->pwd = amsUtils_strdup(pwd);
-      DVMTraceDbg("==RMT== amsUtils_readConfigData() read data: %s", content);
+      DVMTraceErr("==RMT== amsUtils_readConfigData() read data: %s", content);
       ret = TRUE;
     }
     free(content);
@@ -265,21 +265,39 @@ char* amsUtils_getAppletList(bool_t isRunning)
   char *temp = NULL;
   int alen = 0;
   int llen = 0;
+   AppletProps *activeApp, *header;
 
 #if defined(ARCH_ARM_SPD)
-  AppletProps *curApp = vm_getCurApplist(TRUE);
-
+AppletProps *curApp;
+   header = vm_getCurActiveApp();
+	curApp = vm_getCurApplist(TRUE);
+ //AppletProps *curApp = vm_getCurApplist(FALSE);
   while(curApp != NULL)
   {
-    DVMTraceDbg("app[%d].name is %s\n", curApp->id, curApp->name);
-    if ((curApp->isRunning == isRunning) && (curApp->id != PROPS_UNUSED))
+	DVMTraceErr("======DVMLOG- before app status is  %d  %d\n",curApp->isRunning, isRunning);
+	if (header)
+	{
+		activeApp = header;
+		while (activeApp)
+		{
+			if (curApp->id == activeApp->id && curApp->isRunning != activeApp->isRunning)
+			{
+				curApp->isRunning = activeApp->isRunning;
+				vm_setCurActiveApp(activeApp);
+				vm_setCurActiveAppState(TRUE);
+			}
+			activeApp = activeApp->nextRunning;
+		}
+	}
+    if ((curApp->isRunning || (curApp->isRunning == isRunning)) && (curApp->id != PROPS_UNUSED))
     {
       memset(app, 0x0, 255);
       sprintf(app, "%d %s\r\n", curApp->id, curApp->name);
       alen = strlen(app);
       llen = (plist == NULL)? 0 : strlen(plist);
       temp = malloc(alen + llen + 1);
-      memset(temp, 0x0, alen + llen + 1);
+	DVMTraceErr("app status is  temp =%p ",temp);
+      memset(temp, 0x0, alen + llen + 1);	  
       memcpy(temp, plist, llen);
       memcpy(temp + llen, app, alen);
       free(plist);

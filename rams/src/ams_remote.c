@@ -262,16 +262,20 @@ static int32_t ams_remote_buildConnection(Event *evt, void *userData)
         switch (fsm_state)
         {
         case DECLARE_FSM_STARTUP:
-            if (rams_startupNetwork() == RAMS_RES_SUCCESS)
+
+	DVMTraceErr("===DVM_command:---DECLARE_FSM_STARTUP");
+         // if (rams_startupNetwork() == RAMS_RES_SUCCESS)
             {
                 evt->fsm_state = DECLARE_FSM_AUTOSTART;
                 ES_pushEvent(evt);
             }
-            break;
+             break;
 
         case DECLARE_FSM_AUTOSTART:
+			
             {
                 RMTConfig *pp_cfg;
+			DVMTraceErr("===DVM_command:---DECLARE_FSM_AUTOSTART");
                 if (amsUtils_readConfigData(&pp_cfg))
                 {
                     int appId1 = -1, appId2 = -1;
@@ -394,6 +398,7 @@ int32_t ams_remote_lifecycleProcess(Event *evt, void *userData)
     switch (evtId)
     {
     case EVT_SYS_INIT:
+
         Ams_regModuleCallBackHandler(ATYPE_RAMS,ams_remote_callbackHandler);
         //file_startup();
         //appletsList = listInstalledApplets(NULL);
@@ -509,12 +514,19 @@ void ams_remote_callbackHandler(AmsCBData * cbdata)
         break;
 
     case RCMD_RUN:
-        if (vm_getCurActiveApp() == NULL)
-        {
+			{
+	AppletProps *curApp = vm_getCurActiveApp();
+	
+        if (curApp == NULL)
+        {      
             DVMTraceWar("No Applet in launching state\n");
             return ;
         }
         vm_setCurActiveAppState(res ? TRUE : FALSE);
+		
+	curApp->isRunning = (res ? TRUE : FALSE);
+	vm_setCurActiveApp(curApp);
+	curApp = vm_getCurActiveApp();
 
         pByte = (uint8_t*)ackBuf;
         writebeIU32(&pByte[0], sizeof(ackBuf));
@@ -524,7 +536,8 @@ void ams_remote_callbackHandler(AmsCBData * cbdata)
 
         safeBuf = CreateSafeBufferByBin(ackBuf, sizeof(ackBuf));
         newNormalEvent(EVT_CMD_DECLARE, DECLARE_FSM_WRITE, (void *)safeBuf, ams_remote_buildConnection, &newEvt);
-        ES_pushEvent(&newEvt);
+		ES_pushEvent(&newEvt);
+    	}
         break;
 
     case RCMD_INIT:

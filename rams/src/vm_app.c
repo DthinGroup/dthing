@@ -13,7 +13,7 @@
 #include <opl_es.h>
 
 /* align up to 4 bytes. */
-#define MEM_ALIGN(x) ((int32_t)((x)+3)&(~3))
+#define MEM_ALIGN(x) ((int32_t)((x)+3)&(~3));
 
 /* Global varible, applets list.*/
 static AppletProps* appletsList;
@@ -316,6 +316,7 @@ static AppletProps* listInstalledApplets(const uint16_t* path)
     bool_t       res = TRUE;
     uint16_t*    ins_path = getDefaultInstalledPath();
     AppletProps* appList = NULL;
+    AppletProps *pAppProp;
 
     if (path != NULL)
     {
@@ -391,15 +392,28 @@ static AppletProps* listInstalledApplets(const uint16_t* path)
                 {
                     appList[index - 1].nextRunning = &appList[index];
                 }
-
                 {
                     /* save file name for delete */
-                    int32_t  len;
+			int32_t  len;
                     uint16_t *p = getFileNameFromPath(foundJarPath);
-                    len = CRTL_wcslen(p);
-                    CRTL_memcpy(appList[index].fname, p, len*sizeof(uint16_t));
-                    appList[index].fname[len] = '\0';
+					
+				if ((pAppProp = getAppletPropById(index)) != NULL)
+       		 {
+          			//appList[index].fname = pAppProp->fname;
+				appList[index].fpath= pAppProp->fpath;
+				appList[index].id= pAppProp->id;
+				appList[index].isRunning= pAppProp->isRunning;
+				//appList[index].mainCls= pAppProp->mainCls;
+				//appList[index].version= pAppProp->version;
+				
+        		} 
+                    len = CRTL_wcslen(p);			
+                    CRTL_memcpy(appList[index].fname, p, len*sizeof(uint16_t));					
+                    appList[index].fname[len] = '\0';	 
                 }
+  
+
+				
                 parseAppletProps(data, dataBytes, &appList[index++]);
                 closeJar(handle);
             }
