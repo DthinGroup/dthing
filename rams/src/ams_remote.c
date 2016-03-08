@@ -126,7 +126,7 @@ static int32_t parseServerCommands(uint8_t* data, int32_t dataBytes)
         Ams_cancelAllApp(ATYPE_RAMS);
         break;
 
-        
+
     case EVT_CMD_DELETE:
         {
             int32_t appId = parseAndVerifyAppId(p, len);
@@ -262,20 +262,21 @@ static int32_t ams_remote_buildConnection(Event *evt, void *userData)
         switch (fsm_state)
         {
         case DECLARE_FSM_STARTUP:
-
-	DVMTraceErr("===DVM_command:---DECLARE_FSM_STARTUP");
-         // if (rams_startupNetwork() == RAMS_RES_SUCCESS)
+            //DVMTraceErr("===DVM_command:---DECLARE_FSM_STARTUP");
+            //TODISCUSS: Is it necessary to remove network check before app startup?
+            //           For most of autostart apps needs network. And this change will
+            //           demand all apps to add auto-connect function!
+            //if (rams_startupNetwork() == RAMS_RES_SUCCESS)
             {
                 evt->fsm_state = DECLARE_FSM_AUTOSTART;
                 ES_pushEvent(evt);
             }
-             break;
+            break;
 
         case DECLARE_FSM_AUTOSTART:
-			
             {
                 RMTConfig *pp_cfg;
-			DVMTraceErr("===DVM_command:---DECLARE_FSM_AUTOSTART");
+                //DVMTraceErr("===DVM_command:---DECLARE_FSM_AUTOSTART");
                 if (amsUtils_readConfigData(&pp_cfg))
                 {
                     int appId1 = -1, appId2 = -1;
@@ -291,6 +292,8 @@ static int32_t ams_remote_buildConnection(Event *evt, void *userData)
             break;
 
         case DECLARE_FSM_CONNECT:
+            //Better to check network status before connect
+            if (rams_startupNetwork() != RAMS_RES_SUCCESS) break;
             if (rams_connectServer(RS_ADDRESS, RS_PORT, &servInstance) == RAMS_RES_SUCCESS)
             {
                 evt->fsm_state = DECLARE_FSM_READ;
@@ -514,19 +517,19 @@ void ams_remote_callbackHandler(AmsCBData * cbdata)
         break;
 
     case RCMD_RUN:
-			{
-	AppletProps *curApp = vm_getCurActiveApp();
-	
+        {
+        AppletProps *curApp = vm_getCurActiveApp();
+
         if (curApp == NULL)
-        {      
+        {
             DVMTraceWar("No Applet in launching state\n");
             return ;
         }
         vm_setCurActiveAppState(res ? TRUE : FALSE);
-		
-	curApp->isRunning = (res ? TRUE : FALSE);
-	vm_setCurActiveApp(curApp);
-	curApp = vm_getCurActiveApp();
+
+        curApp->isRunning = (res ? TRUE : FALSE);
+        vm_setCurActiveApp(curApp);
+        curApp = vm_getCurActiveApp();
 
         pByte = (uint8_t*)ackBuf;
         writebeIU32(&pByte[0], sizeof(ackBuf));
@@ -536,8 +539,8 @@ void ams_remote_callbackHandler(AmsCBData * cbdata)
 
         safeBuf = CreateSafeBufferByBin(ackBuf, sizeof(ackBuf));
         newNormalEvent(EVT_CMD_DECLARE, DECLARE_FSM_WRITE, (void *)safeBuf, ams_remote_buildConnection, &newEvt);
-		ES_pushEvent(&newEvt);
-    	}
+        ES_pushEvent(&newEvt);
+        }
         break;
 
     case RCMD_INIT:
@@ -643,3 +646,4 @@ void ams_remote_callbackHandler(AmsCBData * cbdata)
         break;
     }
 }
+

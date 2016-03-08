@@ -107,7 +107,7 @@ bool_t amsUtils_initConfigData(const char *pInitData)
   }
   else
   {
-    sprintf(content, "%s|%s|s:%s|%s|%s", DEFAULT_SERVER, DEFAULT_PORT, needCleanInitData? "-" : pInitData, 
+    sprintf(content, "%s|%s|s:%s|%s|%s", DEFAULT_SERVER, DEFAULT_PORT, needCleanInitData? "-" : pInitData,
         DEFAULT_USER_NAME, DEFAULT_PASSWORD);
     ret = amsUtils_writeConfigData(content);
   }
@@ -129,13 +129,13 @@ bool_t amsUtils_readConfigData(RMTConfig **pp_cfg)
 
   int i = 0;
 
-  DVMTraceErr("==RMT== amsUtils_readConfigData()_test_log_2_defined(ARCH_ARM_SPD)");
+  //DVMTraceErr("==RMT== amsUtils_readConfigData()_test_log_2_defined(ARCH_ARM_SPD)");
   //to parse remoteconfig.txt
   result = file_open(DEFAULT_RMT_CONFIG_FILE, DEFAULT_RMT_CONFIG_FILE_PATH_LEN, FILE_MODE_RD, &sfsHandle);
 
   if(sfsHandle != INVALID_HANDLE_VALUE)
   {
-    DVMTraceErr("==RMT== amsUtils_readConfigData() get 000000000 file");
+    //DVMTraceErr("==RMT== amsUtils_readConfigData() get 000000000 file");
     content = malloc(MAX_FILE_BUFF_LEN);
     memset(content, 0x0, MAX_FILE_BUFF_LEN);
     file_readLen = file_read(sfsHandle, content, MAX_FILE_BUFF_LEN);
@@ -162,7 +162,7 @@ bool_t amsUtils_readConfigData(RMTConfig **pp_cfg)
       config->initData = amsUtils_strdup(initData);
       config->user = amsUtils_strdup(user);
       config->pwd = amsUtils_strdup(pwd);
-      DVMTraceErr("==RMT== amsUtils_readConfigData() read data: %s", content);
+      //DVMTraceErr("==RMT== amsUtils_readConfigData() read data: %s", content);
       ret = TRUE;
     }
     free(content);
@@ -186,7 +186,7 @@ bool_t amsUtils_writeConfigData(char *cfg)
 
   if (!cfg)
   {
-    DVMTraceDbg("==RMT== amsUtils_writeConfigData() write config file failed");
+    DVMTraceDbg("==RMT== amsUtils_writeConfigData() write config file failed(null cfg)");
     return ret;
   }
 
@@ -196,22 +196,22 @@ bool_t amsUtils_writeConfigData(char *cfg)
   result = file_open(DEFAULT_RMT_CONFIG_FILE, DEFAULT_RMT_CONFIG_FILE_PATH_LEN, FILE_MODE_RDWR, &sfsHandle);
   if(sfsHandle != INVALID_HANDLE_VALUE)
   {
-    DVMTraceDbg("==RMT== amsUtils_writeConfigData() write data: %s", cfg);
+    //DVMTraceDbg("==RMT== amsUtils_writeConfigData() write data: %s", cfg);
     file_writeLen = file_write(sfsHandle, cfg, strlen(cfg));
     if(file_writeLen > 0)
     {
-      DVMTraceDbg("==RMT== amsUtils_writeConfigData() write config file success");
+      //DVMTraceDbg("==RMT== amsUtils_writeConfigData() write config file success");
       ret = TRUE;
     }
     else
     {
-      DVMTraceDbg("==RMT== amsUtils_writeConfigData() write config file failed");
+      DVMTraceDbg("==RMT== amsUtils_writeConfigData() write config file failed(negative len)");
     }
     file_close(sfsHandle);
   }
   else
   {
-    DVMTraceDbg("==RMT== amsUtils_writeConfigData() create config file failed");
+    DVMTraceDbg("==RMT== amsUtils_writeConfigData() create config file failed(invalid sfs handle)");
   }
 #endif
 
@@ -265,30 +265,33 @@ char* amsUtils_getAppletList(bool_t isRunning)
   char *temp = NULL;
   int alen = 0;
   int llen = 0;
-   AppletProps *activeApp, *header;
+  AppletProps *activeApp = NULL;
+  AppletProps *header = NULL;
 
 #if defined(ARCH_ARM_SPD)
-AppletProps *curApp;
-   header = vm_getCurActiveApp();
-	curApp = vm_getCurApplist(TRUE);
- //AppletProps *curApp = vm_getCurApplist(FALSE);
+  AppletProps *curApp = NULL;
+  //TODISCUSS: Seems not the best way to get applist. This implementation is
+  //           better to put into vm_apps in order to be called by other modules.
+  header = vm_getCurActiveApp();
+  curApp = vm_getCurApplist(TRUE);
+  //AppletProps *curApp = vm_getCurApplist(FALSE);
   while(curApp != NULL)
   {
-	DVMTraceErr("======DVMLOG- before app status is  %d  %d\n",curApp->isRunning, isRunning);
-	if (header)
-	{
-		activeApp = header;
-		while (activeApp)
-		{
-			if (curApp->id == activeApp->id && curApp->isRunning != activeApp->isRunning)
-			{
-				curApp->isRunning = activeApp->isRunning;
-				vm_setCurActiveApp(activeApp);
-				vm_setCurActiveAppState(TRUE);
-			}
-			activeApp = activeApp->nextRunning;
-		}
-	}
+    //DVMTraceErr("======DVMLOG- before app status is  %d  %d\n",curApp->isRunning, isRunning);
+    if (header)
+    {
+      activeApp = header;
+      while (activeApp)
+      {
+        if (curApp->id == activeApp->id && curApp->isRunning != activeApp->isRunning)
+        {
+          curApp->isRunning = activeApp->isRunning;
+          vm_setCurActiveApp(activeApp);
+          vm_setCurActiveAppState(TRUE);
+        }
+        activeApp = activeApp->nextRunning;
+      }
+    }
     if ((curApp->isRunning || (curApp->isRunning == isRunning)) && (curApp->id != PROPS_UNUSED))
     {
       memset(app, 0x0, 255);
@@ -296,8 +299,8 @@ AppletProps *curApp;
       alen = strlen(app);
       llen = (plist == NULL)? 0 : strlen(plist);
       temp = malloc(alen + llen + 1);
-	DVMTraceErr("app status is  temp =%p ",temp);
-      memset(temp, 0x0, alen + llen + 1);	  
+      //DVMTraceErr("app status is  temp =%p ",temp);
+      memset(temp, 0x0, alen + llen + 1);
       memcpy(temp, plist, llen);
       memcpy(temp + llen, app, alen);
       free(plist);
@@ -432,3 +435,4 @@ bool_t amsUtils_configAddress(const char* pData)
 #endif
     return ret;
 }
+

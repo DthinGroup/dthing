@@ -316,7 +316,7 @@ static AppletProps* listInstalledApplets(const uint16_t* path)
     bool_t       res = TRUE;
     uint16_t*    ins_path = getDefaultInstalledPath();
     AppletProps* appList = NULL;
-    AppletProps *pAppProp;
+    AppletProps *pAppProp = NULL;
 
     if (path != NULL)
     {
@@ -394,26 +394,23 @@ static AppletProps* listInstalledApplets(const uint16_t* path)
                 }
                 {
                     /* save file name for delete */
-			int32_t  len;
+                    int32_t  len = 0;
                     uint16_t *p = getFileNameFromPath(foundJarPath);
-					
-				if ((pAppProp = getAppletPropById(index)) != NULL)
-       		 {
-          			//appList[index].fname = pAppProp->fname;
-				appList[index].fpath= pAppProp->fpath;
-				appList[index].id= pAppProp->id;
-				appList[index].isRunning= pAppProp->isRunning;
-				//appList[index].mainCls= pAppProp->mainCls;
-				//appList[index].version= pAppProp->version;
-				
-        		} 
-                    len = CRTL_wcslen(p);			
-                    CRTL_memcpy(appList[index].fname, p, len*sizeof(uint16_t));					
-                    appList[index].fname[len] = '\0';	 
-                }
-  
 
-				
+                    if ((pAppProp = getAppletPropById(index)) != NULL)
+                    {
+                        //appList[index].fname = pAppProp->fname;
+                        appList[index].fpath= pAppProp->fpath;
+                        appList[index].id= pAppProp->id;
+                        appList[index].isRunning= pAppProp->isRunning;
+                        //appList[index].mainCls= pAppProp->mainCls;
+                        //appList[index].version= pAppProp->version;
+                    }
+                    len = CRTL_wcslen(p);
+                    CRTL_memcpy(appList[index].fname, p, len*sizeof(uint16_t));
+                    appList[index].fname[len] = '\0';
+                }
+
                 parseAppletProps(data, dataBytes, &appList[index++]);
                 closeJar(handle);
             }
@@ -642,79 +639,79 @@ static char   s_ota_addr[128];
 static ES_Mutex * s_ota_mutex;
 void vm_ota_init()
 {
-	s_ota_mutex = mutex_init();
-	DVMTraceDbg("===s_ota_mutex:0x%x\n",s_ota_mutex);
-	DVM_ASSERT(s_ota_mutex !=NULL);
-	CRTL_memset(s_ota_addr,0,128);
-	s_ota_hang_flag = FALSE;
+    s_ota_mutex = mutex_init();
+    DVMTraceDbg("===s_ota_mutex:0x%x\n",s_ota_mutex);
+    DVM_ASSERT(s_ota_mutex !=NULL);
+    CRTL_memset(s_ota_addr,0,128);
+    s_ota_hang_flag = FALSE;
 }
 
 void vm_ota_final()
 {
-	mutex_destory(s_ota_mutex);
-	CRTL_memset(s_ota_addr,0,128);
-	s_ota_hang_flag = FALSE;
+    mutex_destory(s_ota_mutex);
+    CRTL_memset(s_ota_addr,0,128);
+    s_ota_hang_flag = FALSE;
 }
 
 void vm_ota_set(bool_t flag,char * url)
 {
-	mutex_lock(s_ota_mutex);
-	if(flag)
-	{
-		CRTL_memset(s_ota_addr,0,128);
-		CRTL_memcpy(s_ota_addr,url,CRTL_strlen(url));
-		s_ota_hang_flag = TRUE;
-	}
-	else
-	{
-		CRTL_memset(s_ota_addr,0,128);
-		s_ota_hang_flag = FALSE;
-	}
-	mutex_unlock(s_ota_mutex);
+    mutex_lock(s_ota_mutex);
+    if(flag)
+    {
+        CRTL_memset(s_ota_addr,0,128);
+        CRTL_memcpy(s_ota_addr,url,CRTL_strlen(url));
+        s_ota_hang_flag = TRUE;
+    }
+    else
+    {
+        CRTL_memset(s_ota_addr,0,128);
+        s_ota_hang_flag = FALSE;
+    }
+    mutex_unlock(s_ota_mutex);
 }
 
 bool_t vm_ota_get()
 {
-	bool_t ret;
-	mutex_lock(s_ota_mutex);
-	ret = s_ota_hang_flag;
-	mutex_unlock(s_ota_mutex);
-	return ret;
+    bool_t ret;
+    mutex_lock(s_ota_mutex);
+    ret = s_ota_hang_flag;
+    mutex_unlock(s_ota_mutex);
+    return ret;
 }
 
 void vm_create_otaTask()
 {
-	if(vm_ota_get() !=TRUE)
-	{
-		//nothing
-	}
-	else
-	{
-		uint8_t** newArgv = NULL;
-	    int32_t   newArgc = 0;
-		ClassObject* otaClass = NULL;
-		Method*      startMeth = NULL;
-	    ClassObject* dummyThreadCls = NULL;
-	    Object*      dummyThreadObj = NULL;
-	    ClassObject* strCls = NULL;
+    if(vm_ota_get() !=TRUE)
+    {
+        //nothing
+    }
+    else
+    {
+        uint8_t** newArgv = NULL;
+        int32_t   newArgc = 0;
+        ClassObject* otaClass = NULL;
+        Method*      startMeth = NULL;
+        ClassObject* dummyThreadCls = NULL;
+        Object*      dummyThreadObj = NULL;
+        ClassObject* strCls = NULL;
         ArrayObject* params = NULL;
-		StringObject* strObj= NULL;
+        StringObject* strObj= NULL;
 
-		otaClass = dvmFindClass("Ljava/net/ota/OTADownload;");
-		startMeth = dvmGetStaticMethodID(otaClass, "OTA", "([Ljava/lang/String;)V");
-	    dummyThreadCls = dvmFindClass("Ljava/lang/Thread;");
-	    dummyThreadObj = dvmAllocObject(dummyThreadCls, 0);
+        otaClass = dvmFindClass("Ljava/net/ota/OTADownload;");
+        startMeth = dvmGetStaticMethodID(otaClass, "OTA", "([Ljava/lang/String;)V");
+        dummyThreadCls = dvmFindClass("Ljava/lang/Thread;");
+        dummyThreadObj = dvmAllocObject(dummyThreadCls, 0);
 
         strCls = dvmFindClass("[Ljava/lang/String;");
         params = dvmAllocArrayByClass(strCls, 1, 0);
 
-		strObj = NewStringUTF(s_ota_addr);
-    	dvmSetObjectArrayElement(params, 0, strObj);
+        strObj = NewStringUTF(s_ota_addr);
+        dvmSetObjectArrayElement(params, 0, strObj);
 
         dthread_create_params(startMeth, dummyThreadObj, params);
 
-		vm_ota_set(FALSE,NULL);
-	}
+        vm_ota_set(FALSE,NULL);
+    }
 }
 
 /*----------Special tck Handle--------------*/
@@ -798,3 +795,4 @@ void vm_create_tckTask()
         vm_tck_set(FALSE, NULL);
     }
 }
+

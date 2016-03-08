@@ -54,7 +54,7 @@ bool_t Ams_regModuleCallBackHandler(AMS_TYPE_E type, AmsCrtlCBFunc modFunc)
 {
     if(type > ATYPE_MAX || type < ATYPE_MIN)
     {
-        DVM_LOG("===AmsCrtlCBFunc type is invalid==\d");	
+        DVM_LOG("===AmsCrtlCBFunc type is invalid==\d");
         return FALSE;
     }
     if(modFunc ==NULL)
@@ -432,10 +432,10 @@ int32_t Ams_handleAllAmsEvent(Event *evt, void *userData)
     Event newEvt;
     bool_t res;
     uint8_t * url =NULL;
-    AppletProps *curApp;
+    AppletProps *curApp = NULL;
     AmsCrtlCBFunc cbFunc = amsCrtlCBFunc[Ams_getATypeByModule(UNMARK_EVT_ID(evt->evtId))];
-	int i = 0;
-	
+    int i = 0;
+
     AmsCBData amsCbData;
     DVM_LOG("===Ams_handleRemoteAmsEvent: state:%d\n",fsm_state);
     switch (fsm_state)
@@ -468,7 +468,7 @@ int32_t Ams_handleAllAmsEvent(Event *evt, void *userData)
             }
             appId = readbeIU32(data->pBuf);
 
-	     DVMTraceErr("========DVM_TRACE_LOG_[appid]=%d\n", appId);
+            //DVMTraceErr("========DVM_TRACE_LOG_[appid]=%d\n", appId);
             res = vm_runApp(appId);
 #if 1   //report in Java_com_yarlungsoft_ams_Scheduler_reportState
             *((int32_t*)(data->pBuf)) = (int32_t) res;
@@ -488,19 +488,19 @@ int32_t Ams_handleAllAmsEvent(Event *evt, void *userData)
             {
                 data = (SafeBuffer *)evt->userData;
             }
-            res = *((int32_t*)(data->pBuf));		
+            res = *((int32_t*)(data->pBuf));
             data->buffer_free(data);
-	
-           if(cbFunc !=NULL)
+
+            if(cbFunc !=NULL)
             {
                 amsCbData.cmd = RCMD_RUN;
                 amsCbData.module = AMS_MODULE_RAMS;
-                amsCbData.result = res;	
+                amsCbData.result = res;
                 amsCbData.exptr = NULL;
                 cbFunc(&amsCbData);
             }
-		  curApp = vm_getCurActiveApp();
-		   
+            curApp = vm_getCurActiveApp();
+
  //           ams_remote_sendBackExecResult(EVT_CMD_RUN,(bool_t)res);
             break;
 
@@ -657,7 +657,7 @@ int32_t Ams_handleAllAmsEvent(Event *evt, void *userData)
                 cbFunc(&amsCbData);
             }
             break;
-            
+
         case AMS_FASM_STATE_GET_DESTROY:
             if (userData != NULL)
             {
@@ -767,7 +767,7 @@ int32_t Ams_handleAllAmsEvent(Event *evt, void *userData)
             }
             // ams_remote_sendTCKExeResult(res);
             break;
-	}
+    }
 
     return 0;
 }
@@ -975,20 +975,22 @@ int Ams_handleRemoteCmdSync(int cmdId, AMS_TYPE_E cmdType, int suiteId, char *da
           result = 0;
         }
         break;
-	case RCMD_RESET:
-			{
-		int i = 0;
-		while(true){
-			char * temp ;
-			DVMTraceErr("test=== RemoteCmd RCMD_STATUS - status = %d\n", i++);	
-				*temp = malloc(1024 * 1024 * 1);
-			}								
-		}
-		result = 0;
-		break;
+    case RCMD_RESET:
+        {
+        //FIXME: Not the best way to reset power
+        int i = 0;
+        while(true){
+            char * temp ;
+            DVMTraceErr("test=== RemoteCmd RCMD_STATUS - status = %d\n", i++);
+            *temp = malloc(1024 * 1024 * 1);
+        }
+        }
+        result = 0;
+        break;
     default:
         DVMTraceDbg("=== Unknown RemoteCmd %d\n", cmdId);
         break;
     }
     return result;
 }
+
