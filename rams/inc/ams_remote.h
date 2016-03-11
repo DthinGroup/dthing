@@ -84,6 +84,7 @@ bool_t ams_remote_ota(char * url);
 bool_t ams_remote_sendBackExecResult(int32_t cmd, bool_t res);
 
 bool_t ramsClient_isVMActive(void);
+void amsRemote_split( char **arr, char *str, const char *del);
 
 #ifdef __cplusplus
 }

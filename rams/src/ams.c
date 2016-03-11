@@ -24,6 +24,7 @@
 #endif
 #define DVM_LOG DVMTraceDbg
 #define MAX_PATH_LENGTH   255
+#define RCMD_CANCELALL_CFG "rcmd_cancelall_cfg" 
 
 static AmsCrtlCBFunc amsCrtlCBFunc[ATYPE_MAX + 1] ;
 //default is Native Ams
@@ -184,6 +185,17 @@ int Ams_deleteApp(int id,AMS_TYPE_E type)
     }
     Ams_setCurCrtlModule(type);
     return 0;
+}
+
+int Ams_deleteAllApp(int id,AMS_TYPE_E type){
+	AppletProps *pap;
+	int i = 0;
+	pap = vm_getCurApplist(TRUE);
+	while(pap != NULL){
+		i = Ams_deleteApp(pap->id,type);
+		pap = pap->nextRunning;
+	}
+	return i;
 }
 
 int Ams_initApp(int id,AMS_TYPE_E type)
@@ -494,8 +506,8 @@ int32_t Ams_handleAllAmsEvent(Event *evt, void *userData)
             if(cbFunc !=NULL)
             {
                 amsCbData.cmd = RCMD_RUN;
-                amsCbData.module = AMS_MODULE_RAMS;
-                amsCbData.result = res;
+                amsCbData.module =  Ams_getCurCrtlModule();
+                amsCbData.result = res;	
                 amsCbData.exptr = NULL;
                 cbFunc(&amsCbData);
             }
@@ -594,8 +606,8 @@ int32_t Ams_handleAllAmsEvent(Event *evt, void *userData)
             }
             appId = readbeIU32(data->pBuf);
             CRTL_memset(buff, 0x0, 16);
-            sprintf(buff,"%d",appId);
-            res = amsUtils_cancelDefaultApp(buff);
+            sprintf(buff,"%d",appId);	
+            res = amsUtils_cancelDefaultApp(appId);
             *((int32_t*)(data->pBuf)) = (int32_t) res;
             newNormalEvent(AMS_MODULE_RAMS, AMS_FASM_STATE_ACK_CANCEL, userData, Ams_handleAmsEvent, &newEvt);
             ES_pushEvent(&newEvt);
@@ -705,6 +717,9 @@ int32_t Ams_handleAllAmsEvent(Event *evt, void *userData)
             }
             url = (uint8_t *)data->pBuf;
             res = vm_otaApp(url);
+	    if(res){
+                   vm_getCurApplist(TRUE);
+		}
             data->buffer_free(data);
             break;
 
@@ -916,21 +931,19 @@ int Ams_handleRemoteCmdSync(int cmdId, AMS_TYPE_E cmdType, int suiteId, char *da
         }
         break;
     case RCMD_INIT:
-        DVMTraceDbg("=== RemoteCmd CMD_INIT - data = %s\n", data);
         if (amsUtils_initConfigData(data))
         {
             result = 0;
         }
         break;
-    case RCMD_CANCEL:
-        if (amsUtils_cancelDefaultApp(data))
+    case RCMD_CANCEL:		
+        if (amsUtils_cancelDefaultApp(suiteId))
         {
           result = 0;
         }
         break;
     case RCMD_CANCELALL:
-        DVMTraceDbg("=== RemoteCmd CMD_CANCELALL\n");
-        if (amsUtils_initConfigData(NULL))
+        if (amsUtils_initConfigData(RCMD_CANCELALL_CFG  ))
         {
           result = 0;
         }
@@ -959,7 +972,7 @@ int Ams_handleRemoteCmdSync(int cmdId, AMS_TYPE_E cmdType, int suiteId, char *da
         result = Ams_deleteApp(suiteId, cmdType);
         break;
     case RCMD_DELETEALL:
-        //TODO:
+        result = Ams_deleteAllApp(suiteId, cmdType);
         break;
     case RCMD_RUN:
         result = Ams_runApp(suiteId, cmdType);

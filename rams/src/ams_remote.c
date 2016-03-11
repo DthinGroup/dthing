@@ -276,15 +276,40 @@ static int32_t ams_remote_buildConnection(Event *evt, void *userData)
         case DECLARE_FSM_AUTOSTART:
             {
                 RMTConfig *pp_cfg;
-                //DVMTraceErr("===DVM_command:---DECLARE_FSM_AUTOSTART");
+		   AppletProps *curApp;
+		     char *name;
+		   char ** appNames[MAX_APPS_NUM];
+		   char *defaultSplitChar = "#";
+		    int32_t id = -1;
                 if (amsUtils_readConfigData(&pp_cfg))
                 {
                     int appId1 = -1, appId2 = -1;
+
+					name = malloc(strlen(pp_cfg->appName)+1);
+                     memset(name, 0x0, strlen(pp_cfg->appName)+1);
+					strcpy(name,pp_cfg->appName);
                     sscanf(pp_cfg->initData, "%*[s:]%i,%i", &appId1, &appId2);
-                    if (appId1 >= 0)
+                    if (appId1 >= 0 || appId2>=0)
                     {
-                        Ams_runApp(appId1, ATYPE_RAMS);
-                    }
+                    		int i = 0;
+						memset(appNames, 0x0, sizeof(appNames));
+			       		amsRemote_split(appNames, name, defaultSplitChar);
+				for (i=0; i < MAX_APPS_NUM; i++)
+				{
+					if (appNames[i] == NULL){
+  						break;
+					}
+			 		  curApp = getAppletPropByName(appNames[i]);
+					 if(curApp != NULL)
+					 	{
+					 		id = curApp->id;
+					      		 Ams_runApp(id, ATYPE_RAMS);
+						 }
+				}
+
+			 }
+			 CRTL_freeif(name);
+			amsUtils_releaseConfigData(&pp_cfg);
                 }
                 evt->fsm_state = DECLARE_FSM_CONNECT;
                 ES_pushEvent(evt);
@@ -491,6 +516,18 @@ bool_t ramsClient_isVMActive(void)
     return file_isFSRegistered();
 }
 
+void amsRemote_split( char **arr, char *str, const char *del)
+{
+ char *s =NULL; 
+
+ s=strtok(str,del);
+ while(s != NULL)
+ {
+  *arr++ = s;
+  s = strtok(NULL,del);
+ }
+}
+
 
 void ams_remote_callbackHandler(AmsCBData * cbdata)
 {
@@ -525,11 +562,10 @@ void ams_remote_callbackHandler(AmsCBData * cbdata)
             DVMTraceWar("No Applet in launching state\n");
             return ;
         }
-        vm_setCurActiveAppState(res ? TRUE : FALSE);
-
-        curApp->isRunning = (res ? TRUE : FALSE);
-        vm_setCurActiveApp(curApp);
-        curApp = vm_getCurActiveApp();
+        vm_setCurActiveAppState(res ? TRUE : FALSE);		
+	curApp->isRunning = (res ? TRUE : FALSE);
+	vm_setCurActiveApp(curApp);
+	//curApp = vm_getCurActiveApp();
 
         pByte = (uint8_t*)ackBuf;
         writebeIU32(&pByte[0], sizeof(ackBuf));

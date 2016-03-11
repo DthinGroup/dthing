@@ -23,6 +23,7 @@ uint8_t* combineAppPath(uint16_t* appName);
 uint16_t* getDefaultInstalledPath();
 uint16_t* getFileNameFromPath(uint16_t* path);
 AppletProps* getAppletPropById(int32_t id);
+AppletProps* getAppletPropByName(char *name);
 bool_t parseAppletProps(uint8_t* data, int32_t dataBytes, AppletProps* appProp);
 
 AppletProps* vm_getCurApplist(bool_t refresh);

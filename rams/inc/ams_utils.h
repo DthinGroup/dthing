@@ -15,6 +15,7 @@ typedef struct RMTConfig
   char* initData;
   char* user;
   char* pwd;
+  char* appName;
 } RMTConfig;
 
 /**
@@ -28,6 +29,7 @@ char* amsUtils_strconcat(char **str, char*fmt, ...);
  * Remote Config Utils
  */
 bool_t amsUtils_initConfigData(const char *pInitData);
+bool_t amsUtils_checkConfigData(char* name);
 bool_t amsUtils_writeConfigData(char *cfg);
 bool_t amsUtils_readConfigData(RMTConfig **pp_cfg);
 void amsUtils_releaseConfigData(RMTConfig **pp_cfg);
@@ -42,7 +44,7 @@ char* amsUtils_getAppletList(bool_t isRunning);
  *
  * @return bool_t TRUE while successfully cancelled from config file, otherwise FALSE
  */
-bool_t amsUtils_cancelDefaultApp(const char* pData);
+bool_t amsUtils_cancelDefaultApp(const int pData);//just int id is ok
 
 /**
  * @brief config user and password in config file
@@ -59,7 +61,10 @@ bool_t amsUtils_configAccount(const char* pData);
  * @return bool_t TRUE while successfully, otherwise FALSE
  */
 bool_t amsUtils_configAddress(const char* pData);
-
+void amsUtils_split( char **arr, char *str, const char *del);
+char* amsUtils_join(char *s1, char *s2)  ;
+int amsUtils_del(char* str,const char* sub);
+bool_t initAndCheckCfgDatas(char *pAppPropName);
 
 #ifdef __cplusplus
 }

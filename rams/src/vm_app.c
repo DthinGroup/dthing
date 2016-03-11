@@ -21,6 +21,9 @@ static AppletProps* appletsList;
 /* Do we really need this? -_- */
 static AppletProps* curActiveApp;
 
+/*Global varible, app id*/
+static int AppletId = 0;
+
 /* free safe buffer */
 void SafeBufferFree(void *p)
 {
@@ -210,8 +213,25 @@ AppletProps* getAppletPropById(int32_t id)
     int32_t i;
     AppletProps *pap;
     for (i = 0, pap = appletsList; i < MAX_APPS_NUM; i++)
+    {	 
+        if (pap[i].id == id && id > -1)//id > -1 is to make sure value right
+        {     
+            return &pap[i];
+        }
+    }
+    return NULL;
+}
+
+AppletProps* getAppletPropByName(char *name)
+{
+    int32_t i;
+    AppletProps *pap;
+    char *papname = NULL;
+    for (i = 0, pap = appletsList; i < MAX_APPS_NUM; i++)
     {
-        if (pap[i].id == id)
+	papname = pap[i].name;
+	if(strcmp(papname,name)==0)
+     
         {
             return &pap[i];
         }
@@ -401,7 +421,7 @@ static AppletProps* listInstalledApplets(const uint16_t* path)
                     {
                         //appList[index].fname = pAppProp->fname;
                         appList[index].fpath= pAppProp->fpath;
-                        appList[index].id= pAppProp->id;
+                        //appList[index].id= pAppProp->id;
                         appList[index].isRunning= pAppProp->isRunning;
                         //appList[index].mainCls= pAppProp->mainCls;
                         //appList[index].version= pAppProp->version;
@@ -482,6 +502,10 @@ bool_t vm_runApp(int id)
             res = FALSE;
             break;
         }
+	if(pap->isRunning){
+	     DVMTraceErr("This app is running !\n");
+            break;
+	}
         pap->fpath = combineAppPath(pap->fname);
 
         argv[0] = "-run";
@@ -495,6 +519,7 @@ bool_t vm_runApp(int id)
             res = FALSE;
             break;
         }
+	 pap->isRunning = TRUE;
         vm_setCurActiveApp(pap);
     }
     while(FALSE);
@@ -506,9 +531,11 @@ bool_t vm_deleteApp(int id)
 {
     bool_t res = TRUE;
     AppletProps *pAppProp;
+    char *pAppName;
     uint16_t     fpath[MAX_FILE_NAME_LEN] = {0x0,};
     Event        newEvt;
-
+    int32_t i = -1;
+    
     do
     {
         if (id < 0)
@@ -524,7 +551,7 @@ bool_t vm_deleteApp(int id)
             res = FALSE;
             break;
         }
-
+	pAppName = pAppProp->name;
         if (pAppProp->isRunning)
         {
             //TODO: stop the running appliction.
@@ -539,10 +566,14 @@ bool_t vm_deleteApp(int id)
             DVMTraceWar("deleteAppletById: remove application content failure");
             res = FALSE;
             break;
-        }
-        CRTL_memset(pAppProp, 0x0, sizeof(AppletProps)); //clear
-        pAppProp->id = PROPS_UNUSED;
-
+        }  
+        //pAppProp->id = PROPS_UNUSED;
+	 if(amsUtils_checkConfigData(pAppName)){
+		//TODO
+	   }else{
+		//TODO
+	   }
+	   CRTL_memset(pAppProp, 0x0, sizeof(AppletProps)); //clear
     } while(FALSE);
 
     return res;
@@ -558,6 +589,8 @@ bool_t vm_destroyApp(int id)
         DVMTraceErr("destroyApplet, wrong app id(%d) or this app is not running\n");
         return TRUE;
     }
+    pap->isRunning = FALSE;
+    vm_setCurActiveApp(pap);
     CRTL_freeif(pap->fpath);
     upcallDestroyApplet(pap);
 
