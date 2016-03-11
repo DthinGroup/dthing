@@ -748,7 +748,11 @@ LOCAL BOOLEAN Java_send_sms_to_mn(
     SCI_TIME_T time = {0};
     SCI_DATE_T date = {0};
     MN_SMS_PATH_E send_path = MN_SMS_GSM_PATH;
+#if defined(PLATFORM_INTERNAL_SIM)
     MN_DUAL_SYS_E dual_sys = MN_DUAL_SYS_2; // Change to SIM2 sending sms in W13.36
+#else
+    MN_DUAL_SYS_E dual_sys = MN_DUAL_SYS_1;
+#endif
     MN_SMS_STORAGE_E  storage = MN_SMS_NO_STORED;
 
     if (sms_data_ptr == NULL || sms_data_len == 0 || dest_addr_ptr == NULL)
