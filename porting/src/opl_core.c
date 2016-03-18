@@ -12,15 +12,32 @@
  
 #include <std_global.h>
 
+#ifdef ARCH_ARM_SPD
+#include "dal_time.h"
+#include "os_api.h"
+
+/* Declare the milliseconds from 1970.1.1 to 1980.1.1*/
+#define LOST_TIME_SINCE1970 (315532800000L)
+#define NOT_INITIALIZED_TIME 0XFEED
+static int64_t timeBase = NOT_INITIALIZED_TIME;
+#endif
+
 /* refer to opl_core.h */
 int64_t OPL_core_getCurrentTimeMillis()
 {
+#ifdef ARCH_X86
     //fake implementaion
     static int64_t res = 100;
-       
     return ++res;
+#elif defined(ARCH_ARM_SPD)
+    int64_t res = 0;
+    if (timeBase == NOT_INITIALIZED_TIME) {
+        timeBase = ((int64_t)TM_GetTotalSeconds())*1000 - SCI_GetTickCount() + LOST_TIME_SINCE1970;
+    }
+    res = timeBase + SCI_GetTickCount();
+    return res;
+#endif
 }
-
 
 #define LOG_BUFFER_SIZE   (128)
 #define PRINT_PREFIX  "Java:"
