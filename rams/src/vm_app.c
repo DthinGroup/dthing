@@ -336,7 +336,10 @@ static AppletProps* listInstalledApplets(const uint16_t* path)
     bool_t       res = TRUE;
     uint16_t*    ins_path = getDefaultInstalledPath();
     AppletProps* appList = NULL;
+<<<<<<< HEAD
     AppletProps *pAppProp = NULL;
+=======
+>>>>>>> parent of 9eeb96a... make the AT order (status and reset) work.
 
     if (path != NULL)
     {
@@ -412,8 +415,10 @@ static AppletProps* listInstalledApplets(const uint16_t* path)
                 {
                     appList[index - 1].nextRunning = &appList[index];
                 }
+
                 {
                     /* save file name for delete */
+<<<<<<< HEAD
                     int32_t  len = 0;
                     uint16_t *p = getFileNameFromPath(foundJarPath);
 
@@ -426,11 +431,18 @@ static AppletProps* listInstalledApplets(const uint16_t* path)
                         //appList[index].mainCls= pAppProp->mainCls;
                         //appList[index].version= pAppProp->version;
                     }
+=======
+                    int32_t  len;
+                    uint16_t *p = getFileNameFromPath(foundJarPath);
+>>>>>>> parent of 9eeb96a... make the AT order (status and reset) work.
                     len = CRTL_wcslen(p);
                     CRTL_memcpy(appList[index].fname, p, len*sizeof(uint16_t));
                     appList[index].fname[len] = '\0';
                 }
+<<<<<<< HEAD
 
+=======
+>>>>>>> parent of 9eeb96a... make the AT order (status and reset) work.
                 parseAppletProps(data, dataBytes, &appList[index++]);
                 closeJar(handle);
             }
