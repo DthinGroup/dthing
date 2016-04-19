@@ -13,7 +13,7 @@
 #include <opl_es.h>
 
 /* align up to 4 bytes. */
-#define MEM_ALIGN(x) ((int32_t)((x)+3)&(~3));
+#define MEM_ALIGN(x) ((int32_t)((x)+3)&(~3))
 
 /* Global varible, applets list.*/
 static AppletProps* appletsList;
