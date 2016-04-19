@@ -94,7 +94,7 @@ bool_t amsUtils_initConfigData(const char *pInitData)
 
 #if defined(ARCH_ARM_SPD)
   char content[MAX_PATH_LENGTH] = {0};
-  if (strcmp(pInitData,RCMD_CANCELALL_CFG)==0)
+  if (CRTL_strcmp(pInitData,RCMD_CANCELALL_CFG)==0)
   {
        sprintf(content, "%s|%s|s:%s|%s|%s|%s", DEFAULT_SERVER, DEFAULT_PORT,  "-" , DEFAULT_USER_NAME, DEFAULT_PASSWORD,DEFAULT_APPNAME);
        ret = amsUtils_writeConfigData(content);
@@ -108,10 +108,10 @@ bool_t amsUtils_initConfigData(const char *pInitData)
    pAppProp_1= getAppletPropById(appId_1);
    pAppProp_2 = getAppletPropById(appId_2);
   	if(pAppProp_1 != NULL){
-		ret = initAndCheckCfgDatas(pAppProp_1->name);
+		ret = initAndCheckCfgDatas(pAppProp_1->frealName);
 	}
 	if(pAppProp_2 != NULL){
-		ret = initAndCheckCfgDatas(pAppProp_2->name);
+		ret = initAndCheckCfgDatas(pAppProp_2->frealName);
 	}
 #endif
 
@@ -125,17 +125,17 @@ bool_t amsUtils_checkConfigData(char* name)
   int appId= -1;
   AppletProps *pAppProp;
   char ** appNames[MAX_APPS_NUM];
-   char *defaultSplitChar = "#";
-   char * buffer;
+  char *defaultSplitChar = "#";
+  char * buffer;
 
 #if defined(ARCH_ARM_SPD)
   char content[MAX_PATH_LENGTH] = {0};
   bool_t needCleanInitData = FALSE;
   RMTConfig *cfgData = NULL;
-   bool_t needCleanInitName = FALSE;
+  bool_t needCleanInitName = FALSE;
 
   memset(content, 0x0, MAX_PATH_LENGTH);
-   ret = amsUtils_readConfigData(&cfgData);
+  ret = amsUtils_readConfigData(&cfgData);
 
   if (ret && (name != NULL))
   {
@@ -157,16 +157,15 @@ bool_t amsUtils_checkConfigData(char* name)
 		}
 	}
 	if(num > -1){
-		char *appNameChar = NULL;	
+		 char *appNameChar = NULL;	
 		 if(num > 0){
 			appNameChar = amsUtils_join(defaultSplitChar, appNames[num]);
 		 }else{
 		       if(nums > 1){
-			   	appNameChar = amsUtils_join(appNames[num],defaultSplitChar);
-			 }else{		     
-				appNameChar = appNames[num];
-			   }
-			
+			       appNameChar = amsUtils_join(appNames[num],defaultSplitChar);
+			   }else{		     
+			       appNameChar = appNames[num];
+			   }			
 		 }
 		amsUtils_del(buffer,appNameChar);
 		if(buffer == NULL || strlen(buffer) == 0){
@@ -174,8 +173,8 @@ bool_t amsUtils_checkConfigData(char* name)
 			needCleanInitData = TRUE;
 		}
 		sprintf(content, "%s|%s|%s|%s|%s|%s", DEFAULT_SERVER, DEFAULT_PORT, needCleanInitData? "s:-" : cfgData->initData, 
-       	 DEFAULT_USER_NAME, DEFAULT_PASSWORD,needCleanInitName? DEFAULT_APPNAME:buffer);
-      		 ret = amsUtils_writeConfigData(content);
+       	DEFAULT_USER_NAME, DEFAULT_PASSWORD,needCleanInitName? DEFAULT_APPNAME:buffer);
+      	ret = amsUtils_writeConfigData(content);
 		amsUtils_releaseConfigData(&cfgData);	
 		free(buffer);
 		
@@ -237,7 +236,7 @@ bool_t amsUtils_readConfigData(RMTConfig **pp_cfg)
       config->initData = amsUtils_strdup(initData);
       config->user = amsUtils_strdup(user);
       config->pwd = amsUtils_strdup(pwd);
-	config->appName = amsUtils_strdup(appName);
+	  config->appName = amsUtils_strdup(appName);
       ret = TRUE;
     }
     free(content);
@@ -258,9 +257,6 @@ bool_t amsUtils_writeConfigData(char *cfg)
   int file_writeLen = 0;
   int result = FILE_RES_SUCCESS;
   int32_t sfsHandle = 0;
-  AppletProps*  applet;
-  char *myArray[4];
-  char *myArray_m[2];
   if (!cfg)
   {
     DVMTraceDbg("==RMT== amsUtils_writeConfigData() write config file failed(null cfg)");
@@ -273,8 +269,6 @@ bool_t amsUtils_writeConfigData(char *cfg)
   result = file_open(DEFAULT_RMT_CONFIG_FILE, DEFAULT_RMT_CONFIG_FILE_PATH_LEN, FILE_MODE_RDWR, &sfsHandle);
   if(sfsHandle != INVALID_HANDLE_VALUE)
   {
-     char *result = NULL;
-     memset(myArray, 0x0, sizeof(myArray));
  	file_writeLen = file_write(sfsHandle, cfg, strlen(cfg));
     if(file_writeLen > 0)
     {
@@ -354,25 +348,10 @@ char* amsUtils_getAppletList(bool_t isRunning)
   AppletProps *curApp = NULL;
   //TODISCUSS: Seems not the best way to get applist. This implementation is
   //           better to put into vm_apps in order to be called by other modules.
-  header = vm_getCurActiveApp();
   curApp = vm_getCurApplist(TRUE);
   //AppletProps *curApp = vm_getCurApplist(FALSE);
   while(curApp != NULL)
   {
-	if (header)
-	{
-		activeApp = header;
-		while (activeApp)
-		{
-			if (curApp->id == activeApp->id && curApp->isRunning != activeApp->isRunning)
-			{
-				curApp->isRunning = activeApp->isRunning;
-				vm_setCurActiveApp(activeApp);
-				vm_setCurActiveAppState(TRUE);
-			}
-			activeApp = activeApp->nextRunning;
-		}
-	}
     if ((curApp->isRunning || (curApp->isRunning == isRunning)) && (curApp->id != PROPS_UNUSED))
     {
       memset(app, 0x0, 255);
@@ -424,7 +403,7 @@ bool_t amsUtils_cancelDefaultApp(const int pData)
      if((curApp = getAppletPropById(pData)) == NULL){
 	   	return FALSE;
 	 }else{
-		ret= amsUtils_checkConfigData(curApp->name);
+		ret= amsUtils_checkConfigData(curApp->frealName);
 	 }
    
 
@@ -469,9 +448,6 @@ bool_t amsUtils_configAccount(const char* pData)
 #if defined(ARCH_ARM_SPD)
     char content[MAX_PATH_LENGTH] = {0};
     RMTConfig *cfgData = NULL;
-
-    DVMTraceDbg("=== ReceiveRemoteCmd CMD_CFGACCOUNT - url = %s\n", pData);
-
     if ((pData == NULL) || (strlen(pData) == 0))
     {
       return FALSE;
@@ -481,13 +457,13 @@ bool_t amsUtils_configAccount(const char* pData)
 
     if (ret)
     {
-        sprintf(content, "%s|%s|%s|%s", cfgData->addr, cfgData->port, cfgData->initData, pData);
+        sprintf(content, "%s|%s|%s|%s|%s", cfgData->addr, cfgData->port, cfgData->initData, pData,cfgData->appName);
         ret = amsUtils_writeConfigData(content);
         amsUtils_releaseConfigData(&cfgData);
     }
     else
     {
-        sprintf(content, "%s|%s|%s|%s", DEFAULT_SERVER, DEFAULT_PORT, "s:-", pData);
+        sprintf(content, "%s|%s|%s|%s|%s", DEFAULT_SERVER, DEFAULT_PORT, "s:-", pData,DEFAULT_APPNAME);
         ret = amsUtils_writeConfigData(content);
     }
 #endif
@@ -506,18 +482,17 @@ bool_t amsUtils_configAddress(const char* pData)
 #if defined(ARCH_ARM_SPD)
     char content[MAX_PATH_LENGTH] = {0};
     RMTConfig *cfgData = NULL;
-    DVMTraceDbg("=== ReceiveRemoteCmd CMD_CFGURL - account = %s", pData);
     ret = amsUtils_readConfigData(&cfgData);
 
     if (ret)
     {
-        sprintf(content, "%s|%s|%s|%s", pData, cfgData->initData, cfgData->user, cfgData->pwd);
+        sprintf(content, "%s|%s|%s|%s|%s", pData, cfgData->initData, cfgData->user, cfgData->pwd,cfgData->appName);
         ret = amsUtils_writeConfigData(content);
         amsUtils_releaseConfigData(&cfgData);
     }
     else
     {
-        sprintf(content, "%s|%s|%s|%s", pData, "s:-", DEFAULT_USER_NAME, DEFAULT_PASSWORD);
+        sprintf(content, "%s|%s|%s|%s|%s", pData, "s:-", DEFAULT_USER_NAME, DEFAULT_PASSWORD,DEFAULT_APPNAME);
         ret = amsUtils_writeConfigData(content);
     }
 #endif
@@ -576,46 +551,46 @@ bool_t initAndCheckCfgDatas(char *pAppPropName){
 	 if(ret){
 		if(strcmp(cfgData->appName,DEFAULT_APPNAME) == 0 ){
 			sprintf(content, "%s|%s|s:%d|%s|%s|%s", DEFAULT_SERVER, DEFAULT_PORT,pAppProp->id, 
-        			DEFAULT_USER_NAME, DEFAULT_PASSWORD,pAppProp->name);
+        			DEFAULT_USER_NAME, DEFAULT_PASSWORD,pAppProp->frealName);
 			 ret = amsUtils_writeConfigData(content);
         		  amsUtils_releaseConfigData(&cfgData);
 		}else{
 			int i = 0;
 			memset(appNames, 0x0, sizeof(appNames));
 			appNamesBuffer = malloc(strlen(cfgData->appName)+1); 
-		      if (appNamesBuffer == NULL) exit (1);  
-		       strcpy(appNamesBuffer, cfgData->appName);  
+		    if (appNamesBuffer == NULL) exit (1);  
+		    strcpy(appNamesBuffer, cfgData->appName);  
 			amsUtils_split(appNames, cfgData->appName, defaultSplitChar);
 			for (i=0; i<MAX_APPS_NUM; i++)
 			{
 				if(appNames[i] == NULL){
 					break;
 				}
-				if((strcmp(pAppProp->name,appNames[i])== 0) ){
+				if((strcmp(pAppProp->frealName,appNames[i])== 0) ){
 					IsInitNameExist = TRUE;
-					 DVMTraceErr("==RMT== This app has been initCFG!===");
-					 break;
+					DVMTraceErr("==DVM== This app has been set to the start!");
+					break;
 				}
 			}
 			cfgData->appName = appNamesBuffer;
 			if(!IsInitNameExist){
 				char* appNamesChar=NULL;			
-				appNamesChar = amsUtils_join(defaultSplitChar, pAppProp->name);
+				appNamesChar = amsUtils_join(defaultSplitChar, pAppProp->frealName);
 				appNamesChar = amsUtils_join(cfgData->appName , appNamesChar);
 				cfgData->appName = appNamesChar;
 				sprintf(content, "%s|%s|s:%d|%s|%s|%s", DEFAULT_SERVER, DEFAULT_PORT,pAppProp->id, 
-        			DEFAULT_USER_NAME, DEFAULT_PASSWORD,cfgData->appName);
-				 ret = amsUtils_writeConfigData(content);
-        			amsUtils_releaseConfigData(&cfgData);
+        		DEFAULT_USER_NAME, DEFAULT_PASSWORD,cfgData->appName);
+				ret = amsUtils_writeConfigData(content);
+        		amsUtils_releaseConfigData(&cfgData);
 				IsInitNameExist = TRUE;
 				free(appNamesBuffer);
 			}
 		}
 	 }else{
 		sprintf(content, "%s|%s|s:%d|%s|%s|%s", DEFAULT_SERVER, DEFAULT_PORT,pAppProp->id, 
-        			DEFAULT_USER_NAME, DEFAULT_PASSWORD,pAppProp->name);
-		 ret = amsUtils_writeConfigData(content);
-        	amsUtils_releaseConfigData(&cfgData);
+        DEFAULT_USER_NAME, DEFAULT_PASSWORD,pAppProp->frealName);
+		ret = amsUtils_writeConfigData(content);
+        amsUtils_releaseConfigData(&cfgData);
 	 }
        
 	return ret;	 

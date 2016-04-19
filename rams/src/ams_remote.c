@@ -276,44 +276,42 @@ static int32_t ams_remote_buildConnection(Event *evt, void *userData)
         case DECLARE_FSM_AUTOSTART:
             {
                 RMTConfig *pp_cfg;
-		   AppletProps *curApp;
-		     char *name;
-		   char ** appNames[MAX_APPS_NUM];
-		   char *defaultSplitChar = "#";
-		    int32_t id = -1;
+		        AppletProps *curApp;
+		  	    char *name;
+		  	    char ** appNames[MAX_APPS_NUM];
+		  	    char *defaultSplitChar = "#";
+		  	    int32_t id = -1;
                 if (amsUtils_readConfigData(&pp_cfg))
                 {
                     int appId1 = -1, appId2 = -1;
-
-					name = malloc(strlen(pp_cfg->appName)+1);
-                     memset(name, 0x0, strlen(pp_cfg->appName)+1);
-					strcpy(name,pp_cfg->appName);
+		            name = malloc(strlen(pp_cfg->appName)+1);
+                    memset(name, 0x0, strlen(pp_cfg->appName)+1);
+		            strcpy(name,pp_cfg->appName);
                     sscanf(pp_cfg->initData, "%*[s:]%i,%i", &appId1, &appId2);
                     if (appId1 >= 0 || appId2>=0)
                     {
-                    		int i = 0;
-						memset(appNames, 0x0, sizeof(appNames));
-			       		amsRemote_split(appNames, name, defaultSplitChar);
-				for (i=0; i < MAX_APPS_NUM; i++)
-				{
-					if (appNames[i] == NULL){
-  						break;
-					}
-			 		  curApp = getAppletPropByName(appNames[i]);
-					 if(curApp != NULL)
-					 	{
-					 		id = curApp->id;
-					      		 Ams_runApp(id, ATYPE_RAMS);
-						 }
-				}
-
-			 }
-			 CRTL_freeif(name);
-			amsUtils_releaseConfigData(&pp_cfg);
-                }
-                evt->fsm_state = DECLARE_FSM_CONNECT;
-                ES_pushEvent(evt);
-            }
+                        int i = 0;
+				        memset(appNames, 0x0, sizeof(appNames));
+			            amsRemote_split(appNames, name, defaultSplitChar);
+				        for (i=0; i < MAX_APPS_NUM; i++)
+				        {
+					        if (appNames[i] == NULL){
+  						         break;
+					        }
+			 		     curApp = getAppletPropByName(appNames[i]);
+					     if(curApp != NULL)
+					     {
+					 	  id = curApp->id;
+					         Ams_runApp(id, ATYPE_RAMS);
+					     }
+				     }
+		       }
+		       CRTL_freeif(name);
+		     	amsUtils_releaseConfigData(&pp_cfg);
+             }
+             evt->fsm_state = DECLARE_FSM_CONNECT;
+             ES_pushEvent(evt);
+        }
             break;
 
         case DECLARE_FSM_CONNECT:
@@ -332,7 +330,7 @@ static int32_t ams_remote_buildConnection(Event *evt, void *userData)
                 SafeBuffer *recvBuf = NULL;
                 if (userData != NULL)
                 {
-                    recvBuf = (SafeBuffer *)userData;
+                    recvBuf = (SafeBuffer *)userData;            
                 }
                 else
                 {
@@ -347,8 +345,7 @@ static int32_t ams_remote_buildConnection(Event *evt, void *userData)
                     recvBuf->buffer_free = SafeBufferFree;
                 }
                 evt->userData = (void *)recvBuf; //saved into userData;
-                recvBuf->bytes = rams_recvData(servInstance, recvBuf->pBuf, DATA_BUF_SIZE);
-
+                recvBuf->bytes = rams_recvData(servInstance, recvBuf->pBuf, DATA_BUF_SIZE);        
                 if (recvBuf->bytes > 0)
                 {
                     Event newEvt;
@@ -563,9 +560,9 @@ void ams_remote_callbackHandler(AmsCBData * cbdata)
             return ;
         }
         vm_setCurActiveAppState(res ? TRUE : FALSE);		
-	curApp->isRunning = (res ? TRUE : FALSE);
-	vm_setCurActiveApp(curApp);
-	//curApp = vm_getCurActiveApp();
+//      curApp->isRunning = (res ? TRUE : FALSE);
+//	    vm_setCurActiveApp(curApp);
+	//  curApp = vm_getCurActiveApp();
 
         pByte = (uint8_t*)ackBuf;
         writebeIU32(&pByte[0], sizeof(ackBuf));

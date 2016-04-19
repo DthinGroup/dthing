@@ -229,9 +229,8 @@ AppletProps* getAppletPropByName(char *name)
     char *papname = NULL;
     for (i = 0, pap = appletsList; i < MAX_APPS_NUM; i++)
     {
-	papname = pap[i].name;
-	if(strcmp(papname,name)==0)
-     
+	papname = pap[i].frealName;
+	if(strcmp(papname,name)==0)    
         {
             return &pap[i];
         }
@@ -336,11 +335,8 @@ static AppletProps* listInstalledApplets(const uint16_t* path)
     bool_t       res = TRUE;
     uint16_t*    ins_path = getDefaultInstalledPath();
     AppletProps* appList = NULL;
-<<<<<<< HEAD
     AppletProps *pAppProp = NULL;
-=======
->>>>>>> parent of 9eeb96a... make the AT order (status and reset) work.
-
+   
     if (path != NULL)
     {
         ins_path = (uint16_t*)path;
@@ -359,7 +355,9 @@ static AppletProps* listInstalledApplets(const uint16_t* path)
             res = FALSE;
             break;
         }
-
+      //if(appletsList != NULL){   //should we clear the applist when we repite the malloc size below?;  
+      //    vm_clearApplist();
+      //}
         appList = (AppletProps*)CRTL_malloc(sizeof(AppletProps) * MAX_APPS_NUM);
         if (appList == NULL)
         {
@@ -409,40 +407,40 @@ static AppletProps* listInstalledApplets(const uint16_t* path)
                     closeJar(handle);
                     continue;
                 }
-                appList[index].id = index; //set id to index
-
+                appList[index].id = index; //set id to index                     
                 if (index > 0)
                 {
                     appList[index - 1].nextRunning = &appList[index];
                 }
-
                 {
                     /* save file name for delete */
-<<<<<<< HEAD
                     int32_t  len = 0;
                     uint16_t *p = getFileNameFromPath(foundJarPath);
-
-                    if ((pAppProp = getAppletPropById(index)) != NULL)
+                    uint8_t*  fpath;
+                    uint8_t* jarSuffix = ".jar";
+                    int32_t   len_name = CRTL_wcslen(p );
+                    fpath = CRTL_malloc((len_name+1)*3);//utf8 encoding.                   
+                    if (fpath != NULL)
+                    {                       
+                        CRTL_memset(fpath, 0x0, (len_name+1)*3);
+                        convertUcs2ToUtf8(p, len_name, fpath, len_name*3);
+                        amsUtils_del(fpath,jarSuffix);
+                        CRTL_memcpy(appList[index].frealName, fpath, len_name*3);                    
+                    }
+                    CRTL_free(fpath);
+                    if ((pAppProp = getAppletPropByName(appList[index].frealName)) != NULL)
                     {
                         //appList[index].fname = pAppProp->fname;
-                        appList[index].fpath= pAppProp->fpath;
+                        //appList[index].fpath= pAppProp->fpath;
                         //appList[index].id= pAppProp->id;
                         appList[index].isRunning= pAppProp->isRunning;
                         //appList[index].mainCls= pAppProp->mainCls;
-                        //appList[index].version= pAppProp->version;
+                        //appList[index].version= pAppProp->version;                 
                     }
-=======
-                    int32_t  len;
-                    uint16_t *p = getFileNameFromPath(foundJarPath);
->>>>>>> parent of 9eeb96a... make the AT order (status and reset) work.
                     len = CRTL_wcslen(p);
-                    CRTL_memcpy(appList[index].fname, p, len*sizeof(uint16_t));
+                    CRTL_memcpy(appList[index].fname, p, len*sizeof(uint16_t));    
                     appList[index].fname[len] = '\0';
                 }
-<<<<<<< HEAD
-
-=======
->>>>>>> parent of 9eeb96a... make the AT order (status and reset) work.
                 parseAppletProps(data, dataBytes, &appList[index++]);
                 closeJar(handle);
             }
@@ -480,7 +478,15 @@ AppletProps* vm_getCurActiveApp(void)
 
 void vm_clearApplist(void)
 {
-    CRTL_freeif(appletsList);
+    AppletProps *currentApp = appletsList;
+    AppletProps *nextApp = NULL;
+    do
+    {
+        nextApp = currentApp->nextRunning;
+        CRTL_freeif(currentApp->fpath);
+        CRTL_freeif(currentApp);
+        currentApp = nextApp;
+    } while(nextApp);
 }
 
 void vm_setCurActiveApp(AppletProps * app)
@@ -514,12 +520,11 @@ bool_t vm_runApp(int id)
             res = FALSE;
             break;
         }
-	if(pap->isRunning){
-	     DVMTraceErr("This app is running !\n");
+    if(pap->isRunning){
+            DVMTraceErr("This app is running, you can't run it again!");
             break;
-	}
+    }
         pap->fpath = combineAppPath(pap->fname);
-
         argv[0] = "-run";
         argv[1] = pap->fpath;
         argv[2] = pap->mainCls;
@@ -531,7 +536,7 @@ bool_t vm_runApp(int id)
             res = FALSE;
             break;
         }
-	 pap->isRunning = TRUE;
+        pap->isRunning = TRUE;
         vm_setCurActiveApp(pap);
     }
     while(FALSE);
@@ -563,11 +568,14 @@ bool_t vm_deleteApp(int id)
             res = FALSE;
             break;
         }
-	pAppName = pAppProp->name;
+        pAppName = pAppProp->frealName;
         if (pAppProp->isRunning)
         {
             //TODO: stop the running appliction.
             //remove this node from running linked list.
+            DVMTraceErr("Destroy this applet first !");
+            res = FALSE;
+            break;
         }
 
         CRTL_wcscpy(fpath, getDefaultInstalledPath());
@@ -580,12 +588,12 @@ bool_t vm_deleteApp(int id)
             break;
         }  
         //pAppProp->id = PROPS_UNUSED;
-	 if(amsUtils_checkConfigData(pAppName)){
-		//TODO
-	   }else{
-		//TODO
-	   }
-	   CRTL_memset(pAppProp, 0x0, sizeof(AppletProps)); //clear
+     if(amsUtils_checkConfigData(pAppName)){
+        //TODO
+       }else{
+        //TODO
+       }
+       CRTL_memset(pAppProp, 0x0, sizeof(AppletProps)); //clear
     } while(FALSE);
 
     return res;
@@ -598,8 +606,8 @@ bool_t vm_destroyApp(int id)
 
     if ((pap = getAppletPropById(id)) == NULL || !pap->isRunning)
     {
-        DVMTraceErr("destroyApplet, wrong app id(%d) or this app is not running\n");
-        return TRUE;
+        DVMTraceErr("destroyApplet, wrong app id(%d) or this app is not running\n",id);
+        return FALSE;
     }
     pap->isRunning = FALSE;
     vm_setCurActiveApp(pap);

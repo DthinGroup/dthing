@@ -7,6 +7,7 @@
 #include <ams_remote.h>
 #include <ams_sms.h>
 #include <ams.h>
+#include <ams_utils.h>
 #if defined(ARCH_ARM_SPD)
 #include <dal_time.h>
 #include <Sig_code.h>
@@ -41,7 +42,7 @@
 /*=========================================================================*/
 /*======= MACRO DEFINE ====================================================*/
 /*=========================================================================*/
-#define SMS_CMD_BUFF_LEN 20
+#define SMS_CMD_BUFF_LEN 256 //the cmd is very long
 #define DATE_MIN_YEAR  1980 
 #define SMS_TEXT_BUFF_LEN       (MN_SMS_MAX_USER_VALID_DATA_LENGTH*4+1)
 #define  MAX_SMS_ADDRESS_LEN_FOR_TE   ((MN_MAX_ADDR_BCD_LEN*2)*4+1)
@@ -66,6 +67,8 @@
 #define  ATC_CHSET_GSM 1  
 #define  ATC_CHSET_HEX 2
 #define  ATC_CHSET_UCS2 3  
+
+#define RCMD_CANCELALL_CFG "rcmd_cancelall_cfg" 
 
 #define PARTYNUM_2_MNCALLEDNUM( _MMI_PARTY_NUM, _MN_CALL_NUM_PTR )                            \
         {                                                                                        \
@@ -142,20 +145,95 @@ void smsc_ReceiveRemoteCmd(int cmd_id,int suite_id,char* pdata)
     switch(cmd_id)
     {
         case EVT_CMD_DELETE:
-            Ams_deleteApp(suite_id,ATYPE_SAMS);
+            //Ams_deleteApp(suite_id,ATYPE_SAMS);
+            if(vm_deleteApp(suite_id)){
+                smsc_ackSmsResultMsg(EVT_CMD_DELETE,CMD_RESULT_OK);
+            }else{
+                smsc_ackSmsResultMsg(EVT_CMD_DELETE,CMD_RESULT_FAILED);
+            }
         break;
         case EVT_CMD_RUN:
-            Ams_runApp(suite_id,ATYPE_SAMS);
+           // Ams_runApp(suite_id,ATYPE_SAMS);
+	        if(vm_runApp(suite_id)){
+			    smsc_ackSmsResultMsg(EVT_CMD_RUN,CMD_RESULT_OK);
+		    }else{
+			    smsc_ackSmsResultMsg(EVT_CMD_RUN,CMD_RESULT_FAILED);
+		    }
         break;
         case EVT_CMD_LIST:
             Ams_listApp(ATYPE_SAMS);
         break;
         case EVT_CMD_OTA:
-            Ams_otaApp(pdata,ATYPE_SAMS);
+            //Ams_otaApp(pdata,ATYPE_SAMS);
+            if(vm_otaApp(pdata)){
+			    smsc_ackSmsResultMsg(EVT_CMD_OTA,CMD_RESULT_OK);
+		    }else{
+			    smsc_ackSmsResultMsg(EVT_CMD_OTA,CMD_RESULT_FAILED);
+		    }
         break;
         case EVT_CMD_DESTROY:
-            Ams_destoryApp(suite_id,ATYPE_SAMS);
+           // Ams_destoryApp(suite_id,ATYPE_SAMS);
+            if(vm_destroyApp(suite_id)){
+			    smsc_ackSmsResultMsg(EVT_CMD_DESTROY,CMD_RESULT_OK);
+	        }else{
+			    smsc_ackSmsResultMsg(EVT_CMD_DESTROY,CMD_RESULT_FAILED);
+		    }
         break;
+        case EVT_CMD_DELETEALL:
+            if(Ams_deleteAllApp(0, ATYPE_SAMS)){
+                smsc_ackSmsResultMsg(EVT_CMD_DELETEALL,CMD_RESULT_OK);
+		    }else{
+			    smsc_ackSmsResultMsg(EVT_CMD_DELETEALL,CMD_RESULT_FAILED);
+		    }          
+        break;
+        case EVT_CMD_STATUS:
+            smsc_ackSmsResultMsg(EVT_CMD_STATUS,CMD_RESULT_OK);
+        break;
+        case EVT_CMD_RESET:
+            {
+                char * temp = NULL;
+                // smsc_ackSmsResultMsg(EVT_CMD_RESET,CMD_RESULT_OK);  
+                DVMTraceErr("The fouction is not work now!");
+                // SCI_Sleep(50000);
+                 //is there other way to reset this dvm?             
+                 //strlen(temp);
+                break;
+            }
+        case EVT_CMD_INIT:   
+            if(amsUtils_initConfigData(pdata)){
+                smsc_ackSmsResultMsg(EVT_CMD_INIT,CMD_RESULT_OK);
+		    }else{
+			    smsc_ackSmsResultMsg(EVT_CMD_INIT,CMD_RESULT_FAILED);
+		    }          
+            break;
+        case EVT_CMD_CANCEL:
+            if( amsUtils_cancelDefaultApp(suite_id)){
+                smsc_ackSmsResultMsg(EVT_CMD_CANCEL,CMD_RESULT_OK);
+		    }else{
+			    smsc_ackSmsResultMsg(EVT_CMD_CANCEL,CMD_RESULT_FAILED);
+		    }  
+            break;			
+        case EVT_CMD_CANCELALL:
+            if(amsUtils_initConfigData(RCMD_CANCELALL_CFG)){
+                 smsc_ackSmsResultMsg(EVT_CMD_CANCELALL,CMD_RESULT_OK);
+		    }else{
+			     smsc_ackSmsResultMsg(EVT_CMD_CANCELALL,CMD_RESULT_FAILED);
+		    }  
+            break;
+        case EVT_CMD_CFGURL:           
+            if(amsUtils_configAddress(pdata)){
+                smsc_ackSmsResultMsg(EVT_CMD_CFGURL,CMD_RESULT_OK);
+		    }else{
+			    smsc_ackSmsResultMsg(EVT_CMD_CFGURL,CMD_RESULT_FAILED);
+		    }  
+            break;
+        case EVT_CMD_CFGACCOUNT:
+            if(amsUtils_configAccount(pdata)){
+                smsc_ackSmsResultMsg(EVT_CMD_CFGACCOUNT,CMD_RESULT_OK);
+		    }else{
+		        smsc_ackSmsResultMsg(EVT_CMD_CFGACCOUNT,CMD_RESULT_FAILED);
+		    }  
+            break;          
         default:
             smsc_ackSmsResultMsg(EVT_CMD_NONE,CMD_RESULT_OK);
     }
@@ -165,24 +243,22 @@ void smsc_ReceiveRemoteCmd(int cmd_id,int suite_id,char* pdata)
 BOOLEAN  smsc_HandleReceivedSms(char* buff,int len)
 {
     int index = 0 ;
-    SMSCLOG("==SMST== smsc_HandleReceivedSms call start  buff=%s len = %d",buff,len);
-
-    //to check if it is SMS AMS message, due to the cmd shortest length is 10, so length should bigger than 9
-    if(len<10)
-    {
+    SMSCLOG("==SMST== smsc_HandleReceivedSms call start  buff=%s len = %d",buff,len); 
+    //to check if it is SMS AMS message, due to the cmd shortest length is 9, so length should bigger than 8
+    if(len<9)
+    {	
         smsc_ackSmsResultMsg(EVT_CMD_NONE,CMD_RESULT_OK);
         return FALSE;
     }
 
     if(buff[0] !='S' || buff[1] !='M' || buff[2] !='S' || buff[3] !='A' || buff[4] !='M' || buff[5] !='S' )
-    {
-        return FALSE;
+    {     
         smsc_ackSmsResultMsg(EVT_CMD_NONE,CMD_RESULT_OK);
+	    return FALSE;
     }
     SMSCLOG("==SMST== smsc_HandleReceivedSms 1");
     // due to SMSAMS length is 6,so we start from 6:
     index = 6;
-
     while(index<len)
     {
         SMSCLOG("==SMST== smsc_HandleReceivedSms 1.5 index=%d buff[index]=%c",index,buff[index]);
@@ -192,7 +268,6 @@ BOOLEAN  smsc_HandleReceivedSms(char* buff,int len)
         }
         index++;
     }
-
     SMSCLOG("==SMST== smsc_HandleReceivedSms 3 index=%d",index);
     SCI_MEMSET(sms_cmd,0x00,SMS_CMD_BUFF_LEN);
     SCI_MEMCPY(sms_cmd, buff, index);
@@ -202,55 +277,69 @@ BOOLEAN  smsc_HandleReceivedSms(char* buff,int len)
         index++;
     }
 
-    if(!memcmp("SMSAMSOTA",sms_cmd,strlen(sms_cmd))
-        || !memcmp("SMSAMSINSTALL",sms_cmd,strlen(sms_cmd)))
+    if(!memcmp("SMSAMSOTA",sms_cmd,strlen("SMSAMSOTA"))
+        || !memcmp("SMSAMSINSTALL",sms_cmd,strlen("SMSAMSINSTALL")))
     {
         char* url = NULL;
-        int url_len =  len - index;
-        SMSCLOG("==SMST== smsc_HandleReceivedSms  sms_cmd = CMD_INSTALL/OTA/OSGI %s url_len=%d",sms_cmd,url_len);
-        url = SCI_ALLOC(url_len+1);
-        SCI_MEMSET(url,0,url_len+1);
-        SCI_MEMCPY(url,&buff[index],url_len);
-        SMSCLOG("==SMST== smsc_HandleReceivedSms  sms_cmd = CMD_INSTALL/OTA/OSGI url_len=%d URL=%s",url_len,url);
-
-        if(!memcmp("SMSAMSOTA",sms_cmd,strlen(sms_cmd)))
+        int url_len =  0;
+        if(!memcmp("SMSAMSOTA",sms_cmd,strlen("SMSAMSOTA")))
         {
             sms_cmd_value = EVT_CMD_OTA;
+            url_len =  len - strlen("SMSAMSOTA");
+            url = SCI_ALLOC(url_len+1);
+            SCI_MEMSET(url,0,url_len+1);
+            SCI_MEMCPY(url,&buff[strlen("SMSAMSOTA")],url_len);
         }
-        else if(!memcmp("SMSAMSINSTALL",sms_cmd,strlen(sms_cmd)))
+        else if(!memcmp("SMSAMSINSTALL",sms_cmd,strlen("SMSAMSINSTALL")))
         {
             sms_cmd_value = EVT_CMD_INSTALL;
+            url_len =  len - strlen("SMSAMSINSTALL");
+            url = SCI_ALLOC(url_len+1);
+            SCI_MEMSET(url,0,url_len+1);
+            SCI_MEMCPY(url,&buff[strlen("SMSAMSINSTALL")],url_len);
         }
-
         smsc_ReceiveRemoteCmd(sms_cmd_value,0,url);
     }
-    else if(!memcmp("SMSAMSDELETE",sms_cmd,strlen(sms_cmd)) ||
-                !memcmp("SMSAMSRUN",sms_cmd,strlen(sms_cmd)) ||
-                !memcmp("SMSAMSDESTROY",sms_cmd,strlen(sms_cmd)))
+     else if(!memcmp("SMSAMSDELETEALL",sms_cmd,strlen("SMSAMSDELETEALL")))
     {
-        int buff_len = len - index;
-        char* data = SCI_ALLOC(buff_len +1);
-        int suiteID = 0;
-         BOOLEAN isNum = FALSE;
-        SMSCLOG("==SMST== smsc_HandleReceivedSms  sms_cmd = CMD_DELETE/RUN/DESTROY %s buff_len=%d",sms_cmd,buff_len);
-        SCI_MEMSET(data,0,buff_len+1);
-        SCI_MEMCPY(data,&buff[index],buff_len);
-        isNum = util_isNumber(data);
-        SMSCLOG("==SMST== smsc_HandleReceivedSms  sms_cmd = %s isNum=%d len=%d suiteID=%s",sms_cmd,isNum,buff_len,data);
+        SMSCLOG("==SMST== smsc_HandleReceivedSms  sms_cmd = CMD_DELETEALL %s",sms_cmd);
+        sms_cmd_value = EVT_CMD_DELETEALL;
+        smsc_ReceiveRemoteCmd(sms_cmd_value,0,0);
+    }
 
-        if(!memcmp("SMSAMSDELETE",sms_cmd,strlen(sms_cmd)) )
+    else if(!memcmp("SMSAMSDELETE",sms_cmd,strlen("SMSAMSDELETE")) ||
+                !memcmp("SMSAMSRUN",sms_cmd,strlen("SMSAMSRUN")) ||
+                !memcmp("SMSAMSDESTROY",sms_cmd,strlen("SMSAMSDESTROY")))
+    {
+        int buff_len = 0;
+        char* data = NULL;
+        int suiteID = 0;
+        BOOLEAN isNum = FALSE;
+
+        if(!memcmp("SMSAMSDELETE",sms_cmd,strlen("SMSAMSDELETE")) )
         {
             sms_cmd_value = EVT_CMD_DELETE;
+            buff_len = len - strlen("SMSAMSDELETE");
+            data = SCI_ALLOC(buff_len +1);
         }
-        else if(!memcmp("SMSAMSRUN",sms_cmd,strlen(sms_cmd)))
+        else if(!memcmp("SMSAMSRUN",sms_cmd,strlen("SMSAMSRUN")))
         {
             sms_cmd_value = EVT_CMD_RUN;
+            buff_len = len - strlen("SMSAMSRUN");
+            data = SCI_ALLOC(buff_len +1);	
         }
-        else if(!memcmp("SMSAMSDESTROY",sms_cmd,strlen(sms_cmd)) )
+        else if(!memcmp("SMSAMSDESTROY",sms_cmd,strlen("SMSAMSDESTROY")) )
         {
+            buff_len = len - strlen("SMSAMSDESTROY");
+            data = SCI_ALLOC(buff_len +1);
             sms_cmd_value = EVT_CMD_DESTROY;
         }
 
+        SMSCLOG("==SMST== smsc_HandleReceivedSms  sms_cmd = CMD_DELETE/RUN/DESTROY %s buff_len=%d",sms_cmd,buff_len);
+        SCI_MEMSET(data,0,buff_len+1);
+        SCI_MEMCPY(data,&buff[index-1],buff_len);
+        isNum = util_isNumber(data);
+        SMSCLOG("==SMST== smsc_HandleReceivedSms  sms_cmd = %s isNum=%d len=%d suiteID=%s",sms_cmd,isNum,buff_len,data);
         if(isNum == TRUE)
         {
             suiteID = atoi(data);
@@ -259,124 +348,154 @@ BOOLEAN  smsc_HandleReceivedSms(char* buff,int len)
         }
         else
         {
-            smsc_ReceiveRemoteCmd(sms_cmd_value,0,data);
+            smsc_ReceiveRemoteCmd(sms_cmd_value,-1,data);
         }
     }
-	/*
-    else if(!memcmp("SMSAMSDELETEALL",sms_cmd,strlen(sms_cmd)))
-    {
-        SMSCLOG("==SMST== smsc_HandleReceivedSms  sms_cmd = CMD_DELETEALL %s",sms_cmd);
-        sms_cmd_value = EVT_CMD_DELETEALL;
-        smsc_ReceiveRemoteCmd(EVT_CMD_DELETEALL,0,0);
-    }
-    else if(!memcmp("SMSAMSLIST",sms_cmd,strlen(sms_cmd)))
-    {
+    else if(!memcmp("SMSAMSLIST",sms_cmd,strlen("SMSAMSLIST")))
+    {	
         SMSCLOG("==SMST== smsc_HandleReceivedSms  sms_cmd = CMD_LIST %s",sms_cmd);
         sms_cmd_value = EVT_CMD_LIST;
         SMSCLOG("==SMST== smsc_HandleReceivedSms  sms_cmd_value = CMD_LIST %d",sms_cmd_value);
-        smsc_ReceiveRemoteCmd(EVT_CMD_LIST,0,0);
+        smsc_ReceiveRemoteCmd(sms_cmd_value,0,0);
+	    smsc_ackSmsResultMsg(EVT_CMD_LIST,CMD_RESULT_OK);
     }
-    else if(!memcmp("SMSAMSSTATUS",sms_cmd,strlen(sms_cmd)))
+
+    else if(!memcmp("SMSAMSSTATUS",sms_cmd,strlen("SMSAMSSTATUS")))
     {
         SMSCLOG("==SMST== smsc_HandleReceivedSms  sms_cmd = CMD_STATUS %s",sms_cmd);
         sms_cmd_value = EVT_CMD_STATUS;
-        smsc_ReceiveRemoteCmd(EVT_CMD_STATUS,0,0);
+        smsc_ReceiveRemoteCmd(sms_cmd_value,0,0);
     }
-    else if(!memcmp("SMSAMSCONFIG",sms_cmd,strlen(sms_cmd)))
+    else if(!memcmp("SMSAMSCONFIG",sms_cmd,strlen("SMSAMSCONFIG")))
     {
-        int url_len = len - index;
+        // char* server_address = NULL;
+        //char* server_port = NULL;
+        char* server = NULL;
+        int url_len = len - strlen("SMSAMSCONFIG");
         int depart_index = 0;
         sms_cmd_value = EVT_CMD_CFGURL;
         SMSCLOG("==SMST== smsc_HandleReceivedSms  sms_cmd = CMD_CFGURL %s url_len=%d",sms_cmd,url_len);
-        if(url_len > 0)
+       /* if(url_len > 0)
         {
             for(depart_index =0 ;depart_index < url_len;depart_index++)
             {
-                if(buff[index+depart_index] == ':') break;
+                if(buff[strlen("SMSAMSCONFIG")+depart_index] == ',') break;
             }
             if(depart_index>0)
             {
                 SMSCLOG("==SMST== smsc_HandleReceivedSms CMD_CFGURL  buff value = %s",&buff[index]);
-                SCI_MEMSET(server_address,0,SERVER_ADDRESS_BUFF_LEN);
-                SCI_MEMSET(server_port,0,SERVER_PORT_BUFF_LEN);
-                SCI_MEMCPY(server_address,&buff[index],depart_index);
-                SCI_MEMCPY(server_port,&buff[index + depart_index + 1],url_len - depart_index - 1);
+                SCI_MEMSET(server_address,0,depart_index+1);
+                SCI_MEMSET(server_port,0,url_len - depart_index);
+                SCI_MEMCPY(server_address,&buff[strlen("SMSAMSCONFIG")],depart_index);
+                SCI_MEMCPY(server_port,&buff[strlen("SMSAMSCONFIG") + depart_index + 1],url_len - depart_index - 1);
                 SMSCLOG("==SMST== smsc_HandleReceivedSms  sms_cmd_value = CMD_CFGURL address=%s port=%s",server_address,server_port);
-                rmtc_writeConfigFile();
                 smsc_ackSmsResultMsg(EVT_CMD_CFGURL,CMD_RESULT_OK);
+                smsc_ReceiveRemoteCmd(sms_cmd_value,0,0);
             }
             else
             {
                 smsc_ackSmsResultMsg(EVT_CMD_CFGURL,CMD_RESULT_FAILED);
             }
-        }
-    }
-    else if(!memcmp("SMSAMSINIT",sms_cmd,strlen(sms_cmd)))
-    {
-        int url_len = len - index;
-        sms_cmd_value = EVT_CMD_INIT;
-        SMSCLOG("==SMST== smsc_HandleReceivedSms  sms_cmd = CMD_INIT %s url_len=%d",sms_cmd,url_len);
-        if(url_len > 0)
-        {
-            SCI_MEMSET(init_data,0,INIT_DATA_BUFF_LEN);
-            init_data[0]= 's';
-            init_data[1]= ':';
-            SCI_MEMCPY(&init_data[2],&buff[index],url_len);
-            if(init_data[2]=='-')
+            }*/
+            for(depart_index =0 ;depart_index < url_len;depart_index++)
             {
-                SMSCLOG("==SMST== smsc_HandleReceivedSms  sms_cmd_value = CMD_INIT init_data=-n");
-                SCI_MEMSET(init_data,0,INIT_DATA_BUFF_LEN);
+                if(buff[strlen("SMSAMSCONFIG")+depart_index] == ',') {
+                    buff[strlen("SMSAMSCONFIG")+depart_index] = '|';
+                    break;
+				}
             }
-            SMSCLOG("==SMST== smsc_HandleReceivedSms  sms_cmd_value = CMD_INIT init_data=%s",init_data);
-            rmtc_parseInitData();
-            rmtc_writeConfigFile();
-            smsc_ackSmsResultMsg(EVT_CMD_INIT,CMD_RESULT_OK);
+            server = SCI_ALLOC(url_len+1);
+            SCI_MEMSET(server,0,url_len+1);
+            SCI_MEMCPY(server,&buff[strlen("SMSAMSCONFIG")],url_len);
+            smsc_ReceiveRemoteCmd(sms_cmd_value,0,server);
+            SCI_FREE(server);
+       
+    }
+    else if(!memcmp("SMSAMSCFGACCOUNT",sms_cmd,strlen("SMSAMSCFGACCOUNT"))){
+        char* account = NULL;
+        int account_len = len - strlen("SMSAMSCFGACCOUNT");
+        int depart_index = 0;
+        sms_cmd_value = EVT_CMD_CFGACCOUNT;
+        for(depart_index =0 ;depart_index < account_len;depart_index++)
+        {
+             if(buff[strlen("SMSAMSCFGACCOUNT")+depart_index] == ',') {
+                    buff[strlen("SMSAMSCFGACCOUNT")+depart_index] = '|';
+                    break;}
+        }
+        if(depart_index>0)
+        {                  
+                account = SCI_ALLOC(account_len+1);
+                SCI_MEMSET(account,0,account_len+1);
+                SCI_MEMCPY(account,&buff[strlen("SMSAMSCFGACCOUNT")],account_len);
+                smsc_ReceiveRemoteCmd(sms_cmd_value,0,account);
+                SCI_FREE(account);
         }
         else
         {
-            smsc_ackSmsResultMsg(EVT_CMD_INIT,CMD_RESULT_FAILED);
+                smsc_ackSmsResultMsg(sms_cmd_value,CMD_RESULT_FAILED);
         }
+
     }
-    else if(!memcmp("SMSAMSINITCANCEL",sms_cmd,strlen(sms_cmd)))
-    {
-        int buff_len = len - index;
-        char* data =  NULL;
-        data = SCI_ALLOC(buff_len +1);
-        if(data != NULL)
-        {
-            SMSCLOG("==SMST== smsc_HandleReceivedSms  sms_cmd = SMSAMSINITCANCEL %s buff_len=%d",sms_cmd,buff_len);
-            SCI_MEMSET(data,0,buff_len+1);
-            SCI_MEMCPY(data,&buff[index],buff_len);
-            SMSCLOG("==SMST== smsc_HandleReceivedSms  sms_cmd = %s len=%d app=%s",sms_cmd,buff_len,data);
-            rmtc_cancelInitData(data);
-            SCI_FREE(data);
-            rmtc_writeConfigFile();
-            smsc_ackSmsResultMsg(EVT_CMD_INITCANCEL,CMD_RESULT_OK);
-        }
-        else
-        {
-              smsc_ackSmsResultMsg(EVT_CMD_INITCANCEL,CMD_RESULT_FAILED);
-        }
-    }
-    else if(!memcmp("SMSAMSINITCANCELALL",sms_cmd,strlen(sms_cmd)))
+    else if(!memcmp("SMSAMSINITCANCELALL",sms_cmd,strlen("SMSAMSINITCANCELALL")))
     {
         SMSCLOG("==SMST== smsc_HandleReceivedSms  sms_cmd = SMSAMSINITCANCELALL");
-        SCI_MEMSET(init_data,0,INIT_DATA_BUFF_LEN);
-        rmtc_resetInitData();
-        rmtc_writeConfigFile();
-        smsc_ackSmsResultMsg(EVT_CMD_INITCANCELALL,CMD_RESULT_OK);
+        sms_cmd_value = EVT_CMD_CANCELALL;
+        smsc_ReceiveRemoteCmd(sms_cmd_value,0,NULL);
     }
-    else if(!memcmp("SMSAMSRESET",sms_cmd,strlen(sms_cmd)))
+    else if(!memcmp("SMSAMSINITCANCEL",sms_cmd,strlen("SMSAMSINITCANCEL")))
+    {
+        int suiteID = -1;
+        BOOLEAN isNum = FALSE;
+        char* data =  NULL;
+        int buff_len = len - strlen("SMSAMSINITCANCEL");
+        data = SCI_ALLOC(buff_len +1);
+        sms_cmd_value = EVT_CMD_CANCEL;    
+        SMSCLOG("==SMST== smsc_HandleReceivedSms  sms_cmd = CMD_DELETE/RUN/DESTROY %s buff_len=%d",sms_cmd,buff_len);
+        SCI_MEMSET(data,0,buff_len+1);
+        SCI_MEMCPY(data,&buff[strlen("SMSAMSINITCANCEL")],buff_len);
+        isNum = util_isNumber(data);
+        SMSCLOG("==SMST== smsc_HandleReceivedSms  sms_cmd = %s isNum=%d len=%d suiteID=%s",sms_cmd,isNum,buff_len,data);
+        if(isNum == TRUE)
+        {
+            suiteID = atoi(data);
+            SCI_FREE(data);
+            smsc_ReceiveRemoteCmd(sms_cmd_value,suiteID,0);
+        }
+        else
+        {
+            smsc_ReceiveRemoteCmd(sms_cmd_value,suiteID,data);
+        }
+    }
+     else if(!memcmp("SMSAMSINIT",sms_cmd,strlen("SMSAMSINIT")))
+    {
+        int buff_len = len - strlen("SMSAMSINIT");
+        char* data = NULL;      
+        sms_cmd_value = EVT_CMD_INIT;
+        SMSCLOG("==SMST== smsc_HandleReceivedSms  sms_cmd = CMD_INIT %s url_len=%d",sms_cmd,url_len);
+        if(buff_len > 0)
+        {
+            data = SCI_ALLOC(buff_len +1);
+            SCI_MEMSET(data,0,buff_len+1);
+            SCI_MEMCPY(data,&buff[strlen("SMSAMSINIT")],buff_len); 
+            smsc_ReceiveRemoteCmd(sms_cmd_value,0,data);
+        }
+        else
+        {
+            smsc_ackSmsResultMsg(sms_cmd_value,CMD_RESULT_FAILED);
+        }
+    }
+    else if(!memcmp("SMSAMSRESET",sms_cmd,strlen("SMSAMSRESET")))//TODO : the function is not ok, fixme.
     {
         SMSCLOG("==SMST== smsc_HandleReceivedSms  sms_cmd = CMD_RESET %s",sms_cmd);
         sms_cmd_value = EVT_CMD_RESET;
-        smsc_ReceiveRemoteCmd(EVT_CMD_RESET,0,0);
-        smsc_ackSmsResultMsg(EVT_CMD_RESET,CMD_RESULT_OK);
-        RmtReConnect_Pro();
-    }*/
+        smsc_ReceiveRemoteCmd(sms_cmd_value,0,0);
+        //RmtReConnect_Pro();
+    }
+
     else
     {
-        smsc_ackSmsResultMsg(EVT_CMD_NONE,CMD_RESULT_OK);
+        sms_cmd_value = EVT_CMD_NONE;
+        smsc_ackSmsResultMsg(sms_cmd_value,CMD_RESULT_OK);
         return FALSE;
     }
 
@@ -1260,7 +1379,6 @@ void smsc_ackSmsResultMsg(int cmd,int result)
     MN_SMS_TIME_STAMP_T m_time_stamp = {0};
     ERR_MNSMS_CODE_E mn_err_code = ERR_MNSMS_NONE;
     SMSCLOG("==SMST==smsc_ackSmsResultMsg cmd = %d  result=%d", cmd,result);
-
     //set user data
     switch(cmd)
     {
@@ -1276,40 +1394,39 @@ void smsc_ackSmsResultMsg(int cmd,int result)
             m_user_data.length = strlen("INSTALL");
         }
         break;
-		/*
+	
         case EVT_CMD_INIT:
         {
             SCI_MEMCPY(m_user_data.user_valid_data_arr,"INIT",strlen("INIT"));
             m_user_data.length = strlen("INIT");
         }
         break;
-        case EVT_CMD_INITCANCEL:
+        case EVT_CMD_CANCEL:
         {
             SCI_MEMCPY(m_user_data.user_valid_data_arr,"INITCANCEL",strlen("INITCANCEL"));
             m_user_data.length = strlen("INITCANCEL");
         }
         break;
-        case EVT_CMD_INITCANCELALL:
+        case EVT_CMD_CANCELALL:
         {
             SCI_MEMCPY(m_user_data.user_valid_data_arr,"INITCANCELALL",strlen("INITCANCELALL"));
             m_user_data.length = strlen("INITCANCELALL");
         }
         break;
-		*/
         case EVT_CMD_DELETE:
         {
              SCI_MEMCPY(m_user_data.user_valid_data_arr,"DELETE",strlen("DELETE"));
             m_user_data.length = strlen("DELETE");
         }
         break;
-		/*
+
         case EVT_CMD_DELETEALL:
         {
             SCI_MEMCPY(m_user_data.user_valid_data_arr,"DELETEALL",strlen("DELETEALL"));
             m_user_data.length = strlen("DELETEALL");
         }
         break;
-		*/
+        
         case EVT_CMD_RUN:
         {
             SCI_MEMCPY(m_user_data.user_valid_data_arr,"RUN",strlen("RUN"));
@@ -1322,35 +1439,56 @@ void smsc_ackSmsResultMsg(int cmd,int result)
             m_user_data.length = strlen("DESTROY");
         }
         break;
-		/*
+	
         case EVT_CMD_RESET:
         {
             SCI_MEMCPY(m_user_data.user_valid_data_arr,"RESET",strlen("RESET"));
             m_user_data.length = strlen("RESET");
+            
         }
         break;
+
         case EVT_CMD_CFGURL:
         {
             SCI_MEMCPY(m_user_data.user_valid_data_arr,"CFGURL",strlen("CFGURL"));
             m_user_data.length = strlen("CFGURL");
         }
+        break;
         case EVT_CMD_CFGACCOUNT:
         {
             SCI_MEMCPY(m_user_data.user_valid_data_arr,"CFGACCOUNT",strlen("CFGACCOUNT"));
             m_user_data.length = strlen("CFGACCOUNT");
         }
         break;
+        
         case EVT_CMD_STATUS:
         {
-            SCI_MEMCPY(m_user_data.user_valid_data_arr,"STATUS",strlen("STATUS"));
-            m_user_data.length = strlen("STATUS");
+            char *re = NULL;
+	     re = amsUtils_getAppletList(TRUE);    
+            SCI_MEMCPY(m_user_data.user_valid_data_arr,"STATUS:\n",strlen("STATUS:\n"));
+            m_user_data.length = strlen("STATUS:\n");    
+            SCI_MEMCPY(&m_user_data.user_valid_data_arr[m_user_data.length],re,strlen(re));
+            m_user_data.length = m_user_data.length + strlen(re)-2;
+            m_user_data.user_valid_data_arr[m_user_data.length] = 0;
+
+
+         
+            /*SCI_MEMCPY(m_user_data.user_valid_data_arr,"STATUS\n",strlen("STATUS\n"));
+            m_user_data.length = strlen("STATUS\n");
+            SCI_MEMCPY(&m_user_data.user_valid_data_arr[m_user_data.length+1],re,strlen(re));
+            m_user_data.length = m_user_data.length + 1 + strlen(re); */
         }
         break;
-		*/
+
         case EVT_CMD_LIST:
         {
-            SCI_MEMCPY(m_user_data.user_valid_data_arr,"LIST",strlen("LIST"));
-            m_user_data.length = strlen("LIST");
+	        char *re = NULL;
+	        re = amsUtils_getAppletList(FALSE);
+            SCI_MEMCPY(m_user_data.user_valid_data_arr,"LIST:\n",strlen("LIST:\n"));
+            m_user_data.length = strlen("LIST:\n");    
+            SCI_MEMCPY(&m_user_data.user_valid_data_arr[m_user_data.length],re,strlen(re));
+            m_user_data.length = m_user_data.length + strlen(re);
+            m_user_data.user_valid_data_arr[m_user_data.length] = 0;
         }
         break;        
         case EVT_CMD_NONE:
@@ -1370,34 +1508,34 @@ void smsc_ackSmsResultMsg(int cmd,int result)
         {
             if( cmd == EVT_CMD_LIST)
             {
-                SCI_MEMCPY(&m_user_data.user_valid_data_arr[m_user_data.length+1],"No App Installed",strlen("No App Installed"));
-                m_user_data.length = m_user_data.length + 1 + strlen("No App Installed");
+              //  SCI_MEMCPY(&m_user_data.user_valid_data_arr[m_user_data.length+1],"No App Installed",strlen("No App Installed"));
+              //  m_user_data.length = m_user_data.length + 1 + strlen("No App Installed");
+           // }
             }
-			/*
             else if(cmd == EVT_CMD_STATUS)
             {
-                SCI_MEMCPY(&m_user_data.user_valid_data_arr[m_user_data.length+1],"No Running App",strlen("No Running App"));
-                m_user_data.length = m_user_data.length + 1 + strlen("No Running App");
-            }*/
-            else
-            {
-                SCI_MEMCPY(&m_user_data.user_valid_data_arr[m_user_data.length+1],"SUCCESS",strlen("SUCCESS"));
-                m_user_data.length = m_user_data.length + 1 + strlen("SUCCESS");  
+                //SCI_MEMCPY(&m_user_data.user_valid_data_arr[m_user_data.length+1],"No Running App",strlen("No Running App"));
+                //m_user_data.length = m_user_data.length + 1 + strlen("No Running App");
+            }
+           else
+           {
+               SCI_MEMCPY(&m_user_data.user_valid_data_arr[m_user_data.length+1],"SUCCESS",strlen("SUCCESS"));
+               m_user_data.length = m_user_data.length + 1 + strlen("SUCCESS");  
             }
         }
         else
         {
-            if( cmd == EVT_CMD_LIST)
+            if( cmd == EVT_CMD_LIST )
             {
                 SCI_MEMCPY(&m_user_data.user_valid_data_arr[m_user_data.length+1],"Failed to get App list",strlen("Failed to get App list"));
                 m_user_data.length = m_user_data.length + 1 + strlen("Failed to get App list");
             }
-			/*
+			
             else if(cmd == EVT_CMD_STATUS)
             {
                 SCI_MEMCPY(&m_user_data.user_valid_data_arr[m_user_data.length+1],"Failed to get Running App list",strlen("Failed to get Running App list"));
                 m_user_data.length = m_user_data.length + 1 + strlen("Failed to get Running App list");
-            }*/
+            }
             else
             {
                 SCI_MEMCPY(&m_user_data.user_valid_data_arr[m_user_data.length+1],"FAILED",strlen("FAILED"));
@@ -1407,7 +1545,6 @@ void smsc_ackSmsResultMsg(int cmd,int result)
     }
 
    SMSCLOG("==SMST==smsc_ackSmsResultMsg m_user_data = %s  length=%d", m_user_data.user_valid_data_arr,m_user_data.length);
-   
     //smsc_GetUserData(m_user_data.user_valid_data_arr,m_user_data.length,MN_SMS_DEFAULT_ALPHABET,&m_out_user_data);        
    
    MNSMS_EncodeUserDataEx( 
@@ -1457,7 +1594,14 @@ void smsc_ackSmsResultMsg(int cmd,int result)
         );
 
     SMSCLOG("==SMST==smsc_ackSmsResultMsg mn_err_code = %d", mn_err_code);
-
+  /* if(sms_cmd_value == EVT_CMD_RESET && mn_err_code ==0){
+        while(true){
+            char * temp ;
+            sms_cmd_value = EVT_CMD_NONE;
+            *temp = malloc(1024 * 256 * 1);
+			}  
+      }
+		  */
     sms_cmd_value = EVT_CMD_NONE;
 }
 
@@ -1478,7 +1622,7 @@ void smsc_ackSmsResultListMsg(int cmd,int result,char* data,int datalen)
     if(cmd == EVT_CMD_LIST)
     {
         SCI_MEMCPY(m_user_data.user_valid_data_arr,"LIST:\n",strlen("LIST:\n"));
-        m_user_data.length = strlen("LIST: ");
+        m_user_data.length = strlen("LIST:\n");
     }
     else
     {

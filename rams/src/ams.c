@@ -191,11 +191,17 @@ int Ams_deleteAllApp(int id,AMS_TYPE_E type){
 	AppletProps *pap;
 	int i = 0;
 	pap = vm_getCurApplist(TRUE);
-	while(pap != NULL){
-		i = Ams_deleteApp(pap->id,type);
-		pap = pap->nextRunning;
+	while(pap != NULL){   
+	    Ams_deleteApp(pap->id,type);
+	    pap = pap->nextRunning;
+        i++;
 	}
-	return i;
+    if(i > 0){
+	    return 1;
+    }else{
+        return 0;
+    }
+
 }
 
 int Ams_initApp(int id,AMS_TYPE_E type)
@@ -445,7 +451,8 @@ int32_t Ams_handleAllAmsEvent(Event *evt, void *userData)
     bool_t res;
     uint8_t * url =NULL;
     AppletProps *curApp = NULL;
-    AmsCrtlCBFunc cbFunc = amsCrtlCBFunc[Ams_getATypeByModule(UNMARK_EVT_ID(evt->evtId))];
+//  AmsCrtlCBFunc cbFunc = amsCrtlCBFunc[Ams_getATypeByModule(UNMARK_EVT_ID(evt->evtId))];
+    AmsCrtlCBFunc cbFunc = amsCrtlCBFunc[Ams_getATypeByModule(Ams_getCurCrtlModule())];
     int i = 0;
 
     AmsCBData amsCbData;
@@ -479,10 +486,8 @@ int32_t Ams_handleAllAmsEvent(Event *evt, void *userData)
                 data = (SafeBuffer *)evt->userData;
             }
             appId = readbeIU32(data->pBuf);
-
-            //DVMTraceErr("========DVM_TRACE_LOG_[appid]=%d\n", appId);
             res = vm_runApp(appId);
-#if 1   //report in Java_com_yarlungsoft_ams_Scheduler_reportState
+#if 0   //report in Java_com_yarlungsoft_ams_Scheduler_reportState
             *((int32_t*)(data->pBuf)) = (int32_t) res;
             newNormalEvent(AMS_MODULE_RAMS, AMS_FASM_STATE_ACK_RUN, userData, Ams_handleAmsEvent, &newEvt);
             ES_pushEvent(&newEvt);
@@ -502,7 +507,6 @@ int32_t Ams_handleAllAmsEvent(Event *evt, void *userData)
             }
             res = *((int32_t*)(data->pBuf));
             data->buffer_free(data);
-
             if(cbFunc !=NULL)
             {
                 amsCbData.cmd = RCMD_RUN;
@@ -511,9 +515,7 @@ int32_t Ams_handleAllAmsEvent(Event *evt, void *userData)
                 amsCbData.exptr = NULL;
                 cbFunc(&amsCbData);
             }
-            curApp = vm_getCurActiveApp();
-
- //           ams_remote_sendBackExecResult(EVT_CMD_RUN,(bool_t)res);
+            //ams_remote_sendBackExecResult(EVT_CMD_RUN,(bool_t)res);
             break;
 
         case AMS_FASM_STATE_GET_DELETE:
@@ -951,9 +953,8 @@ int Ams_handleRemoteCmdSync(int cmdId, AMS_TYPE_E cmdType, int suiteId, char *da
     case RCMD_LIST:
         if (ppout)
         {
-            *ppout = amsUtils_getAppletList(FALSE);
-            DVMTraceDbg("=== RemoteCmd RCMD_LIST - list = %s\n", *ppout);
-            result = 0;
+            *ppout = amsUtils_getAppletList(FALSE);      
+             result = 0;
         }
         break;
     case RCMD_OTA:
@@ -984,22 +985,21 @@ int Ams_handleRemoteCmdSync(int cmdId, AMS_TYPE_E cmdType, int suiteId, char *da
         if (ppout)
         {
           *ppout = amsUtils_getAppletList(TRUE);
-          DVMTraceDbg("=== RemoteCmd RCMD_STATUS - status = %s\n", *ppout);
           result = 0;
         }
         break;
-    case RCMD_RESET:
+   	case RCMD_RESET:
         {
         //FIXME: Not the best way to reset power
         int i = 0;
+        result = 0;
         while(true){
             char * temp ;
-            DVMTraceErr("test=== RemoteCmd RCMD_STATUS - status = %d\n", i++);
             *temp = malloc(1024 * 1024 * 1);
+            }
         }
-        }
-        result = 0;
         break;
+		
     default:
         DVMTraceDbg("=== Unknown RemoteCmd %d\n", cmdId);
         break;
