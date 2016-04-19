@@ -32,6 +32,11 @@ extern "C" {
 #define EVT_CMD_CANCEL (11)
 #define EVT_CMD_CANCELALL (12)
 #define EVT_CMD_TCK      (13)
+#define EVT_CMD_DELETEALL (14)
+#define EVT_CMD_STATUS (15)
+#define EVT_CMD_RESET (16)
+#define EVT_CMD_CFGURL (17)
+#define EVT_CMD_CFGACCOUNT (18)
 
 /* internal eventy commands */
 #define EVT_CMD_DECLARE  (0|RAMS_INTERNAL_MARK)

@@ -28,8 +28,16 @@ extern "C" {
 #define EVT_CMD_VIEW     (7)
 #define EVT_CMD_ACTIVATE (8)
 #define EVT_CMD_REMOVE   (9)
-#define EVT_CMD_OSGI	 (10)
-#define EVT_CMD_VIEWINFO (11)
+#define EVT_CMD_INIT	 (10)
+#define EVT_CMD_CANCEL (11)
+#define EVT_CMD_CANCELALL (12)
+#define EVT_CMD_DELETEALL (14)
+#define EVT_CMD_STATUS (15)
+#define EVT_CMD_RESET (16)
+#define EVT_CMD_CFGURL (17)
+#define EVT_CMD_CFGACCOUNT (18)
+#define EVT_CMD_OSGI (19)
+#define EVT_CMD_VIEWINFO (20)
 
 /* internal eventy commands */
 #define EVT_CMD_DECLARE  (0|RAMS_INTERNAL_MARK)
