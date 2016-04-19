@@ -67,6 +67,7 @@ typedef struct APPLET_PROPS_T {
     uint8_t   version[MAX_APP_PROPS_LEN];
     uint8_t   mainCls[MAX_APP_PROPS_LEN];
     uint16_t  fname[MAX_APP_PROPS_LEN];
+    uint8_t  frealName[MAX_APP_PROPS_LEN];
     uint8_t*  fpath;
     bool_t    isRunning;
     struct APPLET_PROPS_T* nextRunning;
