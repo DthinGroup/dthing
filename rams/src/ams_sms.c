@@ -125,17 +125,23 @@ BOOLEAN util_isNumber(const char* p)
 
 void smsc_callBack(AmsCBData* data)
 {
-    SMSCLOG("==SMST== smsc_callBack cmd=%d result=%d buff=%s",data->cmd,data->result,data->exptr);
-    if(data->cmd == sms_cmd_value)
+    SMSCLOG("==SMST== smsc_callBack cmd=%d result=%d buff=%s",data->cmd,data->result,data->exptr);    
+    if(data->cmd == 6)
     {
-        if(sms_cmd_value == EVT_CMD_LIST)
-        {
-            smsc_ackSmsResultListMsg(data->cmd,data->result,data->exptr,strlen(data->exptr));
-        }
-        else
-        {
-            smsc_ackSmsResultMsg(data->cmd,data->result);    
-        }
+       // if(sms_cmd_value == EVT_CMD_LIST)
+        //{
+       //     smsc_ackSmsResultListMsg(data->cmd,data->result,data->exptr,strlen(data->exptr));
+       // }
+       // else
+       // { 
+             if(data->result == 0){
+                    smsc_ackSmsResultMsg(EVT_CMD_OTA,CMD_RESULT_OK);
+             }else{
+                    smsc_ackSmsResultMsg(EVT_CMD_OTA,CMD_RESULT_FAILED);
+             }
+             
+            //smsc_ackSmsResultMsg(data->cmd,data->result);    
+      //  }
     }
 }
 
@@ -165,11 +171,12 @@ void smsc_ReceiveRemoteCmd(int cmd_id,int suite_id,char* pdata)
         break;
         case EVT_CMD_OTA:
             //Ams_otaApp(pdata,ATYPE_SAMS);
-            if(vm_otaApp(pdata)){
-			    smsc_ackSmsResultMsg(EVT_CMD_OTA,CMD_RESULT_OK);
-		    }else{
-			    smsc_ackSmsResultMsg(EVT_CMD_OTA,CMD_RESULT_FAILED);
-		    }
+            
+            if(/*vm_otaApp(pdata)*/Ams_otaApp(pdata,ATYPE_SAMS) == 0){
+		    smsc_ackSmsResultMsg(EVT_CMD_OTA,CMD_RESULT_DOWNLOAD);
+	    }else{
+		    smsc_ackSmsResultMsg(EVT_CMD_OTA,CMD_RESULT_FAILED);
+	    }
         break;
         case EVT_CMD_DESTROY:
            // Ams_destoryApp(suite_id,ATYPE_SAMS);
@@ -1521,6 +1528,14 @@ void smsc_ackSmsResultMsg(int cmd,int result)
            {
                SCI_MEMCPY(&m_user_data.user_valid_data_arr[m_user_data.length+1],"SUCCESS",strlen("SUCCESS"));
                m_user_data.length = m_user_data.length + 1 + strlen("SUCCESS");  
+            }
+        }
+        else if (result == CMD_RESULT_DOWNLOAD)
+        {
+            if (cmd == EVT_CMD_OTA)
+            {
+                 SCI_MEMCPY(&m_user_data.user_valid_data_arr[m_user_data.length+1],"Start download",strlen("Start download"));
+                 m_user_data.length = m_user_data.length + 1 + strlen("Start download");
             }
         }
         else

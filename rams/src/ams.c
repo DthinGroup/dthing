@@ -487,7 +487,7 @@ int32_t Ams_handleAllAmsEvent(Event *evt, void *userData)
             }
             appId = readbeIU32(data->pBuf);
             res = vm_runApp(appId);
-#if 0   //report in Java_com_yarlungsoft_ams_Scheduler_reportState
+#if 1   //report in Java_com_yarlungsoft_ams_Scheduler_reportState
             *((int32_t*)(data->pBuf)) = (int32_t) res;
             newNormalEvent(AMS_MODULE_RAMS, AMS_FASM_STATE_ACK_RUN, userData, Ams_handleAmsEvent, &newEvt);
             ES_pushEvent(&newEvt);
@@ -719,9 +719,6 @@ int32_t Ams_handleAllAmsEvent(Event *evt, void *userData)
             }
             url = (uint8_t *)data->pBuf;
             res = vm_otaApp(url);
-	    if(res){
-                   vm_getCurApplist(TRUE);
-		}
             data->buffer_free(data);
             break;
 
@@ -737,6 +734,9 @@ int32_t Ams_handleAllAmsEvent(Event *evt, void *userData)
             url = (uint8_t *)data->pBuf;
             res = *((int32_t*)(data->pBuf));
             data->buffer_free(data);
+            if(res){
+                 vm_getCurApplist(TRUE);
+            }
             if(cbFunc !=NULL)
             {
                 amsCbData.cmd = RCMD_OTA;

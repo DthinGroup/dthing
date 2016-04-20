@@ -74,8 +74,8 @@ static void Dthing_IThreadProc(int argc, void * argv)
 	smsc_registerEvent();
 	Ams_regModuleCallBackHandler(ATYPE_SAMS,smsc_callBack);
     Opl_net_activate();
-    Ams_init();
-    DVMTraceErr("===AT module OK===");
+    //Ams_init();
+    DVMTraceErr("====AT module OK====");
     //DVM_main(arg,arga);
 //    launchRemoteAMSClient(FALSE, arg, arga);
     launchESSchdule();

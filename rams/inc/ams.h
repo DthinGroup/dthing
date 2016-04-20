@@ -73,7 +73,6 @@ typedef struct APPLET_PROPS_T {
     struct APPLET_PROPS_T* nextRunning;
 } AppletProps;
 
-
 /* The UNUSED ID definition: */
 #define PROPS_UNUSED (-1)
 
@@ -121,7 +120,7 @@ enum {
 /* Remote Control Command for AMS Access */
 typedef enum _RemoteCommandType
 {
-    RCMD_ACK  = 1,
+    /*RCMD_ACK  = 1,
     RCMD_LIST,
     RCMD_RUN,
     RCMD_INSTALL,
@@ -139,7 +138,26 @@ typedef enum _RemoteCommandType
     RCMD_OSGI,
     RCMD_CANCEL,
     RCMD_CANCELALL,
-    RCMD_MAX
+    RCMD_MAX*/
+    RCMD_INSTALL=1,
+    RCMD_DELETE,
+    RCMD_RUN,
+    RCMD_LIST,
+    RCMD_OTA,
+    RCMD_DESTROY,
+    RCMD_LOGIN,
+    RCMD_OSGI,
+    RCMD_MAX,
+    RCMD_INIT,
+    RCMD_CANCEL,
+    RCMD_CANCELALL,
+    RCMD_TCK,
+    RCMD_DELETEALL,
+    RCMD_STATUS,
+    RCMD_RESET,
+    RCMD_CFGURL,
+    RCMD_CFGACCOUNT,
+    RCMD_ACK
 } RemoteCommandType;
 
 typedef struct AmsCBData_s

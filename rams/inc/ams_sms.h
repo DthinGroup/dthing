@@ -33,8 +33,9 @@ extern "C" {
 /**
 *operation result value
 */
-#define CMD_RESULT_OK 0
+#define CMD_RESULT_OK 1
 #define CMD_RESULT_FAILED -1
+#define CMD_RESULT_DOWNLOAD -2
 
 void smsc_registerEvent();
 void smsc_callBack(AmsCBData* data);

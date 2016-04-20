@@ -431,7 +431,7 @@ static AppletProps* listInstalledApplets(const uint16_t* path)
                     if ((pAppProp = getAppletPropByName(appList[index].frealName)) != NULL)
                     {
                         //appList[index].fname = pAppProp->fname;
-                        //appList[index].fpath= pAppProp->fpath;
+                        appList[index].fpath= pAppProp->fpath;
                         //appList[index].id= pAppProp->id;
                         appList[index].isRunning= pAppProp->isRunning;
                         //appList[index].mainCls= pAppProp->mainCls;
@@ -521,7 +521,7 @@ bool_t vm_runApp(int id)
             break;
         }
     if(pap->isRunning){
-            DVMTraceErr("This app is running, you can't run it again!");
+            DVMTraceErr("This app is running, you can't run it again! \n");
             break;
     }
         pap->fpath = combineAppPath(pap->fname);
