@@ -20,7 +20,7 @@
 #include <stdlib.h>
 
 #include "MQTTPacket.h"
-#include "transport.h"
+#include "opl_mqtt_transport.h"
 
 /* This is in order to get an asynchronous signal to stop the sample,
 as the code loops waiting for msgs on the subscribed topic.

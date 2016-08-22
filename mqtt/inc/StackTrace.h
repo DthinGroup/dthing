@@ -18,7 +18,6 @@
 #ifndef STACKTRACE_H_
 #define STACKTRACE_H_
 
-#include "global_def.h"
 #include <stdio.h>
 #define NOSTACKTRACE 1
 
@@ -37,7 +36,7 @@
 
 #else
 
-#if defined(ARCH_X86)
+#if defined(WIN32)
 #define inline __inline
 #define FUNC_ENTRY StackTrace_entry(__FUNCTION__, __LINE__, TRACE_MINIMUM)
 #define FUNC_ENTRY_NOLOG StackTrace_entry(__FUNCTION__, __LINE__, -1)

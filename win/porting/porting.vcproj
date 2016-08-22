@@ -176,6 +176,14 @@
 			>
 		</File>
 		<File
+			RelativePath="..\..\porting\src\opl_mqtt_transport.c"
+			>
+		</File>
+		<File
+			RelativePath="..\..\porting\inc\opl_mqtt_transport.h"
+			>
+		</File>
+		<File
 			RelativePath="..\..\porting\src\opl_net.c"
 			>
 		</File>
@@ -193,14 +201,6 @@
 		</File>
 		<File
 			RelativePath="..\..\porting\src\test_mqtt.c"
-			>
-		</File>
-		<File
-			RelativePath="..\..\porting\src\transport.c"
-			>
-		</File>
-		<File
-			RelativePath="..\..\porting\inc\transport.h"
 			>
 		</File>
 	</Files>
