@@ -24,44 +24,63 @@
 #endif
 
 #if defined(ARCH_X86)
-/* default on Windows is 64 - increase to make Linux and Windows the same */
-#pragma comment (lib,"Ws2_32.lib")
+	/* default on Windows is 64 - increase to make Linux and Windows the same */
+	#pragma comment (lib,"Ws2_32.lib")
 
-#define FD_SETSIZE 1024
-#include <winsock2.h>
-#include <ws2tcpip.h>
-#define MAXHOSTNAMELEN 256
-#define EAGAIN WSAEWOULDBLOCK
-#define EINTR WSAEINTR
-#define EINVAL WSAEINVAL
-#define EINPROGRESS WSAEINPROGRESS
-#define EWOULDBLOCK WSAEWOULDBLOCK
-#define ENOTCONN WSAENOTCONN
-#define ECONNRESET WSAECONNRESET
-#define ioctl ioctlsocket
-#define socklen_t int
+	#define FD_SETSIZE 1024
+	#include <winsock2.h>
+	#include <ws2tcpip.h>
+	#define MAXHOSTNAMELEN 256
+	#define EAGAIN WSAEWOULDBLOCK
+	#define EINTR WSAEINTR
+	#define EINVAL WSAEINVAL
+	#define EINPROGRESS WSAEINPROGRESS
+	#define EWOULDBLOCK WSAEWOULDBLOCK
+	#define ENOTCONN WSAENOTCONN
+	#define ECONNRESET WSAECONNRESET
+	#define ioctl ioctlsocket
+	#define socklen_t int
+
+#elif defined(ARCH_ARM_SPD)
+
+	#include <os_api.h>
+	#include <priority_app.h>
+	#include <socket_api.h>
+	#include <socket_types.h>
+	#include <tcpip_types.h>
+	#include <mn_type.h>
+	#include <Mn_events.h>
+	#include <mn_api.h>
+	#include <mn_error.h>
+	#include <sci_api.h>
 #else
-#define INVALID_SOCKET SOCKET_ERROR
-#include <sys/socket.h>
-#include <sys/param.h>
-#include <sys/time.h>
-#include <netinet/in.h>
-#include <netinet/tcp.h>
-#include <arpa/inet.h>
-#include <netdb.h>
-#include <stdio.h>
-#include <unistd.h>
-#include <errno.h>
-#include <fcntl.h>
-#include <string.h>
-#include <stdlib.h>
+
+	#define INVALID_SOCKET SOCKET_ERROR
+	#include <sys/socket.h>
+	#include <sys/param.h>
+	#include <sys/time.h>
+	#include <netinet/in.h>
+	#include <netinet/tcp.h>
+	#include <arpa/inet.h>
+	#include <netdb.h>
+	#include <stdio.h>
+	#include <unistd.h>
+	#include <errno.h>
+	#include <fcntl.h>
+	#include <string.h>
+	#include <stdlib.h>
+
 #endif
 
 #if defined(ARCH_X86)
-#include <Iphlpapi.h>
+	#include <Iphlpapi.h>
+#elif defined(ARCH_ARM_SPD)
+
 #else
-#include <sys/ioctl.h>
-#include <net/if.h>
+
+	#include <sys/ioctl.h>
+	#include <net/if.h>
+
 #endif
 
 /**
@@ -77,15 +96,26 @@ static int mysock = INVALID_SOCKET;
 int transport_sendPacketBuffer(int sock, unsigned char* buf, int buflen)
 {
 	int rc = 0;
+#ifdef(ARCH_ARM_SPD)
+	rc = sci_sock_send(sock, buf, buflen, 0);
+#else 
 	rc = send(sock, buf, buflen, 0);//write(sock, buf, buflen);
+#endif
 	return rc;
 }
 
 
 int transport_getdata(unsigned char* buf, int count)
 {
-	int rc = recv(mysock, buf, count, 0);
+	int rc = 0;
+#ifdef (ARCH_ARM_SPD)	
+	rc = sci_sock_recv(mysock, buf, count, 0);
+#else
+	rc = recv(mysock, buf, count, 0);
 	//printf("received %d bytes count %d\n", rc, (int)count);
+
+#endif
+
 	return rc;
 }
 
@@ -96,7 +126,17 @@ int transport_getdatanb(void *sck, unsigned char* buf, int count)
 	   in your system you will use whatever you use to get whichever outstanding
 	   bytes your socket equivalent has ready to be extracted right now, if any,
 	   or return immediately */
-	int rc = recv(sock, buf, count, 0);	
+	int rc = 0;
+#if defined(ARCH_ARM_SPD)
+
+	rc = sci_sock_recv(sock, buf, count, 0);
+
+#else
+
+	rc = recv(sock, buf, count, 0);	
+
+#endif
+
 	if (rc == -1) {
 		/* check error conditions from your system here, and return -1 */
 		return 0;
@@ -109,6 +149,54 @@ return >=0 for a socket descriptor, <0 for an error code
 @todo Basically moved from the sample without changes, should accomodate same usage for 'sock' for clarity,
 removing indirections
 */
+#if defined(ARCH_ARM_SPD)
+
+int transport_open(char* addr, int port)
+{
+	int* sock = &mysock;	
+	int rc = -1;	
+	static struct timeval tv;	    
+	struct sci_sockaddr dst_addr = {0};
+	int temp_count = 0;
+	
+	assert(addr != NULL);
+
+	*sock = -1;
+
+	do
+	{
+		rc = sci_parse_host(addr, &dst_addr.ip_addr, 0);
+		temp_count ++;
+		SCI_SLEEP(500);
+	}while((rc == 1) && (temp_count < 50));
+	
+	if(0 != rc)
+	{	
+		return -1;
+	}
+
+	dst_addr.family = AF_INET;
+	dst_addr.port = htons(port);
+
+	if (rc == 0)
+	{
+		*sock =	sci_sock_socket(AF_INET, SOCK_STREAM, 0, 0);		
+		if (*sock != -1)
+		{
+			rc = sci_sock_connect(*sock, (struct sci_sockaddr*)&dst_addr, sizeof(dst_addr));			
+		}
+	}
+	if (mysock == INVALID_SOCKET)
+		return rc;
+
+	//tv.tv_sec = 1;  /* 1 second Timeout */
+	//tv.tv_usec = 0;  
+	///setsockopt(mysock, SOL_SOCKET, SO_RCVTIMEO, (char *)&tv,sizeof(struct timeval));
+	return mysock;
+}
+
+#else
+
 int transport_open(char* addr, int port)
 {
 	int* sock = &mysock;
@@ -223,14 +311,22 @@ int transport_open(char* addr, int port)
 	return mysock;
 }
 
+#endif
+
 int transport_close(int sock)
 {
 #define SHUT_WR 1
 	int rc;
+#ifdef (ARCH_ARM_SPD)
+	
+	rc = sci_sock_shutdown(sock, SD_SEND);
+	rc = sci_sock_recv(sock, NULL, 0, 0);
+	rc = sci_sock_socketclose(sock);
 
+#else
 	rc = shutdown(sock, SHUT_WR);
 	rc = recv(sock, NULL, (size_t)0, 0);
 	rc = close(sock);
-
+#endif
 	return rc;
 }
