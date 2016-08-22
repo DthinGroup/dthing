@@ -24,6 +24,8 @@
 
 #if defined(WIN32)
 /* default on Windows is 64 - increase to make Linux and Windows the same */
+#pragma comment (lib,"Ws2_32.lib")
+
 #define FD_SETSIZE 1024
 #include <winsock2.h>
 #include <ws2tcpip.h>
@@ -74,7 +76,7 @@ static int mysock = INVALID_SOCKET;
 int transport_sendPacketBuffer(int sock, unsigned char* buf, int buflen)
 {
 	int rc = 0;
-	rc = write(sock, buf, buflen);
+	rc = send(sock, buf, buflen, 0);//write(sock, buf, buflen);
 	return rc;
 }
 
@@ -108,7 +110,7 @@ removing indirections
 */
 int transport_open(char* addr, int port)
 {
-int* sock = &mysock;
+	int* sock = &mysock;
 	int type = SOCK_STREAM;
 	struct sockaddr_in address;
 #if defined(AF_INET6)
@@ -124,15 +126,36 @@ int* sock = &mysock;
 	struct addrinfo hints = {0, AF_UNSPEC, SOCK_STREAM, IPPROTO_TCP, 0, NULL, NULL, NULL};
 	static struct timeval tv;
 
+#if defined(WIN32)
+	WORD wVersionRequested;
+	WSADATA wsaData;//WSAata用来存储系统传回的关于WinSocket的资料。
+    int err;
+
+            wVersionRequested = MAKEWORD( 1, 1 );
+
+            err = WSAStartup( wVersionRequested, &wsaData );
+            if ( err != 0 ) {
+                return -1;
+            }
+
+            if ( LOBYTE( wsaData.wVersion ) != 1 ||HIBYTE( wsaData.wVersion ) != 1 ) 
+            {
+                WSACleanup( );
+                return -1;
+            }
+#endif
+
+
 	*sock = -1;
 	if (addr[0] == '[')
 	  ++addr;
+
 
 	if ((rc = getaddrinfo(addr, NULL, &hints, &result)) == 0)
 	{
 		struct addrinfo* res = result;
 
-		/* prefer ip4 addresses */
+		// prefer ip4 addresses 
 		while (res)
 		{
 			if (res->ai_family == AF_INET)
@@ -162,11 +185,18 @@ int* sock = &mysock;
 			rc = -1;
 
 		freeaddrinfo(result);
+	} else {
+		address.sin_port = htons(port);
+		address.sin_family = family = AF_INET;
+		//address.sin_addr = ((struct sockaddr_in*)(result->ai_addr))->sin_addr;
+		address.sin_addr.s_addr=inet_addr(addr);
+		rc =0;
 	}
 
-	if (rc == 0)
+	//if (rc == 0)
 	{
-		*sock =	socket(family, type, 0);
+		int sc =	socket(family, type, 0);
+		*sock = sc;
 		if (*sock != -1)
 		{
 #if defined(NOSIGPIPE)
@@ -196,7 +226,7 @@ int* sock = &mysock;
 int transport_close(int sock)
 {
 int rc;
-
+#define SHUT_WR 1
 	rc = shutdown(sock, SHUT_WR);
 	rc = recv(sock, NULL, (size_t)0, 0);
 	rc = close(sock);
