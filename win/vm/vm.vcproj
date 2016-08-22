@@ -789,6 +789,10 @@
 			>
 		</File>
 		<File
+			RelativePath="..\..\vm\global_def.h"
+			>
+		</File>
+		<File
 			RelativePath="..\..\base\src\trace.c"
 			>
 		</File>

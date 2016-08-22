@@ -16,13 +16,14 @@
  *******************************************************************************/
 
 #include <sys/types.h>
+#include "global_def.h"
 
 #if !defined(SOCKET_ERROR)
 	/** error in socket operation */
 	#define SOCKET_ERROR -1
 #endif
 
-#if defined(WIN32)
+#if defined(ARCH_X86)
 /* default on Windows is 64 - increase to make Linux and Windows the same */
 #pragma comment (lib,"Ws2_32.lib")
 
@@ -56,7 +57,7 @@
 #include <stdlib.h>
 #endif
 
-#if defined(WIN32)
+#if defined(ARCH_X86)
 #include <Iphlpapi.h>
 #else
 #include <sys/ioctl.h>
@@ -117,7 +118,7 @@ int transport_open(char* addr, int port)
 	struct sockaddr_in6 address6;
 #endif
 	int rc = -1;
-#if defined(WIN32)
+#if defined(ARCH_X86)
 	short family;
 #else
 	sa_family_t family = AF_INET;
@@ -126,23 +127,23 @@ int transport_open(char* addr, int port)
 	struct addrinfo hints = {0, AF_UNSPEC, SOCK_STREAM, IPPROTO_TCP, 0, NULL, NULL, NULL};
 	static struct timeval tv;
 
-#if defined(WIN32)
+#if defined(ARCH_X86)
 	WORD wVersionRequested;
 	WSADATA wsaData;//WSAata用来存储系统传回的关于WinSocket的资料。
     int err;
+	
+	wVersionRequested = MAKEWORD( 1, 1 );
+    
+	err = WSAStartup( wVersionRequested, &wsaData );
+    if ( err != 0 ) {
+        return rc;
+    }
 
-            wVersionRequested = MAKEWORD( 1, 1 );
-
-            err = WSAStartup( wVersionRequested, &wsaData );
-            if ( err != 0 ) {
-                return -1;
-            }
-
-            if ( LOBYTE( wsaData.wVersion ) != 1 ||HIBYTE( wsaData.wVersion ) != 1 ) 
-            {
-                WSACleanup( );
-                return -1;
-            }
+    if ( LOBYTE( wsaData.wVersion ) != 1 ||HIBYTE( wsaData.wVersion ) != 1 ) 
+    {
+        WSACleanup( );
+        return rc;
+    }
 #endif
 
 
@@ -193,10 +194,9 @@ int transport_open(char* addr, int port)
 		rc =0;
 	}
 
-	//if (rc == 0)
+	if (rc == 0)
 	{
-		int sc =	socket(family, type, 0);
-		*sock = sc;
+		*sock =	socket(family, type, 0);		
 		if (*sock != -1)
 		{
 #if defined(NOSIGPIPE)
@@ -225,8 +225,9 @@ int transport_open(char* addr, int port)
 
 int transport_close(int sock)
 {
-int rc;
 #define SHUT_WR 1
+	int rc;
+
 	rc = shutdown(sock, SHUT_WR);
 	rc = recv(sock, NULL, (size_t)0, 0);
 	rc = close(sock);

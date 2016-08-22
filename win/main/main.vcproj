@@ -40,7 +40,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\base\inc;..\..\vm\inc;..\..\rams\inc;..\..\porting\inc"
+				AdditionalIncludeDirectories="..\..\base\inc;..\..\vm\inc;..\..\rams\inc;..\..\porting\inc;..\..\mqtt\inc"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
