@@ -96,7 +96,7 @@ static int mysock = INVALID_SOCKET;
 int transport_sendPacketBuffer(int sock, unsigned char* buf, int buflen)
 {
 	int rc = 0;
-#ifdef(ARCH_ARM_SPD)
+#if defined(ARCH_ARM_SPD)
 	rc = sci_sock_send(sock, buf, buflen, 0);
 #else 
 	rc = send(sock, buf, buflen, 0);//write(sock, buf, buflen);
@@ -108,7 +108,7 @@ int transport_sendPacketBuffer(int sock, unsigned char* buf, int buflen)
 int transport_getdata(unsigned char* buf, int count)
 {
 	int rc = 0;
-#ifdef (ARCH_ARM_SPD)	
+#if defined(ARCH_ARM_SPD)
 	rc = sci_sock_recv(mysock, buf, count, 0);
 #else
 	rc = recv(mysock, buf, count, 0);
@@ -317,7 +317,7 @@ int transport_close(int sock)
 {
 #define SHUT_WR 1
 	int rc;
-#ifdef (ARCH_ARM_SPD)
+#if defined(ARCH_ARM_SPD)
 	
 	rc = sci_sock_shutdown(sock, SD_SEND);
 	rc = sci_sock_recv(sock, NULL, 0, 0);

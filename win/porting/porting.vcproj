@@ -40,7 +40,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\base\inc;..\..\porting\inc;..\..\vm;..\..\vm\inc;..\..\rams\inc"
+				AdditionalIncludeDirectories="..\..\base\inc;..\..\porting\inc;..\..\vm;..\..\vm\inc;..\..\rams\inc;..\..\mqtt\inc"
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;_WIN32_WINNT=0x0502"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -189,6 +189,18 @@
 		</File>
 		<File
 			RelativePath="..\..\porting\inc\opl_rams.h"
+			>
+		</File>
+		<File
+			RelativePath="..\..\porting\src\test_mqtt.c"
+			>
+		</File>
+		<File
+			RelativePath="..\..\porting\src\transport.c"
+			>
+		</File>
+		<File
+			RelativePath="..\..\porting\inc\transport.h"
 			>
 		</File>
 	</Files>
