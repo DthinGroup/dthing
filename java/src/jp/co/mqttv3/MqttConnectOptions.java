@@ -17,15 +17,6 @@
  */
 package jp.co.mqttv3;
 
-import java.util.Properties;
-
-import javax.net.SocketFactory;
-
-import org.eclipse.paho.client.mqttv3.util.Debug;
-
-import java.net.URI;
-import java.net.URISyntaxException;
-
 /**
  * Holds the set of options that control how the client connects to a server.
  */
@@ -48,10 +39,10 @@ public class MqttConnectOptions {
 	public static final boolean CLEAN_SESSION_DEFAULT = true;
 	/**
 	 * The default MqttVersion is 3.1.1 first, dropping back to 3.1 if that fails
-	 */
-	public static final int MQTT_VERSION_DEFAULT = 0;
+	 */	
 	public static final int MQTT_VERSION_3_1 = 3;
 	public static final int MQTT_VERSION_3_1_1 = 4;
+	public static final int MQTT_VERSION_DEFAULT = MQTT_VERSION_3_1_1;
 
 	protected static final int URI_TYPE_TCP = 0;
 	protected static final int URI_TYPE_SSL = 1;
@@ -65,8 +56,7 @@ public class MqttConnectOptions {
 	private MqttMessage willMessage = null;
 	private String userName;
 	private char[] password;
-	private SocketFactory socketFactory;
-	private Properties sslClientProps = null;
+	//private Properties sslClientProps = null;
 	private boolean cleanSession = CLEAN_SESSION_DEFAULT;
 	private int connectionTimeout = CONNECTION_TIMEOUT_DEFAULT;
 	private String[] serverURIs = null;
@@ -271,24 +261,6 @@ public class MqttConnectOptions {
 		this.connectionTimeout = connectionTimeout;
 	}
 
-	/**
-	 * Returns the socket factory that will be used when connecting, or
-	 * <code>null</code> if one has not been set.
-	 */
-	public SocketFactory getSocketFactory() {
-		return socketFactory;
-	}
-
-	/**
-	 * Sets the <code>SocketFactory</code> to use.  This allows an application
-	 * to apply its own policies around the creation of network sockets.  If
-	 * using an SSL connection, an <code>SSLSocketFactory</code> can be used
-	 * to supply application-specific security settings.
-	 * @param socketFactory the factory to use.
-	 */
-	public void setSocketFactory(SocketFactory socketFactory) {
-		this.socketFactory = socketFactory;
-	}
 
 	/**
 	 * Returns the topic to be used for last will and testament (LWT).
@@ -308,87 +280,6 @@ public class MqttConnectOptions {
 	 */
 	public MqttMessage getWillMessage() {
 		return willMessage;
-	}
-
-	/**
-	 * Returns the SSL properties for the connection.
-	 * @return the properties for the SSL connection
-	 */
-	public Properties getSSLProperties() {
-		return sslClientProps;
-	}
-
-	/**
-	 * Sets the SSL properties for the connection.  Note that these
-	 * properties are only valid if an implementation of the Java
-	 * Secure Socket Extensions (JSSE) is available.  These properties are
-	 * <em>not</em> used if a SocketFactory has been set using
-	 * {@link #setSocketFactory(SocketFactory)}.
-	 * The following properties can be used:</p>
-	 * <dl>
-	 * <dt>com.ibm.ssl.protocol</dt>
-   	 * <dd>One of: SSL, SSLv3, TLS, TLSv1, SSL_TLS.</dd>
-	 * <dt>com.ibm.ssl.contextProvider
-   	 * <dd>Underlying JSSE provider.  For example "IBMJSSE2" or "SunJSSE"</dd>
-	 *
-	 * <dt>com.ibm.ssl.keyStore</dt>
-   	 * <dd>The name of the file that contains the KeyStore object that you
-   	 * want the KeyManager to use. For example /mydir/etc/key.p12</dd>
-	 *
-	 * <dt>com.ibm.ssl.keyStorePassword</dt>
-   	 * <dd>The password for the KeyStore object that you want the KeyManager to use.
-   	 * The password can either be in plain-text,
-   	 * or may be obfuscated using the static method:
-     * <code>com.ibm.micro.security.Password.obfuscate(char[] password)</code>.
-   	 * This obfuscates the password using a simple and insecure XOR and Base64
-   	 * encoding mechanism. Note that this is only a simple scrambler to
-   	 * obfuscate clear-text passwords.</dd>
-	 *
-	 * <dt>com.ibm.ssl.keyStoreType</dt>
-   	 * <dd>Type of key store, for example "PKCS12", "JKS", or "JCEKS".</dd>
-	 *
-	 * <dt>com.ibm.ssl.keyStoreProvider</dt>
-   	 * <dd>Key store provider, for example "IBMJCE" or "IBMJCEFIPS".</dd>
-	 *
-	 * <dt>com.ibm.ssl.trustStore</dt>
-   	 * <dd>The name of the file that contains the KeyStore object that you
-   	 * want the TrustManager to use.</dd>
-	 *
-	 * <dt>com.ibm.ssl.trustStorePassword</dt>
-   	 * <dd>The password for the TrustStore object that you want the
-   	 * TrustManager to use.  The password can either be in plain-text,
-   	 * or may be obfuscated using the static method:
-     * <code>com.ibm.micro.security.Password.obfuscate(char[] password)</code>.
-   	 * This obfuscates the password using a simple and insecure XOR and Base64
-   	 * encoding mechanism. Note that this is only a simple scrambler to
-   	 * obfuscate clear-text passwords.</dd>
-	 *
-	 * <dt>com.ibm.ssl.trustStoreType</dt>
-   	 * <dd>The type of KeyStore object that you want the default TrustManager to use.
-   	 * Same possible values as "keyStoreType".</dd>
-	 *
-	 * <dt>com.ibm.ssl.trustStoreProvider</dt>
-   	 * <dd>Trust store provider, for example "IBMJCE" or "IBMJCEFIPS".</dd>
-	 *
-	 * <dt>com.ibm.ssl.enabledCipherSuites</dt>
-	 * <dd>A list of which ciphers are enabled.  Values are dependent on the provider,
-	 * for example: SSL_RSA_WITH_AES_128_CBC_SHA;SSL_RSA_WITH_3DES_EDE_CBC_SHA.</dd>
-	 *
-	 * <dt>com.ibm.ssl.keyManager</dt>
-	 * <dd>Sets the algorithm that will be used to instantiate a KeyManagerFactory object
-	 * instead of using the default algorithm available in the platform. Example values:
-	 * "IbmX509" or "IBMJ9X509".
-	 * </dd>
-	 *
-	 * <dt>com.ibm.ssl.trustManager</dt>
-	 * <dd>Sets the algorithm that will be used to instantiate a TrustManagerFactory object
-	 * instead of using the default algorithm available in the platform. Example values:
-	 * "PKIX" or "IBMJ9X509".
-	 * </dd>
-	 * </dl>
-	 */
-	public void setSSLProperties(Properties props) {
-		this.sslClientProps = props;
 	}
 
 	/**
@@ -484,33 +375,8 @@ public class MqttConnectOptions {
 	 */
 
 	protected static int validateURI(String srvURI) {
-		try {
-			URI vURI = new URI(srvURI);
-			if (vURI.getScheme().equals("ws")){
-				return URI_TYPE_WS;
-			}
-			else if (vURI.getScheme().equals("wss")) {
-				return URI_TYPE_WSS;
-			}
-
-			if (!vURI.getPath().equals("")) {
-				throw new IllegalArgumentException(srvURI);
-			}
-			if (vURI.getScheme().equals("tcp")) {
-				return URI_TYPE_TCP;
-			}
-			else if (vURI.getScheme().equals("ssl")) {
-				return URI_TYPE_SSL;
-			}
-			else if (vURI.getScheme().equals("local")) {
-				return URI_TYPE_LOCAL;
-			}
-			else {
-				throw new IllegalArgumentException(srvURI);
-			}
-		} catch (URISyntaxException ex) {
-			throw new IllegalArgumentException(srvURI);
-		}
+		// TODO
+		return -1;
 	}
 	
 	/**
@@ -555,32 +421,5 @@ public class MqttConnectOptions {
 	 */
 	public void setAutomaticReconnect(boolean automaticReconnect) {
 		this.automaticReconnect = automaticReconnect;
-	}
-	
-
-	public Properties getDebug() {
-		final String strNull="null";
-		Properties p = new Properties();
-		p.put("MqttVersion", new Integer(getMqttVersion()));
-		p.put("CleanSession", Boolean.valueOf(isCleanSession()));
-		p.put("ConTimeout", new Integer(getConnectionTimeout()));
-		p.put("KeepAliveInterval", new Integer(getKeepAliveInterval()));
-		p.put("UserName", (getUserName() == null) ? strNull : getUserName());
-		p.put("WillDestination", (getWillDestination() == null) ? strNull : getWillDestination());
-		if (getSocketFactory()==null) {
-			p.put("SocketFactory", strNull);
-		} else {
-			p.put("SocketFactory", getSocketFactory());
-		}
-		if (getSSLProperties()==null) {
-			p.put("SSLProperties", strNull);
-		} else {
-			p.put("SSLProperties", getSSLProperties());
-		}
-		return p;
-	}
-
-	public String toString() {
-		return Debug.dumpProperties(getDebug(), "Connection options");
 	}
 }
