@@ -1,4 +1,4 @@
-package jp.co.mqttv3;
+package com.yarlungsoft.iot.mqttv3;
 
 /**
  * Implementors of this interface will be notified when an asynchronous action completes.

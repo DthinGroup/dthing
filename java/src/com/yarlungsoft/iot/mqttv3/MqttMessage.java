@@ -14,7 +14,7 @@
  *    Dave Locke - initial API and implementation and/or initial documentation
  *    Ian Craggs - ack control (bug 472172)
  */
-package jp.co.mqttv3;
+package com.yarlungsoft.iot.mqttv3;
 
 /**
  * An MQTT message holds the application payload and options

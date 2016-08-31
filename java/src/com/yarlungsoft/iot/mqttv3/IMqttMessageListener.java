@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2014 IBM Corp.
+ * Copyright (c) 2015 IBM Corp.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -11,26 +11,16 @@
  *   http://www.eclipse.org/org/documents/edl-v10.php.
  *
  * Contributors:
- *    Dave Locke - initial API and implementation and/or initial documentation
+ *    Ian Craggs - initial API and implementation and/or initial documentation
  */
-package jp.co.mqttv3;
 
+package com.yarlungsoft.iot.mqttv3;
 
 /**
- * Enables an application to be notified when asynchronous
- * events related to the client occur.
- * Classes implementing this interface
- * can be registered on both types of client: {@link IMqttClient#setCallback(MqttCallback)}
- * and {@link IMqttAsyncClient#setCallback(MqttCallback)}
+ * Implementers of this interface will be notified when a message arrives.
+ * 
  */
-public interface MqttCallback {
-	/**
-	 * This method is called when the connection to the server is lost.
-	 *
-	 * @param cause the reason behind the loss of connection.
-	 */
-	public void connectionLost(Throwable cause);
-
+public interface IMqttMessageListener {
 	/**
 	 * This method is called when a message arrives from the server.
 	 *
@@ -63,17 +53,4 @@ public interface MqttCallback {
 	 * shut down.
 	 */
 	public void messageArrived(String topic, MqttMessage message) throws Exception;
-
-	/**
-	 * Called when delivery for a message has been completed, and all
-	 * acknowledgments have been received. For QoS 0 messages it is
-	 * called once the message has been handed to the network for
-	 * delivery. For QoS 1 it is called when PUBACK is received and
-	 * for QoS 2 when PUBCOMP is received. The token will be the same
-	 * token as that returned when the message was published.
-	 *
-	 * @param token the delivery token associated with the message.
-	 */
-	public void deliveryComplete();
-
 }

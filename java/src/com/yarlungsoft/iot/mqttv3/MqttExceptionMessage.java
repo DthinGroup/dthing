@@ -2,7 +2,7 @@
  * Copyright (c)2016 Yarlung Soft
  * We don't support i18n now, just return English version message
  ******************************************************************************/
-package jp.co.mqttv3;
+package com.yarlungsoft.iot.mqttv3;
 
 public class MqttExceptionMessage {
 	/*

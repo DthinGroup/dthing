@@ -13,7 +13,7 @@
  * Contributors:
  *    Bin Zhang - initial API and implementation and/or initial documentation
  */
-package jp.co.mqttv3.utils;
+package com.yarlungsoft.iot.mqttv3.utils;
 
 /**
  * String helper

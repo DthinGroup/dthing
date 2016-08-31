@@ -13,7 +13,7 @@
  * Contributors:
  *    Dave Locke - initial API and implementation and/or initial documentation
  */
-package jp.co.mqttv3;
+package com.yarlungsoft.iot.mqttv3;
 
 /**
  * This exception is thrown by the implementor of the persistence

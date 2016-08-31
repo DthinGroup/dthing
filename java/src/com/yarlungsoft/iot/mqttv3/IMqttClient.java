@@ -17,7 +17,7 @@
  *    Ian Craggs - ack control (bug 472172)
  */
 
-package jp.co.mqttv3;
+package com.yarlungsoft.iot.mqttv3;
 
 /**
  * Enables an application to communicate with an MQTT server using blocking methods.

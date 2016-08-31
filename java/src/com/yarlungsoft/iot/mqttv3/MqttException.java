@@ -15,7 +15,7 @@
  *    Ian Craggs - MQTT 3.1.1 support
  *    James Sutton - Automatic Reconnect & Offline Buffering
  */
-package jp.co.mqttv3;
+package com.yarlungsoft.iot.mqttv3;
 
 
 /**
