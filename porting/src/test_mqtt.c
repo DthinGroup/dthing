@@ -27,15 +27,15 @@ as the code loops waiting for msgs on the subscribed topic.
 Your actual code will depend on your hw and approach*/
 #include <signal.h>
 
-int toStop = 0;
+static int toStop = 0;
 
-void cfinish(int sig)
+static void cfinish(int sig)
 {
 	signal(SIGINT, NULL);
 	toStop = 1;
 }
 
-void stop_init(void)
+static void stop_init(void)
 {
 	signal(SIGINT, cfinish);
 	signal(SIGTERM, cfinish);
@@ -58,6 +58,8 @@ int test_mqtt_main()
 	char *host = "182.61.25.208";//"m2m.eclipse.org";
 	int port = 1883;
 
+	int tt;
+
 	stop_init();
 	
 
@@ -67,7 +69,7 @@ int test_mqtt_main()
 
 	printf("Sending to hostname %s port %d\n", host, port);
 
-	data.clientID.cstring = "me";
+	data.clientID.cstring = "me.fuxk";
 	data.keepAliveInterval = 20;
 	data.cleansession = 1;
 	data.username.cstring = "testuser";
@@ -77,7 +79,9 @@ int test_mqtt_main()
 	rc = transport_sendPacketBuffer(mysock, buf, len);
 
 	/* wait for connack */
-	if (MQTTPacket_read(buf, buflen, transport_getdata) == CONNACK)
+	tt = MQTTPacket_read(buf, buflen, transport_getdata);
+	printf("tt =  %d\n", tt);
+	if (tt == CONNACK)
 	{
 		unsigned char sessionPresent, connack_rc;
 
@@ -91,7 +95,7 @@ int test_mqtt_main()
 		goto exit;
 
 	/* subscribe */
-	topicString.cstring = "substopic";
+	topicString.cstring = "nix1";
 	len = MQTTSerialize_subscribe(buf, buflen, 0, msgid, 1, &topicString, &req_qos);
 
 	rc = transport_sendPacketBuffer(mysock, buf, len);
@@ -102,7 +106,7 @@ int test_mqtt_main()
 		int granted_qos;
 
 		rc = MQTTDeserialize_suback(&submsgid, 1, &subcount, &granted_qos, buf, buflen);
-		if (granted_qos != 0)
+		if (granted_qos != 2)
 		{
 			printf("granted qos != 0, %d\n", granted_qos);
 			goto exit;
@@ -112,7 +116,7 @@ int test_mqtt_main()
 		goto exit;
 
 	/* loop getting msgs on subscribed topic */
-	topicString.cstring = "pubtopic";
+	topicString.cstring = "nix2";
 	while (!toStop)
 	{
 		/* transport_getdata() has a built-in 1 second timeout,

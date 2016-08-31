@@ -37,8 +37,16 @@ static void launchESSchdule()
 
 #if defined(ARCH_X86)
 
+extern int MQTTTest_main(int argc, char** argv);
+
+char gArgc = 4;
+char * gArgv[] = {"stdoutsub", "fuck", "--host", "182.61.25.208"};
+
 int main(int argc, char *argv[])
 {
+	MQTTTest_main(gArgc, gArgv);
+	while(1);
+	test_mqtt_main();
 	file_startup();
 	Opl_net_activate();
 	Ams_init();
