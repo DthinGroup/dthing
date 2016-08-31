@@ -10,3 +10,4 @@ java/bin/
 win/*
 gen/*
 *.class
+*.bat

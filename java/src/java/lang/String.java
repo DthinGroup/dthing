@@ -1495,4 +1495,21 @@ public final class String implements CharSequence {
 	public boolean isEmpty(){
 		return count == 0 ? true : false;
 	}
+	
+	/**
+     * Determines if this {@code String} contains the sequence of characters in
+     * the {@code CharSequence} passed.
+     *
+     * @param cs
+     *            the character sequence to search for.
+     * @return {@code true} if the sequence of characters are contained in this
+     *         string, otherwise {@code false}.
+     * @since 1.5
+     */
+    public boolean contains(CharSequence cs) {
+        if (cs == null) {
+            throw new NullPointerException();
+        }
+        return indexOf(cs.toString()) >= 0;
+    }
 }

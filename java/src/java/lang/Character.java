@@ -95,8 +95,8 @@ package java.lang;
  * @since 1.0
  */
 public final class Character {
-
-    private static final long serialVersionUID = 3786198910865385080L;
+   
+	private static final long serialVersionUID = 3786198910865385080L;
     
     private final char value;
     
@@ -203,6 +203,22 @@ public final class Character {
      	2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0,
      	2, 2, 1, 1, 1, 2, 2, 2, 1, 2, 1, 2, 1, 2, 1, 2,
      	1, 2, 1, 2, 1, 2, 1, 2 };
+    
+    /**
+     * The minimum value of a high surrogate or leading surrogate unit in UTF-16
+     * encoding, {@code '\uD800'}.
+     *
+     * @since 1.5
+     */
+    public static final char MIN_HIGH_SURROGATE = '\uD800';
+
+    /**
+     * The maximum value of a high surrogate or leading surrogate unit in UTF-16
+     * encoding, {@code '\uDBFF'}.
+     *
+     * @since 1.5
+     */
+    public static final char MAX_HIGH_SURROGATE = '\uDBFF';
     
     /**
      * Constructs a new {@code Character} with the specified primitive char
@@ -425,5 +441,21 @@ public final class Character {
             return (c & 1) == 1 ? code >> 8 : code & 0xff;
         }
         return UNASSIGNED;
+    }
+    
+    /**
+     * Indicates whether {@code ch} is a high- (or leading-) surrogate code unit
+     * that is used for representing supplementary characters in UTF-16
+     * encoding.
+     *
+     * @param ch
+     *            the character to test.
+     * @return {@code true} if {@code ch} is a high-surrogate code unit;
+     *         {@code false} otherwise.
+     * @see #isLowSurrogate(char)
+     * @since 1.5
+     */
+    public static boolean isHighSurrogate(char ch) {
+        return (MIN_HIGH_SURROGATE <= ch && MAX_HIGH_SURROGATE >= ch);
     }
 }
