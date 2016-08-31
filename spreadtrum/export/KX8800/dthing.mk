@@ -29,6 +29,7 @@ MINCPATH += BASE/dthing/vm/inc
 MINCPATH += BASE/dthing/vm
 #MINCPATH += BASE/dthing/www/inc
 MINCPATH += BASE/dthing/zlib
+MINCPATH += BASE/dthing/mqtt/inc
 
 MSRCPATH  = BASE/dthing/main
 MSRCPATH += BASE/dthing/base/src
@@ -39,6 +40,7 @@ MSRCPATH += BASE/dthing/vm/src
 MSRCPATH += BASE/dthing/vm
 #MSRCPATH += BASE/dthing/www/src
 MSRCPATH += BASE/dthing/zlib
+MSRCPATH += BASE/dthing/mqtt/src/spreadtrum
 
 # basic porting files,please add by types
 #============================================
@@ -50,7 +52,9 @@ SOURCES	 = dthing_main.c \
 SOURCES	+= ams.c ams_remote.c ams_utils.c ams_sms.c
 
 #opl layer
-SOURCES	+= opl_core.c opl_es.c opl_file.c opl_mm.c opl_net.c opl_rams.c opl_atc.c   opl_trace.c
+SOURCES	+= opl_core.c opl_es.c opl_file.c opl_mm.c opl_net.c opl_rams.c opl_atc.c   opl_trace.c  opl_mqtt_transport.c
+#mqtt
+SOURCES	+= test_mqtt.c MQTTLocal.c MQTTTest.c
 #native
 SOURCES	+= nativeADCManager.c nativeATCommandConnection.c \
            nativeBatteryManager.c nativeEarManager.c nativeGpio.c nativeI2CManager.c nativeLCD.c nativeMicophone.c \

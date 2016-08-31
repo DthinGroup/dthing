@@ -6,6 +6,7 @@
 #include "sci_types.h"
 #include "os_api.h"
 #include "Sig_code.h"
+#include "mn_type.h"
 #endif
 
 #if defined(ARCH_ARM_SPD)
@@ -748,7 +749,7 @@ LOCAL BOOLEAN Java_send_sms_to_mn(
     SCI_TIME_T time = {0};
     SCI_DATE_T date = {0};
     MN_SMS_PATH_E send_path = MN_SMS_GSM_PATH;
-#if defined(PLATFORM_INTERNAL_SIM)
+#if defined(PLATFORM_INTERNAL_SIM) && (defined(MULTI_SIM_SYS_DUAL) || defined(MULTI_SIM_SYS_TRI) || defined(MULTI_SIM_SYS_QUAD))
     MN_DUAL_SYS_E dual_sys = MN_DUAL_SYS_2; // Change to SIM2 sending sms in W13.36
 #else
     MN_DUAL_SYS_E dual_sys = MN_DUAL_SYS_1;

@@ -15,7 +15,6 @@
  *    Sergio R. Caprile - "commonalization" from prior samples and/or documentation extension
  *******************************************************************************/
 
-#include <sys/types.h>
 #include "global_def.h"
 
 #if !defined(SOCKET_ERROR)
@@ -30,6 +29,7 @@
 	#define FD_SETSIZE 1024
 	#include <winsock2.h>
 	#include <ws2tcpip.h>
+	#include <sys/types.h>
 	#define MAXHOSTNAMELEN 256
 	#define EAGAIN WSAEWOULDBLOCK
 	#define EINTR WSAEINTR
@@ -42,7 +42,9 @@
 	#define socklen_t int
 
 #elif defined(ARCH_ARM_SPD)
-
+	
+	#define INVALID_SOCKET SOCKET_ERROR
+	
 	#include <os_api.h>
 	#include <priority_app.h>
 	#include <socket_api.h>
@@ -154,8 +156,7 @@ removing indirections
 int transport_open(char* addr, int port)
 {
 	int* sock = &mysock;	
-	int rc = -1;	
-	static struct timeval tv;	    
+	int rc = -1;		
 	struct sci_sockaddr dst_addr = {0};
 	int temp_count = 0;
 	

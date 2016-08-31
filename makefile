@@ -250,7 +250,8 @@ VM_SOURCES += \
     mqtt/src/MQTTSubscribeClient.c\
     mqtt/src/MQTTSubscribeServer.c\
     mqtt/src/MQTTUnsubscribeClient.c\
-    mqtt/src/MQTTUnsubscribeServer.c
+    mqtt/src/MQTTUnsubscribeServer.c\
+	mqtt/src/MQTTClient.c
 
 
 

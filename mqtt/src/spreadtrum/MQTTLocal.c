@@ -18,6 +18,7 @@
 
 
 #include <os_api.h>
+#include <Socket_types.h>
 
 //The defines are from socket_types.h in spd
 #define ECONNRESET      8
@@ -94,7 +95,7 @@ int network_read(Network* n, unsigned char* buffer, int len, int timeout_ms)
 	}
 	
 	timeout = interval.tv_sec * 1000 + interval.tv_msec;
-	sci_sock_setsockopt(n->my_socket, SO_RCVTIMEO, (void*)&tv);	
+	sci_sock_setsockopt(n->my_socket, SO_RCVTIMEO, (void*)&interval);	
 	//setsockopt(n->my_socket, SOL_SOCKET, SO_RCVTIMEO, (char *)&interval, sizeof(struct _timeval));
 
 	while (bytes < len)
@@ -102,7 +103,7 @@ int network_read(Network* n, unsigned char* buffer, int len, int timeout_ms)
 		int rc = sci_sock_recv(n->my_socket, &buffer[bytes], (int)(len - bytes), 0);
 		if (rc == -1)
 		{
-			errno = sci_sock_errno(sock);
+			int errno = sci_sock_errno(n->my_socket);
 			if (errno != ENOTCONN && errno != ECONNRESET)
 			{
 				bytes = -1;

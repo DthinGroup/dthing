@@ -40,11 +40,8 @@
     stdoutsub topic/of/interest --host iot.eclipse.org
 
 */
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
 #include "MQTTClient.h"
+#include "sci_types.h"
 
 
 volatile int toStop = 0;
@@ -52,16 +49,16 @@ volatile int toStop = 0;
 
 void usage()
 {
-	printf("MQTT stdout subscriber\n");
-	printf("Usage: stdoutsub topicname <options>, where options are:\n");
-	printf("  --host <hostname> (default is localhost)\n");
-	printf("  --port <port> (default is 1883)\n");
-	printf("  --qos <qos> (default is 2)\n");
-	printf("  --delimiter <delim> (default is \\n)\n");
-	printf("  --clientid <clientid> (default is hostname+timestamp)\n");
-	printf("  --username none\n");
-	printf("  --password none\n");
-	printf("  --showtopics <on or off> (default is on if the topic has a wildcard, else off)\n");
+	SCI_TRACE_LOW("MQTT stdout subscriber\n");
+	SCI_TRACE_LOW("Usage: stdoutsub topicname <options>, where options are:\n");
+	SCI_TRACE_LOW("  --host <hostname> (default is localhost)\n");
+	SCI_TRACE_LOW("  --port <port> (default is 1883)\n");
+	SCI_TRACE_LOW("  --qos <qos> (default is 2)\n");
+	SCI_TRACE_LOW("  --delimiter <delim> (default is \\n)\n");
+	SCI_TRACE_LOW("  --clientid <clientid> (default is hostname+timestamp)\n");
+	SCI_TRACE_LOW("  --username none\n");
+	SCI_TRACE_LOW("  --password none\n");
+	SCI_TRACE_LOW("  --showtopics <on or off> (default is on if the topic has a wildcard, else off)\n");
 	exit(-1);
 }
 
@@ -86,7 +83,7 @@ struct opts_struct
 	int showtopics;
 } opts =
 {
-	(char*)"stdout-subscriber", 0, (char*)"\n", QOS2, NULL, NULL, (char*)"localhost", 1883, 0
+	(char*)"spreadtrum-stdout-subscriber", 0, (char*)"\n", QOS2, NULL, NULL, (char*)"localhost", 1883, 0
 };
 
 
@@ -181,11 +178,11 @@ void messageArrived(MessageData* md)
 	MQTTMessage* message = md->message;
 
 	if (opts.showtopics)
-		printf("%.*s\t", md->topicName->lenstring.len, md->topicName->lenstring.data);
+		SCI_TRACE_LOW("%.*s\t", md->topicName->lenstring.len, md->topicName->lenstring.data);
 	if (opts.nodelimiter)
-		printf("%.*s", (int)message->payloadlen, (char*)message->payload);
+		SCI_TRACE_LOW("%.*s", (int)message->payloadlen, (char*)message->payload);
 	else
-		printf("%.*s%s", (int)message->payloadlen, (char*)message->payload, opts.delimiter);
+		SCI_TRACE_LOW("%.*s%s", (int)message->payloadlen, (char*)message->payload, opts.delimiter);
 	//fflush(stdout);
 }
 
@@ -208,7 +205,7 @@ int MQTTTest_main(int argc, char** argv)
 	if (strchr(topic, '#') || strchr(topic, '+'))
 		opts.showtopics = 1;
 	if (opts.showtopics)
-		printf("topic is %s\n", topic);
+		SCI_TRACE_LOW("topic is %s\n", topic);
 
 	getopts(argc, argv);	
 	
@@ -228,21 +225,21 @@ int MQTTTest_main(int argc, char** argv)
 
 	data.keepAliveInterval = 10;
 	data.cleansession = 1;
-	printf("Connecting to %s %d\n", opts.host, opts.port);
+	SCI_TRACE_LOW("Connecting to %s %d\n", opts.host, opts.port);
 	
 	rc = MQTTConnect(&c, &data);
-	printf("Connected %d\n", rc);
+	SCI_TRACE_LOW("Connected %d\n", rc);
     
-    printf("Subscribing to %s\n", topic);
+    SCI_TRACE_LOW("Subscribing to %s\n", topic);
 	rc = MQTTSubscribe(&c, topic, opts.qos, messageArrived);
-	printf("Subscribed %d\n", rc);
+	SCI_TRACE_LOW("Subscribed %d\n", rc);
 
 	while (!toStop)
 	{
 		MQTTYield(&c, 1000);
 	}
 	
-	printf("Stopping\n");
+	SCI_TRACE_LOW("Stopping\n");
 
 	MQTTDisconnect(&c);
 	NetworkDisconnect(&n);
