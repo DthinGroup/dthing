@@ -72,6 +72,8 @@ import com.yarlungsoft.iot.mqttv3.MqttTopic;
 public interface ISimpleMqttClient { //extends IMqttAsyncClient {
 	public static final int SUCCESS = 0;
 	public static final int FAILURE = -1;
+	
+	
 	/**
 	 * Connects to an MQTT server using the default options.
 	 * <p>The default options are specified in {@link MqttConnectOptions} class.
@@ -82,7 +84,7 @@ public interface ISimpleMqttClient { //extends IMqttAsyncClient {
 	 * @throws MqttException  for non security related problems
 	 * @see #connect(MqttConnectOptions)
 	 */
-  public int connect() throws MqttSecurityException, MqttException;
+  public int connect(String uri) throws MqttException, Exception;
 
 	/**
 	 * Connects to an MQTT server using the specified options.
@@ -98,7 +100,7 @@ public interface ISimpleMqttClient { //extends IMqttAsyncClient {
 	 * reasons
 	 * @throws MqttException  for non security related problems including communication errors
 	 */
-  public int connect(MqttConnectOptions options) throws MqttSecurityException, MqttException;
+  public int connect(String uri, MqttConnectOptions options) throws MqttException, Exception;
 	
 	/**
 	 * Subscribe to a topic, which may include wildcards using a QoS of 1.
@@ -108,18 +110,8 @@ public interface ISimpleMqttClient { //extends IMqttAsyncClient {
 	 * @param topicFilter the topic to subscribe to, which can include wildcards.
 	 * @throws MqttException if there was an error registering the subscription.
 	 */
-  public int subscribe(String topicFilter) throws MqttException, MqttSecurityException;
-
-	/**
-	 * Subscribes to a one or more topics, which may include wildcards using a QoS of 1.
-	 *
-	 * @see #subscribe(String[], int[])
-	 *
-	 * @param topicFilters the topic to subscribe to, which can include wildcards.
-	 * @throws MqttException if there was an error registering the subscription.
-	 */
-  public int subscribe(String[] topicFilters) throws MqttException;
-
+  public int subscribe(String topicFilter, IMqttMessageListener messageListener) throws MqttException, MqttSecurityException;
+	
 	/**
 	 * Subscribe to a topic, which may include wildcards.
 	 *
@@ -132,233 +124,7 @@ public interface ISimpleMqttClient { //extends IMqttAsyncClient {
 	 * the QoS specified on the subscribe.
 	 * @throws MqttException if there was an error registering the subscription.
 	 */
-  public int subscribe(String topicFilter, int qos) throws MqttException;
-
-	/**
-	 * Subscribes to multiple topics, each of which may include wildcards.
-	 * <p>The {@link #setCallback(MqttCallback)} method
-	 * should be called before this method, otherwise any received messages
-	 * will be discarded.
-	 * </p>
-	 * <p>
-	 * If (@link MqttConnectOptions#setCleanSession(boolean)} was set to true
-	 * when when connecting to the server then the subscription remains in place
-	 * until either:
-	 * <ul>
-	 * <li>The client disconnects</li>
-	 * <li>An unsubscribe method is called to un-subscribe the topic</li>
-	 * </li>
-	 * </p>
-	 * <p>
-	 * If (@link MqttConnectOptions#setCleanSession(boolean)} was set to false
-	 * when when connecting to the server then the subscription remains in place
-	 * until either:
-	 * <ul>
-	 * <li>An unsubscribe method is called to unsubscribe the topic</li>
-	 * <li>The client connects with cleanSession set to true</ul>
-	 * </li>
-	 * With cleanSession set to false the MQTT server will store messages on
-	 * behalf of the client when the client is not connected. The next time the
-	 * client connects with the <bold>same client ID</bold> the server will
-	 * deliver the stored messages to the client.
-	 * </p>
-	 *
-	 * <p>The "topic filter" string used when subscribing
-	 * may contain special characters, which allow you to subscribe to multiple topics
-	 * at once.</p>
-	 * <p>The topic level separator is used to introduce structure into the topic, and
-	 * can therefore be specified within the topic for that purpose.  The multi-level
-	 * wildcard and single-level wildcard can be used for subscriptions, but they
-	 * cannot be used within a topic by the publisher of a message.
-	 * <dl>
-	 * 	<dt>Topic level separator</dt>
-	 * 	<dd>The forward slash (/) is used to separate each level within
-	 * 	a topic tree and provide a hierarchical structure to the topic space. The
-	 * 	use of the topic level separator is significant when the two wildcard characters
-	 * 	are encountered in topics specified by subscribers.</dd>
-	 *
-	 * 	<dt>Multi-level wildcard</dt>
-	 * 	<dd><p>The number sign (#) is a wildcard character that matches
-	 * 	any number of levels within a topic. For example, if you subscribe to
-	 *  <span><span class="filepath">finance/stock/ibm/#</span></span>, you receive
-	 * 	messages on these topics:
-	 *  <pre>   finance/stock/ibm<br />   finance/stock/ibm/closingprice<br />   finance/stock/ibm/currentprice</pre>
-	 *  </p>
-	 *  <p>The multi-level wildcard
-	 *  can represent zero or more levels. Therefore, <em>finance/#</em> can also match
-	 * 	the singular <em>finance</em>, where <em>#</em> represents zero levels. The topic
-	 * 	level separator is meaningless in this context, because there are no levels
-	 * 	to separate.</p>
-	 *
-	 * 	<p>The <span>multi-level</span> wildcard can
-	 * 	be specified only on its own or next to the topic level separator character.
-	 * 	Therefore, <em>#</em> and <em>finance/#</em> are both valid, but <em>finance#</em> is
-	 * 	not valid. <span>The multi-level wildcard must be the last character
-	 *  used within the topic tree. For example, <em>finance/#</em> is valid but
-	 *  <em>finance/#/closingprice</em> is 	not valid.</span></p></dd>
-	 *
-	 * 	<dt>Single-level wildcard</dt>
-	 * 	<dd><p>The plus sign (+) is a wildcard character that matches only one topic
-	 * 	level. For example, <em>finance/stock/+</em> matches
-	 * <em>finance/stock/ibm</em> and <em>finance/stock/xyz</em>,
-	 * 	but not <em>finance/stock/ibm/closingprice</em>. Also, because the single-level
-	 * 	wildcard matches only a single level, <em>finance/+</em> does not match <em>finance</em>.</p>
-	 *
-	 * 	<p>Use
-	 * 	the single-level wildcard at any level in the topic tree, and in conjunction
-	 * 	with the multilevel wildcard. Specify the single-level wildcard next to the
-	 * 	topic level separator, except when it is specified on its own. Therefore,
-	 *  <em>+</em> and <em>finance/+</em> are both valid, but <em>finance+</em> is
-	 *  not valid. <span>The single-level wildcard can be used at the end of the
-	 *  topic tree or within the topic tree.
-	 * 	For example, <em>finance/+</em> and <em>finance/+/ibm</em> are both valid.</span></p>
-	 * 	</dd>
-	 * </dl>
-	 * </p>
-	 *
-	 * <p>This is a blocking method that returns once subscribe completes</p>
-	 *
-	 * @param topicFilters one or more topics to subscribe to, which can include wildcards.
-	 * @param qos the maximum quality of service to subscribe each topic at.Messages
-	 * published at a lower quality of service will be received at the published
-	 * QoS.  Messages published at a higher quality of service will be received using
-	 * the QoS specified on the subscribe.
-	 * @throws MqttException if there was an error registering the subscription.
-	 * @throws IllegalArgumentException if the two supplied arrays are not the same size.
-	 */
-  public void subscribe(String[] topicFilters, int[] qos) throws MqttException;
-  
-	/**
-	 * Subscribe to a topic, which may include wildcards using a QoS of 1.
-	 *
-	 * @see #subscribe(String[], int[])
-	 *
-	 * @param topicFilter the topic to subscribe to, which can include wildcards.
-	 * @param messageListener a callback to handle incoming messages
-	 * @throws MqttException if there was an error registering the subscription.
-	 */
-public void subscribe(String topicFilter, IMqttMessageListener messageListener) throws MqttException, MqttSecurityException;
-
-	/**
-	 * Subscribes to a one or more topics, which may include wildcards using a QoS of 1.
-	 *
-	 * @see #subscribe(String[], int[])
-	 *
-	 * @param topicFilters the topic to subscribe to, which can include wildcards.
-	 * @param messageListeners one or more callbacks to handle incoming messages
-	 * @throws MqttException if there was an error registering the subscription.
-	 */
-public void subscribe(String[] topicFilters, IMqttMessageListener[] messageListeners) throws MqttException;
-
-	/**
-	 * Subscribe to a topic, which may include wildcards.
-	 *
-	 * @see #subscribe(String[], int[])
-	 *
-	 * @param topicFilter the topic to subscribe to, which can include wildcards.
-	 * @param qos the maximum quality of service at which to subscribe. Messages
-	 * published at a lower quality of service will be received at the published
-	 * QoS.  Messages published at a higher quality of service will be received using
-	 * the QoS specified on the subscribe.
-	 * @param messageListener a callback to handle incoming messages
-	 * @throws MqttException if there was an error registering the subscription.
-	 */
-public void subscribe(String topicFilter, int qos, IMqttMessageListener messageListener) throws MqttException;
-
-	/**
-	 * Subscribes to multiple topics, each of which may include wildcards.
-	 * <p>The {@link #setCallback(MqttCallback)} method
-	 * should be called before this method, otherwise any received messages
-	 * will be discarded.
-	 * </p>
-	 * <p>
-	 * If (@link MqttConnectOptions#setCleanSession(boolean)} was set to true
-	 * when when connecting to the server then the subscription remains in place
-	 * until either:
-	 * <ul>
-	 * <li>The client disconnects</li>
-	 * <li>An unsubscribe method is called to un-subscribe the topic</li>
-	 * </li>
-	 * </p>
-	 * <p>
-	 * If (@link MqttConnectOptions#setCleanSession(boolean)} was set to false
-	 * when when connecting to the server then the subscription remains in place
-	 * until either:
-	 * <ul>
-	 * <li>An unsubscribe method is called to unsubscribe the topic</li>
-	 * <li>The client connects with cleanSession set to true</ul>
-	 * </li>
-	 * With cleanSession set to false the MQTT server will store messages on
-	 * behalf of the client when the client is not connected. The next time the
-	 * client connects with the <bold>same client ID</bold> the server will
-	 * deliver the stored messages to the client.
-	 * </p>
-	 *
-	 * <p>The "topic filter" string used when subscribing
-	 * may contain special characters, which allow you to subscribe to multiple topics
-	 * at once.</p>
-	 * <p>The topic level separator is used to introduce structure into the topic, and
-	 * can therefore be specified within the topic for that purpose.  The multi-level
-	 * wildcard and single-level wildcard can be used for subscriptions, but they
-	 * cannot be used within a topic by the publisher of a message.
-	 * <dl>
-	 * 	<dt>Topic level separator</dt>
-	 * 	<dd>The forward slash (/) is used to separate each level within
-	 * 	a topic tree and provide a hierarchical structure to the topic space. The
-	 * 	use of the topic level separator is significant when the two wildcard characters
-	 * 	are encountered in topics specified by subscribers.</dd>
-	 *
-	 * 	<dt>Multi-level wildcard</dt>
-	 * 	<dd><p>The number sign (#) is a wildcard character that matches
-	 * 	any number of levels within a topic. For example, if you subscribe to
-	 *  <span><span class="filepath">finance/stock/ibm/#</span></span>, you receive
-	 * 	messages on these topics:
-	 *  <pre>   finance/stock/ibm<br />   finance/stock/ibm/closingprice<br />   finance/stock/ibm/currentprice</pre>
-	 *  </p>
-	 *  <p>The multi-level wildcard
-	 *  can represent zero or more levels. Therefore, <em>finance/#</em> can also match
-	 * 	the singular <em>finance</em>, where <em>#</em> represents zero levels. The topic
-	 * 	level separator is meaningless in this context, because there are no levels
-	 * 	to separate.</p>
-	 *
-	 * 	<p>The <span>multi-level</span> wildcard can
-	 * 	be specified only on its own or next to the topic level separator character.
-	 * 	Therefore, <em>#</em> and <em>finance/#</em> are both valid, but <em>finance#</em> is
-	 * 	not valid. <span>The multi-level wildcard must be the last character
-	 *  used within the topic tree. For example, <em>finance/#</em> is valid but
-	 *  <em>finance/#/closingprice</em> is 	not valid.</span></p></dd>
-	 *
-	 * 	<dt>Single-level wildcard</dt>
-	 * 	<dd><p>The plus sign (+) is a wildcard character that matches only one topic
-	 * 	level. For example, <em>finance/stock/+</em> matches
-	 * <em>finance/stock/ibm</em> and <em>finance/stock/xyz</em>,
-	 * 	but not <em>finance/stock/ibm/closingprice</em>. Also, because the single-level
-	 * 	wildcard matches only a single level, <em>finance/+</em> does not match <em>finance</em>.</p>
-	 *
-	 * 	<p>Use
-	 * 	the single-level wildcard at any level in the topic tree, and in conjunction
-	 * 	with the multilevel wildcard. Specify the single-level wildcard next to the
-	 * 	topic level separator, except when it is specified on its own. Therefore,
-	 *  <em>+</em> and <em>finance/+</em> are both valid, but <em>finance+</em> is
-	 *  not valid. <span>The single-level wildcard can be used at the end of the
-	 *  topic tree or within the topic tree.
-	 * 	For example, <em>finance/+</em> and <em>finance/+/ibm</em> are both valid.</span></p>
-	 * 	</dd>
-	 * </dl>
-	 * </p>
-	 *
-	 * <p>This is a blocking method that returns once subscribe completes</p>
-	 *
-	 * @param topicFilters one or more topics to subscribe to, which can include wildcards.
-	 * @param qos the maximum quality of service to subscribe each topic at.Messages
-	 * published at a lower quality of service will be received at the published
-	 * QoS.  Messages published at a higher quality of service will be received using
-	 * the QoS specified on the subscribe.
-	 * @param messageListeners one or more callbacks to handle incoming messages
-	 * @throws MqttException if there was an error registering the subscription.
-	 * @throws IllegalArgumentException if the two supplied arrays are not the same size.
-	 */
-public void subscribe(String[] topicFilters, int[] qos, IMqttMessageListener[] messageListeners) throws MqttException;
+  public int subscribe(String topicFilter, int qos, IMqttMessageListener messageListener) throws MqttException;	
 
 	/**
 	 * Requests the server unsubscribe the client from a topic.
@@ -554,37 +320,7 @@ public void subscribe(String[] topicFilters, int[] qos, IMqttMessageListener[] m
 	 * @return the client ID used by this client.
 	 */
 	public String getClientId();
-
-	/**
-	 * Returns the address of the server used by this client, as a URI.
-	 * <p>The format is the same as specified on the constructor.
-	 * </p>
-	 *
-	 * @return the server's address, as a URI String.
-	 * @see MqttAsyncClient#MqttAsyncClient(String, String)
-	 */
-	public String getServerURI();	
 	
-	/**
-	 * If manualAcks is set to true, then on completion of the messageArrived callback
-	 * the MQTT acknowledgements are not sent.  You must call messageArrivedComplete
-	 * to send those acknowledgements.  This allows finer control over when the acks are
-	 * sent.  The default behaviour, when manualAcks is false, is to send the MQTT
-	 * acknowledgements automatically at the successful completion of the messageArrived
-	 * callback method.
-	 * @param manualAcks
-	 */
-	public void setManualAcks(boolean manualAcks);
-	
-	/**
-	 * Indicate that the application has completed processing the message with id messageId.
-	 * This will cause the MQTT acknowledgement to be sent to the server.
-	 * @param messageId the MQTT message id to be acknowledged
-	 * @param qos the MQTT QoS of the message to be acknowledged
-	 * @throws MqttException
-	 */
-	public void messageArrivedComplete(int messageId, int qos) throws MqttException;
-
 	/**
 	 * Close the client
 	 * Releases all resource associated with the client. After the client has

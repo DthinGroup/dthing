@@ -36,6 +36,7 @@
 #include <nativeSPIManager.h>
 #include <nativeString.h>
 #include <nativeSystem.h>
+#include <nativeSimpleMqttOps.h>
 #include <nativeSystemInputStream.h>
 #include <nativeSystemPrintStream.h>
 #include <nativeThread.h>

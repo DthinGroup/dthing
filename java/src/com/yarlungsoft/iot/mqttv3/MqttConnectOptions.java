@@ -17,6 +17,7 @@
  */
 package com.yarlungsoft.iot.mqttv3;
 
+
 /**
  * Holds the set of options that control how the client connects to a server.
  */
@@ -55,13 +56,15 @@ public class MqttConnectOptions {
 	private String willDestination = null;
 	private MqttMessage willMessage = null;
 	private String userName;
-	private char[] password;
+	private String password;
 	//private Properties sslClientProps = null;
 	private boolean cleanSession = CLEAN_SESSION_DEFAULT;
 	private int connectionTimeout = CONNECTION_TIMEOUT_DEFAULT;
 	private String[] serverURIs = null;
 	private int MqttVersion = MQTT_VERSION_DEFAULT;
 	private boolean automaticReconnect = false;
+	
+	private String clientId;
 
 	/**
 	 * Constructs a new <code>MqttConnectOptions</code> object using the
@@ -79,20 +82,31 @@ public class MqttConnectOptions {
 	 * More information about these values can be found in the setter methods.
 	 */
 	public MqttConnectOptions() {
+		clientId = "dthing-mqtt-client";
 	}
 
+	public void setClientId(String id){
+		if(id == null || id.isEmpty())
+			return;
+		clientId = id;
+	}
+	
+	public String getClientId(){
+		return this.clientId;
+	}
+	
 	/**
 	 * Returns the password to use for the connection.
 	 * @return the password to use for the connection.
 	 */
-	public char[] getPassword() {
+	public String getPassword() {
 		return password;
 	}
 
 	/**
 	 * Sets the password to use for the connection.
 	 */
-	public void setPassword(char[] password) {
+	public void setPassword(String password) {
 		this.password = password;
 	}
 
@@ -422,4 +436,6 @@ public class MqttConnectOptions {
 	public void setAutomaticReconnect(boolean automaticReconnect) {
 		this.automaticReconnect = automaticReconnect;
 	}
+	
+	
 }

@@ -21,7 +21,7 @@ typedef struct {
     int methodCount;
 } KniClassNativeMethodInfo;
 
-#define NATIVE_CLASSES_COUNT 41
+#define NATIVE_CLASSES_COUNT 42
 
 /* com.yarlungsoft.ams.Main native APIs */
 KniNativeMethodInfo gJava_com_yarlungsoft_ams_Main[2] = {
@@ -33,6 +33,12 @@ KniNativeMethodInfo gJava_com_yarlungsoft_ams_Main[2] = {
 KniNativeMethodInfo gJava_com_yarlungsoft_ams_Scheduler[2] = {
     {"reportState",         "(I)V",                  (KniFunc)Java_com_yarlungsoft_ams_Scheduler_reportState},
     {"reportRunningObject", "(Ljava/lang/Object;)V", (KniFunc)Java_com_yarlungsoft_ams_Scheduler_reportRunningObject},
+};
+
+/* com.yarlungsoft.iot.mqttv3.simple.SimpleMqttOps native APIs */
+KniNativeMethodInfo gJava_com_yarlungsoft_iot_mqttv3_simple_SimpleMqttOps[2] = {
+    {"subscribe0", "(Ljava/lang/String;I)I", (KniFunc)Java_com_yarlungsoft_iot_mqttv3_simple_SimpleMqttOps_subscribe0},
+	{"connect0", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;IIZ)I", (KniFunc)Java_com_yarlungsoft_iot_mqttv3_simple_SimpleMqttOps_connect0}
 };
 
 /* com.yarlungsoft.util.SystemInputStream native APIs */
@@ -366,47 +372,48 @@ KniNativeMethodInfo gJava_jp_co_cmcc_message_sms_MySmsConnectionThread[4] = {
 };
 
 KniClassNativeMethodInfo gNativeMthTab[NATIVE_CLASSES_COUNT] = {
-    {"Lcom/yarlungsoft/ams/Main;",                     gJava_com_yarlungsoft_ams_Main,                     2},
-    {"Lcom/yarlungsoft/ams/Scheduler;",                gJava_com_yarlungsoft_ams_Scheduler,                2},
-    {"Lcom/yarlungsoft/util/SystemInputStream;",       gJava_com_yarlungsoft_util_SystemInputStream,       1},
-    {"Lcom/yarlungsoft/util/SystemPrintStream;",       gJava_com_yarlungsoft_util_SystemPrintStream,       2},
-    {"Liot/oem/NativeAPI/NativeAPIManager;",           gJava_iot_oem_NativeAPI_NativeAPIManager,           3},
-    {"Liot/oem/adc/ADCManager;",                       gJava_iot_oem_adc_ADCManager,                       3},
-    {"Liot/oem/battery/BatteryManager;",               gJava_iot_oem_battery_BatteryManager,               2},
-    {"Liot/oem/comm/CommConnectionImpl;",              gJava_iot_oem_comm_CommConnectionImpl,              6},
-    {"Liot/oem/ear/EarManager;",                       gJava_iot_oem_ear_EarManager,                       4},
-    {"Liot/oem/gpio/Gpio;",                            gJava_iot_oem_gpio_Gpio,                            8},
-    {"Liot/oem/i2c/I2CManager;",                       gJava_iot_oem_i2c_I2CManager,                       6},
-    {"Liot/oem/kpd/RawKeyPdDriver;",                   gJava_iot_oem_kpd_RawKeyPdDriver,                   3},
-    {"Liot/oem/lcd/LCD;",                              gJava_iot_oem_lcd_LCD,                              6},
-    {"Liot/oem/micophone/Micophone;",                  gJava_iot_oem_micophone_Micophone,                  8},
-    {"Liot/oem/pcmchannel/PCMChannel;",                gJava_iot_oem_pcmchannel_PCMChannel,                8},
-    {"Liot/oem/pwm/PWMManager;",                       gJava_iot_oem_pwm_PWMManager,                       2},
-    {"Liot/oem/sim/SimManager;",                       gJava_iot_oem_sim_SimManager,                       5},
-    {"Liot/oem/spi/SPIManager;",                       gJava_iot_oem_spi_SPIManager,                       6},
-    {"Liot/oem/spk/SpeakerManager;",                   gJava_iot_oem_spk_SpeakerManager,                   4},
-    {"Liot/oem/usb/USBConnection;",                    gJava_iot_oem_usb_USBConnection,                    2},
-    {"Ljava/io/File;",                                 gJava_java_io_File,                                 11},
-    {"Ljava/io/FileInputStream;",                      gJava_java_io_FileInputStream,                      5},
-    {"Ljava/io/FileOutputStream;",                     gJava_java_io_FileOutputStream,                     3},
-    {"Ljava/lang/AsyncIO;",                            gJava_java_lang_AsyncIO,                            3},
-    {"Ljava/lang/Class;",                              gJava_java_lang_Class,                              8},
-    {"Ljava/lang/DThread;",                            gJava_java_lang_DThread,                            5},
-    {"Ljava/lang/Double;",                             gJava_java_lang_Double,                             3},
-    {"Ljava/lang/Float;",                              gJava_java_lang_Float,                              3},
-    {"Ljava/lang/Math;",                               gJava_java_lang_Math,                               4},
-    {"Ljava/lang/Object;",                             gJava_java_lang_Object,                             6},
-    {"Ljava/lang/Runtime;",                            gJava_java_lang_Runtime,                            3},
-    {"Ljava/lang/String;",                             gJava_java_lang_String,                             1},
-    {"Ljava/lang/System;",                             gJava_java_lang_System,                             4},
-    {"Ljava/lang/Thread;",                             gJava_java_lang_Thread,                             11},
-    {"Ljava/lang/Throwable;",                          gJava_java_lang_Throwable,                          1},
-    {"Ljava/net/NetNativeBridge;",                     gJava_java_net_NetNativeBridge,                     11},
-    {"Ljava/net/ota/OTADownload;",                     gJava_java_net_ota_OTADownload,                     2},
-    {"Ljava/util/TimeZone;",                           gJava_java_util_TimeZone,                           1},
-    {"Ljp/co/cmcc/atcommand/ATCommandConnection;",     gJava_jp_co_cmcc_atcommand_ATCommandConnection,     5},
-    {"Ljp/co/cmcc/message/sms/MyMessageSender;",       gJava_jp_co_cmcc_message_sms_MyMessageSender,       1},
-    {"Ljp/co/cmcc/message/sms/MySmsConnectionThread;", gJava_jp_co_cmcc_message_sms_MySmsConnectionThread, 4},
+    {"Lcom/yarlungsoft/ams/Main;",                        gJava_com_yarlungsoft_ams_Main,                        2},
+    {"Lcom/yarlungsoft/ams/Scheduler;",                   gJava_com_yarlungsoft_ams_Scheduler,                   2},
+    {"Lcom/yarlungsoft/iot/mqttv3/simple/SimpleMqttOps;", gJava_com_yarlungsoft_iot_mqttv3_simple_SimpleMqttOps, 2},
+    {"Lcom/yarlungsoft/util/SystemInputStream;",          gJava_com_yarlungsoft_util_SystemInputStream,          1},
+    {"Lcom/yarlungsoft/util/SystemPrintStream;",          gJava_com_yarlungsoft_util_SystemPrintStream,          2},
+    {"Liot/oem/NativeAPI/NativeAPIManager;",              gJava_iot_oem_NativeAPI_NativeAPIManager,              3},
+    {"Liot/oem/adc/ADCManager;",                          gJava_iot_oem_adc_ADCManager,                          3},
+    {"Liot/oem/battery/BatteryManager;",                  gJava_iot_oem_battery_BatteryManager,                  2},
+    {"Liot/oem/comm/CommConnectionImpl;",                 gJava_iot_oem_comm_CommConnectionImpl,                 6},
+    {"Liot/oem/ear/EarManager;",                          gJava_iot_oem_ear_EarManager,                          4},
+    {"Liot/oem/gpio/Gpio;",                               gJava_iot_oem_gpio_Gpio,                               8},
+    {"Liot/oem/i2c/I2CManager;",                          gJava_iot_oem_i2c_I2CManager,                          6},
+    {"Liot/oem/kpd/RawKeyPdDriver;",                      gJava_iot_oem_kpd_RawKeyPdDriver,                      3},
+    {"Liot/oem/lcd/LCD;",                                 gJava_iot_oem_lcd_LCD,                                 6},
+    {"Liot/oem/micophone/Micophone;",                     gJava_iot_oem_micophone_Micophone,                     8},
+    {"Liot/oem/pcmchannel/PCMChannel;",                   gJava_iot_oem_pcmchannel_PCMChannel,                   8},
+    {"Liot/oem/pwm/PWMManager;",                          gJava_iot_oem_pwm_PWMManager,                          2},
+    {"Liot/oem/sim/SimManager;",                          gJava_iot_oem_sim_SimManager,                          5},
+    {"Liot/oem/spi/SPIManager;",                          gJava_iot_oem_spi_SPIManager,                          6},
+    {"Liot/oem/spk/SpeakerManager;",                      gJava_iot_oem_spk_SpeakerManager,                      4},
+    {"Liot/oem/usb/USBConnection;",                       gJava_iot_oem_usb_USBConnection,                       2},
+    {"Ljava/io/File;",                                    gJava_java_io_File,                                    11},
+    {"Ljava/io/FileInputStream;",                         gJava_java_io_FileInputStream,                         5},
+    {"Ljava/io/FileOutputStream;",                        gJava_java_io_FileOutputStream,                        3},
+    {"Ljava/lang/AsyncIO;",                               gJava_java_lang_AsyncIO,                               3},
+    {"Ljava/lang/Class;",                                 gJava_java_lang_Class,                                 8},
+    {"Ljava/lang/DThread;",                               gJava_java_lang_DThread,                               5},
+    {"Ljava/lang/Double;",                                gJava_java_lang_Double,                                3},
+    {"Ljava/lang/Float;",                                 gJava_java_lang_Float,                                 3},
+    {"Ljava/lang/Math;",                                  gJava_java_lang_Math,                                  4},
+    {"Ljava/lang/Object;",                                gJava_java_lang_Object,                                6},
+    {"Ljava/lang/Runtime;",                               gJava_java_lang_Runtime,                               3},
+    {"Ljava/lang/String;",                                gJava_java_lang_String,                                1},
+    {"Ljava/lang/System;",                                gJava_java_lang_System,                                4},
+    {"Ljava/lang/Thread;",                                gJava_java_lang_Thread,                                11},
+    {"Ljava/lang/Throwable;",                             gJava_java_lang_Throwable,                             1},
+    {"Ljava/net/NetNativeBridge;",                        gJava_java_net_NetNativeBridge,                        11},
+    {"Ljava/net/ota/OTADownload;",                        gJava_java_net_ota_OTADownload,                        2},
+    {"Ljava/util/TimeZone;",                              gJava_java_util_TimeZone,                              1},
+    {"Ljp/co/cmcc/atcommand/ATCommandConnection;",        gJava_jp_co_cmcc_atcommand_ATCommandConnection,        5},
+    {"Ljp/co/cmcc/message/sms/MyMessageSender;",          gJava_jp_co_cmcc_message_sms_MyMessageSender,          1},
+    {"Ljp/co/cmcc/message/sms/MySmsConnectionThread;",    gJava_jp_co_cmcc_message_sms_MySmsConnectionThread,    4},
 };
 
 #ifdef __cplusplus

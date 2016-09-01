@@ -71,7 +71,7 @@ public interface IMqttClient { //extends IMqttAsyncClient {
 	 * @throws MqttException  for non security related problems
 	 * @see #connect(MqttConnectOptions)
 	 */
-  public void connect() throws MqttSecurityException, MqttException;
+  public void connect() throws MqttSecurityException, MqttException, Exception;
 
 	/**
 	 * Connects to an MQTT server using the specified options.
@@ -87,7 +87,7 @@ public interface IMqttClient { //extends IMqttAsyncClient {
 	 * reasons
 	 * @throws MqttException  for non security related problems including communication errors
 	 */
-  public void connect(MqttConnectOptions options) throws MqttSecurityException, MqttException;
+  public void connect(MqttConnectOptions options) throws MqttSecurityException, MqttException, Exception;
 
 	/**
 	 * Disconnects from the server.

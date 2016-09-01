@@ -612,6 +612,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\vm\impl\nativeMySmsCommon.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\vm\impl\nativeMySmsConnectionThread.c"
 				>
 			</File>
@@ -697,6 +701,14 @@
 			</File>
 			<File
 				RelativePath="..\..\vm\impl\nativeSimManager.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\vm\impl\nativeSimpleMqttOps.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\vm\impl\nativeSimpleMqttOps.h"
 				>
 			</File>
 			<File

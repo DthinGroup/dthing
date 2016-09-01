@@ -240,6 +240,9 @@ int MQTTTest_main(int argc, char** argv)
 	while (!toStop)
 	{
 		MQTTYield(&c, 1000);	
+
+		rc = MQTTSubscribe(&c, topic, opts.qos, messageArrived);
+		printf("Subscribed %d\n", rc);
 	}
 	
 	printf("Stopping\n");
