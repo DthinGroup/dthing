@@ -242,27 +242,49 @@ public class SimpleMqttClient implements ISimpleMqttClient {
 
 
 	@Override
-	public void unsubscribe(String topicFilter) throws MqttException {
+	public int unsubscribe(String topicFilter) throws MqttException {
 		// TODO Auto-generated method stub
+		if(!isConnected()){
+			throw new MqttException(MqttException.REASON_CODE_CLIENT_NOT_CONNECTED);
+		}
 		
+		return mCommonOps.unsubscribe(topicFilter);
+	}
+	
+	@Override
+	public int disconnect() throws MqttException {
+		// TODO Auto-generated method stub
+		if(!isConnected()){
+			throw new MqttException(MqttException.REASON_CODE_CLIENT_NOT_CONNECTED);
+		}
+		
+		int ret = mCommonOps.disconnect();
+		if(ret == ISimpleMqttClient.SUCCESS)
+			this.setConnectState(DISCONNECTED);
+		return ret;
+	}	
+
+	/*
+	 * @see IMqttClient#publishBlock(String, byte[], int, boolean)
+	 */
+	public int publish(String topic, byte[] payload,int qos, boolean retained) throws MqttException{
+		MqttMessage message = new MqttMessage(payload);
+		message.setQos(qos);
+		message.setRetained(retained);
+		return this.publish(topic, message);
 	}
 
-	@Override
-	public void unsubscribe(String[] topicFilters) throws MqttException {
-		// TODO Auto-generated method stub
+	/*
+	 * @see IMqttClient#publishBlock(String, MqttMessage)
+	 */
+	public int publish(String topic, MqttMessage message) throws MqttException{
 		
-	}
-
-	@Override
-	public void publish(String topic, byte[] payload, int qos, boolean retained)
-			throws MqttException, MqttPersistenceException {
-		// TODO Auto-generated method stub
+		if(!isConnected()){
+			throw new MqttException(MqttException.REASON_CODE_CLIENT_NOT_CONNECTED);
+		}
+		MqttTopic.validate(topic, false/*wildcards NOT allowed*/);
 		
-	}
-
-	@Override
-	public void publish(String topic, MqttMessage message) throws MqttException, MqttPersistenceException {
-		// TODO Auto-generated method stub
+		return mCommonOps.publish(topic, message);
 		
 	}
 
@@ -270,12 +292,6 @@ public class SimpleMqttClient implements ISimpleMqttClient {
 	public void setCallback(MqttCallback callback) {
 		// TODO Auto-generated method stub
 		
-	}
-
-	@Override
-	public MqttTopic getTopic(String topic) {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 	@Override
@@ -287,7 +303,11 @@ public class SimpleMqttClient implements ISimpleMqttClient {
 	@Override
 	public void close() throws MqttException {
 		// TODO Auto-generated method stub
+		mCommonOps.close();
 		
+		mCommonOps = null;
+		mConnectOptions =null;
+		mInstance = null;
 	}
 
 	@Override

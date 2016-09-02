@@ -134,28 +134,10 @@ public interface ISimpleMqttClient { //extends IMqttAsyncClient {
 	 * specified on the subscribe.
 	 * @throws MqttException if there was an error unregistering the subscription.
 	 */
-  public void unsubscribe(String topicFilter) throws MqttException;
+  public int unsubscribe(String topicFilter) throws MqttException;
 
-	/**
-	 * Requests the server unsubscribe the client from one or more topics.
-	 * <p>
-	 * Unsubcribing is the opposite of subscribing. When the server receives the
-	 * unsubscribe request it looks to see if it can find a subscription for the
-	 * client and then removes it. After this point the server will send no more
-	 * messages to the client for this subscription.
-	 * </p>
-	 * <p>The topic(s) specified on the unsubscribe must match the topic(s)
-	 * specified in the original subscribe request for the subscribe to succeed
-	 * </p>
-	 *
-	 * <p>This is a blocking method that returns once unsubscribe completes</p>
-	 *
-	 * @param topicFilters one or more topics to unsubscribe from. Each topicFilter
-	 * must match one specified on a subscribe
-	 * @throws MqttException if there was an error unregistering the subscription.
-	 */
-  public void unsubscribe(String[] topicFilters) throws MqttException;
-
+  
+  public int disconnect() throws MqttException;
 
 	/**
 	 * Publishes a message to a topic on the server and return once it is delivered.
@@ -177,7 +159,7 @@ public interface ISimpleMqttClient { //extends IMqttAsyncClient {
 	 * @see MqttMessage#setQos(int)
 	 * @see MqttMessage#setRetained(boolean)
 	 */
-	public void publish(String topic, byte[] payload, int qos, boolean retained) throws MqttException, MqttPersistenceException;
+	public int publish(String topic, byte[] payload, int qos, boolean retained) throws MqttException;
 
 	/**
 	 * Publishes a message to a topic on the server.
@@ -241,7 +223,7 @@ public interface ISimpleMqttClient { //extends IMqttAsyncClient {
 	 * @throws MqttException for other errors encountered while publishing the message.
 	 * For instance client not connected.
 	 */
-	public void publish(String topic, MqttMessage message) throws MqttException, MqttPersistenceException;
+	public int publish(String topic, MqttMessage message) throws MqttException;
 
 	/**
 	 * Sets the callback listener to use for events that happen asynchronously.
@@ -260,49 +242,6 @@ public interface ISimpleMqttClient { //extends IMqttAsyncClient {
 	 */
 	public void setCallback(MqttCallback callback);
 
-	/**
-	 * Get a topic object which can be used to publish messages.
-	 * <p>An alternative method that should be used in preference to this one when publishing a message is:
-	 * <ul>
-	 * <li>{@link MqttClient#publish(String, MqttMessage)} to publish a message in a blocking manner
-	 * <li>or use publish methods on the non-blocking client like {@link IMqttAsyncClient#publish(String, MqttMessage, Object, IMqttActionListener)}
-	 * </ul>
-	 * </p>
-	 * <p>When building an application,
-	 * the design of the topic tree should take into account the following principles
-	 * of topic name syntax and semantics:</p>
-	 *
-	 * <ul>
-	 * 	<li>A topic must be at least one character long.</li>
-	 * 	<li>Topic names are case sensitive.  For example, <em>ACCOUNTS</em> and <em>Accounts</em> are
-	 * 	two different topics.</li>
-	 * 	<li>Topic names can include the space character.  For example, <em>Accounts
-	 * 	payable</em> is a valid topic.</li>
-	 * 	<li>A leading "/" creates a distinct topic.  For example, <em>/finance</em> is
-	 * 	different from <em>finance</em>. <em>/finance</em> matches "+/+" and "/+", but
-	 * 	not "+".</li>
-	 * 	<li>Do not include the null character (Unicode<samp class="codeph"> \x0000</samp>) in
-	 * 	any topic.</li>
-	 * </ul>
-	 *
-	 * <p>The following principles apply to the construction and content of a topic
-	 * tree:</p>
-	 *
-	 * <ul>
-	 * 	<li>The length is limited to 64k but within that there are no limits to the
-	 * 	number of levels in a topic tree.</li>
-	 * 	<li>There can be any number of root nodes; that is, there can be any number
-	 * 	of topic trees.</li>
-	 * 	</ul>
-	 * </p>
-	 *
-	 * @param topic the topic to use, for example "finance/stock/ibm".
-	 * @return an MqttTopic object, which can be used to publish messages to
-	 * the topic.
-	 * @throws IllegalArgumentException if the topic contains a '+' or '#'
-	 * wildcard character.
-	 */
-	public MqttTopic getTopic(String topic);
 
 	/**
 	 * Determines if this client is currently connected to the server.

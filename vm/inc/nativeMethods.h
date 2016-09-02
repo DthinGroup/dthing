@@ -36,9 +36,14 @@ KniNativeMethodInfo gJava_com_yarlungsoft_ams_Scheduler[2] = {
 };
 
 /* com.yarlungsoft.iot.mqttv3.simple.SimpleMqttOps native APIs */
-KniNativeMethodInfo gJava_com_yarlungsoft_iot_mqttv3_simple_SimpleMqttOps[2] = {
-    {"subscribe0", "(Ljava/lang/String;I)I", (KniFunc)Java_com_yarlungsoft_iot_mqttv3_simple_SimpleMqttOps_subscribe0},
-	{"connect0", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;IIZ)I", (KniFunc)Java_com_yarlungsoft_iot_mqttv3_simple_SimpleMqttOps_connect0}
+KniNativeMethodInfo gJava_com_yarlungsoft_iot_mqttv3_simple_SimpleMqttOps[7] = {
+    {"subscribe0", 	  "(Ljava/lang/String;I)I",                      (KniFunc)Java_com_yarlungsoft_iot_mqttv3_simple_SimpleMqttOps_subscribe0},
+	{"connect0",      "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;IIZ)I", (KniFunc)Java_com_yarlungsoft_iot_mqttv3_simple_SimpleMqttOps_connect0},
+    {"unsubscribe0",  "(Ljava/lang/String;)I",                       (KniFunc)Java_com_yarlungsoft_iot_mqttv3_simple_SimpleMqttOps_unsubscribe0},
+    {"publish0",      "(Ljava/lang/String;Ljava/lang/String;IIZZ)I", (KniFunc)Java_com_yarlungsoft_iot_mqttv3_simple_SimpleMqttOps_publish0},
+    {"disconnect0",   "()I",                                         (KniFunc)Java_com_yarlungsoft_iot_mqttv3_simple_SimpleMqttOps_disconnect0},
+    {"close0",        "()V",                                         (KniFunc)Java_com_yarlungsoft_iot_mqttv3_simple_SimpleMqttOps_close0},
+    {"recv_message0", "(Ljava/lang/String;Ljava/lang/String;)I",     (KniFunc)Java_com_yarlungsoft_iot_mqttv3_simple_SimpleMqttOps_recv_message0},
 };
 
 /* com.yarlungsoft.util.SystemInputStream native APIs */
@@ -374,7 +379,7 @@ KniNativeMethodInfo gJava_jp_co_cmcc_message_sms_MySmsConnectionThread[4] = {
 KniClassNativeMethodInfo gNativeMthTab[NATIVE_CLASSES_COUNT] = {
     {"Lcom/yarlungsoft/ams/Main;",                        gJava_com_yarlungsoft_ams_Main,                        2},
     {"Lcom/yarlungsoft/ams/Scheduler;",                   gJava_com_yarlungsoft_ams_Scheduler,                   2},
-    {"Lcom/yarlungsoft/iot/mqttv3/simple/SimpleMqttOps;", gJava_com_yarlungsoft_iot_mqttv3_simple_SimpleMqttOps, 2},
+    {"Lcom/yarlungsoft/iot/mqttv3/simple/SimpleMqttOps;", gJava_com_yarlungsoft_iot_mqttv3_simple_SimpleMqttOps, 7},
     {"Lcom/yarlungsoft/util/SystemInputStream;",          gJava_com_yarlungsoft_util_SystemInputStream,          1},
     {"Lcom/yarlungsoft/util/SystemPrintStream;",          gJava_com_yarlungsoft_util_SystemPrintStream,          2},
     {"Liot/oem/NativeAPI/NativeAPIManager;",              gJava_iot_oem_NativeAPI_NativeAPIManager,              3},

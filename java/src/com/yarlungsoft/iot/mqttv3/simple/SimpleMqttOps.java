@@ -4,9 +4,12 @@ import java.util.Hashtable;
 
 import com.yarlungsoft.iot.mqttv3.IMqttMessageListener;
 import com.yarlungsoft.iot.mqttv3.MqttConnectOptions;
+import com.yarlungsoft.iot.mqttv3.MqttMessage;
+import com.yarlungsoft.util.Log;
 
 public class SimpleMqttOps {
 
+	private final static String TAG = "SimpleMqttOps";
 	private Hashtable<String, IMqttMessageListener> mHashListener;
 	
 	
@@ -23,6 +26,17 @@ public class SimpleMqttOps {
 		
 	public native int subscribe0(String topic, int qos);
 	
+	public native int unsubscribe0(String topic);
+	
+	public native int publish0(String topic, String payload, int msgId, int qos, boolean dup, boolean retain);
+	
+	public native int disconnect0();
+	
+	public native void close0();
+	
+	//return 0 - message exists, -1: no message
+	public native int recv_message0(String topic, String message);
+	
 	public int connect(String host, int port, MqttConnectOptions opt){
 		
 		boolean cleanSession = opt.isCleanSession();		
@@ -33,12 +47,41 @@ public class SimpleMqttOps {
 		String passwd = opt.getPassword();
 		String willMsg = null;
 		
-		return connect0(host, port, clientId, name, passwd, willMsg, mqttVer, keepAliveInterval, cleanSession);		
+		int ret = connect0(host, port, clientId, name, passwd, willMsg, mqttVer, keepAliveInterval, cleanSession);
+		if(ret == ISimpleMqttClient.SUCCESS){
+			new Thread(new MqttReceiveTask()).start();
+		}
+		
+		return ret;
 	}
 	
 	public int subscribe(String topicFilter, int qos){		
 		return subscribe0(topicFilter, qos);
 	}	
+	
+	public int unsubscribe(String topicFilter){
+		int ret ;
+		if((ret = unsubscribe0(topicFilter)) == ISimpleMqttClient.SUCCESS){
+			removeMqttMessageListener(topicFilter);
+		}
+		return ret;
+	}
+	
+	public int publish(String topic, MqttMessage message){
+		return publish0(topic, new String(message.getPayload()), message.getId(), message.getQos(), message.isDuplicate(), message.isRetained());
+	}
+	
+	public int disconnect(){
+		int ret = disconnect0();
+		if(ret == ISimpleMqttClient.SUCCESS)
+			stopRecvTask();
+		
+		return ret;
+	}
+	
+	public void close(){
+		close0();
+	}
 	
 	public void addMqttMessageListener(String topic, IMqttMessageListener listener){
 		removeMqttMessageListener(topic);
@@ -49,5 +92,35 @@ public class SimpleMqttOps {
 		Object obj;
 		if((obj = mHashListener.get(topic)) != null)
 			mHashListener.remove(obj);			
+	}
+	
+	private volatile boolean isStop = false;
+	private void stopRecvTask(){
+		isStop = true;
+	}
+	private class MqttReceiveTask implements Runnable{
+
+		@Override
+		public void run() {
+			// TODO Auto-generated method stub
+			int ret ;
+			String topic = new String();
+			String message = new String(); 
+			while(!isStop){
+				try {
+					Log.log(TAG, "MqttReceiveTask sleep!");
+					Thread.sleep(400);					
+					ret = recv_message0(topic, message);
+					Log.log(TAG, "MqttReceiveTask recv:" + ret);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				//recv MQTT message
+			}
+			topic = null;
+			message = null;
+		}
+		
 	}
 }

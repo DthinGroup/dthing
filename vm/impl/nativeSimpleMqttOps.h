@@ -18,14 +18,47 @@ extern "C" {
  */
 void Java_com_yarlungsoft_iot_mqttv3_simple_SimpleMqttOps_connect0(const u4* args, JValue* pResult);
 
-
-
 /**
  * Class:     com_yarlungsoft_iot_mqttv3_simple_SimpleMqttOps
  * Method:    subscribe0
  * Signature: (Ljava/lang/String;I)I
  */
 void Java_com_yarlungsoft_iot_mqttv3_simple_SimpleMqttOps_subscribe0(const u4* args, JValue* pResult);
+
+/**
+ * Class:     com_yarlungsoft_iot_mqttv3_simple_SimpleMqttOps
+ * Method:    unsubscribe0
+ * Signature: (Ljava/lang/String;)I
+ */
+void Java_com_yarlungsoft_iot_mqttv3_simple_SimpleMqttOps_unsubscribe0(const u4* args, JValue* pResult);
+
+/**
+ * Class:     com_yarlungsoft_iot_mqttv3_simple_SimpleMqttOps
+ * Method:    publish0
+ * Signature: (Ljava/lang/String;Ljava/lang/String;IIZZ)I
+ */
+void Java_com_yarlungsoft_iot_mqttv3_simple_SimpleMqttOps_publish0(const u4* args, JValue* pResult);
+
+/**
+ * Class:     com_yarlungsoft_iot_mqttv3_simple_SimpleMqttOps
+ * Method:    disconnect0
+ * Signature: ()I
+ */
+void Java_com_yarlungsoft_iot_mqttv3_simple_SimpleMqttOps_disconnect0(const u4* args, JValue* pResult);
+
+/**
+ * Class:     com_yarlungsoft_iot_mqttv3_simple_SimpleMqttOps
+ * Method:    close0
+ * Signature: ()V
+ */
+void Java_com_yarlungsoft_iot_mqttv3_simple_SimpleMqttOps_close0(const u4* args, JValue* pResult);
+
+/**
+ * Class:     com_yarlungsoft_iot_mqttv3_simple_SimpleMqttOps
+ * Method:    recv_message0
+ * Signature: (Ljava/lang/String;Ljava/lang/String;)I
+ */
+void Java_com_yarlungsoft_iot_mqttv3_simple_SimpleMqttOps_recv_message0(const u4* args, JValue* pResult);
 
 #ifdef __cplusplus
 }

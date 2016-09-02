@@ -605,6 +605,9 @@ GLOBAL void mqtt_final(void){
 GLOBAL int mqtt_connect(char * host, int port, char * clientId, char * name, char * pwd, char * will, int mqttVer, int aliveInterval, int cleanSession){
 	MQTTPacket_connectData data = MQTTPacket_connectData_initializer;
 	int ret;
+
+	mqtt_init();
+
 	ret = NetworkConnect(&g_only_mqtt_network, host, port);
 	if(ret == 0)
 	{
@@ -635,9 +638,44 @@ static void messageArrived(MessageData* md)
 
 GLOBAL int mqtt_subscribe(char * topic, int qos){
 	int ret ;
-	printf("Subscribing to %s\n", topic);
+	printf("mqtt_subscribe to %s\n", topic);
 	ret = MQTTSubscribe(&g_only_mtqq_client, topic, qos, messageArrived);
-	printf("Subscribed %d\n", ret);
+	printf("mqtt_subscribe %d\n", ret);
 
 	return ret;
+}
+
+GLOBAL int mqtt_unsubscribe(char * topic){
+	int ret ;
+	printf("mqtt_unsubscribe to %s\n", topic);
+	ret = MQTTUnsubscribe(&g_only_mtqq_client, topic);
+	printf("mqtt_unsubscribe %d\n", ret);
+
+	return ret;
+}
+
+GLOBAL int mqtt_publish(char * topic, char * payload, int msgId, int qos, int dup, int retain){
+	int ret;
+	MQTTMessage message;
+	message.qos = qos;
+	message.dup = dup;
+	message.id  = msgId;
+	message.retained = retain;
+	message.payload = payload;
+	message.payloadlen = strlen(payload);
+
+	ret = MQTTPublish(&g_only_mtqq_client, topic, &message);
+	printf("mqtt_public %d\n", ret);
+	return ret;
+}
+
+GLOBAL int mqtt_disconnect(void){
+	MQTTDisconnect(&g_only_mtqq_client);
+	NetworkDisconnect(&g_only_mqtt_network);
+
+	return 0;
+}
+
+GLOBAL int mqtt_yield(void){
+	return MQTTYield(&g_only_mtqq_client , 500);
 }

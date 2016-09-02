@@ -196,6 +196,15 @@ GLOBAL void mqtt_final(void);
 GLOBAL int mqtt_connect(char * host, int port, char * clientId, char * name, char * pwd, char * will, int mqttVer, int aliveInterval, int cleanSession);
 
 GLOBAL int mqtt_subscribe(char * topic, int qos);
+
+GLOBAL int mqtt_publish(char * topic, char * payload, int msgId, int qos, int dup, int retain);
+
+GLOBAL int mqtt_unsubscribe(char * topic);
+
+GLOBAL int mqtt_disconnect(void);
+
+GLOBAL int mqtt_yield(void);
+
 #if defined(__cplusplus)
      }
 #endif
