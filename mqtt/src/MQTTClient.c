@@ -583,3 +583,61 @@ int MQTTDisconnect(MQTTClient* c)
     return rc;
 }
 
+/*Added APIs*/
+//save the unique mqtt client
+static MQTTClient g_only_mtqq_client;
+//save the unique mqtt network
+static Network g_only_mqtt_network;
+//recv & send buffer of mqtt
+static char g_mqtt_send_buff[512];
+static char g_mqtt_recv_buff[512];
+GLOBAL void mqtt_init(void)
+{
+	NetworkInit(&g_only_mqtt_network);	
+	MQTTClientInit(&g_only_mtqq_client, &g_only_mqtt_network, 3000, g_mqtt_send_buff, sizeof(g_mqtt_send_buff), g_mqtt_recv_buff, sizeof(g_mqtt_recv_buff));	
+}
+
+
+GLOBAL void mqtt_final(void){
+
+}
+
+GLOBAL int mqtt_connect(char * host, int port, char * clientId, char * name, char * pwd, char * will, int mqttVer, int aliveInterval, int cleanSession){
+	MQTTPacket_connectData data = MQTTPacket_connectData_initializer;
+	int ret;
+	ret = NetworkConnect(&g_only_mqtt_network, host, port);
+	if(ret == 0)
+	{
+		will = will;
+		data.willFlag = 0;  // not support now!
+		data.MQTTVersion = mqttVer;
+		data.clientID.cstring = clientId;
+		data.username.cstring = name;
+		data.password.cstring = pwd;
+
+		data.keepAliveInterval = aliveInterval;
+		data.cleansession = (unsigned char)cleanSession;
+
+		ret = MQTTConnect(&g_only_mtqq_client, &data);
+	} else {
+		printf("connect network fail: %d\n", ret);
+	}
+
+	return ret;	
+}
+
+static void messageArrived(MessageData* md)
+{
+	MQTTMessage* message = md->message;
+	printf("messageArrived: %d.%s \n", (int)message->payloadlen, (char*)message->payload);			
+	//fflush(stdout);
+}
+
+GLOBAL int mqtt_subscribe(char * topic, int qos){
+	int ret ;
+	printf("Subscribing to %s\n", topic);
+	ret = MQTTSubscribe(&g_only_mtqq_client, topic, qos, messageArrived);
+	printf("Subscribed %d\n", ret);
+
+	return ret;
+}

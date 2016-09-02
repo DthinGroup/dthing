@@ -14,7 +14,7 @@ extern "C" {
 /**
  * Class:     com_yarlungsoft_iot_mqttv3_simple_SimpleMqttOps
  * Method:    connect0
- * Signature: (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;IIZ)I
+ * Signature: (Ljava/lang/String;ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;IIZ)I
  */
 void Java_com_yarlungsoft_iot_mqttv3_simple_SimpleMqttOps_connect0(const u4* args, JValue* pResult);
 

@@ -182,6 +182,20 @@ DLLExport int MQTTYield(MQTTClient* client, int time);
 DLLExport int MQTTStartTask(MQTTClient* client);
 #endif
 
+
+
+/*Added APIs*/
+#ifndef GLOBAL
+#define GLOBAL
+#endif
+
+GLOBAL void mqtt_init(void);
+
+GLOBAL void mqtt_final(void);
+
+GLOBAL int mqtt_connect(char * host, int port, char * clientId, char * name, char * pwd, char * will, int mqttVer, int aliveInterval, int cleanSession);
+
+GLOBAL int mqtt_subscribe(char * topic, int qos);
 #if defined(__cplusplus)
      }
 #endif

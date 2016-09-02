@@ -8,6 +8,7 @@ import com.yarlungsoft.iot.mqttv3.MqttMessage;
 import com.yarlungsoft.iot.mqttv3.MqttPersistenceException;
 import com.yarlungsoft.iot.mqttv3.MqttSecurityException;
 import com.yarlungsoft.iot.mqttv3.MqttTopic;
+import com.yarlungsoft.util.Log;
 
 public class SimpleMqttClient implements ISimpleMqttClient {
 
@@ -32,6 +33,8 @@ public class SimpleMqttClient implements ISimpleMqttClient {
 	private String host;
 	private int port;
 	
+	private final static String TAG = "SimpleMqttClient";  
+	
 	public static synchronized SimpleMqttClient getInstance(){
 	
 		if(mInstance == null)
@@ -49,12 +52,12 @@ public class SimpleMqttClient implements ISimpleMqttClient {
 		conState = DISCONNECTED;
 		mConnectOptions = null;
 	}
-	
-	@Override
-	public int connect(String serverURI) throws MqttException, Exception {
-		// TODO Auto-generated method stub
 		
-		return this.connect(serverURI, new MqttConnectOptions());
+	@Override
+	public int connect(String scheme, String host, int port) throws MqttException, Exception {
+		// TODO Auto-generated method stub
+		Log.log(TAG, "call SimpleMqttClient connect A");
+		return this.connect(scheme, host, port, new MqttConnectOptions());
 	}
 	
 	private void parseURI(String URI) throws Exception{
@@ -66,16 +69,20 @@ public class SimpleMqttClient implements ISimpleMqttClient {
 		host = getHostName(URI);
 		port = getPort(URI, DEFAULT_PORT);
 		
+		System.out.println("Scheme:" + scheme);
+		System.out.println("Host:" + host);
+		System.out.println("Port:" + port);
+		
 		if(host == null || host.isEmpty()){
 			throw new Exception("cannot parse URI");
 		}
 	}
 
 	@Override
-	public int connect(String serverURI, MqttConnectOptions options) throws MqttException, Exception {
+	public int connect(String scheme, String host, int port, MqttConnectOptions options) throws MqttException, Exception {
 		// TODO Auto-generated method stub
 		
-		
+		Log.log(TAG, "call SimpleMqttClient connect B");
 		if (isConnected()) {
 			throw new MqttException(MqttException.REASON_CODE_CLIENT_CONNECTED);
 		}
@@ -88,9 +95,20 @@ public class SimpleMqttClient implements ISimpleMqttClient {
 		if (isClosed()) {
 			throw new MqttException(MqttException.REASON_CODE_CLIENT_CLOSED);
 		}
+		
+		System.out.println("call SimpleMqttClient connect C");
 		setConnectState(DISCONNECTED);		
 		mConnectOptions = options;
-		parseURI(serverURI);
+		
+		//parseURI(serverURI);
+		
+		this.scheme = scheme;
+		this.host = host;
+		this.port = port;
+		
+		System.out.println("Scheme:" + scheme);
+		System.out.println("Host:" + host);
+		System.out.println("Port:" + port);
 		
 		int ret = mCommonOps.connect(host, port, options);
 		if(ret == ISimpleMqttClient.SUCCESS){
@@ -153,7 +171,7 @@ public class SimpleMqttClient implements ISimpleMqttClient {
 	}
 
 	private String getHostName(String uri) {
-		int portIndex = uri.indexOf(':');
+		int portIndex = uri.lastIndexOf(':');
 		if (portIndex == -1) {
 			portIndex = uri.indexOf('/');
 		}

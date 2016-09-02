@@ -124,4 +124,10 @@ int dvmGetStringLength(const StringObject* jstr);
  */
 int dvmHashcmpStrings(const void* vstrObj1, const void* vstrObj2);
 
+/*
+ * MUST free the return ptr after using!!!
+ */
+const u1 * dvmGetStringDataInUtf8(const StringObject* jstr);
+
+
 #endif  // DALVIK_STRING_H_

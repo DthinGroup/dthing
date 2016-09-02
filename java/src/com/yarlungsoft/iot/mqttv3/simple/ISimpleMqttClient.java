@@ -84,7 +84,7 @@ public interface ISimpleMqttClient { //extends IMqttAsyncClient {
 	 * @throws MqttException  for non security related problems
 	 * @see #connect(MqttConnectOptions)
 	 */
-  public int connect(String uri) throws MqttException, Exception;
+  public int connect(String scheme, String host, int port) throws MqttException, Exception;
 
 	/**
 	 * Connects to an MQTT server using the specified options.
@@ -100,7 +100,7 @@ public interface ISimpleMqttClient { //extends IMqttAsyncClient {
 	 * reasons
 	 * @throws MqttException  for non security related problems including communication errors
 	 */
-  public int connect(String uri, MqttConnectOptions options) throws MqttException, Exception;
+  public int connect(String scheme, String host, int port, MqttConnectOptions options) throws MqttException, Exception;
 	
 	/**
 	 * Subscribe to a topic, which may include wildcards using a QoS of 1.

@@ -19,7 +19,7 @@ public class SimpleMqttOps {
 	 * will: if null, set willFlag = 0
 	 * return : -1 - failure  0 -success
 	 */
-	public native int connect0(String clientId, String name, String pwd, String will, int mqttVersion, int keepAliveInterval, boolean cleanSession); 
+	public native int connect0(String host, int port, String clientId, String name, String pwd, String will, int mqttVersion, int keepAliveInterval, boolean cleanSession); 
 		
 	public native int subscribe0(String topic, int qos);
 	
@@ -33,7 +33,7 @@ public class SimpleMqttOps {
 		String passwd = opt.getPassword();
 		String willMsg = null;
 		
-		return connect0(clientId, name, passwd, willMsg, mqttVer, keepAliveInterval, cleanSession);		
+		return connect0(host, port, clientId, name, passwd, willMsg, mqttVer, keepAliveInterval, cleanSession);		
 	}
 	
 	public int subscribe(String topicFilter, int qos){		
