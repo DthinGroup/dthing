@@ -677,5 +677,5 @@ GLOBAL int mqtt_disconnect(void){
 }
 
 GLOBAL int mqtt_yield(void){
-	return MQTTYield(&g_only_mtqq_client , 500);
+	return MQTTYield(&g_only_mtqq_client , 1000);
 }

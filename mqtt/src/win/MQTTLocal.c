@@ -110,8 +110,8 @@ int network_read(Network* n, unsigned char* buffer, int len, int timeout_ms)
 		int rc = recv(n->my_socket, &buffer[bytes], (int)(len - bytes), 0);
 		if (rc == -1)
 		{
-			errno = WSAGetLastError();
-			if (errno != ENOTCONN && errno != ECONNRESET)
+			int err = WSAGetLastError();
+			if (err != ENOTCONN && err != ECONNRESET)
 			{
 				bytes = -1;
 				break;

@@ -92,7 +92,7 @@ void vmtime_term(void)
 u8 vmtime_getTickCount(void)
 {
 #ifdef ARCH_X86
-	return GetTickCount();
+	return timeGetTime();
 #elif defined(ARCH_ARM_SPD)
 	return SCI_GetTickCount();
 #endif

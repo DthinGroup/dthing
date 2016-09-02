@@ -42,18 +42,25 @@ extern int MQTTTest_main(int argc, char** argv);
 char gArgc = 4;
 char * gArgv[] = {"stdoutsub", "fuck", "--host", "182.61.25.208"};
 
+#ifdef    NOT_LAUNCH_NET_TASK
+extern bool_t vm_runApp_fake();
+#endif
+
 int main(int argc, char *argv[])
 {
-	MQTTTest_main(gArgc, gArgv);
-	while(1);
-	test_mqtt_main();
+	//MQTTTest_main(gArgc, gArgv);
+	//while(1);
+	//test_mqtt_main();
 	file_startup();
 	Opl_net_activate();
 	Ams_init();
     DVMTraceErr("===AT module OK===");
 	//DVM_main(argc, argv);
 #ifdef    NOT_LAUNCH_NET_TASK	
-    ramsClient_runApplet(0);
+    vm_runApp(0);
+	do{
+		vmtime_sleep(1000);
+	}
     while(true);
 #else	
     //launchRemoteAMSClient(FALSE, argc, argv);

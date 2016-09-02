@@ -107,16 +107,11 @@ public class SimpleMqttOps {
 			String topic = new String();
 			String message = new String(); 
 			while(!isStop){
-				try {
-					Log.log(TAG, "MqttReceiveTask sleep!");
-					Thread.sleep(400);					
-					ret = recv_message0(topic, message);
-					Log.log(TAG, "MqttReceiveTask recv:" + ret);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				//recv MQTT message
+				Log.log(TAG, "MqttReceiveTask sleep!");
+				//Thread.sleep(10);					
+				Log.log(TAG, "MqttReceiveTask to recv");
+				ret = recv_message0(topic, message);
+				Log.log(TAG, "MqttReceiveTask recv:" + ret);
 			}
 			topic = null;
 			message = null;

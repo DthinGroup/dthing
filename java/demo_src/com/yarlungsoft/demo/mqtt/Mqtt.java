@@ -42,7 +42,7 @@ public class Mqtt extends Applet {
 					
 					if(ret == ISimpleMqttClient.SUCCESS){
 						Log.log("Mqtt test", "ready to subscribe");
-						ret = mqtt.subscribe("fuck years", null);
+						ret = mqtt.subscribe("imnix,hhhh", null);
 						Log.log("Mqtt test", "subscribe ret - " + ret);
 					}
 					
