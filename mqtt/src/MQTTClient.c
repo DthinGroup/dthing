@@ -14,7 +14,7 @@
  *    Allan Stockdill-Mander/Ian Craggs - initial API and implementation and/or initial documentation
  *******************************************************************************/
 #include "MQTTClient.h"
-
+#include "crtl.h"
 
 static void NewMessageData(MessageData* md, MQTTString* aTopicName, MQTTMessage* aMessage) {
     md->topicName = aTopicName;
@@ -49,6 +49,20 @@ static int sendPacket(MQTTClient* c, int length, Timer* timer)
     return rc;
 }
 
+static char * reCallocAndCopy(char * str){
+	char * ret ;
+	int len = CRTL_strlen(str);
+	if(str == NULL)
+		return NULL;
+
+	ret = CRTL_malloc(len + 1);
+	if(ret == NULL)
+		return NULL;
+
+	CRTL_memset(ret, 0, len + 1);
+	CRTL_memcpy(ret, str, len);
+	return ret;
+}
 
 void MQTTClientInit(MQTTClient* c, Network* network, unsigned int command_timeout_ms,
 		unsigned char* sendbuf, size_t sendbuf_size, unsigned char* readbuf, size_t readbuf_size)
@@ -71,6 +85,12 @@ void MQTTClientInit(MQTTClient* c, Network* network, unsigned int command_timeou
 #if defined(MQTT_TASK)
 	MutexInit(&c->mutex);
 #endif
+}
+
+void MQTTClientFinal(MQTTClient* c){
+	int i;
+	for (i = 0; i < MAX_MESSAGE_HANDLERS; ++i)
+        CRTL_freeif(c->messageHandlers[i].topicFilter);
 }
 
 
@@ -410,7 +430,7 @@ int MQTTSubscribe(MQTTClient* c, const char* topicFilter, enum QoS qos, messageH
     int rc = FAILURE;  
     Timer timer;
     int len = 0;
-    MQTTString topic = MQTTString_initializer;
+    MQTTString topic = MQTTString_initializer;	
     topic.cstring = (char *)topicFilter;
     
 #if defined(MQTT_TASK)
@@ -441,7 +461,7 @@ int MQTTSubscribe(MQTTClient* c, const char* topicFilter, enum QoS qos, messageH
             {
                 if (c->messageHandlers[i].topicFilter == 0)
                 {
-                    c->messageHandlers[i].topicFilter = topicFilter;
+                    c->messageHandlers[i].topicFilter = reCallocAndCopy(topicFilter);   // need to free!!
                     c->messageHandlers[i].fp = messageHandler;
                     rc = 0;
                     break;
@@ -599,7 +619,7 @@ GLOBAL void mqtt_init(void)
 
 
 GLOBAL void mqtt_final(void){
-
+	MQTTClientFinal(&g_only_mtqq_client);
 }
 
 GLOBAL int mqtt_connect(char * host, int port, char * clientId, char * name, char * pwd, char * will, int mqttVer, int aliveInterval, int cleanSession){

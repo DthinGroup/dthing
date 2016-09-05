@@ -42,10 +42,8 @@ void Java_com_yarlungsoft_iot_mqttv3_simple_SimpleMqttOps_subscribe0(const u4* a
     jint ret = 0;
 
     // TODO: implementation
-	ret = mqtt_subscribe(topic, qos);
-
-	// FIX - memory leak!!!
-	//CRTL_freeif(topic);
+	ret = mqtt_subscribe(topic, qos);	
+	CRTL_freeif(topic);
 
     RETURN_INT(ret);
 }
@@ -108,9 +106,9 @@ void Java_com_yarlungsoft_iot_mqttv3_simple_SimpleMqttOps_disconnect0(const u4* 
  */
 void Java_com_yarlungsoft_iot_mqttv3_simple_SimpleMqttOps_close0(const u4* args, JValue* pResult) {
 
-    // TODO: implementation
+    mqtt_final();
 
-    // return type : void
+    RETURN_VOID();
 }
 
 /**
