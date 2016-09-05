@@ -10,7 +10,9 @@
     <property name="kni.header.out" location="${output.dir}/nativeMethods.h" />
     <property name="java.src" location="${basedir}/src" />
 	<property name="third.party.src" location="${basedir}/tp_src" />
-	<property name="third.party.output.dir" location="${basedir}/tp_bin" />
+	<property name="third.party.output.dir" location="${basedir}/tp_bin" />	
+	<property name="demo.mqtt.src" location="${basedir}/demo_src" />
+	<property name="demo.mqtt.output.dir" location="${basedir}/demo_bin" />		
 
     <macrodef name="updateFileIfNecessary">
         <attribute name="srcFile" />
@@ -92,7 +94,11 @@
             <arg value="-t" />
             <arg value="${third.party.src}" />
         </exec>
-        <updateFileIfNecessary srcFile="${kni.header.out}" dstFile="${kni.header.src}" updateMsg="WARNING: ${kni.header.src} has been updated, please update other KNI declarations headers by referring headers under ${output.dir}!" />
+    	<!-- OLD: 
+    		<updateFileIfNecessary srcFile="${kni.header.out}" dstFile="${kni.header.src}" updateMsg="WARNING: ${kni.header.src} has been updated, please update other KNI declarations headers by referring headers under ${output.dir}!" /> 
+    	-->
+        <updateFileIfNecessary  srcFile="${kni.header.out}" dstFile="${kni.header.out}" updateMsg="WARNING: ${kni.header.out} has been updated, please update other KNI declarations headers by referring headers under ${output.dir}!" />
+    	<echo message= "WARNING: if ${kni.header.out} has been updated, You must update the nativeMethods.h and other KNI declarations headers by referring headers under ${output.dir}! manually" />
     </target>
 
     <target name="cleantp">
@@ -103,15 +109,43 @@
         </delete>
     </target>
 
-    <target name="clean" depends="cleantp">
+	<target name="cleandemo">
+		<delete file="${demo.mqtt.output.dir}/mqtt.dex.jar" />
+		<delete file="${basedir}/mqtt.jar" />
+		<delete>
+			<fileset dir="${demo.mqtt.output.dir}" includes="**/*.class" />
+		</delete>
+	</target>
+	
+    <target name="clean" depends="cleantp,cleandemo">
         <delete file="${dex.out}" />
         <delete file="${basedir}/df.jar" />
         <delete>
             <fileset dir="${output.dir}" includes="*.h,**/*.class" />
         </delete>
     </target>
+	
+	<target name="buildDemoMqtt">
+		<mkdir dir="${demo.mqtt.output.dir}" />
+	        <javac includeantruntime="no" includeJavaRuntime="no" srcdir="${demo.mqtt.src}" destdir="${demo.mqtt.output.dir}" source="1.6" target="1.6">
+	            <compilerarg line="-encoding UTF-8"/>
+	            <classpath refid="core.framework.classpath" />
+	        </javac>
+		<jar jarfile="${output.dir}/../mqtt.jar" basedir="${demo.mqtt.output.dir}"/>
+	</target>
+	
+	<target name="createMqttDex">
+	        <echo message="${dx_tool} --verbose --core-library --dex --output=${demo.mqtt.output.dir}/mqtt.dex.jar ${basedir}/demo_bin" />
+	        <exec executable="${dx_tool}" failonerror="true">
+	            <arg value="--verbose" />
+	            <arg value="--core-library" />
+	            <arg value="--dex" />
+	            <arg value="--output=${demo.mqtt.output.dir}/mqtt.dex.jar" />
+	            <arg value="${output.dir}/../mqtt.jar" />
+	        </exec>
+	    </target>
 
-    <target name="all" depends="buildJava, buildTPJava, mergeJars, createDex, createDexHeader, createKniHeaders" />
+    <target name="all" depends="buildJava, buildTPJava, mergeJars, createDex, createDexHeader, createKniHeaders, buildDemoMqtt, createMqttDex" />
     <target name="tp" depends="buildTPJava, mergeJars, createDex, createDexHeader" />
     <target name="cleanbuild" depends="clean, all" />
 
