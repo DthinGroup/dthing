@@ -13,8 +13,9 @@
  * Contributors:
  *    Allan Stockdill-Mander/Ian Craggs - initial API and implementation and/or initial documentation
  *******************************************************************************/
+#include "std_global.h"
 #include "MQTTClient.h"
-#include "crtl.h"
+
 
 static void NewMessageData(MessageData* md, MQTTString* aTopicName, MQTTMessage* aMessage) {
     md->topicName = aTopicName;
@@ -48,6 +49,8 @@ static int sendPacket(MQTTClient* c, int length, Timer* timer)
         rc = FAILURE;
     return rc;
 }
+
+
 
 static char * reCallocAndCopy(char * str){
 	char * ret ;
