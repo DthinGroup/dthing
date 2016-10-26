@@ -241,6 +241,7 @@ VM_SOURCES += \
     vm/impl/nativeThrowable.c \
     vm/impl/nativeTimeZone.c \
     vm/impl/nativeMain.c \
+	vm/impl/nativeSimpleMqttOps.c\
     mqtt/src/MQTTConnectClient.c \
     mqtt/src/MQTTConnectServer.c\
     mqtt/src/MQTTDeserializePublish.c\

@@ -149,7 +149,7 @@ int NetworkConnect(Network* n, char* addr, int port)
 	{
 		rc = sci_parse_host(addr, &dst_addr.ip_addr, 0);
 		temp_count ++;
-		SCI_SLEEP(100);
+		SCI_Sleep(100);
 	}while((rc == 1) && (temp_count < 50));
 	
 	if(0 != rc)
