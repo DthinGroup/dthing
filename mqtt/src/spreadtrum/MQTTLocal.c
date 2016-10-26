@@ -119,12 +119,16 @@ int network_read(Network* n, unsigned char* buffer, int len, int timeout_ms)
 int network_write(Network* n, unsigned char* buffer, int len, int timeout_ms)
 {
 	s_timeval tv;	
-	int rc = -1;
+	int rc = -1, err=0;
 	tv.tv_sec = 0;  /* 30 Secs Timeout */
 	tv.tv_msec = timeout_ms * 1000;  // Not init'ing this can cause strange errors
 	
 	sci_sock_setsockopt(n->my_socket, SO_RCVTIMEO, (void*)&tv);	
 	rc = sci_sock_send(n->my_socket, buffer, len, 0);
+	if(rc < 0){  //Trace info		
+		err = sci_sock_errno(n->my_socket);
+		SCI_TRACE_LOW("WARNING: ret value of network_write is %d \n", err);
+	}
 	return rc;
 }
 
