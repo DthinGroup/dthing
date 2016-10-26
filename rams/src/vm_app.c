@@ -227,6 +227,9 @@ AppletProps* getAppletPropByName(char *name)
     int32_t i;
     AppletProps *pap;
     char *papname = NULL;
+#ifdef NOT_LAUNCH_NET_TASK
+return NULL;	
+#endif
     for (i = 0, pap = appletsList; i < MAX_APPS_NUM; i++)
     {
 	papname = pap[i].frealName;
@@ -512,6 +515,12 @@ bool_t vm_runApp(int id)
     SafeBuffer  *safeBuf;
     Event        newEvt;
 
+#ifdef NOT_LAUNCH_NET_TASK
+		file_startup();
+		appletsList = listInstalledApplets(NULL);
+#endif
+
+
     do
     {
         if ((pap = getAppletPropById(id)) == NULL)
@@ -527,7 +536,7 @@ bool_t vm_runApp(int id)
         pap->fpath = combineAppPath(pap->fname);
         argv[0] = "-run";
         argv[1] = pap->fpath;
-        argv[2] = pap->mainCls;
+        argv[2] = pap->mainCls; //"com.yarlungsoft.demo.mqtt.Mqtt";
         DVMTraceInf("argv=0x%x,argv-1:%s,argv-2:%s,argv-3:%s\n",(void*)argv,argv[0],argv[1],argv[2]);
 
         if (Ams_createVMThread(VMThreadProc, 3, argv) < 0)

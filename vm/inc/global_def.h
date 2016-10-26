@@ -10,7 +10,7 @@ typedef enum
 }ARCH_E;
 
 //Keep ARM relase as default
-#define ARCH_X86
+//#define ARCH_X86
 
 #ifndef ARCH_X86 
 #define ARCH_ARM_SPD

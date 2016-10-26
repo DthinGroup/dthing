@@ -11,3 +11,4 @@ win/*
 gen/*
 *.class
 *.bat
+java/demo_bin/*
