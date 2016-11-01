@@ -205,6 +205,9 @@ GLOBAL int mqtt_disconnect(void);
 
 GLOBAL int mqtt_yield(void);
 
+GLOBAL int mqtt_keepalive(void);
+
+
 #if defined(__cplusplus)
      }
 #endif

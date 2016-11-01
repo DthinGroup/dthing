@@ -648,6 +648,10 @@ GLOBAL int mqtt_connect(char * host, int port, char * clientId, char * name, cha
 	} else {
 		printf("connect network fail: %d\n", ret);
 	}
+	
+	if(SUCCESS == ret){
+		NetworkHeartBeatCreate();
+	}
 
 	return ret;	
 }
@@ -693,6 +697,7 @@ GLOBAL int mqtt_publish(char * topic, char * payload, int msgId, int qos, int du
 }
 
 GLOBAL int mqtt_disconnect(void){
+	NetworkHeartBeatDestroy();
 	MQTTDisconnect(&g_only_mtqq_client);
 	NetworkDisconnect(&g_only_mqtt_network);
 
@@ -702,3 +707,8 @@ GLOBAL int mqtt_disconnect(void){
 GLOBAL int mqtt_yield(void){
 	return MQTTYield(&g_only_mtqq_client , 1000);
 }
+
+GLOBAL int mqtt_keepalive(void){
+	return keepalive(&g_only_mtqq_client);
+}
+

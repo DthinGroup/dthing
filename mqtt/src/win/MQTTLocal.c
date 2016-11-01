@@ -227,3 +227,12 @@ void NetworkDisconnect(Network* n)
 {
 	closesocket(n->my_socket);
 }
+
+
+void NetworkHeartBeatCreate(void){
+	//todo
+}
+
+void NetworkHeartBeatDestroy(void){
+	//todo
+}

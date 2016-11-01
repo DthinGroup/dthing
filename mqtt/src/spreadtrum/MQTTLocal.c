@@ -24,6 +24,13 @@
 #define ECONNRESET      8
 #define ENOTCONN        9
 
+#undef MQTT_TRACE
+#define MQTT_TRACE
+#if defined(MQTT_TRACE)
+	#define MQTT_Trace SCI_TRACE_LOW
+#else
+	#define MQTT_Trace
+#endif
 
 void TimerInit(Timer* timer)
 {
@@ -104,6 +111,7 @@ int network_read(Network* n, unsigned char* buffer, int len, int timeout_ms)
 		if (rc == -1)
 		{
 			int errno = sci_sock_errno(n->my_socket);
+			MQTT_Trace("=== network_read: error code of network_read is %d \n", errno);
 			if (errno != ENOTCONN && errno != ECONNRESET)
 			{
 				bytes = -1;
@@ -127,7 +135,7 @@ int network_write(Network* n, unsigned char* buffer, int len, int timeout_ms)
 	rc = sci_sock_send(n->my_socket, buffer, len, 0);
 	if(rc < 0){  //Trace info		
 		err = sci_sock_errno(n->my_socket);
-		SCI_TRACE_LOW("WARNING: ret value of network_write is %d \n", err);
+		MQTT_Trace("=== network_write: error code of network_write is %d \n", err);
 	}
 	return rc;
 }
@@ -180,4 +188,32 @@ int NetworkConnect(Network* n, char* addr, int port)
 void NetworkDisconnect(Network* n)
 {
 	sci_sock_socketclose(n->my_socket);
+}
+
+static SCI_TIMER_PTR g_heartbeat_timer = SCI_NULL;
+
+
+static void alive_timer_func(int unused){
+	int ret = mqtt_keepalive();
+	MQTT_Trace("=== mqtt_keepalive res:%d \n", ret);	
+}
+
+void NetworkHeartBeatCreate(void){
+	if(g_heartbeat_timer == SCI_NULL){
+		g_heartbeat_timer = SCI_CreatePeriodTimer("DTHING_MQTT_KEEPALIVE_TIMER",    // Name string of the timer
+								alive_timer_func,	//callback
+								0,		//params of callback
+								5000,	//period time 
+								SCI_AUTO_ACTIVATE);	//auto start
+	} else {
+		if(SCI_TRUE != SCI_IsTimerActive(g_heartbeat_timer))
+			SCI_ActiveTimer(g_heartbeat_timer);
+	}
+}
+
+void NetworkHeartBeatDestroy(void){
+	if(g_heartbeat_timer != SCI_NULL){
+		SCI_DeleteTimer(g_heartbeat_timer);
+	}
+	g_heartbeat_timer = SCI_NULL;
 }

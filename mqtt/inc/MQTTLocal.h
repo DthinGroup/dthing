@@ -83,5 +83,7 @@ int network_write(Network*, unsigned char*, int, int);
 DLLExport void NetworkInit(Network*);
 DLLExport int NetworkConnect(Network*, char*, int);
 DLLExport void NetworkDisconnect(Network*);
+DLLExport void NetworkHeartBeatCreate(void);
+DLLExport void NetworkHeartBeatDestroy(void);
 
 #endif
