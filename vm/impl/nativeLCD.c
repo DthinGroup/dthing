@@ -13,9 +13,9 @@ void Java_iot_oem_lcd_LCD_setBackgroundStatus0(const u4* args, JValue* pResult) 
     jint ret = 0;
 #if defined(ARCH_ARM_SPD)
     if (status) {
-        SPILCD_Open();
+        //SPILCD_Open();
     } else {
-        SPILCD_Close();
+        //SPILCD_Close();
     }
 #endif
     RETURN_INT(ret);

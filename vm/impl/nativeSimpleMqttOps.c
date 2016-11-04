@@ -65,24 +65,43 @@ void Java_com_yarlungsoft_iot_mqttv3_simple_SimpleMqttOps_unsubscribe0(const u4*
     RETURN_INT(ret);
 }
 
+
+//TODO: just WORKAROUND ,MAYBE bugs
+static char s_handle_data[1024] = {0};
+char * handle_data(u2 * data, jint length){
+	int i=0;
+	CRTL_memset(s_handle_data,0,1024);
+	assert(length <= 1024);
+	for(i=0; i< length; i++){
+		s_handle_data[i] = (char)(data[i] & 0xff);
+	}
+	return &s_handle_data[0];
+}
+
 /**
  * Class:     com_yarlungsoft_iot_mqttv3_simple_SimpleMqttOps
  * Method:    publish0
  * Signature: (Ljava/lang/String;Ljava/lang/String;IIZZ)I
  */
 void Java_com_yarlungsoft_iot_mqttv3_simple_SimpleMqttOps_publish0(const u4* args, JValue* pResult) {
+	//TODO: BUGs fix in getData (Encode error)
 	char * topic   = dvmGetStringDataInUtf8((StringObject *) args[1]); 
-	char * payload = dvmGetStringDataInUtf8((StringObject *) args[2]); 
-    jint msgId	   = (jint) args[3];
+	jint payloadlen = dvmGetStringLength((StringObject *) args[2]);  
+	char * payload = handle_data(dvmGetStringData((StringObject *) args[2]), payloadlen);//dvmGetStringDataInUtf8((StringObject *) args[2]); 
+
+	jint msgId	   = (jint) args[3];
     jint qos       = (jint) args[4];
     jboolean dup   = (jboolean) args[5];
     jboolean retain = (jboolean) args[6];
     jint ret = 0;
 
-	ret = mqtt_publish(topic, payload, msgId, qos, dup, retain);
+	ret = mqtt_publish(topic, payload, payloadlen, msgId, qos, dup, retain);
+	DVMTraceJava("publish0 : topic- %s, %d\n", topic, ret);
 
-	CRTL_freeif(topic);
-	CRTL_freeif(payload);
+//TODO : memory leak
+	//CRTL_freeif(topic);
+	//CRTL_freeif(payload);
+	DVMTraceJava("publish0 ,ready to return: %d\n", ret);
     RETURN_INT(ret);
 }
 

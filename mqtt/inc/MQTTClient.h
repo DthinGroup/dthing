@@ -197,7 +197,7 @@ GLOBAL int mqtt_connect(char * host, int port, char * clientId, char * name, cha
 
 GLOBAL int mqtt_subscribe(char * topic, int qos);
 
-GLOBAL int mqtt_publish(char * topic, char * payload, int msgId, int qos, int dup, int retain);
+GLOBAL int mqtt_publish(char * topic, char * payload, int payloadlen, int msgId, int qos, int dup, int retain);
 
 GLOBAL int mqtt_unsubscribe(char * topic);
 

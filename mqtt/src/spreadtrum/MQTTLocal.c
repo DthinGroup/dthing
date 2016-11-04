@@ -27,7 +27,7 @@
 #undef MQTT_TRACE
 #define MQTT_TRACE
 #if defined(MQTT_TRACE)
-	#define MQTT_Trace SCI_TRACE_LOW
+	#define MQTT_Trace DVMTraceJava
 #else
 	#define MQTT_Trace
 #endif
@@ -143,6 +143,7 @@ int network_write(Network* n, unsigned char* buffer, int len, int timeout_ms)
 
 void NetworkInit(Network* n)
 {
+	MQTT_Trace("=== NetworkInit ===\n");
 	n->my_socket = 0;
 	n->mqttread = network_read;
 	n->mqttwrite = network_write;
@@ -157,15 +158,18 @@ int NetworkConnect(Network* n, char* addr, int port)
 	
 	assert(addr != NULL);
 
+	MQTT_Trace("=== NetworkConnect ,rc=%d===\n", rc);
 	do
 	{
 		rc = sci_parse_host(addr, &dst_addr.ip_addr, 0);
 		temp_count ++;
 		SCI_Sleep(100);
+		MQTT_Trace("=== NetworkConnect sci_parse_host %d ===\n", rc);
 	}while((rc == 1) && (temp_count < 50));
 	
 	if(0 != rc)
 	{	
+		MQTT_Trace("=== NetworkConnect sci_parse_host res = %d ===\n", rc);
 		return -1;
 	}
 
@@ -174,13 +178,16 @@ int NetworkConnect(Network* n, char* addr, int port)
 
 	if (rc == 0)
 	{
-		n->my_socket =	sci_sock_socket(AF_INET, SOCK_STREAM, 0, 0);		
+		n->my_socket =	sci_sock_socket(AF_INET, SOCK_STREAM, 0, 0);	
+		MQTT_Trace("=== NetworkConnect socket = %d ===\n", n->my_socket);		
 		if (n->my_socket != -1)
 		{
 			rc = sci_sock_connect(n->my_socket, (struct sci_sockaddr*)&dst_addr, sizeof(dst_addr));			
+			MQTT_Trace("=== NetworkConnect sci_sock_connect = %d ===\n", rc);
 		}
 	}	
 
+	MQTT_Trace("=== NetworkConnect rc =  %d ===\n", rc);
 	return rc;
 }
 

@@ -17,6 +17,15 @@
 #include "MQTTClient.h"
 
 
+#undef MQTT_TRACE
+#define MQTT_TRACE
+#if defined(MQTT_TRACE)
+	#define MQTT_Trace DVMTraceJava
+#else
+	#define MQTT_Trace
+#endif
+
+
 static void NewMessageData(MessageData* md, MQTTString* aTopicName, MQTTMessage* aMessage) {
     md->topicName = aTopicName;
     md->message = aMessage;
@@ -409,7 +418,7 @@ int MQTTConnect(MQTTClient* c, MQTTPacket_connectData* options)
         unsigned char connack_rc = 255;
         unsigned char sessionPresent = 0;
         if (MQTTDeserialize_connack(&sessionPresent, &connack_rc, c->readbuf, c->readbuf_size) == 1)
-            rc = connack_rc;
+            rc = SUCCESS;//connack_rc;
         else
             rc = FAILURE;
     }
@@ -632,6 +641,7 @@ GLOBAL int mqtt_connect(char * host, int port, char * clientId, char * name, cha
 	mqtt_init();
 
 	ret = NetworkConnect(&g_only_mqtt_network, host, port);
+	MQTT_Trace("=== mqtt_connect 1 ret: %d\n", ret);
 	if(ret == 0)
 	{
 		will = will;
@@ -645,13 +655,16 @@ GLOBAL int mqtt_connect(char * host, int port, char * clientId, char * name, cha
 		data.cleansession = (unsigned char)cleanSession;
 
 		ret = MQTTConnect(&g_only_mtqq_client, &data);
+		MQTT_Trace("=== mqtt_connect 2 ret: %d\n", ret);		
 	} else {
-		printf("connect network fail: %d\n", ret);
+		MQTT_Trace("connect network fail: %d\n", ret);
 	}
 	
 	if(SUCCESS == ret){
-		NetworkHeartBeatCreate();
+		//NetworkHeartBeatCreate();
 	}
+
+	MQTT_Trace("=== mqtt_connect 3 ret: %d\n", ret);
 
 	return ret;	
 }
@@ -659,29 +672,29 @@ GLOBAL int mqtt_connect(char * host, int port, char * clientId, char * name, cha
 static void messageArrived(MessageData* md)
 {
 	MQTTMessage* message = md->message;
-	printf("messageArrived: %d.%s \n", (int)message->payloadlen, (char*)message->payload);			
+	MQTT_Trace("messageArrived: %d.%s \n", (int)message->payloadlen, (char*)message->payload);			
 	//fflush(stdout);
 }
 
 GLOBAL int mqtt_subscribe(char * topic, int qos){
 	int ret ;
-	printf("mqtt_subscribe to %s\n", topic);
+	MQTT_Trace("mqtt_subscribe to %s\n", topic);
 	ret = MQTTSubscribe(&g_only_mtqq_client, topic, qos, messageArrived);
-	printf("mqtt_subscribe %d\n", ret);
+	MQTT_Trace("mqtt_subscribe %d\n", ret);
 
 	return ret;
 }
 
 GLOBAL int mqtt_unsubscribe(char * topic){
 	int ret ;
-	printf("mqtt_unsubscribe to %s\n", topic);
+	MQTT_Trace("mqtt_unsubscribe to %s\n", topic);
 	ret = MQTTUnsubscribe(&g_only_mtqq_client, topic);
-	printf("mqtt_unsubscribe %d\n", ret);
+	MQTT_Trace("mqtt_unsubscribe %d\n", ret);
 
 	return ret;
 }
 
-GLOBAL int mqtt_publish(char * topic, char * payload, int msgId, int qos, int dup, int retain){
+GLOBAL int mqtt_publish(char * topic, char * payload, int payloadlen, int msgId, int qos, int dup, int retain){
 	int ret;
 	MQTTMessage message;
 	message.qos = qos;
@@ -689,10 +702,10 @@ GLOBAL int mqtt_publish(char * topic, char * payload, int msgId, int qos, int du
 	message.id  = msgId;
 	message.retained = retain;
 	message.payload = payload;
-	message.payloadlen = strlen(payload);
+	message.payloadlen = payloadlen;//strlen(payload);
 
 	ret = MQTTPublish(&g_only_mtqq_client, topic, &message);
-	printf("mqtt_public %d\n", ret);
+	MQTT_Trace("mqtt_public payloadlen = %d, ret=%d\n",payloadlen, ret);
 	return ret;
 }
 

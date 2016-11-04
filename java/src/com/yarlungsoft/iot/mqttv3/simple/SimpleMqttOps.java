@@ -49,9 +49,10 @@ public class SimpleMqttOps {
 		
 		int ret = connect0(host, port, clientId, name, passwd, willMsg, mqttVer, keepAliveInterval, cleanSession);
 		if(ret == ISimpleMqttClient.SUCCESS){
-			new Thread(new MqttReceiveTask()).start();
+			//TODO : need to fix
+			//  new Thread(new MqttReceiveTask()).start();
 		}
-		
+		Log.log("FUCK", "connect0 ret:" + ret);
 		return ret;
 	}
 	
