@@ -17,6 +17,8 @@
  */
 package com.yarlungsoft.iot.mqttv3;
 
+import com.yarlungsoft.iot.mqttv3.simple.SimpleMqttClientID;
+
 
 /**
  * Holds the set of options that control how the client connects to a server.
@@ -65,7 +67,6 @@ public class MqttConnectOptions {
 	private boolean automaticReconnect = false;
 	
 	private String clientId;
-
 	/**
 	 * Constructs a new <code>MqttConnectOptions</code> object using the
 	 * default values.
@@ -82,7 +83,11 @@ public class MqttConnectOptions {
 	 * More information about these values can be found in the setter methods.
 	 */
 	public MqttConnectOptions() {
-		clientId = "dthing-mqtt-client";
+		clientId = "";
+	}
+	
+	public MqttConnectOptions(String Client) {
+		clientId = Client;
 	}
 
 	public void setClientId(String id){
@@ -92,7 +97,7 @@ public class MqttConnectOptions {
 	}
 	
 	public String getClientId(){
-		return this.clientId;
+		return SimpleMqttClientID.getClientPrefix() + this.clientId;
 	}
 	
 	/**

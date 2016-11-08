@@ -98,8 +98,8 @@ void Java_com_yarlungsoft_iot_mqttv3_simple_SimpleMqttOps_publish0(const u4* arg
 	ret = mqtt_publish(topic, payload, payloadlen, msgId, qos, dup, retain);
 	DVMTraceJava("publish0 : topic- %s, %d\n", topic, ret);
 
-//TODO : memory leak
-	//CRTL_freeif(topic);
+	//TODO : memory leak
+	CRTL_freeif(topic);
 	//CRTL_freeif(payload);
 	DVMTraceJava("publish0 ,ready to return: %d\n", ret);
     RETURN_INT(ret);
