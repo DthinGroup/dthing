@@ -8,7 +8,6 @@ import com.yarlungsoft.iot.mqttv3.MqttMessage;
 import com.yarlungsoft.iot.mqttv3.MqttPersistenceException;
 import com.yarlungsoft.iot.mqttv3.MqttSecurityException;
 import com.yarlungsoft.iot.mqttv3.MqttTopic;
-import com.yarlungsoft.iot.mqttv3.simple.SimpleMqttClientID.CLIENT_ITEM;
 import com.yarlungsoft.util.Log;
 
 public class SimpleMqttClient implements ISimpleMqttClient {
@@ -79,7 +78,8 @@ public class SimpleMqttClient implements ISimpleMqttClient {
 		}
 	}
 	
-	public void setClientIdentify(CLIENT_ITEM prj){
+	public void setClientIdentify(int prj){
+		System.out.println(TAG + "setClientIdentify: " + prj);
 		SimpleMqttClientID.setClientPrefex(prj);
 	}
 

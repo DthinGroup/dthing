@@ -16,7 +16,7 @@
 
 #include "MQTTLocal.h"
 
-
+#include <vm_common.h>
 #include <os_api.h>
 #include <Socket_types.h>
 
@@ -200,9 +200,23 @@ void NetworkDisconnect(Network* n)
 static SCI_TIMER_PTR g_heartbeat_timer = SCI_NULL;
 
 
-static void alive_timer_func(int unused){
-	int ret = mqtt_keepalive();
-	MQTT_Trace("=== mqtt_keepalive res:%d \n", ret);	
+//WORKAROUND keywords: [dthing-workaround-nix-1] in workaround-readme.md
+extern uint64_t mqtt_publish_timestamp_op(int op);
+extern uint64_t comm_read_timestamp_op(int op);
+static void alive_timer_func(unsigned int unused){
+	//int ret = mqtt_keepalive();
+	
+	uint64_t timestamp1 = mqtt_publish_timestamp_op(1);
+	uint64_t timestamp2 = comm_read_timestamp_op(1);
+
+	uint64_t cur = vmtime_getTickCount();
+	//MQTT_Trace("=== alive_timer_func:%ld, %ld,%d \n",timestamp1,timestamp2,unused);	
+	if(cur > timestamp1 + 120*1000 ||
+   	   cur > timestamp2 + 120*1000){
+		//MQTT_Trace("=== ready to re-start device!!!");
+		//vmtime_sleep(10000);
+		(*(void (*)( ))0)();
+	}
 }
 
 void NetworkHeartBeatCreate(void){

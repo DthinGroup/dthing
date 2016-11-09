@@ -78,6 +78,18 @@ char * handle_data(u2 * data, jint length){
 	return &s_handle_data[0];
 }
 
+//op - 0: set; 1 - get //ms
+//WORKAROUND keywords: [dthing-workaround-nix-1] in workaround-readme.md
+uint64_t mqtt_publish_timestamp_op(int op){
+	static uint64_t timestamp = 0;
+	if(op ==0){
+		timestamp = vmtime_getTickCount();
+	} 
+
+	return timestamp;
+}
+
+
 /**
  * Class:     com_yarlungsoft_iot_mqttv3_simple_SimpleMqttOps
  * Method:    publish0
@@ -95,6 +107,7 @@ void Java_com_yarlungsoft_iot_mqttv3_simple_SimpleMqttOps_publish0(const u4* arg
     jboolean retain = (jboolean) args[6];
     jint ret = 0;
 
+	mqtt_publish_timestamp_op(0);
 	ret = mqtt_publish(topic, payload, payloadlen, msgId, qos, dup, retain);
 	DVMTraceJava("publish0 : topic- %s, %d\n", topic, ret);
 
@@ -104,6 +117,8 @@ void Java_com_yarlungsoft_iot_mqttv3_simple_SimpleMqttOps_publish0(const u4* arg
 	DVMTraceJava("publish0 ,ready to return: %d\n", ret);
     RETURN_INT(ret);
 }
+
+
 
 /**
  * Class:     com_yarlungsoft_iot_mqttv3_simple_SimpleMqttOps

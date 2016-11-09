@@ -1,7 +1,10 @@
 package com.yarlungsoft.iot.mqttv3.simple;
 
 public class SimpleMqttClientID {
-	public enum CLIENT_ITEM{ID_DEFAULT,ID_EDIAN, ID_SMARTWATER,ID_CARWINDOW};
+	public static final int CLIENT_ID_DEFAULT = 0x00;
+	public static final int CLIENT_ID_EDIAN   = 0x01;
+	public static final int CLIENT_ID_SMARTWATER = 0x02;
+	public static final int CLIENT_ID_CARWINDOW  =0x03;
 	
 	private final static String CLIENT_ID_DEFAULT_PREFEX = "dtu-client-";	
 	private final static String CLIENT_ID_EDIAN_PREFEX = "dtu-edian-client-";
@@ -9,21 +12,22 @@ public class SimpleMqttClientID {
 	private final static String CLIENT_ID_CARWINDOW_PREFEX = "dtu-carwindow-client-";	
 	private static String client_id_prefex = CLIENT_ID_DEFAULT_PREFEX;
 	
-	protected static void setClientPrefex(CLIENT_ITEM id){
+	public static void setClientPrefex(int id){
+		System.out.print("SimpleMqttClientID setClientPrefex:" + id);
 		switch(id){
-		case ID_EDIAN:
+		case CLIENT_ID_EDIAN:
 			client_id_prefex = CLIENT_ID_EDIAN_PREFEX;
 			break;
 			
-		case ID_SMARTWATER:
+		case CLIENT_ID_SMARTWATER:
 			client_id_prefex = CLIENT_ID_SMARTWATER_PREFEX;
 			break;
 			
-		case ID_CARWINDOW:
+		case CLIENT_ID_CARWINDOW:
 			client_id_prefex = CLIENT_ID_CARWINDOW_PREFEX;
 			break;
 		
-		case ID_DEFAULT:
+		case CLIENT_ID_DEFAULT:
 		default:
 			client_id_prefex = CLIENT_ID_DEFAULT_PREFEX;
 			break;

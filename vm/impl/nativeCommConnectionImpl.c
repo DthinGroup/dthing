@@ -615,6 +615,18 @@ void Java_iot_oem_comm_CommConnectionImpl_writeBytes0(const u4*args, JValue* pRe
 
 }
 
+
+//op - 0: set; 1 - get //ms
+//WORKAROUND keywords: [dthing-workaround-nix-1] in workaround-readme.md
+uint64_t comm_read_timestamp_op(int op){
+	static uint64_t timestamp = 0;
+	if(op ==0){
+		timestamp = vmtime_getTickCount();
+	} 
+
+	return timestamp;
+}
+
 /**
  * Class:     iot_oem_comm_CommConnectionImpl
  * Method:    readBytes0
@@ -630,9 +642,12 @@ void Java_iot_oem_comm_CommConnectionImpl_readBytes0(const u4*args, JValue* pRes
     jint len = (jint)args[4];
     jint ret = 0;
 
+	
+
 #if defined(ARCH_ARM_SPD)
     uint8 *buf = (uint8 *)(bufArrPtr + offset);
 
+	comm_read_timestamp_op(0);
     if (AsyncIO_firstCall())
     {
 #if defined(SUPPORT_GPS_BY_MODULE)
@@ -656,3 +671,8 @@ void Java_iot_oem_comm_CommConnectionImpl_readBytes0(const u4*args, JValue* pRes
 #endif
     RETURN_INT(ret);
 }
+
+
+//TODO: WorkAround HERE For Edian Project: 
+
+
