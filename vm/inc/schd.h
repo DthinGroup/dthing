@@ -6,7 +6,7 @@
 
 
 //default schduler time,unit in ms
-#define SCHEDULER_TIMER     (10000)
+#define SCHEDULER_TIMER     (500)
 
 #define CAN_SCHEDULE()      (schedulerFlag==1)
 #define SET_SCHEDULE()      do{schedulerFlag =1;}while(0)

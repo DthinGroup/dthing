@@ -211,13 +211,13 @@ void workaround_alive_task_check(unsigned int unused){
 	uint32_t timestamp2 = comm_read_timestamp_op(1);
 
 	uint32_t cur = SCI_GetTickCount();
-	MQTT_Trace("=== workaround_alive_task_check: mqtt-timestamp - %d, comm-timestamp - %d, current-timestamp - %d \n",timestamp1,timestamp2,cur);	
+	MQTT_Trace("alive check: mqtt - %d, comm - %d, current - %d \n",timestamp1,timestamp2,cur);	
 
 	if(!check_flag)
 		return;
 
 	//3 minutes restart
-	if((cur > timestamp1 + 180*1000) || (cur > timestamp2 + 180*1000)){
+	if((cur > timestamp1 + 150*1000) || (cur > timestamp2 + 150*1000)){
 		MQTT_Trace("=== ready to re-start device!!!");
 		SCI_Sleep(1000);
 		(*(void (*)( ))0)();
