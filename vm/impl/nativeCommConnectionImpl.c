@@ -9,6 +9,7 @@
 static int s_deviceType = DEVICE_NORMAL;
 
 #if defined(ARCH_ARM_SPD)
+#include "vm_common.h"
 #include "sci_types.h"
 #include "os_api.h"
 #include "com_drvapi.h"
@@ -618,13 +619,15 @@ void Java_iot_oem_comm_CommConnectionImpl_writeBytes0(const u4*args, JValue* pRe
 
 //op - 0: set; 1 - get //ms
 //WORKAROUND keywords: [dthing-workaround-nix-1] in workaround-readme.md
-uint64_t comm_read_timestamp_op(int op){
-	static uint64_t timestamp = 0;
-	if(op ==0){
-		timestamp = vmtime_getTickCount();
+static uint32_t g_comm_timestamp = 0;
+uint32_t comm_read_timestamp_op(int op){
+//vmtime_getTickCount();
+	if(op == 0){
+		g_comm_timestamp = vmtime_getTickCount();
+		//DVMTraceJava("remember comm read timestamp = %ld \n", timestamp);
 	} 
 
-	return timestamp;
+	return g_comm_timestamp;
 }
 
 /**

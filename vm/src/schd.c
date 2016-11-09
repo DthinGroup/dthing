@@ -486,6 +486,7 @@ void Schd_handleSpecial()
 
 	//todo
 }
+extern void workaround_alive_task_check(unsigned int unused);
 
 void Schd_SCHEDULER(void)
 {
@@ -554,6 +555,9 @@ void Schd_SCHEDULER(void)
         }
 
         Schd_DecSleepTime(SCHEDULER_TIMER);
+
+		////WORKAROUND keywords: [dthing-workaround-nix-1] in workaround-readme.md
+		workaround_alive_task_check(0);
 
         goto SCHD_RESTART;
 

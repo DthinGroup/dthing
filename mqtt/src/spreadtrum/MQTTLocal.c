@@ -201,28 +201,41 @@ static SCI_TIMER_PTR g_heartbeat_timer = SCI_NULL;
 
 
 //WORKAROUND keywords: [dthing-workaround-nix-1] in workaround-readme.md
-extern uint64_t mqtt_publish_timestamp_op(int op);
-extern uint64_t comm_read_timestamp_op(int op);
-static void alive_timer_func(unsigned int unused){
+extern uint32_t mqtt_publish_timestamp_op(int op);
+extern uint32_t comm_read_timestamp_op(int op);
+static volatile int check_flag = 0;
+void workaround_alive_task_check(unsigned int unused){
 	//int ret = mqtt_keepalive();
 	
-	uint64_t timestamp1 = mqtt_publish_timestamp_op(1);
-	uint64_t timestamp2 = comm_read_timestamp_op(1);
+	uint32_t timestamp1 = mqtt_publish_timestamp_op(1);
+	uint32_t timestamp2 = comm_read_timestamp_op(1);
 
-	uint64_t cur = vmtime_getTickCount();
-	//MQTT_Trace("=== alive_timer_func:%ld, %ld,%d \n",timestamp1,timestamp2,unused);	
-	if(cur > timestamp1 + 120*1000 ||
-   	   cur > timestamp2 + 120*1000){
-		//MQTT_Trace("=== ready to re-start device!!!");
-		//vmtime_sleep(10000);
+	uint32_t cur = SCI_GetTickCount();
+	MQTT_Trace("=== workaround_alive_task_check: mqtt-timestamp - %d, comm-timestamp - %d, current-timestamp - %d \n",timestamp1,timestamp2,cur);	
+
+	if(!check_flag)
+		return;
+
+	//3 minutes restart
+	if((cur > timestamp1 + 180*1000) || (cur > timestamp2 + 180*1000)){
+		MQTT_Trace("=== ready to re-start device!!!");
+		SCI_Sleep(1000);
 		(*(void (*)( ))0)();
 	}
+/*
+	if(g_heartbeat_timer != NULL && SCI_TRUE != SCI_IsTimerActive(g_heartbeat_timer))
+			SCI_ActiveTimer(g_heartbeat_timer);
+*/
 }
 
 void NetworkHeartBeatCreate(void){
+	mqtt_publish_timestamp_op(0);
+	comm_read_timestamp_op(0);
+	check_flag = 1;
+#if 0	
 	if(g_heartbeat_timer == SCI_NULL){
 		g_heartbeat_timer = SCI_CreatePeriodTimer("DTHING_MQTT_KEEPALIVE_TIMER",    // Name string of the timer
-								alive_timer_func,	//callback
+								workaround_alive_task_check,	//callback
 								0,		//params of callback
 								5000,	//period time 
 								SCI_AUTO_ACTIVATE);	//auto start
@@ -230,11 +243,15 @@ void NetworkHeartBeatCreate(void){
 		if(SCI_TRUE != SCI_IsTimerActive(g_heartbeat_timer))
 			SCI_ActiveTimer(g_heartbeat_timer);
 	}
+#endif	
 }
 
 void NetworkHeartBeatDestroy(void){
+		check_flag = 0;
+#if 0
 	if(g_heartbeat_timer != SCI_NULL){
 		SCI_DeleteTimer(g_heartbeat_timer);
 	}
 	g_heartbeat_timer = SCI_NULL;
+#endif
 }

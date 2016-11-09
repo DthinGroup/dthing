@@ -80,13 +80,16 @@ char * handle_data(u2 * data, jint length){
 
 //op - 0: set; 1 - get //ms
 //WORKAROUND keywords: [dthing-workaround-nix-1] in workaround-readme.md
-uint64_t mqtt_publish_timestamp_op(int op){
-	static uint64_t timestamp = 0;
+static uint32_t g_mqtt_timestamp = 0;
+uint32_t mqtt_publish_timestamp_op(int op){
+//vmtime_getTickCount();
+
 	if(op ==0){
-		timestamp = vmtime_getTickCount();
+		g_mqtt_timestamp = vmtime_getTickCount();
+		//DVMTraceJava("remember mqtt pub timestamp = %ld \n", timestamp);
 	} 
 
-	return timestamp;
+	return g_mqtt_timestamp;
 }
 
 
