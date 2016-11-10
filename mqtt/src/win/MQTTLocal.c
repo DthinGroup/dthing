@@ -229,10 +229,10 @@ void NetworkDisconnect(Network* n)
 }
 
 
-void NetworkHeartBeatCreate(void){
+void workaround_alive_task_check_create(void){
 	//todo
 }
 
-void NetworkHeartBeatDestroy(void){
+void workaround_alive_task_check_destroy(void){
 	//todo
 }

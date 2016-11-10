@@ -486,13 +486,35 @@ void Schd_handleSpecial()
 
 	//todo
 }
-extern void workaround_alive_task_check(unsigned int unused);
+
+#ifdef ARCH_ARM_SPD		
+////WORKAROUND keywords: [dthing-workaround-nix-1] in workaround-readme.md
+extern void workaround_alive_task_check(void);
+extern void schd_check_timer_create(void);
+extern void schd_check_timer_destroy(void);
+#endif
+
+void run_check_point(void){
+#ifdef ARCH_ARM_SPD	
+	////WORKAROUND keywords: [dthing-workaround-nix-1] in workaround-readme.md
+	workaround_alive_task_check();
+#endif
+}
+
+u8 Schd_GetLastRunTick(void){
+	return g_last_tick_record;
+}
 
 void Schd_SCHEDULER(void)
 {
     JValue pResult;
     unsigned long lastMs = vmtime_getTickCount();
     g_last_tick_record = lastMs;
+
+#ifdef ARCH_ARM_SPD	
+	schd_check_timer_create();
+#endif
+
 
     while(1)
     {
@@ -556,8 +578,7 @@ void Schd_SCHEDULER(void)
 
         Schd_DecSleepTime(SCHEDULER_TIMER);
 
-		////WORKAROUND keywords: [dthing-workaround-nix-1] in workaround-readme.md
-		workaround_alive_task_check(0);
+		run_check_point();
 
         goto SCHD_RESTART;
 
@@ -566,6 +587,10 @@ void Schd_SCHEDULER(void)
         DVM_LOG("Schd over!\n");
         break;
     }
+
+#ifdef ARCH_ARM_SPD	
+	schd_check_timer_destroy();
+#endif
 }
 
 int IsDvmRunning()

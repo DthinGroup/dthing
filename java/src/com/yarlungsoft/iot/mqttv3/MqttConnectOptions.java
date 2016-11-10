@@ -27,7 +27,7 @@ public class MqttConnectOptions {
 	/**
 	 * The default keep alive interval in seconds if one is not specified
 	 */
-	public static final int KEEP_ALIVE_INTERVAL_DEFAULT = 60;
+	public static final int KEEP_ALIVE_INTERVAL_DEFAULT = 90;
 	/**
 	 * The default connection timeout in seconds if one is not specified
 	 */

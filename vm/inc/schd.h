@@ -59,4 +59,6 @@ void Schd_SCHEDULER(void);
 
 int IsDvmRunning();
 
+u8 Schd_GetLastRunTick(void);
+
 #endif

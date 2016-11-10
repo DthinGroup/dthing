@@ -632,7 +632,7 @@ GLOBAL void mqtt_init(void)
 
 GLOBAL void mqtt_final(void){
 	MQTTClientFinal(&g_only_mtqq_client);
-	NetworkHeartBeatDestroy();
+	workaround_alive_task_check_destroy();
 }
 
 GLOBAL int mqtt_connect(char * host, int port, char * clientId, char * name, char * pwd, char * will, int mqttVer, int aliveInterval, int cleanSession){
@@ -662,7 +662,7 @@ GLOBAL int mqtt_connect(char * host, int port, char * clientId, char * name, cha
 	}
 	
 	if(SUCCESS == ret){
-		NetworkHeartBeatCreate();
+		workaround_alive_task_check_create();
 	}
 
 	MQTT_Trace("=== mqtt_connect 3 ret: %d\n", ret);
@@ -711,7 +711,7 @@ GLOBAL int mqtt_publish(char * topic, char * payload, int payloadlen, int msgId,
 }
 
 GLOBAL int mqtt_disconnect(void){
-	NetworkHeartBeatDestroy();
+	workaround_alive_task_check_destroy();
 	MQTTDisconnect(&g_only_mtqq_client);
 	NetworkDisconnect(&g_only_mqtt_network);
 

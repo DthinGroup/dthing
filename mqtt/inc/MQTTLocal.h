@@ -80,13 +80,13 @@ typedef struct Network
 int network_read(Network*, unsigned char*, int, int);
 int network_write(Network*, unsigned char*, int, int);
 
-void workaround_alive_task_check(unsigned int unused);
+void workaround_alive_task_check(void);
 
 
 DLLExport void NetworkInit(Network*);
 DLLExport int NetworkConnect(Network*, char*, int);
 DLLExport void NetworkDisconnect(Network*);
-DLLExport void NetworkHeartBeatCreate(void);
-DLLExport void NetworkHeartBeatDestroy(void);
+DLLExport void workaround_alive_task_check_create(void);
+DLLExport void workaround_alive_task_check_destroy(void);
 
 #endif

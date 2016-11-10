@@ -204,7 +204,7 @@ static SCI_TIMER_PTR g_heartbeat_timer = SCI_NULL;
 extern uint32_t mqtt_publish_timestamp_op(int op);
 extern uint32_t comm_read_timestamp_op(int op);
 static volatile int check_flag = 0;
-void workaround_alive_task_check(unsigned int unused){
+void workaround_alive_task_check(void){
 	//int ret = mqtt_keepalive();
 	
 	uint32_t timestamp1 = mqtt_publish_timestamp_op(1);
@@ -222,20 +222,33 @@ void workaround_alive_task_check(unsigned int unused){
 		SCI_Sleep(1000);
 		(*(void (*)( ))0)();
 	}
-/*
-	if(g_heartbeat_timer != NULL && SCI_TRUE != SCI_IsTimerActive(g_heartbeat_timer))
-			SCI_ActiveTimer(g_heartbeat_timer);
-*/
 }
 
-void NetworkHeartBeatCreate(void){
+void workaround_alive_task_check_create(void){
 	mqtt_publish_timestamp_op(0);
 	comm_read_timestamp_op(0);
 	check_flag = 1;
-#if 0	
+}
+
+void workaround_alive_task_check_destroy(void){
+	check_flag = 0;
+}
+
+
+//WORKAROUND
+void schduler_alive_check(unsigned int unused){
+	unsigned long cur = vmtime_getTickCount();
+	if(cur > Schd_GetLastRunTick() + 3*60*1000){
+		//DVMTraceJava(">>>>>> 180 Second not schduled! restart device!!!");
+		//DVMTraceJava(">>>>>> 180 Second not schduled! restart device!!!");
+		(*(void (*)( ))0)();
+	}
+}
+
+void schd_check_timer_create(void){
 	if(g_heartbeat_timer == SCI_NULL){
 		g_heartbeat_timer = SCI_CreatePeriodTimer("DTHING_MQTT_KEEPALIVE_TIMER",    // Name string of the timer
-								workaround_alive_task_check,	//callback
+								schduler_alive_check,	//callback
 								0,		//params of callback
 								5000,	//period time 
 								SCI_AUTO_ACTIVATE);	//auto start
@@ -243,15 +256,11 @@ void NetworkHeartBeatCreate(void){
 		if(SCI_TRUE != SCI_IsTimerActive(g_heartbeat_timer))
 			SCI_ActiveTimer(g_heartbeat_timer);
 	}
-#endif	
 }
 
-void NetworkHeartBeatDestroy(void){
-		check_flag = 0;
-#if 0
+void schd_check_timer_destroy(void){
 	if(g_heartbeat_timer != SCI_NULL){
 		SCI_DeleteTimer(g_heartbeat_timer);
 	}
 	g_heartbeat_timer = SCI_NULL;
-#endif
 }
