@@ -21,7 +21,7 @@ typedef struct {
     int methodCount;
 } KniClassNativeMethodInfo;
 
-#define NATIVE_CLASSES_COUNT 42
+#define NATIVE_CLASSES_COUNT 43
 
 /* com.yarlungsoft.ams.Main native APIs */
 KniNativeMethodInfo gJava_com_yarlungsoft_ams_Main[2] = {
@@ -44,6 +44,12 @@ KniNativeMethodInfo gJava_com_yarlungsoft_iot_mqttv3_simple_SimpleMqttOps[7] = {
     {"disconnect0",   "()I",                                         (KniFunc)Java_com_yarlungsoft_iot_mqttv3_simple_SimpleMqttOps_disconnect0},
     {"close0",        "()V",                                         (KniFunc)Java_com_yarlungsoft_iot_mqttv3_simple_SimpleMqttOps_close0},
     {"recv_message0", "(Ljava/lang/String;Ljava/lang/String;)I",     (KniFunc)Java_com_yarlungsoft_iot_mqttv3_simple_SimpleMqttOps_recv_message0},
+};
+
+/* com.yarlungsoft.util.Device native APIs */
+KniNativeMethodInfo gJava_com_yarlungsoft_util_Device[2] = {
+    {"getImei0",       "()Ljava/lang/String;", (KniFunc)Java_com_yarlungsoft_util_Device_getImei0},
+    {"restartDevice0", "()V",                  (KniFunc)Java_com_yarlungsoft_util_Device_restartDevice0},
 };
 
 /* com.yarlungsoft.util.SystemInputStream native APIs */
@@ -380,6 +386,7 @@ KniClassNativeMethodInfo gNativeMthTab[NATIVE_CLASSES_COUNT] = {
     {"Lcom/yarlungsoft/ams/Main;",                        gJava_com_yarlungsoft_ams_Main,                        2},
     {"Lcom/yarlungsoft/ams/Scheduler;",                   gJava_com_yarlungsoft_ams_Scheduler,                   2},
     {"Lcom/yarlungsoft/iot/mqttv3/simple/SimpleMqttOps;", gJava_com_yarlungsoft_iot_mqttv3_simple_SimpleMqttOps, 7},
+	{"Lcom/yarlungsoft/util/Device;",                     gJava_com_yarlungsoft_util_Device,                     2},
     {"Lcom/yarlungsoft/util/SystemInputStream;",          gJava_com_yarlungsoft_util_SystemInputStream,          1},
     {"Lcom/yarlungsoft/util/SystemPrintStream;",          gJava_com_yarlungsoft_util_SystemPrintStream,          2},
     {"Liot/oem/NativeAPI/NativeAPIManager;",              gJava_iot_oem_NativeAPI_NativeAPIManager,              3},

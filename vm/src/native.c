@@ -9,6 +9,7 @@
 #include <nativeCommConnectionImpl.h>
 #include <nativeDouble.h>
 #include <nativeDThread.h>
+#include <nativeDevice.h>
 #include <nativeEarManager.h>
 #include <nativeFile.h>
 #include <nativeFileInputStream.h>

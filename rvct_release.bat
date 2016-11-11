@@ -33,7 +33,7 @@ if "0"=="%RELEASE%" (
   GOTO SELECT_RELEASE_VERSION
 )
 
-set IDHDIR=F:\Workplace\IDH\KX8800B_CODE_UPDATE_1112\MS_Code
+set IDHDIR=F:\workplace\IDH\KX8800B_CODE_UPDATE_1112\MS_Code
 if ""=="%IDHDIR%" (
   echo Please set IDHDIR in rvct_release.bat before release..
   echo e.g. set IDHDIR=F:\Workplace\IDH\KX8800B_CODE_UPDATE_1112\MS_Code
@@ -115,6 +115,7 @@ copy %CURDIR%\vm\impl\nativeUSBConnection.c  %DESDIR%\BASE\dthing\vm\impl\
 copy %CURDIR%\vm\impl\nativeCommConnectionImpl.c  %DESDIR%\BASE\dthing\vm\impl\
 copy %CURDIR%\vm\impl\nativeRawKeyPdDriver.c  %DESDIR%\BASE\dthing\vm\impl\
 copy %CURDIR%\vm\impl\nativeNativeAPIManager.c  %DESDIR%\BASE\dthing\vm\impl\
+copy %CURDIR%\vm\impl\nativeDevice.c  %DESDIR%\BASE\dthing\vm\impl\
 
 xcopy /S /R /F /Y %CURDIR%\gen\rvct\libs\DthingVM.a %DESDIR%\Third-party\dthing\
 xcopy /S /R /F /Y %CURDIR%\gen\rvct\libs\DthingVM.a %IDHDIR%\Third-party\dthing\

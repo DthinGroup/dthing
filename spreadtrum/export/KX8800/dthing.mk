@@ -60,5 +60,5 @@ SOURCES	+= nativeADCManager.c nativeATCommandConnection.c \
            nativeBatteryManager.c nativeEarManager.c nativeGpio.c nativeI2CManager.c nativeLCD.c nativeMicophone.c \
            nativeMyMessageSender.c nativeMySmsConnectionThread.c nativePCMChannel.c nativePWMManager.c nativeSimManager.c \
            nativeSpeakerManager.c nativeSPIManager.c nativeUSBConnection.c nativeCommConnectionImpl.c nativeRawKeyPdDriver.c \
-           nativeNativeAPIManager.c
+           nativeNativeAPIManager.c nativeDevice.c
 #============================================
