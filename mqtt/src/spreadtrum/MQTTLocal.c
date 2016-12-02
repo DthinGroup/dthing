@@ -131,7 +131,7 @@ int network_write(Network* n, unsigned char* buffer, int len, int timeout_ms)
 	tv.tv_sec = 0;  /* 30 Secs Timeout */
 	tv.tv_msec = timeout_ms * 1000;  // Not init'ing this can cause strange errors
 	
-	sci_sock_setsockopt(n->my_socket, SO_RCVTIMEO, (void*)&tv);	
+	//sci_sock_setsockopt(n->my_socket, SO_RCVTIMEO, (void*)&tv);	
 	rc = sci_sock_send(n->my_socket, buffer, len, 0);
 	if(rc < 0){  //Trace info		
 		err = sci_sock_errno(n->my_socket);
@@ -182,6 +182,7 @@ int NetworkConnect(Network* n, char* addr, int port)
 		MQTT_Trace("=== NetworkConnect socket = %d ===\n", n->my_socket);		
 		if (n->my_socket != -1)
 		{
+			//sci_sock_setsockopt(n->my_socket, SO_NBIO, NULL);
 			rc = sci_sock_connect(n->my_socket, (struct sci_sockaddr*)&dst_addr, sizeof(dst_addr));			
 			MQTT_Trace("=== NetworkConnect sci_sock_connect = %d ===\n", rc);
 		}
@@ -217,7 +218,7 @@ void workaround_alive_task_check(void){
 		return;
 
 	//3 minutes restart
-	if((cur > timestamp1 + 150*1000) || (cur > timestamp2 + 150*1000)){
+	if((cur > timestamp1 + 120*1000) || (cur > timestamp2 + 60*1000)){
 		MQTT_Trace("=== ready to re-start device!!!");
 		SCI_Sleep(1000);
 		(*(void (*)( ))0)();
@@ -238,7 +239,7 @@ void workaround_alive_task_check_destroy(void){
 //WORKAROUND
 void schduler_alive_check(unsigned int unused){
 	unsigned long cur = vmtime_getTickCount();
-	if(cur > Schd_GetLastRunTick() + 3*60*1000){
+	if(cur > Schd_GetLastRunTick() + 90*1000){
 		//DVMTraceJava(">>>>>> 180 Second not schduled! restart device!!!");
 		//DVMTraceJava(">>>>>> 180 Second not schduled! restart device!!!");
 		(*(void (*)( ))0)();
