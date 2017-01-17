@@ -89,4 +89,18 @@ DLLExport void NetworkDisconnect(Network*);
 DLLExport void workaround_alive_task_check_create(void);
 DLLExport void workaround_alive_task_check_destroy(void);
 
+
+typedef enum{
+	LINK_TO_MCU = 0x00,
+	LINK_TO_WIFI = 0x01,
+	LINK_TO_ALL = 0x02,
+	UNLINK_TO_ALL = 0x03,	
+}COMM_LINK_MODE_E;
+
+///GPIO 
+void GpioCrtlInit(void);
+
+void GpioSwitchMode(COMM_LINK_MODE_E mode);
+
+
 #endif

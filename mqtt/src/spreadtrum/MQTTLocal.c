@@ -19,6 +19,8 @@
 #include <vm_common.h>
 #include <os_api.h>
 #include <Socket_types.h>
+#include <Gpio_drvapi.h>
+
 
 //The defines are from socket_types.h in spd
 #define ECONNRESET      8
@@ -140,6 +142,51 @@ int network_write(Network* n, unsigned char* buffer, int len, int timeout_ms)
 	return rc;
 }
 
+/****************************************************************
+ * DTU V2.0 USART0_DSR, USART0_RI引脚分别用于串口切换的使能控制
+ * 详细见: 根目录下 A8500pin脚图
+ ****************************************************************/
+ #define GPIO_USART0_RI_27		13
+ #define GPIO_USART0_DSR_26		68
+void GpioCrtlInit(void){
+
+    int ret =0;
+
+    GPIO_Enable(GPIO_USART0_RI_27);     //使能端口8
+    GPIO_SetDirection(GPIO_USART0_RI_27, SCI_TRUE); //设置端口8为输出模式
+
+	GPIO_Enable(GPIO_USART0_DSR_26);	 //使能端口8
+	GPIO_SetDirection(GPIO_USART0_DSR_26, SCI_TRUE); //设置端口8为输出模式
+
+	GPIO_SetValue (GPIO_USART0_RI_27, SCI_FALSE);
+	GPIO_SetValue (GPIO_USART0_DSR_26, SCI_FALSE);	
+}
+
+void GpioSwitchMode(COMM_LINK_MODE_E mode){
+	switch(mode){
+		case LINK_TO_MCU:
+			GPIO_SetValue (GPIO_USART0_RI_27, SCI_TRUE);
+			GPIO_SetValue (GPIO_USART0_DSR_26, SCI_FALSE);	
+			break;
+			
+		case LINK_TO_WIFI:
+			GPIO_SetValue (GPIO_USART0_RI_27, SCI_FALSE);
+			GPIO_SetValue (GPIO_USART0_DSR_26, SCI_TRUE);	
+			break;
+
+		case LINK_TO_ALL:
+			GPIO_SetValue (GPIO_USART0_RI_27, SCI_FALSE);
+			GPIO_SetValue (GPIO_USART0_DSR_26, SCI_FALSE);				
+			break;
+
+		case UNLINK_TO_ALL:
+			GPIO_SetValue (GPIO_USART0_RI_27, SCI_TRUE);
+			GPIO_SetValue (GPIO_USART0_DSR_26, SCI_TRUE);				
+			break;
+				
+		default:break;
+	}
+}
 
 void NetworkInit(Network* n)
 {

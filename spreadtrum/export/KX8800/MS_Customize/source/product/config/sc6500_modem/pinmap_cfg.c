@@ -259,6 +259,8 @@ const PM_GPIO_CTL_T  pm_gpio_default_map[]=
 //   {47,        0,              PM_OUTPUT,          PM_NO_INT       },  // GPIO_PROD_BT_RESET_ID
 //   {49,        0,              PM_INPUT,           PM_LEVEL        },  // GPIO_PROD_SIM_PLUG_IN_ID 
     {8,        0,              PM_INPUT,          PM_LEVEL       },
+	{13,        0,              PM_OUTPUT,          PM_NO_INT       },
+	{68,        0,              PM_OUTPUT,          PM_NO_INT       },
     {53,        0,              PM_INPUT,          PM_NO_INT       },
     {0xffff,    0,              PM_INVALID_DIR,     PM_INVALID_INT  }
 };

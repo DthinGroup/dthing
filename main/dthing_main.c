@@ -5,6 +5,7 @@
 #include <opl_net.h>
 #include <ams_sms.h>
 #include <ams.h>
+#include <MQTTLocal.h>
 
 #if defined(ARCH_ARM_SPD)
 #include <priority_app.h>
@@ -86,6 +87,8 @@ static void Dthing_IThreadProc(int argc, void * argv)
     char * arga[2] = {"-cp","D:\\helloword.dex"};
 
     file_startup();
+	GpioCrtlInit();
+	//GpioSwitchMode(LINK_TO_ALL);	
 	smsc_registerEvent();
 	Ams_regModuleCallBackHandler(ATYPE_SAMS,smsc_callBack);
     Opl_net_activate();
