@@ -40,7 +40,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\base\inc;..\..\porting\inc;..\..\vm;..\..\vm\inc;..\..\vm\impl;..\..\rams\inc;"
+				AdditionalIncludeDirectories="..\..\base\inc;..\..\porting\inc;..\..\vm;..\..\vm\inc;..\..\vm\impl;..\..\rams\inc;..\..\mqtt\inc"
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -612,6 +612,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\vm\impl\nativeMySmsCommon.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\vm\impl\nativeMySmsConnectionThread.c"
 				>
 			</File>
@@ -697,6 +701,14 @@
 			</File>
 			<File
 				RelativePath="..\..\vm\impl\nativeSimManager.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\vm\impl\nativeSimpleMqttOps.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\vm\impl\nativeSimpleMqttOps.h"
 				>
 			</File>
 			<File
@@ -786,6 +798,10 @@
 		</File>
 		<File
 			RelativePath="..\..\vm\dthing.h"
+			>
+		</File>
+		<File
+			RelativePath="..\..\vm\global_def.h"
 			>
 		</File>
 		<File

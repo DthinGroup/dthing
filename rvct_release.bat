@@ -33,9 +33,10 @@ if "0"=="%RELEASE%" (
   GOTO SELECT_RELEASE_VERSION
 )
 
+set IDHDIR=F:\workplace\IDH\KX8800B_CODE_UPDATE_1112\MS_Code
 if ""=="%IDHDIR%" (
   echo Please set IDHDIR in rvct_release.bat before release..
-  echo e.g. set IDHDIR=D:\WORK\Spreadtrum\KX8800B_CODE_UPDATE_1112\MS_Code
+  echo e.g. set IDHDIR=F:\Workplace\IDH\KX8800B_CODE_UPDATE_1112\MS_Code
   GOTO END
 )
 
@@ -66,6 +67,11 @@ md %DESDIR%\BASE\dthing\zlib
 md %DESDIR%\BASE\dthing\vm\src
 md %DESDIR%\BASE\dthing\vm\impl
 md %DESDIR%\BASE\dthing\porting\src
+md %DESDIR%\BASE\dthing\mqtt
+md %DESDIR%\BASE\dthing\mqtt\inc
+md %DESDIR%\BASE\dthing\mqtt\src
+md %DESDIR%\BASE\dthing\mqtt\src\spreadtrum
+
 md %DESDIR%\Third-party\dthing
 
 
@@ -77,6 +83,9 @@ copy %CURDIR%\vm\inc\*.h  %DESDIR%\BASE\dthing\vm\inc\
 copy %CURDIR%\vm\common.h  %DESDIR%\BASE\dthing\vm\
 copy %CURDIR%\vm\dthing.h  %DESDIR%\BASE\dthing\vm\
 copy %CURDIR%\zlib\*.h  %DESDIR%\BASE\dthing\zlib\
+
+copy %CURDIR%\mqtt\inc\*.h  %DESDIR%\BASE\dthing\mqtt\inc\
+copy %CURDIR%\mqtt\src\spreadtrum\*.c  %DESDIR%\BASE\dthing\mqtt\src\spreadtrum\
 
 copy %CURDIR%\main\dthing_main.c  %DESDIR%\BASE\dthing\main\
 copy %CURDIR%\vm\src\vmTime.c  %DESDIR%\BASE\dthing\vm\src\
@@ -106,6 +115,7 @@ copy %CURDIR%\vm\impl\nativeUSBConnection.c  %DESDIR%\BASE\dthing\vm\impl\
 copy %CURDIR%\vm\impl\nativeCommConnectionImpl.c  %DESDIR%\BASE\dthing\vm\impl\
 copy %CURDIR%\vm\impl\nativeRawKeyPdDriver.c  %DESDIR%\BASE\dthing\vm\impl\
 copy %CURDIR%\vm\impl\nativeNativeAPIManager.c  %DESDIR%\BASE\dthing\vm\impl\
+copy %CURDIR%\vm\impl\nativeDevice.c  %DESDIR%\BASE\dthing\vm\impl\
 
 xcopy /S /R /F /Y %CURDIR%\gen\rvct\libs\DthingVM.a %DESDIR%\Third-party\dthing\
 xcopy /S /R /F /Y %CURDIR%\gen\rvct\libs\DthingVM.a %IDHDIR%\Third-party\dthing\

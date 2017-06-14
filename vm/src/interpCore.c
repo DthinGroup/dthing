@@ -6357,7 +6357,12 @@ GOTO_TARGET(exceptionThrown)
          * confused with this one.
          */
 
+//MUST FIX HERE why not find exception
+#if 0
 		assert(dvmCheckException(self));
+#else
+		self->exception = gDvm.internalErrorObj;
+#endif
         exception = dvmGetException(self);
         dvmAddTrackedAlloc(exception, self);
         dvmClearException(self);

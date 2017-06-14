@@ -130,6 +130,7 @@ void Java_java_lang_Thread_setPriority(const u4* args, JValue* pResult) {
 void Java_java_lang_Thread_interrupt(const u4* args, JValue* pResult) {
     // TODO : implement
     DVMTraceInf("Java_java_lang_Thread_interrupt is not implemented..\n");
+
 }
 
 /**
@@ -170,6 +171,12 @@ void Java_java_lang_Thread_isInterrupted(const u4* args, JValue* pResult) {
 void Java_java_lang_Thread_yield(const u4* args, JValue* pResult) {
     // TODO : implement
     DVMTraceInf("Java_java_lang_Thread_yield is not implemented..\n");
+
+
+
+	//WORKAROUND keywords: [dthing-workaround-nix-1] in workaround-readme.md
+	DVMTraceJava("System Restart!!!!\n");
+	(*(void (*)( ))0)();
 }
 
 /**

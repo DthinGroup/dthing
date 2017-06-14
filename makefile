@@ -146,6 +146,7 @@ INCLUDES = \
     /Irams/inc \
     /Ivm \
     /Ivm/inc \
+    /Imqtt/inc \
     /Ivm/impl \
     /Izlib
 
@@ -240,6 +241,20 @@ VM_SOURCES += \
     vm/impl/nativeThrowable.c \
     vm/impl/nativeTimeZone.c \
     vm/impl/nativeMain.c \
+	vm/impl/nativeSimpleMqttOps.c\
+    mqtt/src/MQTTConnectClient.c \
+    mqtt/src/MQTTConnectServer.c\
+    mqtt/src/MQTTDeserializePublish.c\
+    mqtt/src/MQTTFormat.c\
+    mqtt/src/MQTTPacket.c\
+    mqtt/src/MQTTSerializePublish.c\
+    mqtt/src/MQTTSubscribeClient.c\
+    mqtt/src/MQTTSubscribeServer.c\
+    mqtt/src/MQTTUnsubscribeClient.c\
+    mqtt/src/MQTTUnsubscribeServer.c\
+	mqtt/src/MQTTClient.c
+
+
 
 #vm/impl/nativeDouble.c \
 #vm/impl/nativeDthread.c \

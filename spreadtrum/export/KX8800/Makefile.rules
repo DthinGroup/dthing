@@ -2,7 +2,7 @@
 # Compiler Cmd Definition
 #
 ifeq ($(strip $(COMPILER)), RVCT)
-	SIMPLE_PATH_NAME=Progra~1
+	SIMPLE_PATH_NAME=Program Files
 	FULL_PATH_NAME  =Program Files
 	ARM_HOME        =$(subst \,/,$(subst $(FULL_PATH_NAME),$(SIMPLE_PATH_NAME),$(RVCT31BIN)))
 	ARMCC           ="$(ARM_HOME)/armcc"

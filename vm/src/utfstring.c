@@ -321,3 +321,24 @@ int dvmGetStringLength(const StringObject* jstr) {
 	}
 	return dvmGetFieldInt((Object*) jstr, STRING_FIELDOFF_COUNT);
 }
+
+/*
+ * MUST free the return ptr after using!!!
+ */
+const u1 * dvmGetStringDataInUtf8(const StringObject* jstr){
+	u2 * data;
+	u1 * rdata = NULL;
+	int length = 0;
+	if(jstr == NULL || (data = dvmGetStringData(jstr)) == NULL)
+		return NULL;
+	length = dvmGetStringLength(jstr);
+	length = utf16_utf8ByteLen(data, length);
+
+	rdata = CRTL_malloc(length + 2)	;
+	if(rdata == NULL)
+		return NULL;
+
+	CRTL_memset(rdata, 0, length +2);
+	convertUtf16ToUtf8(rdata, data, length);
+	return rdata;
+}

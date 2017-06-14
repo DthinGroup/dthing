@@ -478,7 +478,7 @@ BOOLEAN  smsc_HandleReceivedSms(char* buff,int len)
         int buff_len = len - strlen("SMSAMSINIT");
         char* data = NULL;      
         sms_cmd_value = EVT_CMD_INIT;
-        SMSCLOG("==SMST== smsc_HandleReceivedSms  sms_cmd = CMD_INIT %s url_len=%d",sms_cmd,url_len);
+        SMSCLOG("==SMST== smsc_HandleReceivedSms  sms_cmd = CMD_INIT %s url_len=%d",sms_cmd,buff_len);
         if(buff_len > 0)
         {
             data = SCI_ALLOC(buff_len +1);

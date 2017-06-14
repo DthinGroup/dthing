@@ -6,7 +6,7 @@
 
 
 //default schduler time,unit in ms
-#define SCHEDULER_TIMER     (10000)
+#define SCHEDULER_TIMER     (500)
 
 #define CAN_SCHEDULE()      (schedulerFlag==1)
 #define SET_SCHEDULE()      do{schedulerFlag =1;}while(0)
@@ -58,5 +58,7 @@ Thread * Schd_FindThreadByJavaObj(Object * javaObj);
 void Schd_SCHEDULER(void);
 
 int IsDvmRunning();
+
+u8 Schd_GetLastRunTick(void);
 
 #endif

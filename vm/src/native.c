@@ -9,6 +9,7 @@
 #include <nativeCommConnectionImpl.h>
 #include <nativeDouble.h>
 #include <nativeDThread.h>
+#include <nativeDevice.h>
 #include <nativeEarManager.h>
 #include <nativeFile.h>
 #include <nativeFileInputStream.h>
@@ -36,6 +37,7 @@
 #include <nativeSPIManager.h>
 #include <nativeString.h>
 #include <nativeSystem.h>
+#include <nativeSimpleMqttOps.h>
 #include <nativeSystemInputStream.h>
 #include <nativeSystemPrintStream.h>
 #include <nativeThread.h>
