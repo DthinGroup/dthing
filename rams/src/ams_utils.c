@@ -605,6 +605,10 @@ bool_t initAndCheckCfgDatas(char *pAppPropName){
 	return ret;	 
 }
 
+static bool_t 		gRemoteServerLoaded = FALSE;
+static uint32_t  	gRemoteServerIp  	= 0x00;
+static uint16_t  	gRemoteServerPort  	= 0x00;
+
 bool_t amsUtils_loadRemoteServerAndPort(uint32_t * ip, uint16_t * port){
 	bool_t ret;
 	RMTConfig *cfgData = NULL;	
@@ -613,6 +617,16 @@ bool_t amsUtils_loadRemoteServerAndPort(uint32_t * ip, uint16_t * port){
 
 	assert(ip != NULL);
 	assert(port != NULL);	
+
+
+	if(gRemoteServerLoaded && (gRemoteServerIp !=0) && (gRemoteServerPort != 0x00)){
+		*ip = gRemoteServerIp;
+		*port = gRemoteServerPort;
+
+		return TRUE;
+	}
+
+	
 	ret = amsUtils_readConfigData(&cfgData);
 
 	if(ret != TRUE){
@@ -646,6 +660,12 @@ bool_t amsUtils_loadRemoteServerAndPort(uint32_t * ip, uint16_t * port){
 		return FALSE;
 	}
 	*port = (uint16_t) ip1;
+
+	{
+		gRemoteServerLoaded = TRUE;
+		gRemoteServerIp		= *ip;
+		gRemoteServerPort	= *port;
+	}
 
 	return TRUE;
 }

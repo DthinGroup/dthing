@@ -32,7 +32,7 @@ extern "C" {
  * 4 - debug
  */
 #ifndef TRACE_LEV 
-#define TRACE_LEV 5
+#define TRACE_LEV 2
 #endif
 #define LEVEL_0 0
 #define LEVEL_1 1
