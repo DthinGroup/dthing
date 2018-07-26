@@ -5,6 +5,7 @@
 #include "ams.h"
 #include "vm_app.h"
 #include "string.h"
+#include "assert.h"
 #include <stdlib.h>
 
 #define MAX_PATH_LENGTH   255
@@ -237,6 +238,14 @@ bool_t amsUtils_readConfigData(RMTConfig **pp_cfg)
       config->user = amsUtils_strdup(user);
       config->pwd = amsUtils_strdup(pwd);
 	  config->appName = amsUtils_strdup(appName);
+
+	  DVMTraceInf(">>>>> Server - %s:%s ",       config->addr, config->port);
+	//  	  DVMTraceInf(">>>>> Server port:%s ",       config->port);
+	  //DVMTraceInf(">>>>> Server data:%s ",       config->initData);
+	  //DVMTraceInf(">>>>> Server user:%s ",       config->user);
+	  //DVMTraceInf(">>>>> Server pwd :%s ",       config->pwd);
+	  //DVMTraceInf(">>>>> Server app :%s ",       config->appName);
+	  
       ret = TRUE;
     }
     free(content);
@@ -595,4 +604,50 @@ bool_t initAndCheckCfgDatas(char *pAppPropName){
        
 	return ret;	 
 }
+
+bool_t amsUtils_loadRemoteServerAndPort(uint32_t * ip, uint16_t * port){
+	bool_t ret;
+	RMTConfig *cfgData = NULL;	
+	int res,ip1,ip2,ip3,ip4;
+	
+
+	assert(ip != NULL);
+	assert(port != NULL);	
+	ret = amsUtils_readConfigData(&cfgData);
+
+	if(ret != TRUE){
+		DVMTraceWar(">>>>>loadRemoteServerAndPort: read data fail...");
+		return FALSE;
+	}
+
+	res = sscanf(cfgData->addr, "%d.%d.%d.%d", &ip1,&ip2,&ip3,&ip4);
+
+	if(res != 4){
+		DVMTraceWar(">>>>>loadRemoteServerAndPort: invalid ip format...");		
+		return FALSE;
+	}
+
+	if((ip1 < 0 || ip1 > 255) || 
+	   (ip2 < 0 || ip2 > 255) || 
+	   (ip3 < 0 || ip3 > 255) || 
+	   (ip4 < 0 || ip4 > 255) 
+	){
+		DVMTraceWar(">>>>>loadRemoteServerAndPort: invalid ip value...");			
+		return FALSE;
+	}
+
+	*ip = (uint32_t) ( (ip1 << 24) | (ip2 <<16) | (ip3 << 8) | ip4 );
+
+	
+	res = sscanf(cfgData->port, "%d", &ip1);
+
+	if(res != 1 || ip1 < 0 || ip1 > 65535){
+		DVMTraceWar(">>>>>loadRemoteServerAndPort: invalid port format...");				
+		return FALSE;
+	}
+	*port = (uint16_t) ip1;
+
+	return TRUE;
+}
+
   

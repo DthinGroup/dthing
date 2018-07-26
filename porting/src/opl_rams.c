@@ -124,8 +124,19 @@ int32_t rams_connectServer(int32_t address, uint16_t port, int32_t *instance)
 #elif defined(ARCH_ARM_SPD)
 
     struct sci_sockaddr ssa;
+	bool_t ret;
+	uint32_t read_ip;
+	uint16_t read_port;
 
-    DVMTraceDbg("rams_connectServer to 0x%x:%d\n",address,port);
+	ret = amsUtils_loadRemoteServerAndPort(&read_ip, &read_port);
+
+	if(ret == TRUE){
+		address = read_ip;
+		port    = read_port;
+	}
+	
+
+    DVMTraceDbg("rams_connectServer to %d.%d.%d.%d:%d\n",(address>>24)&0xff, (address>>16)&0xff,(address>>8)&0xff, address&0xff, port);
 
     if (ES_firstScheduled())
     {
