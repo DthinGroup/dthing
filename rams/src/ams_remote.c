@@ -236,8 +236,20 @@ static int32_t parseServerCommands(uint8_t* data, int32_t dataBytes)
         }
         break;
 
+	case EVT_CMD_AUTH:
+        if (len != 16)
+        {
+            DVMTraceErr("parseServerCommands: Error, CMD AUTH wrong length.\n");
+            res = EVT_RES_FAILURE;
+            break;
+        }
+        Ams_auth(ATYPE_RAMS);
+        break;
+
+
     case EVT_CMD_NONE:
     default:
+            DVMTraceErr("parseServerCommands: unhandled cmd:%d \n", cmd);		
         break;
     }
 
@@ -677,6 +689,37 @@ void ams_remote_callbackHandler(AmsCBData * cbdata)
         newNormalEvent(EVT_CMD_DECLARE, DECLARE_FSM_WRITE, (void *)safeBuf, ams_remote_buildConnection, &newEvt);
         ES_pushEvent(&newEvt);
         break;
+
+	case RCMD_AUTH:
+	{
+		char * user = amsUtils_getRemoteUsername();
+		char * pwd  = amsUtils_getRemotePassword();		
+
+		uint8_t user_len = CRTL_strlen(user);
+		uint8_t pwd_len  = CRTL_strlen(pwd);
+		uint8_t * pbuf = CRTL_malloc(16 + user_len + pwd_len);
+		if(pbuf == NULL){
+			break;
+		}
+
+		CRTL_memset(pbuf, 0, 16 + user_len + pwd_len);
+
+		
+        writebeIU32(&pbuf[0], 16 + user_len + pwd_len);
+        writebeIU32(&pbuf[4], ACK_CMD_AUTH);
+        writebeIU32(&pbuf[8], user_len);
+        writebeIU32(&pbuf[12], pwd_len);
+
+		CRTL_memcpy(&pbuf[16], user, user_len);
+		CRTL_memcpy(&pbuf[16 + user_len], pwd, pwd_len);		
+
+		safeBuf = CreateSafeBufferByBin(pbuf, 16 + user_len + pwd_len);
+		CRTL_free(pbuf);		
+        newNormalEvent(EVT_CMD_DECLARE, DECLARE_FSM_WRITE, (void *)safeBuf, ams_remote_buildConnection, &newEvt);
+        ES_pushEvent(&newEvt);
+	}
+	break;
+		
     }
 }
 

@@ -66,11 +66,11 @@ typedef struct RMTConfig
 #define DEFAULT_RMT_CONFIG_FILE  L"D:/RemoteConfig.cfg"
 #define DEFAULT_RMT_CONFIG_FILE_PATH_LEN 19
 #define DEFAULT_SERVER "42.121.18.62"
-#define DEFAULT_PORT "8888"
+#define DEFAULT_PORT "10000"
 //#define DEFAULT_SERVER "218.206.176.236"
 //#define DEFAULT_PORT "7777"
-#define DEFAULT_USER_NAME "test_username"
-#define DEFAULT_PASSWORD "test_password"
+#define DEFAULT_USER_NAME "admin"
+#define DEFAULT_PASSWORD "password"
 
 static char* ramsClient_strdup(const char *src);
 static char* ramsClient_strappend(char **str, char *append);
@@ -273,6 +273,7 @@ static bool_t setPropsValue(uint8_t* key, AppletProps* appProp)
     return TRUE;
 }
 
+/*
 static AppletProps* getAppletPropById(int32_t id)
 {
     int32_t i;
@@ -286,6 +287,7 @@ static AppletProps* getAppletPropById(int32_t id)
     }
     return NULL;
 }
+*/
 
 /**
  * parse applet properties and save result into appProp.

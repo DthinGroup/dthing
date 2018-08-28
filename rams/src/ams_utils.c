@@ -13,11 +13,11 @@
 #define DEFAULT_RMT_CONFIG_FILE  L"D:/RemoteConfig.cfg"
 #define DEFAULT_RMT_CONFIG_FILE_PATH_LEN 19
 #define DEFAULT_SERVER "42.121.18.62"
-#define DEFAULT_PORT "7899"
+#define DEFAULT_PORT "10000"
 //#define DEFAULT_SERVER "218.206.176.236"
 //#define DEFAULT_PORT "7777"
-#define DEFAULT_USER_NAME "test_username"
-#define DEFAULT_PASSWORD "test_password"
+#define DEFAULT_USER_NAME "admin"
+#define DEFAULT_PASSWORD "password"
 #define DEFAULT_APPNAME "test_app "
 #define RCMD_CANCELALL_CFG "rcmd_cancelall_cfg" 
 
@@ -608,6 +608,24 @@ bool_t initAndCheckCfgDatas(char *pAppPropName){
 static bool_t 		gRemoteServerLoaded = FALSE;
 static uint32_t  	gRemoteServerIp  	= 0x00;
 static uint16_t  	gRemoteServerPort  	= 0x00;
+static uint8_t		gRemoteUsername[32];
+static uint8_t		gRemotePassword[32];
+
+char * amsUtils_getRemoteUsername(void){
+	if(gRemoteServerLoaded){
+		return &gRemoteUsername[0];
+	} else {
+		return NULL;
+	}
+}
+
+char * amsUtils_getRemotePassword(void){
+	if(gRemoteServerLoaded){
+		return &gRemotePassword[0];
+	} else {
+		return NULL;
+	}
+}
 
 bool_t amsUtils_loadRemoteServerAndPort(uint32_t * ip, uint16_t * port){
 	bool_t ret;
@@ -661,11 +679,23 @@ bool_t amsUtils_loadRemoteServerAndPort(uint32_t * ip, uint16_t * port){
 	}
 	*port = (uint16_t) ip1;
 
+
+
+	CRTL_memset(&gRemoteUsername[0],0,32);
+	CRTL_memset(&gRemotePassword[0],0,32);
+
+	sscanf(cfgData->user, "%s", &gRemoteUsername[0]);
+	sscanf(cfgData->pwd , "%s", &gRemotePassword[0]);	
+
 	{
 		gRemoteServerLoaded = TRUE;
 		gRemoteServerIp		= *ip;
-		gRemoteServerPort	= *port;
+		gRemoteServerPort	= *port; 
 	}
+
+	DVMTraceWar(">>>>>loadRemoteServer: ip:%d, port:%d, user:%s, pwd:%s ...", gRemoteServerIp, gRemoteServerPort, &gRemoteUsername[0], &gRemotePassword[0]);				
+
+	
 
 	return TRUE;
 }

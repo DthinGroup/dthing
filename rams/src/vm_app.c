@@ -615,7 +615,7 @@ bool_t vm_destroyApp(int id)
 
     if ((pap = getAppletPropById(id)) == NULL || !pap->isRunning)
     {
-        DVMTraceErr("destroyApplet, wrong app id(%d) or this app is not running\n",id);
+        DVMTraceErr("destroyApplet, wrong app id(%d) or this app is not running(%x)\n",id, pap);
         return FALSE;
     }
     pap->isRunning = FALSE;

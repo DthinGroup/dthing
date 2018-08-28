@@ -133,6 +133,26 @@ void Ams_listApp(AMS_TYPE_E type)
     Ams_setCurCrtlModule(type);
 }
 
+void Ams_auth(AMS_TYPE_E type)
+{
+    Event newEvt;
+    switch(type)
+    {
+        case ATYPE_RAMS:
+        case ATYPE_SAMS:
+        case ATYPE_AAMS:
+            newNormalEvent(AMS_MODULE_RAMS, AMS_FASM_STATE_GET_AUTH, NULL, Ams_handleAmsEvent, &newEvt);
+            ES_pushEvent(&newEvt);
+            break;
+
+        case ATYPE_NAMS:
+            default:break;
+    }
+
+    Ams_setCurCrtlModule(type);
+}
+
+
 int Ams_runApp(int id,AMS_TYPE_E type)
 {
     uint8_t idBuf[4] = {0x0,};
@@ -784,6 +804,23 @@ int32_t Ams_handleAllAmsEvent(Event *evt, void *userData)
             }
             // ams_remote_sendTCKExeResult(res);
             break;
+
+		case AMS_FASM_STATE_GET_AUTH:
+            newNormalEvent(AMS_MODULE_RAMS, AMS_FASM_STATE_ACK_AUTH, NULL, Ams_handleAmsEvent, &newEvt);
+            ES_pushEvent(&newEvt);			
+			break;
+			
+		case AMS_FASM_STATE_ACK_AUTH:
+			if(cbFunc !=NULL)
+            {
+                amsCbData.cmd = RCMD_AUTH;
+                amsCbData.module = Ams_getCurCrtlModule();
+                amsCbData.result = 1;
+                amsCbData.exptr = NULL;
+                cbFunc(&amsCbData);
+            }
+			break;
+
     }
 
     return 0;

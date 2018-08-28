@@ -38,6 +38,9 @@ extern "C" {
 #define EVT_CMD_CFGURL (17)
 #define EVT_CMD_CFGACCOUNT (18)
 
+
+#define EVT_CMD_AUTH (21)
+
 /* internal eventy commands */
 #define EVT_CMD_DECLARE  (0|RAMS_INTERNAL_MARK)
 #define EVT_CMD_PARSER   (1|RAMS_INTERNAL_MARK)
@@ -50,6 +53,7 @@ extern "C" {
 #define ACK_RECV_WITHOUT_EXEC  0x11
 #define ACK_RECV_AND_EXEC      0x12
 #define ACK_SHUTDOWN_NETWORK   0x13
+#define ACK_CMD_AUTH           EVT_CMD_AUTH
 
 
 /**

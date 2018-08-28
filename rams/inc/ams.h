@@ -103,6 +103,7 @@ enum {
     AMS_FASM_STATE_GET_INIT,
     AMS_FASM_STATE_GET_CANCEL,
     AMS_FASM_STATE_GET_CANCELALL,
+    AMS_FASM_STATE_GET_AUTH = 0x15,
 
     AMS_FASM_STATE_ACK_MASK = 0x80,//use for mask,not real state
     AMS_FASM_STATE_ACK_LIST =0x81,
@@ -115,6 +116,7 @@ enum {
     AMS_FASM_STATE_ACK_INIT,
     AMS_FASM_STATE_ACK_CANCEL,
     AMS_FASM_STATE_ACK_CANCELALL,
+    AMS_FASM_STATE_ACK_AUTH = 0x80 | 0x15,
 };
 
 /* Remote Control Command for AMS Access */
@@ -157,7 +159,9 @@ typedef enum _RemoteCommandType
     RCMD_RESET,
     RCMD_CFGURL,
     RCMD_CFGACCOUNT,
-    RCMD_ACK
+    RCMD_ACK,
+
+	RCMD_AUTH = 21,
 } RemoteCommandType;
 
 typedef struct AmsCBData_s
